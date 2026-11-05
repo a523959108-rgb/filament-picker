@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://filament-picker.local/schemas/request.schema.json",
+  "title": "inbox/<request_id>.request.json（钉钉助手 → worker）",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "request_id", "created_at", "image_paths"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "request_id": {"type": "string", "pattern": "^[A-Za-z0-9_.=+-]{1,200}$", "description": "= 监听器清洗后的 msgId：re.sub(r'[^A-Za-z0-9_.=+-]', '_', msgId)"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "image_paths": {
+      "type": "array", "minItems": 1, "maxItems": 9,
+      "items": {"type": "string", "pattern": "^/.+\\.(png|jpg|gif|webp|bmp|heic|bin)$"},
+      "description": "监听器 payload 里的 image_paths 原样复制；v1 只处理第 1 张"
+    },
+    "note": {"type": "string", "maxLength": 500, "default": "", "description": "用户随图文字（richText 的 text 部分，或上一条文字消息）"},
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "显式约束，优先级高于 note 解析结果",
+      "properties": {
+        "max_colors": {"type": "integer", "minimum": 1, "maximum": 16},
+        "ams_slots": {"type": "integer", "minimum": 1, "maximum": 16},
+        "materials": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["PLA", "PETG"]}},
+        "brands": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"}},
+        "allow_approx": {"type": "boolean"},
+        "keep_small": {"type": "boolean"},
+        "per_color": {"type": "integer", "minimum": 1, "maximum": 3}
+      }
+    },
+    "context": {
+      "type": "object",
+      "maxProperties": 20,
+      "description": "钉钉助手自用的上下文（如 conversationId、senderStaffId），worker 原样回写到 result.context。禁止放 sessionWebhook。",
+      "not": {"anyOf": [{"required": ["sessionWebhook"]}, {"required": ["session_webhook"]}]}
+    }
+  }
+}

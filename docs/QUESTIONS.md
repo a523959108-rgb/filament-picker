@@ -11,3 +11,5 @@
 - 位置：`docs/SPEC.md` §2.1、§2.3；`docs/AGENTS.md` §1.5、§1.11、§4.5；`docs/tasks/T01-scaffold.md`「要创建/修改的文件」及「验收命令」。
 - 现象：锁定的 `ruff 0.17.3` 执行 `.venv/bin/ruff format --check .` 时检查 Markdown 内的 Python 代码块，报告 `docs/SPEC.md` 和多张任务卡共 20 个只读文件需要格式化，退出码 1；T01 的 Python 文件已通过格式检查，但验收在此中止。规格要求 `pyproject.toml` 逐字写入、不得修改 Ruff 规则，且禁止修改这些文档，因此无法在现有授权内使验收通过。未修改上述文档、配置和验收命令。
 - 可选方案：由外部协调者统一授权在 Ruff 配置中排除 `docs/` 并更新 SPEC §2.3；或由外部协调者把所有任务的格式检查命令改为仅检查实现和测试文件；或由外部协调者统一格式化只读需求中的代码块。Codex 不自行选择方案。
+
+> 已解决（2026-11-05 JST）：采用方案 1，SPEC §2.3 已加 extend-exclude = ["docs"]（提交 8e7c39d），pyproject.toml 已同步。

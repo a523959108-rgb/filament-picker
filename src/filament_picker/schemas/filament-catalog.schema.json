@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://filament-picker.local/schemas/filament-catalog.schema.json",
+  "title": "filament-catalog.json（耗材色卡目录，v1）",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "generated_at", "source", "counts", "brands", "entries"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time", "description": "ISO 8601，带时区，例如 2026-11-05T10:00:00+09:00"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["page_rows_sha256", "inventory_sha256", "ids_lock_sha256"],
+      "properties": {
+        "page_rows_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "inventory_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "ids_lock_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entries", "with_hex", "official", "store_swatch", "image_extracted", "manual"],
+      "properties": {
+        "entries": {"type": "integer", "minimum": 0},
+        "with_hex": {"type": "integer", "minimum": 0},
+        "official": {"type": "integer", "minimum": 0},
+        "store_swatch": {"type": "integer", "minimum": 0},
+        "image_extracted": {"type": "integer", "minimum": 0},
+        "manual": {"type": "integer", "minimum": 0}
+      }
+    },
+    "brands": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slug", "name"],
+        "properties": {
+          "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+          "name": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "entries": {"type": "array", "items": {"$ref": "#/$defs/entry"}}
+  },
+  "$defs": {
+    "hex": {"type": "string", "pattern": "^#[0-9A-F]{6}$"},
+    "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 60},
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "dedup_key", "status", "brand_slug", "brand_name", "series_name", "series_slug", "material", "name_raw", "name_en", "name_zh", "code", "pinyin", "pinyin_initials", "family", "effects", "hex", "hex_source", "hex_confidence", "lab", "offers", "variant_image", "aliases", "source_rows"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 190},
+        "dedup_key": {"type": "string", "minLength": 3},
+        "status": {"enum": ["active", "retired"]},
+        "brand_slug": {"$ref": "#/$defs/slug"},
+        "brand_name": {"type": "string", "minLength": 1},
+        "series_name": {"type": "string", "minLength": 1},
+        "series_slug": {"$ref": "#/$defs/slug"},
+        "material": {"enum": ["PLA", "PETG"]},
+        "name_raw": {"type": "string", "minLength": 1},
+        "name_en": {"type": ["string", "null"], "minLength": 1},
+        "name_zh": {"type": ["string", "null"], "minLength": 1},
+        "code": {"type": ["string", "null"], "pattern": "^(?:\\d{4,6}|[A-Z]{1,4}\\d{2,5}[A-Z]?)$"},
+        "pinyin": {"type": ["string", "null"], "description": "name_zh 的全拼，小写，音节间一个空格；name_zh 为 null 时为 null"},
+        "pinyin_initials": {"type": ["string", "null"], "pattern": "^[a-z]+$"},
+        "family": {"enum": ["黑白灰", "多色/渐变", "绿", "蓝", "金属/金银铜", "透明", "红", "棕/米/肤", "粉", "黄", "紫", "橙", "木/石/大理石", "夜光", "其他"]},
+        "effects": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["matte", "silk", "dual", "tri", "gradient", "glow", "translucent", "metallic", "sparkle", "wood", "marble", "cf", "gf", "color_change", "multi"]}
+        },
+        "hex": {"type": "array", "maxItems": 4, "items": {"$ref": "#/$defs/hex"}},
+        "hex_source": {"enum": ["official", "store_swatch", "image_extracted", "manual", null]},
+        "hex_confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "lab": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "array", "minItems": 3, "maxItems": 3, "prefixItems": [{"type": "number", "minimum": 0, "maximum": 100}, {"type": "number", "minimum": -128, "maximum": 128}, {"type": "number", "minimum": -128, "maximum": 128}]}
+          ]
+        },
+        "offers": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["channel", "url", "price_text"],
+            "properties": {
+              "channel": {"type": "string", "minLength": 1},
+              "url": {"type": "string", "pattern": "^https?://"},
+              "price_text": {"type": ["string", "null"]}
+            }
+          }
+        },
+        "variant_image": {"type": ["string", "null"], "description": "盒内绝对路径，仅供取色用，网站不使用"},
+        "aliases": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "source_rows": {"type": "array", "minItems": 1, "items": {"type": "integer", "minimum": 0}, "uniqueItems": true}
+      },
+      "allOf": [
+        {"if": {"properties": {"hex": {"maxItems": 0}}}, "then": {"properties": {"hex_source": {"const": null}, "hex_confidence": {"const": null}, "lab": {"const": null}}}},
+        {"if": {"properties": {"hex": {"minItems": 1}}}, "then": {"properties": {"hex_source": {"type": "string"}, "hex_confidence": {"type": "number"}, "lab": {"type": "array"}}}},
+        {"if": {"properties": {"hex_source": {"const": "official"}}, "required": ["hex_source"]}, "then": {"properties": {"hex_confidence": {"const": 1.0}}}}
+      ]
+    }
+  }
+}
