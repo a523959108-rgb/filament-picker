@@ -542,12 +542,17 @@ if mean(dE(border,bg) < BG_BORDER_AGREE_DE) >= BG_BORDER_AGREE_FRAC:
 if drop_highlights:
     C = hypot(a,b)
     mask &= ~((L > HIGHLIGHT_L) & (C < HIGHLIGHT_C))
+return mask
 ```
-阴影：在 `mask` 选出的像素上，`keep = L >= SHADOW_L`；若 `keep.mean() >= SHADOW_KEEP_MIN_FRAC` 则只保留 keep，否则不删（黑色耗材整体很暗）。
+`foreground_mask` **只做背景/高光**，**不**删阴影。阴影由独立函数 `apply_shadow_rule(X)` 处理（见下），只在取色（§8.3）里调用；配色（§9）只用掩码、不删阴影（用户图里的黑是真颜色）。
+
+#### `apply_shadow_rule(X: (n,3) Lab) -> (m,3) Lab`
+在掩码选出的像素 `X` 上：`keep = X[:,0] >= SHADOW_L`；若 `n>0` 且 `keep.mean() >= SHADOW_KEEP_MIN_FRAC` 则返回 `X[keep]`，否则返回 `X` 原样（黑色耗材整体很暗时不删）。`n == 0` → 原样。
+
 ### 8.3 单张取色 `extract_colors(path, effects) -> ExtractResult`
 ```
 rgb = load_rgb(path); 缩放 thumbnail((256,256), Image.Resampling.BOX)
-lab = rgb_to_lab(rgb); X = 前景像素（§8.2 掩码+阴影规则）
+lab = rgb_to_lab(rgb); X = apply_shadow_rule(lab[foreground_mask(lab, drop_highlights=True)])
 if len(X) < MIN_PIXELS: return ExtractResult(status="no_foreground", ...)
 X = sample_pixels(X, MAX_SAMPLE, seed=0)
 multi = any(e in effects for e in ("multi","dual","tri","gradient"))

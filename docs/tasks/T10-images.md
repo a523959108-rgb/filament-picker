@@ -57,7 +57,7 @@ def rgba_square(path: Path, size: int = 200) -> Path      # 透明底 (0,0,0,0) 
 ## 输入/输出示例
 - `load_rgb(rgba_square(...))[0, 0].tolist() == [255, 255, 255]`（透明合成白底），中心像素 `[0, 174, 66]`。
 - `square_on_white` 200×200 → `foreground_mask(...)` 为 True 的像素正好 `120*120 = 14400` 个。
-- `quadrants` 400×400：边框四色各约 1/4，不满足 60% 一致，不去背景；`drop_highlights=True` 时白色象限被删，掩码均值 0.75；`False` 时 1.0。
+- `quadrants` 400×400：边框四色各约 1/4，不满足 60% 一致，不去背景；`drop_highlights=True` 时白色象限被删、黑色象限保留（阴影不在掩码里），掩码均值 0.75；`False` 时 1.0。阴影只由 `apply_shadow_rule` 处理，见独立测试。
 （全部是合成图，非真实照片）
 
 ## 测试（先写测试 → 运行确认失败 → 再写实现）
