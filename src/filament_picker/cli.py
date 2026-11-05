@@ -202,6 +202,22 @@ def _add_plan(sub: argparse._SubParsersAction) -> None:
     parser.set_defaults(handler=_cmd_plan)
 
 
+def _add_worker(sub: argparse._SubParsersAction) -> None:
+    parser = sub.add_parser("worker", help="process inbox requests")
+    parser.add_argument("--root", type=Path, required=True)
+    parser.add_argument("--once", action="store_true")
+    parser.add_argument("--catalog", type=Path)
+    parser.set_defaults(handler=_cmd_worker)
+
+
+def _cmd_worker(args: argparse.Namespace) -> int:
+    from .worker import run_worker
+
+    settings = get_settings()
+    catalog = args.catalog or settings.catalog
+    return run_worker(args.root, catalog, args.once, settings.card_base_url)
+
+
 def _cmd_plan(args: argparse.Namespace) -> int:
     from .planner import run_plan
 
@@ -276,6 +292,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_calibrate(sub)
     _add_qa_sample(sub)
     _add_plan(sub)
+    _add_worker(sub)
     return parser
 
 
