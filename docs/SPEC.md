@@ -103,6 +103,7 @@ markers = ["data: 需要 data/raw 或 /workspace/filament-shots 的真实数据"
 line-length = 100
 target-version = "py311"
 src = ["src", "tests"]
+extend-exclude = ["docs"]  # docs/ 里 Markdown 的代码块是示意，不参与 ruff 检查/格式化
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
