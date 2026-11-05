@@ -33,7 +33,7 @@ def match_palette(palette: list[PaletteColor], catalog: Catalog, params: Params)
 ## 输入/输出示例
 SPEC §9.4 的 4 行金标表（真实目录、参考实现算出）。
 `#1B1B1D`（PLA, brands=[bambu-lab], allow_approx=True, per_color=2）→ 与 `result.example.json` 的 `matches`、`single_series_option`、`slots_used` 完全一致：
-`bambu-lab/pla-tough/black-12101` ΔE 4.38「接近」（url 是 BambuStudio GitHub 色码表，price_text null）、`bambu-lab/pla-aero/black-14103` ΔE 6.08「勉强」；同系列 PLA Tough 最大 4.38；slots_used 1。
+`bambu-lab/pla-tough/black-12101` ΔE 4.38「接近」（url 是 BambuStudio GitHub 色码表；offer.price_text 为空串，输出必须是 null）、`bambu-lab/pla-aero/black-14103` ΔE 6.08「勉强」；同系列 PLA Tough 最大 4.38；slots_used 1。
 
 ## 测试（先写测试 → 运行确认失败 → 再写实现）
 `tests/test_matcher.py`（`@pytest.mark.data`；session 级 fixture 构造 M0 Catalog）

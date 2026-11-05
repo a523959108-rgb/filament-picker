@@ -655,7 +655,7 @@ not params.brands or entry.brand_slug in params.brands
 not (set(entry.effects) & MATCH_EXCLUDE_EFFECTS)
 entry.hex_source == "official" or (params.allow_approx and entry.hex_confidence >= MATCH_MIN_CONF)
 ```
-每个目标色：用 `PaletteColor.lab`（已 round 2 位）与候选条目的 `lab` 算 ΔE00，过滤 `ΔE <= MATCH_MAX_DE`，排序键 `(round(ΔE,4), SOURCE_RANK[hex_source], id)`，取前 `per_color` 个为 picks。`delta_e` 输出 round 2 位；`label` 用未取整 ΔE 查 `LABEL_THRESHOLDS`（<2、<5、≤10）；`is_approx = hex_source != "official"`；`url/price_text` 取 `offers[0]`（无 offers → null）。
+每个目标色：用 `PaletteColor.lab`（已 round 2 位）与候选条目的 `lab` 算 ΔE00，过滤 `ΔE <= MATCH_MAX_DE`，排序键 `(round(ΔE,4), SOURCE_RANK[hex_source], id)`，取前 `per_color` 个为 picks。`delta_e` 输出 round 2 位；`label` 用未取整 ΔE 查 `LABEL_THRESHOLDS`（<2、<5、≤10）；`is_approx = hex_source != "official"`；`url/price_text` 取 `offers[0]`（无 offers → 二者 null；`price_text` 为空串 `""` 时也输出 null，即 `price_text or None`）。
 `name_display(entry)`（定义在 `matcher.py`）= `" ".join(非空的 name_zh, name_en)`，有 code 时追加 ` ({code})`；两者都空 → `name_raw`。例：`黑色 Black (30105)`、`Sakura Bloom` 条目 → `樱花粉 Sakura Bloom`。
 - 某目标无 pick → warning `NO_MATCH_FOR_COLOR:<index>`；所有目标都无 pick → 抛 `NoMatchError`。
 - `slots_used` = 各目标首选 id 去重后的个数。
@@ -664,7 +664,7 @@ entry.hex_source == "official" or (params.allow_approx and entry.hex_confidence 
 | 目标 | 参数 | 前 3 名（id, ΔE） |
 |---|---|---|
 | #000000 | PLA, brands=[bambu-lab], allow_approx=False | `bambu-lab/pla-aero/black-14103` 0.0；`bambu-lab/pla-basic/black-10101` 0.0；`bambu-lab/pla-cf/black-14100` 0.0 |
-| #00AE42 | 同上 | `bambu-lab/pla-basic/bambu-green-10501` 0.0；`bambu-lab/pla-lite/green-16501` 4.69；`bambu-lab/pla-cf/matcha-green-14500` 9.24 |
+| #00AE42 | 同上 | `bambu-lab/pla-basic/bambu-green-10501` 0.0；`bambu-lab/pla-lite/green-16501` 4.70；`bambu-lab/pla-cf/matcha-green-14500` 9.24 |
 | #C8102E | PLA, allow_approx=False | `bambu-lab/pla-lite/red-16200` 4.47；`bambu-lab/pla-silk-plus/candy-red-13205` 5.07；`bambu-lab/pla-matte/dark-red-11202` 5.20 |
 | #FFA3B5 | PLA, allow_approx=True | `anycubic/pla-silk/pink` 3.21；`anycubic/pla-basic/pink` 5.14；`anycubic/pla-plus/pink` 5.14 |
 M0 目录中可参与推荐的条目共 484 条（official PLA 131 / PETG 54，store_swatch PLA 233 / PETG 66）。
