@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "rules_version": "slug-v1",
+  "updated_at": "2026-11-05",
+  "source_sha256": "510566fc490559f6ccd4eaf347f05f61b41ea557fc7c99a4d8ba55f6fed63c61",
+  "entries": {
+    "bambu-lab|code|30105": {"id": "bambu-lab/petg-basic/black-30105", "status": "active", "first_seen": "2026-11-05", "last_seen": "2026-11-05"},
+    "byehassle|pla-ya-guang|sakura-bloom": {"id": "byehassle/pla-ya-guang/sakura-bloom", "status": "active", "first_seen": "2026-11-05", "last_seen": "2026-11-05"},
+    "cailab|code|RB009": {"id": "cailab/rainbow-shift-pla/bamboo-rb009", "status": "active", "first_seen": "2026-11-05", "last_seen": "2026-11-05"},
+    "esun|petg-basic|black": {"id": "esun/petg-basic/black", "status": "active", "first_seen": "2026-11-05", "last_seen": "2026-11-05"}
+  }
+}

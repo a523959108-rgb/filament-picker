@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://filament-picker.local/schemas/result.schema.json",
+  "title": "outbox/<request_id>.json（worker → 钉钉助手；/api/plan 也返回同一结构）",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "request_id", "status", "created_at", "finished_at", "elapsed_ms", "error", "params", "palette", "matches", "single_series_option", "slots_used", "card_path", "card_url", "reply_markdown", "warnings", "context", "catalog_generated_at"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "request_id": {"type": "string", "pattern": "^[A-Za-z0-9_.=+-]{1,200}$"},
+    "status": {"enum": ["ok", "error"]},
+    "created_at": {"type": "string", "format": "date-time", "description": "原样复制 request.created_at"},
+    "finished_at": {"type": "string", "format": "date-time"},
+    "elapsed_ms": {"type": "integer", "minimum": 0},
+    "error": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object", "additionalProperties": false, "required": ["code", "message_zh"],
+          "properties": {
+            "code": {"enum": ["INVALID_REQUEST", "IMAGE_MISSING", "IMAGE_UNREADABLE", "IMAGE_TOO_SMALL", "NO_FOREGROUND", "NO_MATCH", "CATALOG_ERROR", "INTERNAL"]},
+            "message_zh": {"type": "string", "minLength": 1}
+          }
+        }
+      ]
+    },
+    "params": {
+      "type": "object", "additionalProperties": false,
+      "required": ["max_colors", "ams_slots", "n_colors", "materials", "brands", "allow_approx", "keep_small", "per_color", "note_parsed"],
+      "properties": {
+        "max_colors": {"type": "integer", "minimum": 1, "maximum": 16},
+        "ams_slots": {"type": "integer", "minimum": 1, "maximum": 16},
+        "n_colors": {"type": "integer", "minimum": 1, "maximum": 16, "description": "= min(max_colors, ams_slots)"},
+        "materials": {"type": "array", "minItems": 1, "items": {"enum": ["PLA", "PETG"]}},
+        "brands": {"type": "array", "items": {"type": "string"}},
+        "allow_approx": {"type": "boolean"},
+        "keep_small": {"type": "boolean"},
+        "per_color": {"type": "integer", "minimum": 1, "maximum": 3},
+        "note_parsed": {"type": "object", "description": "note_parser 的原始输出（只含解析到的键）"}
+      }
+    },
+    "palette": {
+      "type": "array", "maxItems": 16,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["index", "hex", "lab", "share"],
+        "properties": {
+          "index": {"type": "integer", "minimum": 0},
+          "hex": {"type": "string", "pattern": "^#[0-9A-F]{6}$"},
+          "lab": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}},
+          "share": {"type": "number", "minimum": 0, "maximum": 1}
+        }
+      }
+    },
+    "matches": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["target_index", "picks"],
+        "properties": {
+          "target_index": {"type": "integer", "minimum": 0},
+          "picks": {
+            "type": "array", "maxItems": 3,
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["id", "brand_name", "series_name", "name_display", "hex", "hex_source", "delta_e", "label", "is_approx", "url", "price_text"],
+              "properties": {
+                "id": {"type": "string"},
+                "brand_name": {"type": "string"},
+                "series_name": {"type": "string"},
+                "name_display": {"type": "string", "description": "name_zh 与 name_en 都有时为 \"{name_zh} {name_en}\"，否则取有的那个，再否则 name_raw；有 code 时追加 \" ({code})\""},
+                "hex": {"type": "string", "pattern": "^#[0-9A-F]{6}$"},
+                "hex_source": {"enum": ["official", "store_swatch", "image_extracted", "manual"]},
+                "delta_e": {"type": "number", "minimum": 0, "maximum": 10},
+                "label": {"enum": ["几乎一样", "接近", "勉强"]},
+                "is_approx": {"type": "boolean", "description": "hex_source != official"},
+                "url": {"type": "string", "pattern": "^https?://"},
+                "price_text": {"type": ["string", "null"]}
+              }
+            }
+          }
+        }
+      }
+    },
+    "single_series_option": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object", "additionalProperties": false, "required": ["brand_name", "series_name", "max_delta_e", "picks"],
+          "properties": {
+            "brand_name": {"type": "string"},
+            "series_name": {"type": "string"},
+            "max_delta_e": {"type": "number", "minimum": 0, "maximum": 10},
+            "picks": {
+              "type": "array",
+              "items": {"type": "object", "additionalProperties": false, "required": ["target_index", "id", "delta_e"],
+                "properties": {"target_index": {"type": "integer"}, "id": {"type": "string"}, "delta_e": {"type": "number"}}}
+            }
+          }
+        }
+      ]
+    },
+    "slots_used": {"type": "integer", "minimum": 0, "maximum": 16},
+    "card_path": {"type": ["string", "null"]},
+    "card_url": {"type": ["string", "null"], "pattern": "^https://"},
+    "reply_markdown": {"type": "string", "minLength": 1},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "context": {"type": "object"},
+    "catalog_generated_at": {"type": ["string", "null"]}
+  }
+}

@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-05T12:00:00+09:00",
+  "source": {
+    "page_rows_sha256": "510566fc490559f6ccd4eaf347f05f61b41ea557fc7c99a4d8ba55f6fed63c61",
+    "inventory_sha256": "b6a775ea341a7a5acfda4a918dd2737281fffe4b56bebb6c86ee6c26aec481cd",
+    "ids_lock_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "counts": {
+    "entries": 4,
+    "with_hex": 2,
+    "official": 1,
+    "store_swatch": 1,
+    "image_extracted": 0,
+    "manual": 0
+  },
+  "brands": [
+    {
+      "slug": "bambu-lab",
+      "name": "Bambu Lab"
+    },
+    {
+      "slug": "cailab",
+      "name": "彩多屋 CaiLab"
+    },
+    {
+      "slug": "esun",
+      "name": "eSUN"
+    },
+    {
+      "slug": "byehassle",
+      "name": "没毛病/ByeHassle"
+    }
+  ],
+  "entries": [
+    {
+      "id": "bambu-lab/petg-basic/black-30105",
+      "dedup_key": "bambu-lab|code|30105",
+      "status": "active",
+      "brand_slug": "bambu-lab",
+      "brand_name": "Bambu Lab",
+      "series_name": "PETG Basic",
+      "series_slug": "petg-basic",
+      "material": "PETG",
+      "name_raw": "Black 黑色 (30105)",
+      "name_en": "Black",
+      "name_zh": "黑色",
+      "code": "30105",
+      "pinyin": "hei se",
+      "pinyin_initials": "hs",
+      "family": "黑白灰",
+      "effects": [],
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "official",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "offers": [
+        {
+          "channel": "Bambu Lab 日本官方商城",
+          "url": "https://jp.store.bambulab.com/products/petg-basic",
+          "price_text": "¥2,800 JPY"
+        }
+      ],
+      "variant_image": "/workspace/filament-shots/Bambu Lab/PETG_Basic/variant_00_Black.jpg",
+      "aliases": [],
+      "source_rows": [
+        2808
+      ]
+    },
+    {
+      "id": "esun/petg-basic/black",
+      "dedup_key": "esun|petg-basic|black",
+      "status": "active",
+      "brand_slug": "esun",
+      "brand_name": "eSUN",
+      "series_name": "PETG-Basic",
+      "series_slug": "petg-basic",
+      "material": "PETG",
+      "name_raw": "Black",
+      "name_en": "Black",
+      "name_zh": null,
+      "code": null,
+      "pinyin": null,
+      "pinyin_initials": null,
+      "family": "黑白灰",
+      "effects": [],
+      "hex": [
+        "#272729"
+      ],
+      "hex_source": "store_swatch",
+      "hex_confidence": 0.8,
+      "lab": [
+        15.71,
+        0.49,
+        -1.31
+      ],
+      "offers": [
+        {
+          "channel": "eSUN 官网商城（色块为店铺示意色）",
+          "url": "https://www.esun3d.com/epetg-lite-product",
+          "price_text": "US$18.99"
+        }
+      ],
+      "variant_image": "/workspace/filament-shots/eSUN/PETG-Basic/variant_00_Black.jpg",
+      "aliases": [],
+      "source_rows": [
+        3054
+      ]
+    },
+    {
+      "id": "cailab/rainbow-shift-pla/bamboo-rb009",
+      "dedup_key": "cailab|code|RB009",
+      "status": "active",
+      "brand_slug": "cailab",
+      "brand_name": "彩多屋 CaiLab",
+      "series_name": "Rainbow shift PLA",
+      "series_slug": "rainbow-shift-pla",
+      "material": "PLA",
+      "name_raw": "Bamboo RB009",
+      "name_en": "Bamboo",
+      "name_zh": null,
+      "code": "RB009",
+      "pinyin": null,
+      "pinyin_initials": null,
+      "family": "多色/渐变",
+      "effects": [
+        "gradient",
+        "multi"
+      ],
+      "hex": [],
+      "hex_source": null,
+      "hex_confidence": null,
+      "lab": null,
+      "offers": [
+        {
+          "channel": "CaiLab 海外官网",
+          "url": "https://www.cailab3d.com/products/rainbow-shift-pla-filament",
+          "price_text": "US$23.99"
+        },
+        {
+          "channel": "淘宝（彩多屋店，店铺列表价/1kg）",
+          "url": "https://pcdetail.taobao.com/M0VsUkt5WGUwcTRRQmZYcEZOUG5udz09.html",
+          "price_text": "¥62 CNY"
+        }
+      ],
+      "variant_image": "/workspace/filament-shots/彩多屋 CaiLab/Rainbow_shift_PLA/variant_08_Bamboo_RB009.jpg",
+      "aliases": [
+        "竹 RB009"
+      ],
+      "source_rows": [
+        3491,
+        3583
+      ]
+    },
+    {
+      "id": "byehassle/pla-ya-guang/sakura-bloom",
+      "dedup_key": "byehassle|pla-ya-guang|sakura-bloom",
+      "status": "active",
+      "brand_slug": "byehassle",
+      "brand_name": "没毛病/ByeHassle",
+      "series_name": "PLA哑光（拼多多）",
+      "series_slug": "pla-ya-guang",
+      "material": "PLA",
+      "name_raw": "樱花粉（Sakura Bloom）",
+      "name_en": "Sakura Bloom",
+      "name_zh": "樱花粉",
+      "code": null,
+      "pinyin": "ying hua fen",
+      "pinyin_initials": "yhf",
+      "family": "粉",
+      "effects": [
+        "matte"
+      ],
+      "hex": [],
+      "hex_source": null,
+      "hex_confidence": null,
+      "lab": null,
+      "offers": [
+        {
+          "channel": "拼多多评价规格（商品卡价，非单色价）",
+          "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+          "price_text": "¥34.5 CNY（商品卡价，非单色价）"
+        }
+      ],
+      "variant_image": null,
+      "aliases": [],
+      "source_rows": [
+        3841
+      ]
+    }
+  ]
+}

@@ -1,0 +1,592 @@
+{
+ "_note": "由 /workspace/fil/page_rows.json 真实行按 SPEC §5 规则生成的金标样本（参考实现计算于 2026-11-05）。row_id 是该行自身的 ID；合并后的条目 ID 取 canonical 行的 row_id。",
+ "source_sha256": "510566fc490559f6ccd4eaf347f05f61b41ea557fc7c99a4d8ba55f6fed63c61",
+ "rows": [
+  {
+   "row_index": 2808,
+   "brand": "Bambu Lab",
+   "series": "PETG Basic",
+   "raw_name": "Black 黑色 (30105)",
+   "name_en": "Black",
+   "name_zh": "黑色",
+   "code": "30105",
+   "brand_slug": "bambu-lab",
+   "series_slug": "petg-basic",
+   "row_id": "bambu-lab/petg-basic/black-30105",
+   "dedup_key": "bambu-lab|code|30105",
+   "effects": [],
+   "material": "PETG"
+  },
+  {
+   "row_index": 3009,
+   "brand": "Bambu Lab",
+   "series": "PLA Dynamic",
+   "raw_name": "UV Color Changing - White to Coral 光变-白变粉 (15100)",
+   "name_en": "UV Color Changing - White to Coral",
+   "name_zh": "光变-白变粉",
+   "code": "15100",
+   "brand_slug": "bambu-lab",
+   "series_slug": "pla-dynamic",
+   "row_id": "bambu-lab/pla-dynamic/uv-color-changing-white-to-coral-15100",
+   "dedup_key": "bambu-lab|code|15100",
+   "effects": [
+    "color_change",
+    "multi"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 3841,
+   "brand": "没毛病/ByeHassle",
+   "series": "PLA哑光（拼多多）",
+   "raw_name": "樱花粉（Sakura Bloom）",
+   "name_en": "Sakura Bloom",
+   "name_zh": "樱花粉",
+   "code": null,
+   "brand_slug": "byehassle",
+   "series_slug": "pla-ya-guang",
+   "row_id": "byehassle/pla-ya-guang/sakura-bloom",
+   "dedup_key": "byehassle|pla-ya-guang|sakura-bloom",
+   "effects": [
+    "matte"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 3380,
+   "brand": "彩多屋 CaiLab",
+   "series": "PLA Metallic",
+   "raw_name": "Black Walmut ATM2469 / 1KG",
+   "name_en": "Black Walmut",
+   "name_zh": null,
+   "code": "ATM2469",
+   "brand_slug": "cailab",
+   "series_slug": "pla-metallic",
+   "row_id": "cailab/pla-metallic/black-walmut-atm2469",
+   "dedup_key": "cailab|code|ATM2469",
+   "effects": [
+    "metallic"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 1848,
+   "brand": "Eryone",
+   "series": "PLA Silk Dual-Color",
+   "raw_name": "Blue&Green-3KG",
+   "name_en": "Blue&Green",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "eryone",
+   "series_slug": "pla-silk-dual-color",
+   "row_id": "eryone/pla-silk-dual-color/blue-green",
+   "dedup_key": "eryone|pla-silk-dual-color|blue-green",
+   "effects": [
+    "silk",
+    "dual",
+    "multi"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 3583,
+   "brand": "彩多屋 CaiLab",
+   "series": "彩虹丝绸 PLA（RB 系列）",
+   "raw_name": "竹 RB009",
+   "name_en": null,
+   "name_zh": "竹",
+   "code": "RB009",
+   "brand_slug": "cailab",
+   "series_slug": "cai-hong-si-chou-pla-rb-xi-lie",
+   "row_id": "cailab/cai-hong-si-chou-pla-rb-xi-lie/zhu-rb009",
+   "dedup_key": "cailab|code|RB009",
+   "effects": [
+    "silk",
+    "gradient",
+    "multi"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 3691,
+   "brand": "天瑞 Tinmorry/Tronhoo",
+   "series": "PLA 哑光",
+   "raw_name": "菠菜绿",
+   "name_en": null,
+   "name_zh": "菠菜绿",
+   "code": null,
+   "brand_slug": "tinmorry",
+   "series_slug": "pla-ya-guang",
+   "row_id": "tinmorry/pla-ya-guang/bo-cai-lv",
+   "dedup_key": "tinmorry|pla-ya-guang|bo-cai-lv",
+   "effects": [
+    "matte"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 292,
+   "brand": "Polymaker",
+   "series": "Panchroma Dual Silk PLA",
+   "raw_name": "Dual Silk Aubergine (Lime-Magenta)",
+   "name_en": "Dual Silk Aubergine (Lime-Magenta)",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "polymaker",
+   "series_slug": "panchroma-dual-silk-pla",
+   "row_id": "polymaker/panchroma-dual-silk-pla/dual-silk-aubergine-lime-magenta",
+   "dedup_key": "polymaker|panchroma-dual-silk-pla|dual-silk-aubergine-lime-magenta",
+   "effects": [
+    "silk",
+    "dual",
+    "multi"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 1626,
+   "brand": "Amolen",
+   "series": "PLA Silk Triple Color",
+   "raw_name": "Purple/Blue Green/Burnt Orange 1KG",
+   "name_en": "Purple/Blue Green/Burnt Orange",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "amolen",
+   "series_slug": "pla-silk-triple-color",
+   "row_id": "amolen/pla-silk-triple-color/purple-blue-green-burnt-orange",
+   "dedup_key": "amolen|pla-silk-triple-color|purple-blue-green-burnt-orange",
+   "effects": [
+    "silk",
+    "tri",
+    "multi"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 3368,
+   "brand": "彩多屋 CaiLab",
+   "series": "PLA Galaxy",
+   "raw_name": "Blue&Green&Gold Z007",
+   "name_en": "Blue&Green&Gold",
+   "name_zh": null,
+   "code": "Z007",
+   "brand_slug": "cailab",
+   "series_slug": "pla-galaxy",
+   "row_id": "cailab/pla-galaxy/blue-green-gold-z007",
+   "dedup_key": "cailab|code|Z007",
+   "effects": [
+    "sparkle",
+    "multi"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 527,
+   "brand": "SUNLU",
+   "series": "PLA+ 2.0",
+   "raw_name": "Magenta(Fuchsia)",
+   "name_en": "Magenta(Fuchsia)",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "sunlu",
+   "series_slug": "pla-plus-2-0",
+   "row_id": "sunlu/pla-plus-2-0/magenta-fuchsia",
+   "dedup_key": "sunlu|pla-plus-2-0|magenta-fuchsia",
+   "effects": [],
+   "material": "PLA"
+  },
+  {
+   "row_index": 3277,
+   "brand": "Creality",
+   "series": "Spool-Free CR PETG",
+   "raw_name": "Transparent Wine Red",
+   "name_en": "Transparent Wine Red",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "creality",
+   "series_slug": "spool-free-cr-petg",
+   "row_id": "creality/spool-free-cr-petg/transparent-wine-red",
+   "dedup_key": "creality|spool-free-cr-petg|transparent-wine-red",
+   "effects": [
+    "translucent"
+   ],
+   "material": "PETG"
+  },
+  {
+   "row_index": 2791,
+   "brand": "Hatchbox",
+   "series": "PLA PRO+",
+   "raw_name": "Light Purple",
+   "name_en": "Light Purple",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "hatchbox",
+   "series_slug": "pla-pro-plus",
+   "row_id": "hatchbox/pla-pro-plus/light-purple",
+   "dedup_key": "hatchbox|pla-pro-plus|light-purple",
+   "effects": [],
+   "material": "PLA"
+  },
+  {
+   "row_index": 3229,
+   "brand": "eSUN",
+   "series": "PLA+",
+   "raw_name": "Apricot",
+   "name_en": "Apricot",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "esun",
+   "series_slug": "pla-plus",
+   "row_id": "esun/pla-plus/apricot",
+   "dedup_key": "esun|pla-plus|apricot",
+   "effects": [],
+   "material": "PLA"
+  },
+  {
+   "row_index": 618,
+   "brand": "SUNLU",
+   "series": "PLA+",
+   "raw_name": "Sunny Orange",
+   "name_en": "Sunny Orange",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "sunlu",
+   "series_slug": "pla-plus",
+   "row_id": "sunlu/pla-plus/sunny-orange",
+   "dedup_key": "sunlu|pla-plus|sunny-orange",
+   "effects": [],
+   "material": "PLA"
+  },
+  {
+   "row_index": 3453,
+   "brand": "彩多屋 CaiLab",
+   "series": "Multicolor Color PLA Silk",
+   "raw_name": "Blue&Silver SP012",
+   "name_en": "Blue&Silver",
+   "name_zh": null,
+   "code": "SP012",
+   "brand_slug": "cailab",
+   "series_slug": "multicolor-color-pla-silk",
+   "row_id": "cailab/multicolor-color-pla-silk/blue-silver-sp012",
+   "dedup_key": "cailab|code|SP012",
+   "effects": [
+    "silk",
+    "multi"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 2476,
+   "brand": "Overture",
+   "series": "Silk PLA",
+   "raw_name": "Silk Copper",
+   "name_en": "Silk Copper",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "overture",
+   "series_slug": "silk-pla",
+   "row_id": "overture/silk-pla/silk-copper",
+   "dedup_key": "overture|silk-pla|silk-copper",
+   "effects": [
+    "silk"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 402,
+   "brand": "Polymaker",
+   "series": "PolyLite PLA Pro",
+   "raw_name": "Light Green",
+   "name_en": "Light Green",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "polymaker",
+   "series_slug": "polylite-pla-pro",
+   "row_id": "polymaker/polylite-pla-pro/light-green",
+   "dedup_key": "polymaker|polylite-pla-pro|light-green",
+   "effects": [],
+   "material": "PLA"
+  },
+  {
+   "row_index": 1680,
+   "brand": "Amolen",
+   "series": "PLA Matte Basic",
+   "raw_name": "Terracotta",
+   "name_en": "Terracotta",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "amolen",
+   "series_slug": "pla-matte-basic",
+   "row_id": "amolen/pla-matte-basic/terracotta",
+   "dedup_key": "amolen|pla-matte-basic|terracotta",
+   "effects": [
+    "matte"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 2518,
+   "brand": "Overture",
+   "series": "PLA Pro",
+   "raw_name": "Silver Metal",
+   "name_en": "Silver Metal",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "overture",
+   "series_slug": "pla-pro",
+   "row_id": "overture/pla-pro/silver-metal",
+   "dedup_key": "overture|pla-pro|silver-metal",
+   "effects": [
+    "metallic"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 2593,
+   "brand": "Hatchbox",
+   "series": "PLA",
+   "raw_name": "Metallic Finish Orange",
+   "name_en": "Metallic Finish Orange",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "hatchbox",
+   "series_slug": "pla",
+   "row_id": "hatchbox/pla/metallic-finish-orange",
+   "dedup_key": "hatchbox|pla|metallic-finish-orange",
+   "effects": [
+    "metallic"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 695,
+   "brand": "SUNLU",
+   "series": "Matte PLA",
+   "raw_name": "White",
+   "name_en": "White",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "sunlu",
+   "series_slug": "matte-pla",
+   "row_id": "sunlu/matte-pla/white",
+   "dedup_key": "sunlu|matte-pla|white",
+   "effects": [
+    "matte"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 1735,
+   "brand": "Eryone",
+   "series": "PLA Silk Rainbow",
+   "raw_name": "Candy",
+   "name_en": "Candy",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "eryone",
+   "series_slug": "pla-silk-rainbow",
+   "row_id": "eryone/pla-silk-rainbow/candy",
+   "dedup_key": "eryone|pla-silk-rainbow|candy",
+   "effects": [
+    "silk",
+    "gradient",
+    "multi"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 3555,
+   "brand": "彩多屋 CaiLab",
+   "series": "PETG",
+   "raw_name": "Golden G6005",
+   "name_en": "Golden",
+   "name_zh": null,
+   "code": "G6005",
+   "brand_slug": "cailab",
+   "series_slug": "petg",
+   "row_id": "cailab/petg/golden-g6005",
+   "dedup_key": "cailab|code|G6005",
+   "effects": [],
+   "material": "PETG"
+  },
+  {
+   "row_index": 1216,
+   "brand": "Kexcelled",
+   "series": "THE K5 PLA",
+   "raw_name": "Yellow",
+   "name_en": "Yellow",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "kexcelled",
+   "series_slug": "the-k5-pla",
+   "row_id": "kexcelled/the-k5-pla/yellow",
+   "dedup_key": "kexcelled|the-k5-pla|yellow",
+   "effects": [],
+   "material": "PLA"
+  },
+  {
+   "row_index": 697,
+   "brand": "SUNLU",
+   "series": "Matte PLA",
+   "raw_name": "Grey",
+   "name_en": "Grey",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "sunlu",
+   "series_slug": "matte-pla",
+   "row_id": "sunlu/matte-pla/grey",
+   "dedup_key": "sunlu|matte-pla|grey",
+   "effects": [
+    "matte"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 2714,
+   "brand": "Hatchbox",
+   "series": "PETG",
+   "raw_name": "Green Rapid",
+   "name_en": "Green Rapid",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "hatchbox",
+   "series_slug": "petg",
+   "row_id": "hatchbox/petg/green-rapid",
+   "dedup_key": "hatchbox|petg|green-rapid",
+   "effects": [],
+   "material": "PETG"
+  },
+  {
+   "row_index": 3071,
+   "brand": "eSUN",
+   "series": "PLA-CF",
+   "raw_name": "Red",
+   "name_en": "Red",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "esun",
+   "series_slug": "pla-cf",
+   "row_id": "esun/pla-cf/red",
+   "dedup_key": "esun|pla-cf|red",
+   "effects": [
+    "cf"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 3063,
+   "brand": "eSUN",
+   "series": "PETG-Basic",
+   "raw_name": "Clear",
+   "name_en": "Clear",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "esun",
+   "series_slug": "petg-basic",
+   "row_id": "esun/petg-basic/clear",
+   "dedup_key": "esun|petg-basic|clear",
+   "effects": [
+    "translucent"
+   ],
+   "material": "PETG"
+  },
+  {
+   "row_index": 3113,
+   "brand": "eSUN",
+   "series": "ePLA-Matte",
+   "raw_name": "Aqua",
+   "name_en": "Aqua",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "esun",
+   "series_slug": "epla-matte",
+   "row_id": "esun/epla-matte/aqua",
+   "dedup_key": "esun|epla-matte|aqua",
+   "effects": [
+    "matte"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 1868,
+   "brand": "Eryone",
+   "series": "PLA",
+   "raw_name": "Rose Red",
+   "name_en": "Rose Red",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "eryone",
+   "series_slug": "pla",
+   "row_id": "eryone/pla/rose-red",
+   "dedup_key": "eryone|pla|rose-red",
+   "effects": [],
+   "material": "PLA"
+  },
+  {
+   "row_index": 3233,
+   "brand": "eSUN",
+   "series": "PLA+",
+   "raw_name": "Brick Red",
+   "name_en": "Brick Red",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "esun",
+   "series_slug": "pla-plus",
+   "row_id": "esun/pla-plus/brick-red",
+   "dedup_key": "esun|pla-plus|brick-red",
+   "effects": [],
+   "material": "PLA"
+  },
+  {
+   "row_index": 1280,
+   "brand": "Proto-pasta",
+   "series": "HTPLA",
+   "raw_name": "Lapis Lazuli Glitter",
+   "name_en": "Lapis Lazuli Glitter",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "proto-pasta",
+   "series_slug": "htpla",
+   "row_id": "proto-pasta/htpla/lapis-lazuli-glitter",
+   "dedup_key": "proto-pasta|htpla|lapis-lazuli-glitter",
+   "effects": [
+    "sparkle"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 755,
+   "brand": "SUNLU",
+   "series": "SILK PLA Plus",
+   "raw_name": "White",
+   "name_en": "White",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "sunlu",
+   "series_slug": "silk-pla-plus",
+   "row_id": "sunlu/silk-pla-plus/white",
+   "dedup_key": "sunlu|silk-pla-plus|white",
+   "effects": [
+    "silk"
+   ],
+   "material": "PLA"
+  },
+  {
+   "row_index": 696,
+   "brand": "SUNLU",
+   "series": "Matte PLA",
+   "raw_name": "Charcoal",
+   "name_en": "Charcoal",
+   "name_zh": null,
+   "code": null,
+   "brand_slug": "sunlu",
+   "series_slug": "matte-pla",
+   "row_id": "sunlu/matte-pla/charcoal",
+   "dedup_key": "sunlu|matte-pla|charcoal",
+   "effects": [
+    "matte"
+   ],
+   "material": "PLA"
+  }
+ ]
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "request_id": "msgEXAMPLE0001",
+  "created_at": "2026-11-05T14:03:12+09:00",
+  "image_paths": ["/home/box/agent-data/shared/filament-picker/inbox/msgEXAMPLE0001.png"],
+  "note": "帮我配 4 色，AMS 一台，只要拓竹 PLA",
+  "constraints": {},
+  "context": {"conversationId": "cidEXAMPLE", "senderStaffId": "EXAMPLE", "conversationType": "1"}
+}

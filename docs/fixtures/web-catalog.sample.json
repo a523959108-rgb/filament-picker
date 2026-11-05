@@ -1,0 +1,104 @@
+{
+  "generated_at": "2026-11-05T12:00:00+09:00",
+  "brands": [
+    {
+      "slug": "bambu-lab",
+      "name": "Bambu Lab"
+    },
+    {
+      "slug": "cailab",
+      "name": "彩多屋 CaiLab"
+    },
+    {
+      "slug": "esun",
+      "name": "eSUN"
+    },
+    {
+      "slug": "byehassle",
+      "name": "没毛病/ByeHassle"
+    }
+  ],
+  "entries": [
+    {
+      "id": "bambu-lab/petg-basic/black-30105",
+      "b": "bambu-lab",
+      "s": "PETG Basic",
+      "m": "PETG",
+      "en": "Black",
+      "zh": "黑色",
+      "code": "30105",
+      "py": "hei se",
+      "pyi": "hs",
+      "fam": "黑白灰",
+      "eff": [],
+      "hex": [
+        "#000000"
+      ],
+      "src": "official",
+      "conf": 1.0,
+      "url": "https://jp.store.bambulab.com/products/petg-basic",
+      "price": "¥2,800 JPY"
+    },
+    {
+      "id": "esun/petg-basic/black",
+      "b": "esun",
+      "s": "PETG-Basic",
+      "m": "PETG",
+      "en": "Black",
+      "zh": null,
+      "code": null,
+      "py": null,
+      "pyi": null,
+      "fam": "黑白灰",
+      "eff": [],
+      "hex": [
+        "#272729"
+      ],
+      "src": "store_swatch",
+      "conf": 0.8,
+      "url": "https://www.esun3d.com/epetg-lite-product",
+      "price": "US$18.99"
+    },
+    {
+      "id": "cailab/rainbow-shift-pla/bamboo-rb009",
+      "b": "cailab",
+      "s": "Rainbow shift PLA",
+      "m": "PLA",
+      "en": "Bamboo",
+      "zh": null,
+      "code": "RB009",
+      "py": null,
+      "pyi": null,
+      "fam": "多色/渐变",
+      "eff": [
+        "gradient",
+        "multi"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://www.cailab3d.com/products/rainbow-shift-pla-filament",
+      "price": "US$23.99"
+    },
+    {
+      "id": "byehassle/pla-ya-guang/sakura-bloom",
+      "b": "byehassle",
+      "s": "PLA哑光（拼多多）",
+      "m": "PLA",
+      "en": "Sakura Bloom",
+      "zh": "樱花粉",
+      "code": null,
+      "py": "ying hua fen",
+      "pyi": "yhf",
+      "fam": "粉",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "price": "¥34.5 CNY（商品卡价，非单色价）"
+    }
+  ]
+}

@@ -1,0 +1,437 @@
+{
+ "_note": "全部 24 处合并（参考实现计算，3845 行 → 3821 条）",
+ "merges": [
+  {
+   "dedup_key": "eryone|pla-silk-dual-color|red-blue",
+   "canonical_id": "eryone/pla-silk-dual-color/red-blue",
+   "rows": [
+    {
+     "row_index": 1827,
+     "series": "PLA Silk Dual-Color",
+     "raw_name": "Red&Blue",
+     "channel": "Eryone 官网"
+    },
+    {
+     "row_index": 1849,
+     "series": "PLA Silk Dual-Color",
+     "raw_name": "Red&Blue-3KG",
+     "channel": "Eryone 官网"
+    }
+   ]
+  },
+  {
+   "dedup_key": "eryone|pla-silk-dual-color|blue-green",
+   "canonical_id": "eryone/pla-silk-dual-color/blue-green",
+   "rows": [
+    {
+     "row_index": 1828,
+     "series": "PLA Silk Dual-Color",
+     "raw_name": "Blue&Green",
+     "channel": "Eryone 官网"
+    },
+    {
+     "row_index": 1848,
+     "series": "PLA Silk Dual-Color",
+     "raw_name": "Blue&Green-3KG",
+     "channel": "Eryone 官网"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|Z007",
+   "canonical_id": "cailab/pla-galaxy/blue-green-gold-z007",
+   "rows": [
+    {
+     "row_index": 3368,
+     "series": "PLA Galaxy",
+     "raw_name": "Blue&Green&Gold Z007",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3599,
+     "series": "珠光 Sparkle PLA（Z 系列）",
+     "raw_name": "珠光蓝绿金 Z007",
+     "channel": "淘宝（彩多屋店）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|Z013",
+   "canonical_id": "cailab/pla-galaxy/green-gold-red-z013",
+   "rows": [
+    {
+     "row_index": 3374,
+     "series": "PLA Galaxy",
+     "raw_name": "Green&Gold&Red Z013",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3605,
+     "series": "珠光 Sparkle PLA（Z 系列）",
+     "raw_name": "珠光绿金红 Z013",
+     "channel": "淘宝（彩多屋店）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB001",
+   "canonical_id": "cailab/rainbow-shift-pla/sunflower-rb001",
+   "rows": [
+    {
+     "row_index": 3483,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Sunflower RB001",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3575,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "向日葵 RB001",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB002",
+   "canonical_id": "cailab/rainbow-shift-pla/silk-candy-rb002",
+   "rows": [
+    {
+     "row_index": 3484,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Silk Candy RB002",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3576,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "糖果 RB002",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB003",
+   "canonical_id": "cailab/rainbow-shift-pla/garden-rb003",
+   "rows": [
+    {
+     "row_index": 3485,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Garden RB003",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3577,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "花园 RB003",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB004",
+   "canonical_id": "cailab/rainbow-shift-pla/lollipop-rb004",
+   "rows": [
+    {
+     "row_index": 3486,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Lollipop RB004",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3578,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "棒棒糖 RB004",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB005",
+   "canonical_id": "cailab/rainbow-shift-pla/marshmallow-rb005",
+   "rows": [
+    {
+     "row_index": 3487,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Marshmallow RB005",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3579,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "棉花糖 RB005",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB006",
+   "canonical_id": "cailab/rainbow-shift-pla/grape-slush-rb006",
+   "rows": [
+    {
+     "row_index": 3488,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Grape Slush RB006",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3580,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "葡萄冰沙 RB006",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB007",
+   "canonical_id": "cailab/rainbow-shift-pla/plum-rb007",
+   "rows": [
+    {
+     "row_index": 3489,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Plum RB007",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3581,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "梅 RB007",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB008",
+   "canonical_id": "cailab/rainbow-shift-pla/orchid-rb008",
+   "rows": [
+    {
+     "row_index": 3490,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Orchid RB008",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3582,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "兰 RB008",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB009",
+   "canonical_id": "cailab/rainbow-shift-pla/bamboo-rb009",
+   "rows": [
+    {
+     "row_index": 3491,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Bamboo RB009",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3583,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "竹 RB009",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB010",
+   "canonical_id": "cailab/rainbow-shift-pla/maple-rb010",
+   "rows": [
+    {
+     "row_index": 3492,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Maple RB010",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3584,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "菊 RB010",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB011",
+   "canonical_id": "cailab/rainbow-shift-pla/marcaron-rb011",
+   "rows": [
+    {
+     "row_index": 3493,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Marcaron RB011",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3585,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "马卡龙 RB011",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB013",
+   "canonical_id": "cailab/rainbow-shift-pla/terra-rb013",
+   "rows": [
+    {
+     "row_index": 3494,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Terra RB013",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3586,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "大地 RB013",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB014",
+   "canonical_id": "cailab/rainbow-shift-pla/rock-rb014",
+   "rows": [
+    {
+     "row_index": 3495,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Rock RB014",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3587,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "岩石 RB014",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB015",
+   "canonical_id": "cailab/rainbow-shift-pla/teal-shift-rb015",
+   "rows": [
+    {
+     "row_index": 3496,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Teal Shift RB015",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3588,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "只此青绿 RB015",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB016",
+   "canonical_id": "cailab/rainbow-shift-pla/pink-glow-rb016",
+   "rows": [
+    {
+     "row_index": 3497,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Pink Glow RB016",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3589,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "星粉 RB016",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB017",
+   "canonical_id": "cailab/rainbow-shift-pla/mist-purple-rb017",
+   "rows": [
+    {
+     "row_index": 3498,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Mist purple RB017",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3590,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "云雾紫 RB017",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB018",
+   "canonical_id": "cailab/rainbow-shift-pla/mist-cyan-rb018",
+   "rows": [
+    {
+     "row_index": 3499,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Mist cyan RB018",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3591,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "云雾青 RB018",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB019",
+   "canonical_id": "cailab/rainbow-shift-pla/petal-mousse-rb019",
+   "rows": [
+    {
+     "row_index": 3500,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Petal mousse RB019",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3592,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "花瓣慕斯 RB019",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB020",
+   "canonical_id": "cailab/rainbow-shift-pla/aurora-rb020",
+   "rows": [
+    {
+     "row_index": 3501,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Aurora RB020",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3593,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "极光 RB020",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  },
+  {
+   "dedup_key": "cailab|code|RB021",
+   "canonical_id": "cailab/rainbow-shift-pla/sunset-rb021",
+   "rows": [
+    {
+     "row_index": 3502,
+     "series": "Rainbow shift PLA",
+     "raw_name": "Sunset RB021",
+     "channel": "CaiLab 海外官网"
+    },
+    {
+     "row_index": 3594,
+     "series": "彩虹丝绸 PLA（RB 系列）",
+     "raw_name": "晚霞 RB021",
+     "channel": "淘宝（彩多屋店，店铺列表价/1kg）"
+    }
+   ]
+  }
+ ]
+}
