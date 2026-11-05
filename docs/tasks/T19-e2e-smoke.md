@@ -45,7 +45,7 @@ smoke ok
 - 3 个请求：ok（黑方块 + PETG）、IMAGE_MISSING、`"{"`（INVALID_REQUEST）→ 进程退出码 0；outbox 3 个文件都通过 result schema；status 分别 ok / error / error；done 1 个、failed 2 个；`context` 原样回写。
 - `ok` 那个的 `reply_markdown` 第一行 `### 配色方案（1 色）`，含 `bambu-lab` 的品牌名 `Bambu Lab PETG Basic`。
 - `subprocess.run(["scripts/smoke_worker.sh"])` 退出码 0，stdout 最后一行 `smoke ok`。
-- `rg`/grep 检查：`src/` 与 `scripts/` 中不出现 `dingtalk`、`sessionWebhook`、`bambu-print-agent`（大小写不敏感，测试里用 Python 遍历文件实现）。
+- `rg`/grep 检查：`src/` 与 `scripts/` 中不出现 `dingtalk`、`sessionWebhook`、`bambu-print-agent`（大小写不敏感，测试里用 Python 遍历文件实现）。**唯一豁免**：`src/filament_picker/schemas/request.schema.json` 里禁止该字段的规则本身允许出现 `sessionWebhook`（该文件跳过 `sessionWebhook` 这一个词，`dingtalk` / `bambu-print-agent` 仍要查）；同时断言该文件里 `sessionWebhook` 恰好出现 2 次（description 1 次 + `not.anyOf.required` 1 次），防止豁免被滥用。其余所有文件照常逐个扫。
 
 ## 验收命令（退出码 0 才算完成；完成报告里贴最后 20 行输出）
 ```bash
