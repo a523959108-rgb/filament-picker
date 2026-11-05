@@ -5,6 +5,13 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from . import __version__
+from .catalog import (
+    CATALOG_PATH,
+    OVERRIDES_PATH,
+    CatalogValidationError,
+    build_catalog,
+    write_catalog,
+)
 from .config import TZ
 from .ids import LOCK_PATH, assign_ids, build_row_infos, group_rows, load_lock, write_lock
 from .ingest import (
@@ -64,6 +71,46 @@ def _add_assign_ids(sub: argparse._SubParsersAction) -> None:
     parser.set_defaults(handler=_cmd_assign_ids)
 
 
+def _add_build_catalog(sub: argparse._SubParsersAction) -> None:
+    parser = sub.add_parser("build-catalog", help="build the filament catalog")
+    parser.add_argument("--extracted", type=Path)
+    parser.add_argument("--now")
+    parser.set_defaults(handler=_cmd_build_catalog)
+
+
+def _cmd_build_catalog(args: argparse.Namespace) -> int:
+    if args.extracted is not None:
+        print("--extracted 需要 T12")
+        return 2
+    rows_path = RAW_DIR / "page_rows.json"
+    inventory_path = RAW_DIR / "inventory.json"
+    try:
+        verify_snapshots()
+        rows = load_rows(rows_path)
+        inventory = load_inventory(inventory_path)
+        lock = load_lock(LOCK_PATH)
+        if lock is None:
+            raise CatalogValidationError("ids lock missing; please run assign-ids first")
+        overrides = json.loads(OVERRIDES_PATH.read_text(encoding="utf-8"))
+        source = {
+            "page_rows_sha256": sha256_file(rows_path),
+            "inventory_sha256": sha256_file(inventory_path),
+            "ids_lock_sha256": sha256_file(LOCK_PATH),
+        }
+        now = args.now or datetime.now(ZoneInfo(TZ)).isoformat(timespec="seconds")
+        catalog = build_catalog(rows, lock, inventory, overrides, None, now, source)
+        write_catalog(CATALOG_PATH, catalog)
+    except (OSError, SnapshotMismatchError, RuntimeError, ValueError) as exc:
+        print(str(exc))
+        return 1
+    counts = catalog["counts"]
+    print(
+        "entries={entries} with_hex={with_hex} official={official} "
+        "store_swatch={store_swatch} image_extracted={image_extracted}".format(**counts)
+    )
+    return 0
+
+
 def _cmd_assign_ids(args: argparse.Namespace) -> int:
     today = args.today or datetime.now(ZoneInfo(TZ)).date().isoformat()
     source = RAW_DIR / "page_rows.json"
@@ -89,6 +136,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_validate(sub)
     _add_ingest(sub)
     _add_assign_ids(sub)
+    _add_build_catalog(sub)
     return parser
 
 
