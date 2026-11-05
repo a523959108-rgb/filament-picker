@@ -1,5 +1,7 @@
 {
   "schema_version": 1,
   "hex": {},
-  "store_swatch_confidence": {}
+  "store_swatch_confidence": {
+    "esun": 0.3
+  }
 }

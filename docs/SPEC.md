@@ -853,7 +853,7 @@ exec .venv/bin/filament-picker worker --root "${FP_ROOT:-/home/box/agent-data/sh
 2. **仓库**：默认独立仓库 `/workspace/dev/filament-picker`，是否 `git init`、是否推远端？
 3. **bambu-print-agent 的 `filament_id` / `color_source` 改动**：本仓库不碰；何时、由谁去改？
 4. **网站（M3）托管方式与域名**。
-5. **eSUN 店铺示意色**与商品图中位 ΔE 31.7：是否把 `store_swatch_confidence.esun` 设为 0.3（即不参与推荐）？
+5. **eSUN 店铺示意色** — 已定：`store_swatch_confidence.esun = 0.3`（校准 median ΔE 32.4，低于 MATCH_MIN_CONF 0.5，不参与推荐）。
 6. **覆盖率**：有色值 600/3821（15.7%）；商品图取色即使全部成功上限 2701/3821（70.7%），达不到 PRD 的 80%；1120 条无商品图。接受，还是补图/人工录入？
 7. **钉钉真机实测**：监听器离线测试已过，什么时候在真群里发图实测？
 8. **并列排序**：ΔE 相同时按 id 排序，导致 `pla-aero` 排在 `pla-basic` 前。是否加"系列优先级"（如 Basic/Matte 优先）？
