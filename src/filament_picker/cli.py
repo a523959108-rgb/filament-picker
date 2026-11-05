@@ -23,7 +23,7 @@ from .catalog import (
     load_catalog,
     write_catalog,
 )
-from .config import TZ
+from .config import REPO_ROOT, TZ, get_settings
 from .ids import LOCK_PATH, assign_ids, build_row_infos, group_rows, load_lock, write_lock
 from .ingest import (
     RAW_DIR,
@@ -194,6 +194,44 @@ def _add_qa_sample(sub: argparse._SubParsersAction) -> None:
     parser.set_defaults(handler=_cmd_qa_sample)
 
 
+def _add_plan(sub: argparse._SubParsersAction) -> None:
+    parser = sub.add_parser("plan", help="plan colors for one image")
+    parser.add_argument("image", type=Path)
+    parser.add_argument("--note", default="")
+    parser.add_argument("--out", type=Path, default=REPO_ROOT / "data" / "build" / "cli-root")
+    parser.set_defaults(handler=_cmd_plan)
+
+
+def _cmd_plan(args: argparse.Namespace) -> int:
+    from .planner import run_plan
+
+    now = datetime.now(ZoneInfo(TZ))
+    settings = get_settings()
+    request = {
+        "schema_version": 1,
+        "request_id": f"cli-{now:%Y%m%d%H%M%S}",
+        "created_at": now.isoformat(timespec="seconds"),
+        "image_paths": [str(args.image.resolve())],
+        "note": args.note,
+        "constraints": {},
+        "context": {},
+    }
+    try:
+        catalog = load_catalog(settings.catalog)
+        result = run_plan(
+            request,
+            catalog,
+            args.out,
+            lambda: datetime.now(ZoneInfo(TZ)),
+            settings.card_base_url,
+        )
+    except (OSError, CatalogValidationError, ValueError) as exc:
+        print(str(exc))
+        return 1
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    return 0 if result["status"] == "ok" else 1
+
+
 def _cmd_qa_sample(args: argparse.Namespace) -> int:
     try:
         catalog = load_catalog(CATALOG_PATH)
@@ -237,6 +275,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_extract(sub)
     _add_calibrate(sub)
     _add_qa_sample(sub)
+    _add_plan(sub)
     return parser
 
 
