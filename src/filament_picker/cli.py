@@ -218,6 +218,25 @@ def _add_export_web(sub: argparse._SubParsersAction) -> None:
     parser.set_defaults(handler=_cmd_export_web)
 
 
+def _add_serve(sub: argparse._SubParsersAction) -> None:
+    parser = sub.add_parser("serve", help="serve the API and web app")
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=8787)
+    parser.add_argument("--dist", type=Path, default=REPO_ROOT / "web" / "dist")
+    parser.set_defaults(handler=_cmd_serve)
+
+
+def _cmd_serve(args: argparse.Namespace) -> int:
+    import uvicorn
+
+    from .server import build_server_app
+
+    settings = get_settings()
+    app = build_server_app(args.dist, settings.catalog, settings.root, settings.card_base_url)
+    uvicorn.run(app, host=args.host, port=args.port)
+    return 0
+
+
 def _cmd_export_web(args: argparse.Namespace) -> int:
     settings = get_settings()
     catalog_path = args.catalog or settings.catalog
@@ -319,6 +338,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_plan(sub)
     _add_worker(sub)
     _add_export_web(sub)
+    _add_serve(sub)
     return parser
 
 
