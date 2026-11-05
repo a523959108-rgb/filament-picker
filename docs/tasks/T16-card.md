@@ -27,7 +27,7 @@ def render_card(image_path: Path, palette: list[PaletteColor], matches: list[dic
 ```
 
 ## 输入/输出示例
-- `card_height(4) == 820`，`card_height(1) == 620`，`card_height(2) == 620`，`card_height(3) == 620`，`card_height(5) == 960`。
+- `card_height(4) == 820`，`card_height(1) == 620`，`card_height(2) == 620`，`card_height(3) == 680`，`card_height(5) == 960`。
 - `truncate("一二三四五六七八九十一二三四五六七八九") == "一二三四五六七八九十一二三四五六七…"`（19 字 → 17 字 + …）。
 - `card_url_for(Path("/x/public/cards/abc.png"), "https://cards.example.invalid/c/") == "https://cards.example.invalid/c/abc.png"`（示例域名）。
 
