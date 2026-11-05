@@ -1,15 +1,26 @@
 import argparse
+import csv
 import json
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from . import __version__
+from .calibrate import (
+    CALIBRATION_PATH,
+    EXTRACTED_PATH,
+    QA_SAMPLE_PATH,
+    calibrate,
+    qa_sample,
+    run_extract,
+    summarize,
+)
 from .catalog import (
     CATALOG_PATH,
     OVERRIDES_PATH,
     CatalogValidationError,
     build_catalog,
+    load_catalog,
     write_catalog,
 )
 from .config import TZ
@@ -79,9 +90,6 @@ def _add_build_catalog(sub: argparse._SubParsersAction) -> None:
 
 
 def _cmd_build_catalog(args: argparse.Namespace) -> int:
-    if args.extracted is not None:
-        print("--extracted 需要 T12")
-        return 2
     rows_path = RAW_DIR / "page_rows.json"
     inventory_path = RAW_DIR / "inventory.json"
     try:
@@ -98,7 +106,10 @@ def _cmd_build_catalog(args: argparse.Namespace) -> int:
             "ids_lock_sha256": sha256_file(LOCK_PATH),
         }
         now = args.now or datetime.now(ZoneInfo(TZ)).isoformat(timespec="seconds")
-        catalog = build_catalog(rows, lock, inventory, overrides, None, now, source)
+        extracted = None
+        if args.extracted is not None:
+            extracted = json.loads(args.extracted.read_text(encoding="utf-8"))
+        catalog = build_catalog(rows, lock, inventory, overrides, extracted, now, source)
         write_catalog(CATALOG_PATH, catalog)
     except (OSError, SnapshotMismatchError, RuntimeError, ValueError) as exc:
         print(str(exc))
@@ -108,6 +119,92 @@ def _cmd_build_catalog(args: argparse.Namespace) -> int:
         "entries={entries} with_hex={with_hex} official={official} "
         "store_swatch={store_swatch} image_extracted={image_extracted}".format(**counts)
     )
+    return 0
+
+
+def _catalog_now() -> str:
+    return datetime.now(ZoneInfo(TZ)).isoformat(timespec="seconds")
+
+
+def _read_extracted(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _add_extract(sub: argparse._SubParsersAction) -> None:
+    parser = sub.add_parser("extract", help="extract colors from product images")
+    parser.add_argument("--limit", type=int)
+    parser.set_defaults(handler=_cmd_extract)
+
+
+def _cmd_extract(args: argparse.Namespace) -> int:
+    try:
+        catalog = load_catalog(CATALOG_PATH)
+        extracted = run_extract(catalog, _catalog_now(), args.limit)
+        EXTRACTED_PATH.parent.mkdir(parents=True, exist_ok=True)
+        EXTRACTED_PATH.write_text(
+            json.dumps(extracted, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+    except (OSError, ValueError, RuntimeError) as exc:
+        print(str(exc))
+        return 1
+    counts = {status: 0 for status in ("ok", "no_foreground", "skipped")}
+    for result in extracted["results"].values():
+        counts[result["status"]] += 1
+    print(f"ok={counts['ok']} no_foreground={counts['no_foreground']} skipped={counts['skipped']}")
+    return 0
+
+
+def _add_calibrate(sub: argparse._SubParsersAction) -> None:
+    parser = sub.add_parser("calibrate", help="calibrate extracted colors")
+    parser.set_defaults(handler=_cmd_calibrate)
+
+
+def _cmd_calibrate(args: argparse.Namespace) -> int:
+    del args
+    try:
+        catalog = load_catalog(CATALOG_PATH)
+        extracted = _read_extracted(EXTRACTED_PATH)
+        rows = calibrate(catalog, extracted)
+        CALIBRATION_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with CALIBRATION_PATH.open("w", encoding="utf-8", newline="") as output:
+            writer = csv.DictWriter(
+                output,
+                fieldnames=[
+                    "id",
+                    "hex_source",
+                    "catalog_hex",
+                    "extracted_hex",
+                    "delta_e",
+                    "confidence",
+                ],
+            )
+            writer.writeheader()
+            writer.writerows(rows)
+    except (OSError, ValueError, RuntimeError) as exc:
+        print(str(exc))
+        return 1
+    for line in summarize(rows):
+        print(line)
+    return 0
+
+
+def _add_qa_sample(sub: argparse._SubParsersAction) -> None:
+    parser = sub.add_parser("qa-sample", help="write an HTML QA sample")
+    parser.add_argument("--n", type=int, default=50)
+    parser.set_defaults(handler=_cmd_qa_sample)
+
+
+def _cmd_qa_sample(args: argparse.Namespace) -> int:
+    try:
+        catalog = load_catalog(CATALOG_PATH)
+        extracted = _read_extracted(EXTRACTED_PATH)
+        sample = qa_sample(catalog, extracted, args.n)
+        QA_SAMPLE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        QA_SAMPLE_PATH.write_text(sample, encoding="utf-8")
+    except (OSError, ValueError, RuntimeError) as exc:
+        print(str(exc))
+        return 1
+    print("wrote data/qa/sample.html")
     return 0
 
 
@@ -137,6 +234,9 @@ def build_parser() -> argparse.ArgumentParser:
     _add_ingest(sub)
     _add_assign_ids(sub)
     _add_build_catalog(sub)
+    _add_extract(sub)
+    _add_calibrate(sub)
+    _add_qa_sample(sub)
     return parser
 
 

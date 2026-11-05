@@ -8,7 +8,13 @@ from typing import Any
 
 from .brands import BRAND_ORDER, BRAND_SLUGS
 from .colorspace import hex_to_lab
-from .config import HEX_CONF_MANUAL, HEX_CONF_OFFICIAL, HEX_CONF_STORE_SWATCH, REPO_ROOT
+from .config import (
+    EXTRACT_MIN_CONF,
+    HEX_CONF_MANUAL,
+    HEX_CONF_OFFICIAL,
+    HEX_CONF_STORE_SWATCH,
+    REPO_ROOT,
+)
 from .effects import detect_effects, detect_material
 from .ids import RowInfo, build_row_infos, canonical, group_rows
 from .ingest import InventorySeries, RawRow
@@ -60,10 +66,21 @@ def build_entry(
     overrides: dict[str, Any],
     extracted: dict[str, Any] | None,
 ) -> dict[str, Any]:
-    del extracted
     info = canonical(group)
     parsed = info.parsed
     hexes, hex_source, hex_confidence = _entry_hex(info, entry_id, overrides)
+    if not hexes and extracted is not None:
+        result = extracted.get("results", {}).get(entry_id)
+        if (
+            isinstance(result, dict)
+            and result.get("status") == "ok"
+            and float(result.get("confidence", 0.0)) >= EXTRACT_MIN_CONF
+            and isinstance(result.get("hexes"), list)
+            and result["hexes"]
+        ):
+            hexes = list(result["hexes"])
+            hex_source = "image_extracted"
+            hex_confidence = float(result["confidence"])
     variant_image = find_variant_image(variant_index, info)
     if variant_image is None:
         for candidate in group:
