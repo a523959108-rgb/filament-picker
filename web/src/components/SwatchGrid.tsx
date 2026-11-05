@@ -13,7 +13,7 @@ export function SwatchGrid({
   const brandNames = new Map(brands.map((brand) => [brand.slug, brand.name]));
   return (
     <section>
-      <p className="catalog-count">共 {entries.length} 个颜色</p>
+      <p className="catalog-count" aria-live="polite">共 {entries.length} 个颜色</p>
       <div className="swatch-grid">
         {entries.map((entry) => {
           const className = entry.hex.length === 0 ? "swatch swatch-empty" : "swatch";
