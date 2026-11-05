@@ -56,3 +56,9 @@
 
 ## T16: card_height(3) 620 vs 680 — 已解决（方案 A）
 保留公式 `H = 40 + 120 + max(360, 140*n) + 60 + 40`；`card_height(3) == 680`。示例里的 620 是抄漏。
+
+## T19: 禁用词全文件扫描与原样复制的请求 schema 冲突
+
+- 位置：`docs/tasks/T19-e2e-smoke.md`「测试」第 4 条；`docs/SPEC.md` §3、§9.1；`src/filament_picker/schemas/request.schema.json` 第 35–36 行。
+- 现象：T19 要求用 Python 遍历 `src/` 与 `scripts/` 文件，大小写不敏感地断言不出现 `dingtalk`、`sessionWebhook`、`bambu-print-agent`。但 T01 要求从 `docs/schemas/` 原样复制的请求 schema 在 description 和 `not.anyOf.required` 中包含 `sessionWebhook`，用于落实 SPEC §9.1 的禁止携带该字段规则。按任务卡字面扫描会命中两行；排除 JSON/schema 文件会改变测试范围，修改 schema 则越出 T19 允许文件且破坏原样复制约定，不能自行选择。T18 验收已通过（10 passed）；发现冲突后未创建 T19 测试或脚本。运行 T19 原样验收命令在 `tests/test_e2e_worker.py` 不存在处退出，退出码 4；全量 pytest 未执行。
+- 可选方案：A. 明确将 T19 禁用词检查范围限定为 `src/` 与 `scripts/` 中的可执行实现文件（如 `.py`、`.sh`），保留 schema 原样；B. 明确允许请求 schema 中落实字段禁令的这两处命中，其余文件继续逐文件检查；C. 由外部协调者统一修改权威 schema、复制约定及扫描要求。需要明确后才能继续 T19，不放宽断言或自行修改扫描范围。
