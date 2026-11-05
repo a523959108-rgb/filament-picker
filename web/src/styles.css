@@ -1,0 +1,59 @@
+:root {
+  color: #1f2937;
+  font-family: system-ui, sans-serif;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.catalog-count {
+  font-size: 1.1rem;
+}
+
+.swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.swatch-card {
+  display: flex;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  flex-direction: column;
+  text-align: left;
+  cursor: pointer;
+}
+
+.swatch {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 8px;
+  border-radius: 4px;
+}
+
+.swatch-empty {
+  background: repeating-linear-gradient(135deg, #fff, #fff 10px, #d1d5db 10px, #d1d5db 12px);
+}
+
+.swatch-name,
+.swatch-color {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.swatch-color {
+  color: #4b5563;
+}

@@ -34,6 +34,7 @@ from .ingest import (
     verify_snapshots,
 )
 from .validate import validate_json
+from .web_export import DEFAULT_WEB_CATALOG, export_web
 
 
 def _add_validate(sub: argparse._SubParsersAction) -> None:
@@ -210,6 +211,30 @@ def _add_worker(sub: argparse._SubParsersAction) -> None:
     parser.set_defaults(handler=_cmd_worker)
 
 
+def _add_export_web(sub: argparse._SubParsersAction) -> None:
+    parser = sub.add_parser("export-web", help="export the catalog for the web app")
+    parser.add_argument("--catalog", type=Path)
+    parser.add_argument("--out", type=Path, default=DEFAULT_WEB_CATALOG)
+    parser.set_defaults(handler=_cmd_export_web)
+
+
+def _cmd_export_web(args: argparse.Namespace) -> int:
+    settings = get_settings()
+    catalog_path = args.catalog or settings.catalog
+    try:
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+        exported = export_web(catalog)
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(
+            json.dumps(exported, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+    except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        print(str(exc))
+        return 1
+    print(f"entries={len(exported['entries'])}")
+    return 0
+
+
 def _cmd_worker(args: argparse.Namespace) -> int:
     from .worker import run_worker
 
@@ -293,6 +318,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_qa_sample(sub)
     _add_plan(sub)
     _add_worker(sub)
+    _add_export_web(sub)
     return parser
 
 
