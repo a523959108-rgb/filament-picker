@@ -23,3 +23,9 @@
 
 ## T10: 四象限前景测试与阴影规则冲突 — 已解决（方案 B）
 `foreground_mask` 只做背景/高光，不删阴影；阴影由 `apply_shadow_rule` 在取色（§8.3）里单独调用。SPEC §8.2 与 T10 任务卡已改清。四象限期望仍为 0.75。
+
+## T12: 官方校准行数与单色筛选条件不一致
+
+- 位置：`docs/tasks/T12-batch-extract-calibrate.md`「接口签名」`calibrate` 筛选规则、测试断言和验收命令；`data/build/filament-catalog.json` 的 Bambu 条目。
+- 现象：真实目录中有商品图的 Bambu 条目共 43 条，但其中 `bambu-lab/pla-silk-multi-color/blue-hawaii-13904`、`bambu-lab/pla-silk-multi-color/midnight-blaze-13902`、`bambu-lab/pla-silk-multi-color/neon-city-13903` 的 `hex` 各有 2 个值。严格按 `hex_source == "official"` 且 `len(hex) == 1` 且提取结果 `status == "ok"` 筛选，`calibrate` 官方行数为 40；验收命令要求最后输出 `bambu n=43`，无法同时满足两者。
+- 可选方案：A. 保持 `len(hex)==1` 规则，将验收期望和测试断言改为 `bambu n=40`；B. 官方校准包含这 3 个多色条目并定义多 hex 的比较规则（例如逐色或聚合），保留 `n=43`；C. 修改目录中这 3 个条目的官方 hex 结构。需要明确后才能完成 T12 校准验收。
