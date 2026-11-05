@@ -29,3 +29,7 @@
 - 位置：`docs/tasks/T12-batch-extract-calibrate.md`「接口签名」`calibrate` 筛选规则、测试断言和验收命令；`data/build/filament-catalog.json` 的 Bambu 条目。
 - 现象：真实目录中有商品图的 Bambu 条目共 43 条，但其中 `bambu-lab/pla-silk-multi-color/blue-hawaii-13904`、`bambu-lab/pla-silk-multi-color/midnight-blaze-13902`、`bambu-lab/pla-silk-multi-color/neon-city-13903` 的 `hex` 各有 2 个值。严格按 `hex_source == "official"` 且 `len(hex) == 1` 且提取结果 `status == "ok"` 筛选，`calibrate` 官方行数为 40；验收命令要求最后输出 `bambu n=43`，无法同时满足两者。
 - 可选方案：A. 保持 `len(hex)==1` 规则，将验收期望和测试断言改为 `bambu n=40`；B. 官方校准包含这 3 个多色条目并定义多 hex 的比较规则（例如逐色或聚合），保留 `n=43`；C. 修改目录中这 3 个条目的官方 hex 结构。需要明确后才能完成 T12 校准验收。
+
+
+## T12: bambu calibrate n=43 vs n=40 — 已解决（方案 A）
+保持 `len(hex)==1` 过滤；验收改为 `bambu n=40`。3 条多色丝绸不参与单色 ΔE 校准。参考：median 8.0 / p80 14.6。

@@ -775,7 +775,7 @@ exec .venv/bin/filament-picker worker --root "${FP_ROOT:-/home/box/agent-data/sh
 | `assign-ids [--today YYYY-MM-DD]` | T06 | 更新 data/ids.lock.json | `keys=3821 new=<n> retired=<n> collisions=0` |
 | `build-catalog [--extracted PATH]` | T08/T12 | 写 data/build/filament-catalog.json | `entries=3821 with_hex=<n> official=246 store_swatch=354 image_extracted=<n>` |
 | `extract [--limit N]` | T12 | 批量取色写 data/extracted/extracted.json | `ok=<n> no_foreground=<n> skipped=<n>` |
-| `calibrate` | T12 | 写 data/qa/calibration.csv | `bambu n=43 median=<x> p80=<y>` |
+| `calibrate` | T12 | 写 data/qa/calibration.csv | `bambu n=40 median=<x> p80=<y>` |
 | `qa-sample [--n 50]` | T12 | 写 data/qa/sample.html | `wrote data/qa/sample.html` |
 | `plan <image> [--note TEXT] [--out DIR]` | T17 | 本地跑一次，打印 result JSON | （JSON） |
 | `worker --root DIR [--once]` | T18 | | 日志 |
@@ -826,7 +826,7 @@ exec .venv/bin/filament-picker worker --root "${FP_ROOT:-/home/box/agent-data/sh
 
 **M1 结束（T09–T12）**
 - [ ] CIEDE2000 8 组 Sharma 向量、Lab 6 组向量测试存在且未放宽容差。
-- [ ] `calibrate` 输出 `bambu n=43`，median ≤ 10.0（参考实现 8.0）；把 calibration.csv 中 ΔE 最大的 5 条图片打开看原因，记录进 PRD。
+- [ ] `calibrate` 输出 `bambu n=40`，median ≤ 10.0（参考实现 8.0 / p80 14.6；有商品图的 Bambu official 共 43，其中 3 条多色丝绸 `len(hex)>1` 不进单色 ΔE 校准）；把 calibration.csv 中 ΔE 最大的 5 条图片打开看原因，记录进 PRD。
 - [ ] `extract` 统计：ok / no_foreground / skipped 之和 = 2457（有商品图的条目：无 hex 2101 + official 43 + store_swatch 313）。
 - [ ] `qa-sample` 生成的 HTML 人工看 50 条：标记明显错误的条数，>10 条则在校准会上讨论阈值（**Codex 不改阈值**）。
 - [ ] 重新 `build-catalog --extracted ...` 后 `image_extracted` 条目置信度都 ≥ 0.40；schema 校验通过；ID 与 M0 完全一致（lock 无 diff）。

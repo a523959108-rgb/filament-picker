@@ -52,7 +52,7 @@ ok=<a> no_foreground=<b> skipped=<c>            # a+b+c 必须 = 2457
 $ .venv/bin/filament-picker calibrate
 store_swatch anycubic n=<n> median=<m> p80=<p>
 ...
-bambu n=43 median=<m> p80=<p>                   # 参考实现：median 8.0 / p80 16.0（2026-11-05）
+bambu n=40 median=<m> p80=<p>                   # 参考实现：median 8.0 / p80 14.6（2026-11-05；有图 official 43 条里 3 条多色不进校准）
 ```
 `extracted.json` 单项形状（示例，数值非真实）：`{"image": "/workspace/filament-shots/…/variant_00_Black.jpg", "status": "ok", "hexes": ["#1C1C1E"], "confidence": 0.512, "share": 0.71, "spread": 2.84, "n_pixels": 20000, "error": null}`
 
@@ -66,11 +66,11 @@ bambu n=43 median=<m> p80=<p>                   # 参考实现：median 8.0 / p8
 - `run_extract` 用 `tmp_path` 下的 2 张合成图（`square_on_white`、`blank_white`）+ 1 个不存在路径，构造 3 条目的最小 Catalog → results 状态分别 ok / no_foreground / skipped(error=="IMAGE_MISSING")；`limit=1` 只有 1 项。
 - `summarize` 对手写 rows：official ΔE `[1, 2, 3, 4, 5]` → 最后一行 `"bambu n=5 median=3.0 p80=4.2"`；store_swatch esun `[10, 20]` → `"store_swatch esun n=2 median=15.0 p80=18.0"`。
 - `qa_sample` 对 60 个 ok 结果 → HTML 里 `<img` 出现 50 次；同输入两次输出相同；对 10 个 → 10 次。
-- `@pytest.mark.data`（慢，验收时跑）：真实目录 `run_extract` 后 `len(results) == 2457`；`calibrate` 中 official 行数 == 43。
+- `@pytest.mark.data`（慢，验收时跑）：真实目录 `run_extract` 后 `len(results) == 2457`；`calibrate` 中 official 行数 == 40（3 条多色丝绸 `len(hex)>1` 被 `len(hex)==1` 过滤）。
 
 ## 验收命令（退出码 0 才算完成；完成报告里贴最后 20 行输出）
 ```bash
-cd /workspace/dev/filament-picker && .venv/bin/ruff check . && .venv/bin/ruff format --check . && cp data/ids.lock.json /tmp/fp_lock_before.json && .venv/bin/pytest tests/test_calibrate.py tests/test_catalog_extracted.py -q && .venv/bin/filament-picker extract | tee /tmp/fp_extract.txt && python3 -c "import re;t=open('/tmp/fp_extract.txt').read().split()[-3:];n=sum(int(x.split('=')[1]) for x in t);assert n==2457,n" && .venv/bin/filament-picker calibrate | tail -1 | grep -E '^bambu n=43 median=' && .venv/bin/filament-picker qa-sample && .venv/bin/filament-picker build-catalog --extracted data/extracted/extracted.json --now 2026-11-05T12:00:00+09:00 && .venv/bin/filament-picker validate catalog data/build/filament-catalog.json && cmp data/ids.lock.json /tmp/fp_lock_before.json
+cd /workspace/dev/filament-picker && .venv/bin/ruff check . && .venv/bin/ruff format --check . && cp data/ids.lock.json /tmp/fp_lock_before.json && .venv/bin/pytest tests/test_calibrate.py tests/test_catalog_extracted.py -q && .venv/bin/filament-picker extract | tee /tmp/fp_extract.txt && python3 -c "import re;t=open('/tmp/fp_extract.txt').read().split()[-3:];n=sum(int(x.split('=')[1]) for x in t);assert n==2457,n" && .venv/bin/filament-picker calibrate | tail -1 | grep -E '^bambu n=40 median=' && .venv/bin/filament-picker qa-sample && .venv/bin/filament-picker build-catalog --extracted data/extracted/extracted.json --now 2026-11-05T12:00:00+09:00 && .venv/bin/filament-picker validate catalog data/build/filament-catalog.json && cmp data/ids.lock.json /tmp/fp_lock_before.json
 ```
 
 ## 不要做
