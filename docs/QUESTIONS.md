@@ -46,3 +46,9 @@
 
 ## T15: price_text 空串 — 已解决
 匹配结果输出用 `price_text or None`（空串 → null），与 result.example.json / schema 一致。
+
+## T16: card_height(3) 示例与公式矛盾
+
+- 位置：`docs/SPEC.md` §9.6「画布」及 `docs/tasks/T16-card.md`「输入/输出示例」。
+- 现象：按任务卡和 SPEC 写死的公式 `40 + 120 + max(360, 140*n) + 60 + 40`，`card_height(3)` 应为 680；同一任务卡明确断言 `card_height(3) == 620`。测试按该断言运行失败，无法同时满足公式和示例。
+- 可选方案：A. 保留公式，将 `card_height(3)` 期望改为 680；B. 保留 620 期望，明确高度公式在 3 色时的特殊规则；C. 统一修改 SPEC 与 T16 任务卡中的其中一项。需要确认后才能完成 T16。
