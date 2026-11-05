@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "request_id": "msgEXAMPLE0001",
+  "status": "ok",
+  "created_at": "2026-11-05T14:03:12+09:00",
+  "finished_at": "2026-11-05T14:03:14+09:00",
+  "elapsed_ms": 1840,
+  "error": null,
+  "params": {
+    "max_colors": 4,
+    "ams_slots": 4,
+    "n_colors": 4,
+    "materials": [
+      "PLA"
+    ],
+    "brands": [
+      "bambu-lab"
+    ],
+    "allow_approx": true,
+    "keep_small": false,
+    "per_color": 2,
+    "note_parsed": {
+      "max_colors": 4,
+      "ams_slots": 4,
+      "materials": [
+        "PLA"
+      ],
+      "brands": [
+        "bambu-lab"
+      ]
+    }
+  },
+  "palette": [
+    {
+      "index": 0,
+      "hex": "#1B1B1D",
+      "lab": [
+        9.84,
+        0.52,
+        -1.38
+      ],
+      "share": 1.0
+    }
+  ],
+  "matches": [
+    {
+      "target_index": 0,
+      "picks": [
+        {
+          "id": "bambu-lab/pla-tough/black-12101",
+          "brand_name": "Bambu Lab",
+          "series_name": "PLA Tough",
+          "name_display": "黑色 Black (12101)",
+          "hex": "#25282A",
+          "hex_source": "official",
+          "delta_e": 4.38,
+          "label": "接近",
+          "is_approx": false,
+          "url": "https://github.com/bambulab/BambuStudio/blob/master/resources/profiles/BBL/filament/filaments_color_codes.json",
+          "price_text": null
+        },
+        {
+          "id": "bambu-lab/pla-aero/black-14103",
+          "brand_name": "Bambu Lab",
+          "series_name": "PLA Aero",
+          "name_display": "黑色 Black (14103)",
+          "hex": "#000000",
+          "hex_source": "official",
+          "delta_e": 6.08,
+          "label": "勉强",
+          "is_approx": false,
+          "url": "https://jp.store.bambulab.com/products/pla-aero",
+          "price_text": "¥8,080 JPY"
+        }
+      ]
+    }
+  ],
+  "single_series_option": {
+    "brand_name": "Bambu Lab",
+    "series_name": "PLA Tough",
+    "max_delta_e": 4.38,
+    "picks": [
+      {
+        "target_index": 0,
+        "id": "bambu-lab/pla-tough/black-12101",
+        "delta_e": 4.38
+      }
+    ]
+  },
+  "slots_used": 1,
+  "card_path": "/home/box/agent-data/shared/filament-picker/public/cards/EXAMPLE_TOKEN.png",
+  "card_url": "https://cards.example.invalid/EXAMPLE_TOKEN.png",
+  "reply_markdown": "### 配色方案（1 色）\n![配色卡](https://cards.example.invalid/EXAMPLE_TOKEN.png)\n1. `#1B1B1D` 占比 100%\n   - 推荐：Bambu Lab PLA Tough · 黑色 Black (12101)（ΔE 4.4，接近）[购买](https://github.com/bambulab/BambuStudio/blob/master/resources/profiles/BBL/filament/filaments_color_codes.json)\n   - 备选：Bambu Lab PLA Aero · 黑色 Black (14103)（ΔE 6.1，勉强）[购买](https://jp.store.bambulab.com/products/pla-aero)\n**同系列方案**：Bambu Lab PLA Tough（最大 ΔE 4.4）\n需要 1 个料槽。",
+  "warnings": [],
+  "context": {
+    "conversationId": "cidEXAMPLE",
+    "senderStaffId": "EXAMPLE",
+    "conversationType": "1"
+  },
+  "catalog_generated_at": "2026-11-05T12:00:00+09:00"
+}

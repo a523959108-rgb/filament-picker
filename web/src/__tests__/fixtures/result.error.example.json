@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "request_id": "msgEXAMPLE0001",
+  "status": "error",
+  "created_at": "2026-11-05T14:03:12+09:00",
+  "finished_at": "2026-11-05T14:03:14+09:00",
+  "elapsed_ms": 1840,
+  "error": {
+    "code": "NO_FOREGROUND",
+    "message_zh": "没能从图里分出主体颜色，请换一张背景更干净的图。"
+  },
+  "params": {
+    "max_colors": 4,
+    "ams_slots": 4,
+    "n_colors": 4,
+    "materials": [
+      "PLA"
+    ],
+    "brands": [
+      "bambu-lab"
+    ],
+    "allow_approx": true,
+    "keep_small": false,
+    "per_color": 2,
+    "note_parsed": {
+      "max_colors": 4,
+      "ams_slots": 4,
+      "materials": [
+        "PLA"
+      ],
+      "brands": [
+        "bambu-lab"
+      ]
+    }
+  },
+  "palette": [],
+  "matches": [],
+  "single_series_option": null,
+  "slots_used": 0,
+  "card_path": null,
+  "card_url": null,
+  "reply_markdown": "没能从图里分出主体颜色，请换一张背景更干净的图。",
+  "warnings": [],
+  "context": {
+    "conversationId": "cidEXAMPLE",
+    "senderStaffId": "EXAMPLE",
+    "conversationType": "1"
+  },
+  "catalog_generated_at": "2026-11-05T12:00:00+09:00"
+}

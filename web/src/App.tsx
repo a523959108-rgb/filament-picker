@@ -6,6 +6,7 @@ import { Filters } from "./components/Filters";
 import { ColorDetail } from "./components/ColorDetail";
 import { CompareBar } from "./components/CompareBar";
 import { SwatchGrid } from "./components/SwatchGrid";
+import { PlanPage } from "./components/PlanPage";
 import { buildIndex, EMPTY_FILTER, query } from "./search";
 import type { FilterState } from "./search";
 import type { WebCatalog } from "./types";
@@ -48,7 +49,7 @@ export default function App(): JSX.Element {
   const index = useMemo(() => (catalog === null ? null : buildIndex(catalog.entries)), [catalog]);
 
   if (route === "#/plan") {
-    return <main className="page"><p>图片配色（T24）</p></main>;
+    return <main className="page"><PlanPage /></main>;
   }
   if (loadError) {
     return <main className="page"><p>目录加载失败</p></main>;
