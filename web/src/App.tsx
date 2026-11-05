@@ -3,6 +3,8 @@ import type { JSX } from "react";
 import { loadCatalog } from "./catalog";
 import { FAMILIES } from "./config";
 import { Filters } from "./components/Filters";
+import { ColorDetail } from "./components/ColorDetail";
+import { CompareBar } from "./components/CompareBar";
 import { SwatchGrid } from "./components/SwatchGrid";
 import { buildIndex, EMPTY_FILTER, query } from "./search";
 import type { FilterState } from "./search";
@@ -18,6 +20,9 @@ export default function App(): JSX.Element {
   const [loadError, setLoadError] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTER);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [compareMessage, setCompareMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const onHashChange = () => setRoute(routeFromHash());
@@ -52,6 +57,19 @@ export default function App(): JSX.Element {
     return <main className="page"><p>目录加载中…</p></main>;
   }
   const entries = index === null ? [] : query(index, catalog, searchText, filters);
+  const selected = selectedId === null ? null : catalog.entries.find((entry) => entry.id === selectedId) ?? null;
+  const compareEntries = compareIds
+    .map((id) => catalog.entries.find((entry) => entry.id === id))
+    .filter((entry): entry is WebCatalog["entries"][number] => entry !== undefined);
+  const addCompare = (id: string) => {
+    setCompareMessage(null);
+    if (compareIds.includes(id)) return;
+    if (compareIds.length >= 4) {
+      setCompareMessage("最多对比 4 个");
+      return;
+    }
+    setCompareIds([...compareIds, id]);
+  };
   return (
     <main className="page">
       <h1>耗材选色站</h1>
@@ -65,7 +83,19 @@ export default function App(): JSX.Element {
         />
       </label>
       <Filters brands={catalog.brands} families={[...FAMILIES]} value={filters} onChange={setFilters} />
-      <SwatchGrid entries={entries} brands={catalog.brands} />
+      <SwatchGrid entries={entries} brands={catalog.brands} onSelect={setSelectedId} />
+      {compareMessage && <p role="status">{compareMessage}</p>}
+      {compareEntries.length > 0 && (
+        <CompareBar entries={compareEntries} onRemove={(id) => setCompareIds((current) => current.filter((item) => item !== id))} />
+      )}
+      {selected && (
+        <ColorDetail
+          entry={selected}
+          catalog={catalog}
+          onClose={() => setSelectedId(null)}
+          onCompare={addCompare}
+        />
+      )}
     </main>
   );
 }
