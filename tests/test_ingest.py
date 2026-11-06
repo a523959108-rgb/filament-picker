@@ -28,7 +28,7 @@ def test_verify_snapshots_and_hash() -> None:
 @pytest.mark.data
 def test_load_rows_and_expected_sample() -> None:
     rows = load_rows(RAW_DIR / "page_rows.json")
-    assert len(rows) == 3845
+    assert len(rows) == 3872
     assert rows[2808] == RawRow(
         row_index=2808,
         brand="Bambu Lab",
@@ -45,7 +45,7 @@ def test_load_rows_and_expected_sample() -> None:
 @pytest.mark.data
 def test_row_hex_counts_and_brand_series_counts() -> None:
     rows = load_rows(RAW_DIR / "page_rows.json")
-    assert Counter(len(row.hexes) for row in rows) == {0: 3245, 1: 582, 2: 17, 4: 1}
+    assert Counter(len(row.hexes) for row in rows) == {0: 3272, 1: 582, 2: 17, 4: 1}
     assert len({row.brand for row in rows}) == 21
     assert len({(row.brand, row.series) for row in rows}) == 318
 
@@ -91,4 +91,4 @@ def test_load_rows_rejects_string_hexes(tmp_path) -> None:
 @pytest.mark.data
 def test_ingest_command(capsys) -> None:
     assert main(["ingest"]) == 0
-    assert capsys.readouterr().out == "rows=3845 brands=21 series=318\n"
+    assert capsys.readouterr().out == "rows=3872 brands=21 series=318\n"

@@ -35,7 +35,7 @@ def test_build_catalog_matches_counts_examples_and_order(repo_root: Path) -> Non
     cat = build_catalog(rows, lock, inventory, {}, None, "2026-11-05T12:00:00+09:00", source)
     assert validate_json("catalog", cat) == []
     assert cat["counts"] == {
-        "entries": 3821,
+        "entries": 3848,
         "with_hex": 600,
         "official": 246,
         "store_swatch": 354,
@@ -54,7 +54,7 @@ def test_build_catalog_matches_counts_examples_and_order(repo_root: Path) -> Non
     by_id = {entry["id"]: entry for entry in cat["entries"]}
     for entry in expected["entries"]:
         assert by_id[entry["id"]] == entry
-    assert sum(entry["material"] == "PLA" for entry in cat["entries"]) == 3059
+    assert sum(entry["material"] == "PLA" for entry in cat["entries"]) == 3086
     assert sum(entry["material"] == "PETG" for entry in cat["entries"]) == 762
     merged = by_id["cailab/rainbow-shift-pla/bamboo-rb009"]
     assert len(merged["source_rows"]) == 2
@@ -93,7 +93,7 @@ def test_catalog_write_and_load(repo_root: Path, tmp_path: Path) -> None:
     path = tmp_path / "nested" / "catalog.json"
     write_catalog(path, catalog)
     loaded = load_catalog(path)
-    assert len(loaded.entries) == 3821
+    assert len(loaded.entries) == 3848
     assert loaded.by_id["bambu-lab/petg-basic/black-30105"]["hex"] == ["#000000"]
     with pytest.raises(CatalogValidationError):
         load_catalog(tmp_path / "missing.json")

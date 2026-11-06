@@ -45,7 +45,7 @@ def test_detect_effects_all_raw_rows(raw_rows: list[dict]) -> None:
     assert counts == Counter(
         {
             "multi": 610,
-            "matte": 597,
+            "matte": 624,
             "silk": 592,
             "gradient": 250,
             "translucent": 246,
@@ -67,4 +67,4 @@ def test_detect_effects_all_raw_rows(raw_rows: list[dict]) -> None:
 @pytest.mark.data
 def test_detect_material_all_raw_rows(raw_rows: list[dict]) -> None:
     materials = Counter(detect_material(row["s"]) for row in raw_rows)
-    assert materials == Counter({"PLA": 3083, "PETG": 762})
+    assert materials == Counter({"PLA": 3110, "PETG": 762})

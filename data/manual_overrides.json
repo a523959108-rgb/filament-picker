@@ -4188,6 +4188,348 @@
         "#DADBD9"
       ],
       "note": "HT-PLA Pro PA20002; hex from left-filament crop of isometric (#DADBD9). Full product image kept as SKU thumb. Grey/Dark Grey share PA20003 upstream → both #888C8F."
+    },
+    "byehassle/pla-ya-guang/red": {
+      "hex": [
+        "#CF3736"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/light-grey": {
+      "hex": [
+        "#A8ABAA"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/black": {
+      "hex": [
+        "#1A1A1A"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/cool-white": {
+      "hex": [
+        "#FAFCFC"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/orange": {
+      "hex": [
+        "#FC812C"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/blue": {
+      "hex": [
+        "#1547DD"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/yellow": {
+      "hex": [
+        "#F1EC98"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/khaki": {
+      "hex": [
+        "#E1D1B7"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/dark-grey": {
+      "hex": [
+        "#575855"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/mu-se": {
+      "hex": [
+        "#C7985F"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/beige-skin": {
+      "hex": [
+        "#F9EFE5"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/green": {
+      "hex": [
+        "#01B44E"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/e-huang-se": {
+      "hex": [
+        "#FAFCC1"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/qing-lan-se": {
+      "hex": [
+        "#A4E4D9"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/lime": {
+      "hex": [
+        "#9BB843"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/ka-fei-se": {
+      "hex": [
+        "#7F574E"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/burnt-caramel": {
+      "hex": [
+        "#8E5836"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/glacial-blue": {
+      "hex": [
+        "#B8F1FB"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/hui-lan-se": {
+      "hex": [
+        "#56646D"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/zu-mu-lv": {
+      "hex": [
+        "#1F6642"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/jun-lv-se": {
+      "hex": [
+        "#ACB49E"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/li-zong-se": {
+      "hex": [
+        "#633C2E"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/mei-fen-se": {
+      "hex": [
+        "#FFA1B3"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/sakura-bloom": {
+      "hex": [
+        "#FCE0EE"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/royal-violet": {
+      "hex": [
+        "#6454C8"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "cailab/matte-pla/hazy-blue-mt6109": {
+      "hex": [
+        "#738190"
+      ],
+      "note": "re-extract hex from existing local SKU thumb (empty hex fill); conf~0.336; src=cailab__matte-pla__hazy-blue-mt6109.jpg"
+    },
+    "cailab/matte-pla/misty-lilac-mt256": {
+      "hex": [
+        "#C3ACC9"
+      ],
+      "note": "re-extract hex from existing local SKU thumb (empty hex fill); conf~0.306; src=cailab__matte-pla__misty-lilac-mt256.jpg"
+    },
+    "cailab/matte-pla/beige-mt4030": {
+      "hex": [
+        "#ECD2B3"
+      ],
+      "note": "re-extract hex from existing local SKU thumb (empty hex fill); conf~0.311; src=cailab__matte-pla__beige-mt4030.jpg"
+    },
+    "cailab/matte-pla/dark-night-blue-mt2165": {
+      "hex": [
+        "#283B52"
+      ],
+      "note": "re-extract hex from existing local SKU thumb (empty hex fill); conf~0.259; src=cailab__matte-pla__dark-night-blue-mt2165.jpg"
+    },
+    "cailab/matte-pla/ya-guang-bao-wu-fen": {
+      "hex": [
+        "#C3ACC9"
+      ],
+      "note": "alias of cailab/matte-pla/misty-lilac-mt256 via PDD 薄雾粉 name match"
+    },
+    "cailab/pla-plus/clear-acl": {
+      "hex": [
+        "#C4C4C4"
+      ],
+      "note": "re-extract hex from existing local SKU thumb (empty hex fill); conf~0.447"
+    },
+    "sunlu/pla-plus-2-0/ceramic-white": {
+      "hex": [
+        "#E4E5EA"
+      ],
+      "note": "re-extract hex from existing local SKU thumb (empty hex fill); conf~0.250; PDD name=瓷白色"
+    },
+    "sunlu/pla-plus-2-0/ci-bai-se": {
+      "hex": [
+        "#E4E5EA"
+      ],
+      "note": "alias ceramic-white for PDD 瓷白色"
+    },
+    "cailab/matte-pla/army-green-mt2407": {
+      "hex": [
+        "#7FA07B"
+      ],
+      "note": "re-extract empty hex from local SKU thumb conf=0.311"
+    },
+    "cailab/matte-pla/desert-mt4249": {
+      "hex": [
+        "#E7D4AE"
+      ],
+      "note": "re-extract empty hex from local SKU thumb conf=0.338"
+    },
+    "cailab/matte-pla/encore-red-mt7622": {
+      "hex": [
+        "#922F3A"
+      ],
+      "note": "re-extract empty hex from local SKU thumb conf=0.338"
+    },
+    "cailab/pla-plus/tou-ming-se": {
+      "hex": [
+        "#C4C4C4"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/clear-acl"
+    },
+    "cailab/pla-plus/bai-se": {
+      "hex": [
+        "#C6C4C2"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/white-ac9003"
+    },
+    "cailab/pla-plus/bao-he-lan": {
+      "hex": [
+        "#8BD1CA"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/light-blue-ac635"
+    },
+    "cailab/pla-plus/ci-bai": {
+      "hex": [
+        "#C6C4C2"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/white-ac9003"
+    },
+    "cailab/pla-plus/guo-qi-hong": {
+      "hex": [
+        "#610A0E"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/crimson-ac1807"
+    },
+    "cailab/pla-plus/hai-lan": {
+      "hex": [
+        "#032B79"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/blue-ac2145"
+    },
+    "cailab/pla-plus/hei-se": {
+      "hex": [
+        "#292625"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/black-ac419"
+    },
+    "cailab/pla-plus/huang-se": {
+      "hex": [
+        "#DBBA2B"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/mustard-yellow-ac115"
+    },
+    "cailab/pla-plus/mang-guo-huang": {
+      "hex": [
+        "#FDB815"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/mango-yellow-ac2010"
+    },
+    "cailab/pla-plus/pin-hong": {
+      "hex": [
+        "#E34BA1"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/magenta-ac239"
+    },
+    "cailab/pla-plus/light-gray-ac421": {
+      "hex": [
+        "#818380"
+      ],
+      "note": "re-extract for PDD alias donor conf=0.334"
+    },
+    "cailab/pla-plus/qian-hui-se": {
+      "hex": [
+        "#818380"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/light-gray-ac421"
+    },
+    "cailab/pla-plus/qing-se": {
+      "hex": [
+        "#3C96DA"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/cyan-ac2925"
+    },
+    "cailab/pla-plus/rou-tao-se": {
+      "hex": [
+        "#E9B183"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/peach-fuzz-ac6023"
+    },
+    "cailab/pla-plus/sha-mo-se": {
+      "hex": [
+        "#C7B284"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/desert-ac7501"
+    },
+    "cailab/pla-plus/shen-zong-se": {
+      "hex": [
+        "#83552F"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/dark-brown-ac7517"
+    },
+    "cailab/pla-plus/gray-ac11": {
+      "hex": [
+        "#4F5054"
+      ],
+      "note": "re-extract for PDD alias donor conf=0.349"
+    },
+    "cailab/pla-plus/tan-hui": {
+      "hex": [
+        "#4F5054"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/gray-ac11"
+    },
+    "cailab/pla-plus/xun-yi-cao-zi": {
+      "hex": [
+        "#6D62B4"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/lavender-ac2725"
+    },
+    "cailab/pla-plus/ying-hua-fen": {
+      "hex": [
+        "#FDD3E0"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/sakura-pink-ac6050"
+    },
+    "cailab/pla-plus/zheng-hong": {
+      "hex": [
+        "#C71C1C"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/red-ac199"
     }
   },
   "store_swatch_confidence": {

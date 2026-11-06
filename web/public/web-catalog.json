@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-06T18:44:48+09:00",
+  "generated_at": "2026-11-06T19:07:41+09:00",
   "brands": [
     {
       "slug": "bambu-lab",
@@ -15722,12 +15722,14 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#F9EFE5"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
       "price": "¥34.5 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/byehassle__pla-ya-guang__beige-skin.jpg"
     },
     {
       "id": "byehassle/pla-ya-guang/black",
@@ -15743,12 +15745,14 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#1A1A1A"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
       "price": "¥34.5 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/byehassle__pla-ya-guang__black.jpg"
     },
     {
       "id": "byehassle/pla-ya-guang/blue",
@@ -15764,12 +15768,14 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#1547DD"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
       "price": "¥34.5 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/byehassle__pla-ya-guang__blue.jpg"
     },
     {
       "id": "byehassle/pla-ya-guang/burnt-caramel",
@@ -15785,12 +15791,37 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#8E5836"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
       "price": "¥34.5 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/byehassle__pla-ya-guang__burnt-caramel.jpg"
+    },
+    {
+      "id": "byehassle/pla-ya-guang/cool-white",
+      "b": "byehassle",
+      "s": "PLA哑光（拼多多）",
+      "m": "PLA",
+      "en": "Cool White",
+      "zh": "冷白色",
+      "code": null,
+      "py": "leng bai se",
+      "pyi": "lbs",
+      "fam": "黑白灰",
+      "eff": [
+        "matte"
+      ],
+      "hex": [
+        "#FAFCFC"
+      ],
+      "src": "manual",
+      "conf": 0.9,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "price": "¥34.5 CNY（商品卡价，非单色价）",
+      "img": "/sku/byehassle__pla-ya-guang__cool-white.jpg"
     },
     {
       "id": "byehassle/pla-ya-guang/dark-grey",
@@ -15806,12 +15837,37 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#575855"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
       "price": "¥34.5 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/byehassle__pla-ya-guang__dark-grey.jpg"
+    },
+    {
+      "id": "byehassle/pla-ya-guang/e-huang-se",
+      "b": "byehassle",
+      "s": "PLA哑光（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "鹅黄色",
+      "code": null,
+      "py": "e huang se",
+      "pyi": "ehs",
+      "fam": "黄",
+      "eff": [
+        "matte"
+      ],
+      "hex": [
+        "#FAFCC1"
+      ],
+      "src": "manual",
+      "conf": 0.9,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "price": "¥34.5 CNY（商品卡价，非单色价）",
+      "img": "/sku/byehassle__pla-ya-guang__e-huang-se.jpg"
     },
     {
       "id": "byehassle/pla-ya-guang/glacial-blue",
@@ -15827,12 +15883,106 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#B8F1FB"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
       "price": "¥34.5 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/byehassle__pla-ya-guang__glacial-blue.jpg"
+    },
+    {
+      "id": "byehassle/pla-ya-guang/green",
+      "b": "byehassle",
+      "s": "PLA哑光（拼多多）",
+      "m": "PLA",
+      "en": "Green",
+      "zh": "绿色",
+      "code": null,
+      "py": "lv se",
+      "pyi": "ls",
+      "fam": "绿",
+      "eff": [
+        "matte"
+      ],
+      "hex": [
+        "#01B44E"
+      ],
+      "src": "manual",
+      "conf": 0.9,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "price": "¥34.5 CNY（商品卡价，非单色价）",
+      "img": "/sku/byehassle__pla-ya-guang__green.jpg"
+    },
+    {
+      "id": "byehassle/pla-ya-guang/hui-lan-se",
+      "b": "byehassle",
+      "s": "PLA哑光（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "灰蓝色",
+      "code": null,
+      "py": "hui lan se",
+      "pyi": "hls",
+      "fam": "蓝",
+      "eff": [
+        "matte"
+      ],
+      "hex": [
+        "#56646D"
+      ],
+      "src": "manual",
+      "conf": 0.9,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "price": "¥34.5 CNY（商品卡价，非单色价）",
+      "img": "/sku/byehassle__pla-ya-guang__hui-lan-se.jpg"
+    },
+    {
+      "id": "byehassle/pla-ya-guang/jun-lv-se",
+      "b": "byehassle",
+      "s": "PLA哑光（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "军绿色",
+      "code": null,
+      "py": "jun lv se",
+      "pyi": "jls",
+      "fam": "绿",
+      "eff": [
+        "matte"
+      ],
+      "hex": [
+        "#ACB49E"
+      ],
+      "src": "manual",
+      "conf": 0.9,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "price": "¥34.5 CNY（商品卡价，非单色价）",
+      "img": "/sku/byehassle__pla-ya-guang__jun-lv-se.jpg"
+    },
+    {
+      "id": "byehassle/pla-ya-guang/ka-fei-se",
+      "b": "byehassle",
+      "s": "PLA哑光（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "咖啡色",
+      "code": null,
+      "py": "ka fei se",
+      "pyi": "kfs",
+      "fam": "棕/米/肤",
+      "eff": [
+        "matte"
+      ],
+      "hex": [
+        "#7F574E"
+      ],
+      "src": "manual",
+      "conf": 0.9,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "price": "¥34.5 CNY（商品卡价，非单色价）",
+      "img": "/sku/byehassle__pla-ya-guang__ka-fei-se.jpg"
     },
     {
       "id": "byehassle/pla-ya-guang/khaki",
@@ -15848,12 +15998,60 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#E1D1B7"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
       "price": "¥34.5 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/byehassle__pla-ya-guang__khaki.jpg"
+    },
+    {
+      "id": "byehassle/pla-ya-guang/li-zong-se",
+      "b": "byehassle",
+      "s": "PLA哑光（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "栗棕色",
+      "code": null,
+      "py": "li zong se",
+      "pyi": "lzs",
+      "fam": "棕/米/肤",
+      "eff": [
+        "matte"
+      ],
+      "hex": [
+        "#633C2E"
+      ],
+      "src": "manual",
+      "conf": 0.9,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "price": "¥34.5 CNY（商品卡价，非单色价）",
+      "img": "/sku/byehassle__pla-ya-guang__li-zong-se.jpg"
+    },
+    {
+      "id": "byehassle/pla-ya-guang/light-grey",
+      "b": "byehassle",
+      "s": "PLA哑光（拼多多）",
+      "m": "PLA",
+      "en": "Light Grey",
+      "zh": "浅灰色",
+      "code": null,
+      "py": "qian hui se",
+      "pyi": "qhs",
+      "fam": "黑白灰",
+      "eff": [
+        "matte"
+      ],
+      "hex": [
+        "#A8ABAA"
+      ],
+      "src": "manual",
+      "conf": 0.9,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "price": "¥34.5 CNY（商品卡价，非单色价）",
+      "img": "/sku/byehassle__pla-ya-guang__light-grey.jpg"
     },
     {
       "id": "byehassle/pla-ya-guang/lime",
@@ -15869,12 +16067,37 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#9BB843"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
       "price": "¥34.5 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/byehassle__pla-ya-guang__lime.jpg"
+    },
+    {
+      "id": "byehassle/pla-ya-guang/mei-fen-se",
+      "b": "byehassle",
+      "s": "PLA哑光（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "玫粉色",
+      "code": null,
+      "py": "mei fen se",
+      "pyi": "mfs",
+      "fam": "粉",
+      "eff": [
+        "matte"
+      ],
+      "hex": [
+        "#FFA1B3"
+      ],
+      "src": "manual",
+      "conf": 0.9,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "price": "¥34.5 CNY（商品卡价，非单色价）",
+      "img": "/sku/byehassle__pla-ya-guang__mei-fen-se.jpg"
     },
     {
       "id": "byehassle/pla-ya-guang/mu-se",
@@ -15890,12 +16113,60 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#C7985F"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
       "price": "¥34.5 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/byehassle__pla-ya-guang__mu-se.jpg"
+    },
+    {
+      "id": "byehassle/pla-ya-guang/orange",
+      "b": "byehassle",
+      "s": "PLA哑光（拼多多）",
+      "m": "PLA",
+      "en": "Orange",
+      "zh": "橙色",
+      "code": null,
+      "py": "cheng se",
+      "pyi": "cs",
+      "fam": "橙",
+      "eff": [
+        "matte"
+      ],
+      "hex": [
+        "#FC812C"
+      ],
+      "src": "manual",
+      "conf": 0.9,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "price": "¥34.5 CNY（商品卡价，非单色价）",
+      "img": "/sku/byehassle__pla-ya-guang__orange.jpg"
+    },
+    {
+      "id": "byehassle/pla-ya-guang/qing-lan-se",
+      "b": "byehassle",
+      "s": "PLA哑光（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "青蓝色",
+      "code": null,
+      "py": "qing lan se",
+      "pyi": "qls",
+      "fam": "蓝",
+      "eff": [
+        "matte"
+      ],
+      "hex": [
+        "#A4E4D9"
+      ],
+      "src": "manual",
+      "conf": 0.9,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "price": "¥34.5 CNY（商品卡价，非单色价）",
+      "img": "/sku/byehassle__pla-ya-guang__qing-lan-se.jpg"
     },
     {
       "id": "byehassle/pla-ya-guang/red",
@@ -15911,12 +16182,14 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#CF3736"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
       "price": "¥34.5 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/byehassle__pla-ya-guang__red.jpg"
     },
     {
       "id": "byehassle/pla-ya-guang/royal-violet",
@@ -15932,12 +16205,14 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#6454C8"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
       "price": "¥34.5 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/byehassle__pla-ya-guang__royal-violet.jpg"
     },
     {
       "id": "byehassle/pla-ya-guang/sakura-bloom",
@@ -15953,12 +16228,60 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#FCE0EE"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
       "price": "¥34.5 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/byehassle__pla-ya-guang__sakura-bloom.jpg"
+    },
+    {
+      "id": "byehassle/pla-ya-guang/yellow",
+      "b": "byehassle",
+      "s": "PLA哑光（拼多多）",
+      "m": "PLA",
+      "en": "Yellow",
+      "zh": "黄色",
+      "code": null,
+      "py": "huang se",
+      "pyi": "hs",
+      "fam": "黄",
+      "eff": [
+        "matte"
+      ],
+      "hex": [
+        "#F1EC98"
+      ],
+      "src": "manual",
+      "conf": 0.9,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "price": "¥34.5 CNY（商品卡价，非单色价）",
+      "img": "/sku/byehassle__pla-ya-guang__yellow.jpg"
+    },
+    {
+      "id": "byehassle/pla-ya-guang/zu-mu-lv",
+      "b": "byehassle",
+      "s": "PLA哑光（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "祖母绿",
+      "code": null,
+      "py": "zu mu lv",
+      "pyi": "zml",
+      "fam": "绿",
+      "eff": [
+        "matte"
+      ],
+      "hex": [
+        "#1F6642"
+      ],
+      "src": "manual",
+      "conf": 0.9,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "price": "¥34.5 CNY（商品卡价，非单色价）",
+      "img": "/sku/byehassle__pla-ya-guang__zu-mu-lv.jpg"
     },
     {
       "id": "caige/pla-basic/bai-se",
@@ -16281,9 +16604,11 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#7FA07B"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://www.cailab3d.com/products/matte-pla-filament-1-75mm-1kg-spool",
       "price": "US$17.99",
       "img": "/sku/cailab__matte-pla__army-green-mt2407.jpg"
@@ -16302,9 +16627,11 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#ECD2B3"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://www.cailab3d.com/products/matte-pla-filament-1-75mm-1kg-spool",
       "price": "US$17.99",
       "img": "/sku/cailab__matte-pla__beige-mt4030.jpg"
@@ -16392,9 +16719,11 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#283B52"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://www.cailab3d.com/products/matte-pla-filament-1-75mm-1kg-spool",
       "price": "US$17.99",
       "img": "/sku/cailab__matte-pla__dark-night-blue-mt2165.jpg"
@@ -16413,9 +16742,11 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#E7D4AE"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://www.cailab3d.com/products/matte-pla-filament-1-75mm-1kg-spool",
       "price": "US$17.99",
       "img": "/sku/cailab__matte-pla__desert-mt4249.jpg"
@@ -16434,9 +16765,11 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#922F3A"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://www.cailab3d.com/products/matte-pla-filament-1-75mm-1kg-spool",
       "price": "US$17.99",
       "img": "/sku/cailab__matte-pla__encore-red-mt7622.jpg"
@@ -16455,9 +16788,11 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#738190"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://www.cailab3d.com/products/matte-pla-filament-1-75mm-1kg-spool",
       "price": "US$17.99",
       "img": "/sku/cailab__matte-pla__hazy-blue-mt6109.jpg"
@@ -16614,9 +16949,11 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#C3ACC9"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://www.cailab3d.com/products/matte-pla-filament-1-75mm-1kg-spool",
       "price": "US$17.99",
       "img": "/sku/cailab__matte-pla__misty-lilac-mt256.jpg"
@@ -16796,12 +17133,14 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#C3ACC9"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1014245843334",
       "price": "¥32 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__matte-pla__ya-guang-bao-wu-fen.jpg"
     },
     {
       "id": "cailab/matte-pla/ya-guang-kong-que-lan-mt4158",
@@ -19236,12 +19575,14 @@
       "pyi": "bs",
       "fam": "黑白灰",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#C6C4C2"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__bai-se.jpg"
     },
     {
       "id": "cailab/pla-plus/bao-he-lan",
@@ -19255,12 +19596,14 @@
       "pyi": "bhl",
       "fam": "蓝",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#8BD1CA"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__bao-he-lan.jpg"
     },
     {
       "id": "cailab/pla-plus/begonia-ac190",
@@ -19377,12 +19720,14 @@
       "pyi": "cb",
       "fam": "黑白灰",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#C6C4C2"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__ci-bai.jpg"
     },
     {
       "id": "cailab/pla-plus/clear-acl",
@@ -19398,9 +19743,11 @@
       "eff": [
         "translucent"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#C4C4C4"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://www.cailab3d.com/products/pla-plus-filament-pla-bio-1-75mm-1kg-spool",
       "price": "US$17.99",
       "img": "/sku/cailab__pla-plus__clear-acl.jpg"
@@ -19501,9 +19848,11 @@
       "pyi": null,
       "fam": "黑白灰",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#4F5054"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://www.cailab3d.com/products/pla-plus-filament-pla-bio-1-75mm-1kg-spool",
       "price": "US$17.99",
       "img": "/sku/cailab__pla-plus__gray-ac11.jpg"
@@ -19539,12 +19888,14 @@
       "pyi": "gqh",
       "fam": "红",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#610A0E"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__guo-qi-hong.jpg"
     },
     {
       "id": "cailab/pla-plus/hai-lan",
@@ -19558,12 +19909,14 @@
       "pyi": "hl",
       "fam": "蓝",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#032B79"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__hai-lan.jpg"
     },
     {
       "id": "cailab/pla-plus/hei-se",
@@ -19577,12 +19930,14 @@
       "pyi": "hs",
       "fam": "黑白灰",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#292625"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__hei-se.jpg"
     },
     {
       "id": "cailab/pla-plus/huang-se",
@@ -19596,12 +19951,14 @@
       "pyi": "hs",
       "fam": "黄",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#DBBA2B"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__huang-se.jpg"
     },
     {
       "id": "cailab/pla-plus/hunter-green-ac6060",
@@ -19678,9 +20035,11 @@
       "pyi": null,
       "fam": "黑白灰",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#818380"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://www.cailab3d.com/products/pla-plus-filament-pla-bio-1-75mm-1kg-spool",
       "price": "US$17.99",
       "img": "/sku/cailab__pla-plus__light-gray-ac421.jpg"
@@ -19760,12 +20119,14 @@
       "pyi": "mgh",
       "fam": "黄",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#FDB815"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__mang-guo-huang.jpg"
     },
     {
       "id": "cailab/pla-plus/mango-yellow-ac2010",
@@ -19924,12 +20285,14 @@
       "pyi": "ph",
       "fam": "红",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#E34BA1"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__pin-hong.jpg"
     },
     {
       "id": "cailab/pla-plus/qian-hui-se",
@@ -19943,12 +20306,14 @@
       "pyi": "qhs",
       "fam": "黑白灰",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#818380"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__qian-hui-se.jpg"
     },
     {
       "id": "cailab/pla-plus/qing-se",
@@ -19962,12 +20327,14 @@
       "pyi": "qs",
       "fam": "蓝",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#3C96DA"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__qing-se.jpg"
     },
     {
       "id": "cailab/pla-plus/red-ac199",
@@ -20002,12 +20369,14 @@
       "pyi": "rts",
       "fam": "粉",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#E9B183"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__rou-tao-se.jpg"
     },
     {
       "id": "cailab/pla-plus/ruby-ac3517",
@@ -20063,12 +20432,14 @@
       "pyi": "sms",
       "fam": "棕/米/肤",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#C7B284"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__sha-mo-se.jpg"
     },
     {
       "id": "cailab/pla-plus/shen-zong-se",
@@ -20082,12 +20453,14 @@
       "pyi": "szs",
       "fam": "棕/米/肤",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#83552F"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__shen-zong-se.jpg"
     },
     {
       "id": "cailab/pla-plus/tan-hui",
@@ -20101,12 +20474,14 @@
       "pyi": "th",
       "fam": "黑白灰",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#4F5054"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__tan-hui.jpg"
     },
     {
       "id": "cailab/pla-plus/tou-ming-se",
@@ -20122,12 +20497,14 @@
       "eff": [
         "translucent"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#C4C4C4"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__tou-ming-se.jpg"
     },
     {
       "id": "cailab/pla-plus/violet-ac266",
@@ -20181,12 +20558,14 @@
       "pyi": "xycz",
       "fam": "紫",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#6D62B4"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__xun-yi-cao-zi.jpg"
     },
     {
       "id": "cailab/pla-plus/yellow-ac107",
@@ -20219,12 +20598,14 @@
       "pyi": "yhf",
       "fam": "粉",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#FDD3E0"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__ying-hua-fen.jpg"
     },
     {
       "id": "cailab/pla-plus/zheng-hong",
@@ -20238,12 +20619,14 @@
       "pyi": "zh",
       "fam": "红",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#C71C1C"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1015387428629",
       "price": "¥35.59 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/cailab__pla-plus__zheng-hong.jpg"
     },
     {
       "id": "cailab/pla-plus/zhu-zi-lv",
@@ -73902,6 +74285,132 @@
       "img": "/sku/prusament__pla__prusa-orange.jpg"
     },
     {
+      "id": "rmerme/pla-ya-guang-guo-feng/cha-bai-se",
+      "b": "rmerme",
+      "s": "PLA哑光国风（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "茶白色",
+      "code": null,
+      "py": "cha bai se",
+      "pyi": "cbs",
+      "fam": "黑白灰",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1016918640171",
+      "price": "¥36.9 CNY（商品卡价，非单色价）",
+      "img": null
+    },
+    {
+      "id": "rmerme/pla-ya-guang-guo-feng/chi-sha-se",
+      "b": "rmerme",
+      "s": "PLA哑光国风（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "赤砂色",
+      "code": null,
+      "py": "chi sha se",
+      "pyi": "css",
+      "fam": "其他",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1016918640171",
+      "price": "¥36.9 CNY（商品卡价，非单色价）",
+      "img": null
+    },
+    {
+      "id": "rmerme/pla-ya-guang-guo-feng/ci-jin-se",
+      "b": "rmerme",
+      "s": "PLA哑光国风（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "瓷金色",
+      "code": null,
+      "py": "ci jin se",
+      "pyi": "cjs",
+      "fam": "金属/金银铜",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1016918640171",
+      "price": "¥36.9 CNY（商品卡价，非单色价）",
+      "img": null
+    },
+    {
+      "id": "rmerme/pla-ya-guang-guo-feng/dou-kou-xia",
+      "b": "rmerme",
+      "s": "PLA哑光国风（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "豆蔻霞",
+      "code": null,
+      "py": "dou kou xia",
+      "pyi": "dkx",
+      "fam": "其他",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1016918640171",
+      "price": "¥36.9 CNY（商品卡价，非单色价）",
+      "img": null
+    },
+    {
+      "id": "rmerme/pla-ya-guang-guo-feng/fei-se",
+      "b": "rmerme",
+      "s": "PLA哑光国风（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "翡色",
+      "code": null,
+      "py": "fei se",
+      "pyi": "fs",
+      "fam": "其他",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1016918640171",
+      "price": "¥36.9 CNY（商品卡价，非单色价）",
+      "img": null
+    },
+    {
+      "id": "rmerme/pla-ya-guang-guo-feng/hei-yao-qing",
+      "b": "rmerme",
+      "s": "PLA哑光国风（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "黑曜青",
+      "code": null,
+      "py": "hei yao qing",
+      "pyi": "hyq",
+      "fam": "黑白灰",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1016918640171",
+      "price": "¥36.9 CNY（商品卡价，非单色价）",
+      "img": null
+    },
+    {
       "id": "rmerme/pla-ya-guang-guo-feng/liu-jin-se",
       "b": "rmerme",
       "s": "PLA哑光国风（拼多多）",
@@ -73912,6 +74421,153 @@
       "py": "liu jin se",
       "pyi": "ljs",
       "fam": "金属/金银铜",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1016918640171",
+      "price": "¥36.9 CNY（商品卡价，非单色价）",
+      "img": null
+    },
+    {
+      "id": "rmerme/pla-ya-guang-guo-feng/luo-xia-se",
+      "b": "rmerme",
+      "s": "PLA哑光国风（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "落霞色",
+      "code": null,
+      "py": "luo xia se",
+      "pyi": "lxs",
+      "fam": "其他",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1016918640171",
+      "price": "¥36.9 CNY（商品卡价，非单色价）",
+      "img": null
+    },
+    {
+      "id": "rmerme/pla-ya-guang-guo-feng/ou-he-se",
+      "b": "rmerme",
+      "s": "PLA哑光国风（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "藕荷色",
+      "code": null,
+      "py": "ou he se",
+      "pyi": "ohs",
+      "fam": "其他",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1016918640171",
+      "price": "¥36.9 CNY（商品卡价，非单色价）",
+      "img": null
+    },
+    {
+      "id": "rmerme/pla-ya-guang-guo-feng/qing-dai-se",
+      "b": "rmerme",
+      "s": "PLA哑光国风（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "青黛色",
+      "code": null,
+      "py": "qing dai se",
+      "pyi": "qds",
+      "fam": "其他",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1016918640171",
+      "price": "¥36.9 CNY（商品卡价，非单色价）",
+      "img": null
+    },
+    {
+      "id": "rmerme/pla-ya-guang-guo-feng/qing-shi-lv",
+      "b": "rmerme",
+      "s": "PLA哑光国风（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "青石绿",
+      "code": null,
+      "py": "qing shi lv",
+      "pyi": "qsl",
+      "fam": "绿",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1016918640171",
+      "price": "¥36.9 CNY（商品卡价，非单色价）",
+      "img": null
+    },
+    {
+      "id": "rmerme/pla-ya-guang-guo-feng/shi-lv-hui",
+      "b": "rmerme",
+      "s": "PLA哑光国风（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "石绿灰",
+      "code": null,
+      "py": "shi lv hui",
+      "pyi": "slh",
+      "fam": "绿",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1016918640171",
+      "price": "¥36.9 CNY（商品卡价，非单色价）",
+      "img": null
+    },
+    {
+      "id": "rmerme/pla-ya-guang-guo-feng/tian-shui-bi",
+      "b": "rmerme",
+      "s": "PLA哑光国风（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "天水碧",
+      "code": null,
+      "py": "tian shui bi",
+      "pyi": "tsb",
+      "fam": "其他",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1016918640171",
+      "price": "¥36.9 CNY（商品卡价，非单色价）",
+      "img": null
+    },
+    {
+      "id": "rmerme/pla-ya-guang-guo-feng/xuan-se",
+      "b": "rmerme",
+      "s": "PLA哑光国风（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "玄色",
+      "code": null,
+      "py": "xuan se",
+      "pyi": "xs",
+      "fam": "其他",
       "eff": [
         "matte"
       ],
@@ -73954,6 +74610,27 @@
       "py": "yue bai se",
       "pyi": "ybs",
       "fam": "黑白灰",
+      "eff": [
+        "matte"
+      ],
+      "hex": [],
+      "src": null,
+      "conf": null,
+      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1016918640171",
+      "price": "¥36.9 CNY（商品卡价，非单色价）",
+      "img": null
+    },
+    {
+      "id": "rmerme/pla-ya-guang-guo-feng/zi-tan-hui",
+      "b": "rmerme",
+      "s": "PLA哑光国风（拼多多）",
+      "m": "PLA",
+      "en": null,
+      "zh": "紫檀灰",
+      "code": null,
+      "py": "zi tan hui",
+      "pyi": "zth",
+      "fam": "紫",
       "eff": [
         "matte"
       ],
@@ -78483,9 +79160,11 @@
       "pyi": null,
       "fam": "黑白灰",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#E4E5EA"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://store.sunlu.com/products/moq-6kg-pla-2-0-upgraded-pla-pla-plus-3d-printer-filament-1kg",
       "price": "US$10.99起",
       "img": "/sku/sunlu__pla-plus-2-0__ceramic-white.jpg"
@@ -78544,12 +79223,14 @@
       "pyi": "cbs",
       "fam": "黑白灰",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#E4E5EA"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=620431951249",
       "price": "¥48 CNY（商品卡价，非单色价）",
-      "img": null
+      "img": "/sku/sunlu__pla-plus-2-0__ci-bai-se.jpg"
     },
     {
       "id": "sunlu/pla-plus-2-0/coffee-brown",
