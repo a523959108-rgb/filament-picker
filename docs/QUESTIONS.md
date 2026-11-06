@@ -66,3 +66,6 @@
 
 ## T19: 扫描命中 request.schema.json 的 sessionWebhook — 已解决（方案 B）
 只豁免 `src/filament_picker/schemas/request.schema.json` 中的 `sessionWebhook`（且断言恰好 2 次）；其他词、其他文件照常扫。
+
+## T26: T25 前置验收阻塞于 TestClient 初始化 — 已解决（方案 B）
+外部协调者确认：T25 已在沙箱外原样验收通过并提交 `eafc8bf`（`test_serve.py` 5 passed；serve + curl 健康检查通过）。沙箱内 FastAPI `TestClient` 挂起是已知环境限制，不是规格问题。T26 前置条件改为「HEAD 含 T25 提交」，不要在沙箱里重跑 T25 验收。
