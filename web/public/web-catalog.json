@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-06T18:03:17+09:00",
+  "generated_at": "2026-11-06T18:11:27+09:00",
   "brands": [
     {
       "slug": "bambu-lab",
@@ -73898,12 +73898,14 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#6B443C"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://store.sunlu.com/products/moq-6kg-high-speed-matte-pla-3d-printer-filament-1kg",
       "price": "US$12.00起",
-      "img": null
+      "img": "/sku/sunlu__high-speed-matte-pla__chocolate.jpg"
     },
     {
       "id": "sunlu/high-speed-matte-pla/cmyk-cyan-plus-magenta-plus-white-plus-yellow",
@@ -74004,12 +74006,14 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#729745"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://store.sunlu.com/products/moq-6kg-high-speed-matte-pla-3d-printer-filament-1kg",
       "price": "US$12.00起",
-      "img": null
+      "img": "/sku/sunlu__high-speed-matte-pla__oliver-green.jpg"
     },
     {
       "id": "sunlu/high-speed-matte-pla/pink-sakura-pink",
@@ -74347,12 +74351,14 @@
       "pyi": null,
       "fam": "紫",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#8773CC"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://store.sunlu.com/products/moq-6-rolls-high-speed-pla-filament-1kg",
       "price": "US$11.29起",
-      "img": null
+      "img": "/sku/sunlu__high-speed-pla__lavender-purple.jpg"
     },
     {
       "id": "sunlu/high-speed-pla/mocha-mousse",
@@ -74461,12 +74467,14 @@
       "pyi": null,
       "fam": "蓝",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#3ECFFC"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://store.sunlu.com/products/moq-6-rolls-high-speed-pla-filament-1kg",
       "price": "US$11.29起",
-      "img": null
+      "img": "/sku/sunlu__high-speed-pla__sky-blue.jpg"
     },
     {
       "id": "sunlu/high-speed-pla/white",
@@ -74744,12 +74752,14 @@
       "eff": [
         "matte"
       ],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#232325"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://store.sunlu.com/products/over-6kg-bulk-sale-pla-matte-filament-neatly-wound-filament",
       "price": "US$10.99起",
-      "img": null
+      "img": "/sku/sunlu__matte-pla__charcoal.jpg"
     },
     {
       "id": "sunlu/matte-pla/cherry-red",
@@ -77571,12 +77581,14 @@
       "pyi": null,
       "fam": "蓝",
       "eff": [],
-      "hex": [],
-      "src": null,
-      "conf": null,
+      "hex": [
+        "#029BD5"
+      ],
+      "src": "manual",
+      "conf": 0.9,
       "url": "https://store.sunlu.com/products/over-6kg-bundle-sale-pla-and-pla-plus-pla-meta-macaron-filament1kg-roll",
       "price": "US$10.99起",
-      "img": null
+      "img": "/sku/sunlu__pla-plus__cyan.jpg"
     },
     {
       "id": "sunlu/pla-plus/gold",

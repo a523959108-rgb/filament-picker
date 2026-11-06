@@ -42,6 +42,42 @@
         "#262627"
       ],
       "note": "jayo PLA Meta official gallery gallery_20.jpg; image-derived from SKU photo"
+    },
+    "sunlu/high-speed-matte-pla/chocolate": {
+      "hex": [
+        "#6B443C"
+      ],
+      "note": "shopify variant featured_image (SUNLU High Speed Matte PLA 3D Printer Filament 1KG / Chocolate); image-derived"
+    },
+    "sunlu/high-speed-matte-pla/oliver-green": {
+      "hex": [
+        "#729745"
+      ],
+      "note": "shopify variant featured_image (SUNLU High Speed Matte PLA 3D Printer Filament 1KG / Oliver Green); image-derived"
+    },
+    "sunlu/high-speed-pla/lavender-purple": {
+      "hex": [
+        "#8773CC"
+      ],
+      "note": "shopify variant featured_image (SUNLU High Speed PLA(HS_PLA) 3D Printer Filament 1KG / Lavender Purple); image-derived"
+    },
+    "sunlu/high-speed-pla/sky-blue": {
+      "hex": [
+        "#3ECFFC"
+      ],
+      "note": "shopify variant featured_image (SUNLU High Speed PLA(HS_PLA) 3D Printer Filament 1KG / Sky Blue); image-derived"
+    },
+    "sunlu/matte-pla/charcoal": {
+      "hex": [
+        "#232325"
+      ],
+      "note": "shopify variant featured_image (SUNLU Matte PLA 3D Printer Filament 1KG / Charcoal); image-derived"
+    },
+    "sunlu/pla-plus/cyan": {
+      "hex": [
+        "#029BD5"
+      ],
+      "note": "shopify variant featured_image (SUNLU PLA+(PLA Plus) 3D Printer Filament 1KG / Cyan); image-derived"
     }
   },
   "store_swatch_confidence": {
