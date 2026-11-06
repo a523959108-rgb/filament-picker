@@ -22,7 +22,13 @@ describe("color detail and compare", () => {
 
     expect(screen.getByText("#000000")).toBeTruthy();
     expect(screen.getByText("官方色值")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "购买链接" }).getAttribute("href")).toBe(
+    const bambu = catalog.entries[0];
+    expect(bambu.url.startsWith("https://mobile.pinduoduo.com/search_result.html?search_key=")).toBe(
+      true,
+    );
+    expect(bambu.url.includes("goods_id")).toBe(false);
+    expect(screen.getByRole("link", { name: "购买链接" }).getAttribute("href")).toBe(bambu.url);
+    expect(screen.getByRole("link", { name: "原链接" }).getAttribute("href")).toBe(
       "https://jp.store.bambulab.com/products/petg-basic",
     );
     expect(screen.getByRole("dialog", { name: "颜色详情" }).textContent).toContain("eSUN");
@@ -48,6 +54,18 @@ describe("color detail and compare", () => {
     );
     expect(screen.getByText("暂未上架").className).toBe("purchase-unavailable");
     expect(screen.queryByRole("link", { name: "购买链接" })).toBeNull();
+  });
+
+  it("keeps a real pinduoduo goods link and omits the alternate", () => {
+    const entry = catalog.entries.find((item) => item.id === "byehassle/pla-ya-guang/sakura-bloom");
+    if (entry === undefined) throw new Error("missing byehassle sample");
+    render(
+      <ColorDetail entry={entry} catalog={catalog} onClose={vi.fn()} onCompare={vi.fn()} />,
+    );
+    expect(screen.getByRole("link", { name: "购买链接" }).getAttribute("href")).toBe(
+      "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+    );
+    expect(screen.queryByRole("link", { name: "原链接" })).toBeNull();
   });
 
   it("omits the purchase entry when its URL is empty", () => {

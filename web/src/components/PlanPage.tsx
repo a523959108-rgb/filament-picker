@@ -97,6 +97,7 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
                     <ul className="pick-list">
                       {match.picks.map((pick) => {
                         const href = purchaseHref(pick.url);
+                        const altHref = pick.alt_url ? purchaseHref(pick.alt_url) : null;
                         return (
                           <li key={pick.id} className="pick">
                             <span
@@ -116,6 +117,7 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
                               ) : (
                                 <span className="purchase-unavailable">暂未上架</span>
                               )}
+                              {altHref !== null && <a href={altHref}>原链接</a>}
                             </span>
                           </li>
                         );

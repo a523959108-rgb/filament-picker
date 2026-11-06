@@ -532,6 +532,12 @@ textarea:focus {
   gap: 12px;
 }
 
+.purchase {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 .purchase a {
   font-size: 0.9rem;
   text-decoration: none;
@@ -806,6 +812,8 @@ textarea:focus {
 
 .pick-buy {
   margin-left: auto;
+  display: inline-flex;
+  gap: 10px;
   font-size: 0.9rem;
 }
 

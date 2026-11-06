@@ -36,7 +36,8 @@
       ],
       "src": "official",
       "conf": 1.0,
-      "url": "https://jp.store.bambulab.com/products/petg-basic",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%8B%93%E7%AB%B9%20PETG%20Basic%20%E9%BB%91%E8%89%B2",
+      "alt_url": "https://jp.store.bambulab.com/products/petg-basic",
       "price": "¥2,800 JPY",
       "img": null
     },
@@ -57,7 +58,8 @@
       ],
       "src": "store_swatch",
       "conf": 0.8,
-      "url": "https://www.esun3d.com/epetg-lite-product",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%98%93%E7%94%9F%20PETG-Basic%20Black",
+      "alt_url": "https://www.esun3d.com/epetg-lite-product",
       "price": "US$18.99",
       "img": null
     },
@@ -79,7 +81,8 @@
       "hex": [],
       "src": null,
       "conf": null,
-      "url": "https://www.cailab3d.com/products/rainbow-shift-pla-filament",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E5%BD%A9%E5%A4%9A%E5%B1%8B%20Rainbow%20shift%20PLA%20Bamboo",
+      "alt_url": "https://www.cailab3d.com/products/rainbow-shift-pla-filament",
       "price": "US$23.99",
       "img": null
     },
@@ -101,6 +104,7 @@
       "src": null,
       "conf": null,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
+      "alt_url": null,
       "price": "¥34.5 CNY（商品卡价，非单色价）",
       "img": null
     }

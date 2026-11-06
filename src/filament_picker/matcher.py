@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from .buy import price_text_for, purchase_links
 from .catalog import Catalog
 from .ciede2000 import delta_e_2000
 from .config import (
@@ -64,8 +65,7 @@ def _distance(target: PaletteColor, entry: dict[str, Any]) -> float:
 
 
 def _pick(entry: dict[str, Any], distance: float) -> dict[str, Any]:
-    offers = entry.get("offers", [])
-    offer = offers[0] if offers else None
+    primary, alt = purchase_links(entry)
     return {
         "id": entry["id"],
         "brand_name": entry["brand_name"],
@@ -76,8 +76,9 @@ def _pick(entry: dict[str, Any], distance: float) -> dict[str, Any]:
         "delta_e": round(distance, 2),
         "label": label_for(distance),
         "is_approx": entry["hex_source"] != "official",
-        "url": offer["url"] if offer is not None else None,
-        "price_text": offer["price_text"] or None if offer is not None else None,
+        "url": primary,
+        "alt_url": alt,
+        "price_text": price_text_for(entry, primary),
     }
 
 

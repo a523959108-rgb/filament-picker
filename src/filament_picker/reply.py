@@ -15,6 +15,9 @@ def _pick_text(pick: dict[str, Any], prefix: str) -> str:
     text += "）"
     if pick.get("url") is not None:
         text += f"[购买]({pick['url']})"
+    alt = pick.get("alt_url")
+    if isinstance(alt, str) and alt.startswith(("http://", "https://")):
+        text += f"[原链接]({alt})"
     return text
 
 

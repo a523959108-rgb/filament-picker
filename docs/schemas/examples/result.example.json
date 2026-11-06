@@ -56,7 +56,8 @@
           "delta_e": 4.38,
           "label": "接近",
           "is_approx": false,
-          "url": "https://github.com/bambulab/BambuStudio/blob/master/resources/profiles/BBL/filament/filaments_color_codes.json",
+          "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%8B%93%E7%AB%B9%20PLA%20Tough%20%E9%BB%91%E8%89%B2",
+          "alt_url": null,
           "price_text": null
         },
         {
@@ -69,7 +70,8 @@
           "delta_e": 6.08,
           "label": "勉强",
           "is_approx": false,
-          "url": "https://jp.store.bambulab.com/products/pla-aero",
+          "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%8B%93%E7%AB%B9%20PLA%20Aero%20%E9%BB%91%E8%89%B2",
+          "alt_url": "https://jp.store.bambulab.com/products/pla-aero",
           "price_text": "¥8,080 JPY"
         }
       ]
@@ -90,7 +92,7 @@
   "slots_used": 1,
   "card_path": "/home/box/agent-data/shared/filament-picker/public/cards/EXAMPLE_TOKEN.png",
   "card_url": "https://cards.example.invalid/EXAMPLE_TOKEN.png",
-  "reply_markdown": "### 配色方案（1 色）\n![配色卡](https://cards.example.invalid/EXAMPLE_TOKEN.png)\n1. `#1B1B1D` 占比 100%\n   - 推荐：Bambu Lab PLA Tough · 黑色 Black (12101)（ΔE 4.4，接近）[购买](https://github.com/bambulab/BambuStudio/blob/master/resources/profiles/BBL/filament/filaments_color_codes.json)\n   - 备选：Bambu Lab PLA Aero · 黑色 Black (14103)（ΔE 6.1，勉强）[购买](https://jp.store.bambulab.com/products/pla-aero)\n**同系列方案**：Bambu Lab PLA Tough（最大 ΔE 4.4）\n需要 1 个料槽。",
+  "reply_markdown": "### 配色方案（1 色）\n![配色卡](https://cards.example.invalid/EXAMPLE_TOKEN.png)\n1. `#1B1B1D` 占比 100%\n   - 推荐：Bambu Lab PLA Tough · 黑色 Black (12101)（ΔE 4.4，接近）[购买](https://mobile.pinduoduo.com/search_result.html?search_key=%E6%8B%93%E7%AB%B9%20PLA%20Tough%20%E9%BB%91%E8%89%B2)\n   - 备选：Bambu Lab PLA Aero · 黑色 Black (14103)（ΔE 6.1，勉强）[购买](https://mobile.pinduoduo.com/search_result.html?search_key=%E6%8B%93%E7%AB%B9%20PLA%20Aero%20%E9%BB%91%E8%89%B2)[原链接](https://jp.store.bambulab.com/products/pla-aero)\n**同系列方案**：Bambu Lab PLA Tough（最大 ΔE 4.4）\n需要 1 个料槽。",
   "warnings": [],
   "context": {
     "conversationId": "cidEXAMPLE",

@@ -18,6 +18,7 @@ export function ColorDetail(props: {
   const hexText = entry.hex.length > 0 ? entry.hex.join("、") : "无色值";
   const brandBySlug = new Map(catalog.brands.map((brand) => [brand.slug, brand.name]));
   const href = purchaseHref(entry.url);
+  const altHref = entry.alt_url ? purchaseHref(entry.alt_url) : null;
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -90,6 +91,9 @@ export function ColorDetail(props: {
                   <a href={href} target="_blank" rel="noreferrer">购买链接</a>
                 ) : (
                   <span className="purchase-unavailable">暂未上架</span>
+                )}
+                {altHref !== null && (
+                  <a className="purchase-alt" href={altHref} target="_blank" rel="noreferrer">原链接</a>
                 )}
               </p>
             )}
