@@ -2,6 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import sample from "../../../docs/fixtures/web-catalog.sample.json";
 import App from "../App";
+import { ColorDetail } from "../components/ColorDetail";
+import type { WebCatalog } from "../types";
+
+const catalog = sample as WebCatalog;
 
 describe("color detail and compare", () => {
   afterEach(() => cleanup());
@@ -22,6 +26,41 @@ describe("color detail and compare", () => {
       "https://jp.store.bambulab.com/products/petg-basic",
     );
     expect(screen.getByRole("dialog", { name: "颜色详情" }).textContent).toContain("eSUN");
+    const detailText = screen.getByRole("dialog", { name: "颜色详情" }).textContent;
+    expect(detailText).not.toContain("¥");
+    expect(detailText).not.toContain("JPY");
+    expect(detailText).not.toContain("2,800");
+  });
+
+  it.each([
+    "https://github.com/bambulab/BambuStudio/blob/master/resources/profiles/BBL/filament/filaments_color_codes.json",
+    "https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/filament/filaments_color_codes.json",
+    "not a url",
+    "   ",
+  ])("shows unavailable purchase text for %s", (url) => {
+    render(
+      <ColorDetail
+        entry={{ ...catalog.entries[0], url }}
+        catalog={catalog}
+        onClose={vi.fn()}
+        onCompare={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("暂未上架").className).toBe("purchase-unavailable");
+    expect(screen.queryByRole("link", { name: "购买链接" })).toBeNull();
+  });
+
+  it("omits the purchase entry when its URL is empty", () => {
+    render(
+      <ColorDetail
+        entry={{ ...catalog.entries[0], url: "" }}
+        catalog={catalog}
+        onClose={vi.fn()}
+        onCompare={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText("暂未上架")).toBeNull();
+    expect(screen.queryByRole("link", { name: "购买链接" })).toBeNull();
   });
 
   it("shows the store swatch badge for esun", async () => {

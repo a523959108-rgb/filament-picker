@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import result from "./fixtures/result.example.json";
 import errorResult from "./fixtures/result.error.example.json";
 import { cardSrc } from "../api";
@@ -52,6 +52,24 @@ describe("PlanPage", () => {
         .find((link) => link.getAttribute("href")?.endsWith("/pla-aero"))
         ?.getAttribute("href"),
     ).toBe("https://jp.store.bambulab.com/products/pla-aero");
+  });
+
+  it("marks the GitHub color table pick unavailable and hides prices", async () => {
+    render(<PlanPage post={vi.fn().mockResolvedValue(fixture)} />);
+    const file = new File(["image"], "a.png", { type: "image/png" });
+    fireEvent.change(screen.getByLabelText("图片"), { target: { files: [file] } });
+    fireEvent.click(screen.getByRole("button", { name: "开始配色" }));
+
+    const firstPick = await screen.findByText("Bambu Lab PLA Tough · 黑色 Black (12101)");
+    const row = firstPick.closest("li")!;
+    expect(within(row).getByText("暂未上架").className).toBe("purchase-unavailable");
+    expect(within(row).queryByRole("link", { name: "购买" })).toBeNull();
+    const hrefs = screen.queryAllByRole("link", { name: "购买" })
+      .map((link) => link.getAttribute("href"));
+    expect(hrefs.some((href) => href?.toLowerCase().includes("filaments_color_codes"))).toBe(false);
+    expect(document.body.textContent).not.toContain("¥");
+    expect(document.body.textContent).not.toContain("JPY");
+    expect(document.body.textContent).not.toContain("8,080");
   });
 
   it("requires an image before submitting", () => {

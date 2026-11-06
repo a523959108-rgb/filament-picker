@@ -15,6 +15,20 @@ function routeFromHash(): string {
   return window.location.hash;
 }
 
+function CatalogHeader(): JSX.Element {
+  return (
+    <header className="topbar">
+      <div className="topbar-title">
+        <h1>耗材选色站</h1>
+        <p className="topbar-sub">按品牌、材料与色系浏览 3D 打印耗材颜色</p>
+      </div>
+      <nav className="topbar-nav" aria-label="页面导航">
+        <a href="#/plan" className="nav-link">图片配色</a>
+      </nav>
+    </header>
+  );
+}
+
 export default function App(): JSX.Element {
   const [route, setRoute] = useState(routeFromHash);
   const [catalog, setCatalog] = useState<WebCatalog | null>(null);
@@ -52,10 +66,20 @@ export default function App(): JSX.Element {
     return <main className="page"><PlanPage /></main>;
   }
   if (loadError) {
-    return <main className="page"><p>目录加载失败</p></main>;
+    return (
+      <main className="page">
+        <CatalogHeader />
+        <p className="panel empty-state">目录加载失败</p>
+      </main>
+    );
   }
   if (catalog === null) {
-    return <main className="page"><p>目录加载中…</p></main>;
+    return (
+      <main className="page">
+        <CatalogHeader />
+        <p className="panel empty-state">目录加载中…</p>
+      </main>
+    );
   }
   const entries = index === null ? [] : query(index, catalog, searchText, filters);
   const selected = selectedId === null ? null : catalog.entries.find((entry) => entry.id === selectedId) ?? null;
@@ -73,19 +97,26 @@ export default function App(): JSX.Element {
   };
   return (
     <main className="page">
-      <h1>耗材选色站</h1>
-      <label>
-        搜索
-        <input
-          type="search"
-          aria-label="搜索"
-          value={searchText}
-          onChange={(event) => setSearchText(event.target.value)}
-        />
-      </label>
-      <Filters brands={catalog.brands} families={[...FAMILIES]} value={filters} onChange={setFilters} />
-      <SwatchGrid entries={entries} brands={catalog.brands} onSelect={setSelectedId} />
-      {compareMessage && <p role="status">{compareMessage}</p>}
+      <CatalogHeader />
+      <div className="catalog-layout">
+        <aside className="sidebar">
+          <label className="search">
+            <span className="field-label">搜索</span>
+            <input
+              type="search"
+              aria-label="搜索"
+              placeholder="颜色名、色号、拼音…"
+              value={searchText}
+              onChange={(event) => setSearchText(event.target.value)}
+            />
+          </label>
+          <Filters brands={catalog.brands} families={[...FAMILIES]} value={filters} onChange={setFilters} />
+        </aside>
+        <div className="catalog-main">
+          <SwatchGrid entries={entries} brands={catalog.brands} onSelect={setSelectedId} />
+        </div>
+      </div>
+      {compareMessage && <p className="toast" role="status">{compareMessage}</p>}
       {compareEntries.length > 0 && (
         <CompareBar entries={compareEntries} onRemove={(id) => setCompareIds((current) => current.filter((item) => item !== id))} />
       )}
