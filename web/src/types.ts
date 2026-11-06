@@ -15,6 +15,7 @@ export interface WebEntry {
   conf: number | null;
   url: string;
   price: string | null;
+  img: string | null;
 }
 
 export interface WebCatalog {

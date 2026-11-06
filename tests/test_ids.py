@@ -64,7 +64,7 @@ def test_golden_ids(golden_ids: list[dict], raw_rows: list[dict]) -> None:
 @pytest.mark.data
 def test_groups_match_golden(raw_rows: list[dict], golden_merges: list[dict]) -> None:
     groups = group_rows(_infos(raw_rows))
-    assert len(groups) == 3821
+    assert len(groups) == 3848
     assert sum(len(group) > 1 for group in groups.values()) == 24
     expected = {merge["dedup_key"]: merge for merge in golden_merges}
     actual = {key: group for key, group in groups.items() if len(group) > 1}
@@ -79,15 +79,15 @@ def test_groups_match_golden(raw_rows: list[dict], golden_merges: list[dict]) ->
 def test_canonical_ids_are_unique(raw_rows: list[dict]) -> None:
     groups = group_rows(_infos(raw_rows))
     ids = [canonical(group).row_id for group in groups.values()]
-    assert len(ids) == 3821
-    assert len(set(ids)) == 3821
+    assert len(ids) == 3848
+    assert len(set(ids)) == 3848
 
 
 @pytest.mark.data
 def test_assign_ids_lifecycle(raw_rows: list[dict]) -> None:
     groups = group_rows(_infos(raw_rows))
     lock1, stats1 = assign_ids(groups, None, "2026-11-05", "0" * 64)
-    assert stats1 == AssignStats(3821, 3821, 0, 0)
+    assert stats1 == AssignStats(3848, 3848, 0, 0)
     lock1_copy = copy.deepcopy(lock1)
     lock2, stats2 = assign_ids(groups, lock1, "2026-11-06", "1" * 64)
     assert lock1 == lock1_copy

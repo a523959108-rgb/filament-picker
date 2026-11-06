@@ -1,6 +1,4537 @@
 {
   "schema_version": 1,
-  "hex": {},
+  "hex": {
+    "jayo/pla-meta/pink-sakura-pink": {
+      "hex": [
+        "#E7C2CB"
+      ],
+      "note": "jayo PLA Meta official gallery gallery_05.jpg; image-derived from SKU photo"
+    },
+    "jayo/pla-meta/green": {
+      "hex": [
+        "#36DA4C"
+      ],
+      "note": "jayo PLA Meta official gallery gallery_14.jpg; image-derived from SKU photo"
+    },
+    "jayo/pla-meta/yellow": {
+      "hex": [
+        "#E0DE99"
+      ],
+      "note": "jayo PLA Meta official gallery gallery_03.jpg; image-derived from SKU photo"
+    },
+    "jayo/pla-meta/blue": {
+      "hex": [
+        "#3EC9F1"
+      ],
+      "note": "jayo PLA Meta official gallery gallery_02.jpg; image-derived from SKU photo"
+    },
+    "jayo/pla-meta/red": {
+      "hex": [
+        "#EA4857"
+      ],
+      "note": "jayo PLA Meta official gallery gallery_04.jpg; image-derived from SKU photo"
+    },
+    "jayo/pla-meta/grey": {
+      "hex": [
+        "#696B6D"
+      ],
+      "note": "jayo PLA Meta official gallery gallery_08.jpg; image-derived from SKU photo"
+    },
+    "jayo/pla-meta/black": {
+      "hex": [
+        "#262627"
+      ],
+      "note": "jayo PLA Meta official gallery gallery_20.jpg; image-derived from SKU photo"
+    },
+    "sunlu/high-speed-matte-pla/chocolate": {
+      "hex": [
+        "#6B443C"
+      ],
+      "note": "shopify variant featured_image (SUNLU High Speed Matte PLA 3D Printer Filament 1KG / Chocolate); image-derived"
+    },
+    "sunlu/high-speed-matte-pla/oliver-green": {
+      "hex": [
+        "#729745"
+      ],
+      "note": "shopify variant featured_image (SUNLU High Speed Matte PLA 3D Printer Filament 1KG / Oliver Green); image-derived"
+    },
+    "sunlu/high-speed-pla/lavender-purple": {
+      "hex": [
+        "#8773CC"
+      ],
+      "note": "shopify variant featured_image (SUNLU High Speed PLA(HS_PLA) 3D Printer Filament 1KG / Lavender Purple); image-derived"
+    },
+    "sunlu/high-speed-pla/sky-blue": {
+      "hex": [
+        "#3ECFFC"
+      ],
+      "note": "shopify variant featured_image (SUNLU High Speed PLA(HS_PLA) 3D Printer Filament 1KG / Sky Blue); image-derived"
+    },
+    "sunlu/matte-pla/charcoal": {
+      "hex": [
+        "#232325"
+      ],
+      "note": "shopify variant featured_image (SUNLU Matte PLA 3D Printer Filament 1KG / Charcoal); image-derived"
+    },
+    "sunlu/pla-plus/cyan": {
+      "hex": [
+        "#029BD5"
+      ],
+      "note": "shopify variant featured_image (SUNLU PLA+(PLA Plus) 3D Printer Filament 1KG / Cyan); image-derived"
+    },
+    "creality/cr-silk-pla/golden-red": {
+      "hex": [
+        "#C31D1C"
+      ],
+      "note": "shopify creality CR-Silk 1.75mm PLA 3D Printing Filament 1kg / Golden Red; image-derived conf=0.476"
+    },
+    "creality/cr-silk-pla/white": {
+      "hex": [
+        "#A5AEB9"
+      ],
+      "note": "shopify creality CR-Silk 1.75mm PLA 3D Printing Filament 1kg / White; image-derived conf=0.407"
+    },
+    "creality/hyper-pla-rfid-luminous/green": {
+      "hex": [
+        "#93CE97"
+      ],
+      "note": "shopify creality Hyper PLA RFID Luminous 3D Printing Filament 1kg / Green; image-derived conf=0.353"
+    },
+    "creality/hyper-pla-rfid-stardust/stardust-pink": {
+      "hex": [
+        "#A26473"
+      ],
+      "note": "shopify creality Hyper PLA RFID Stardust 3D Printing Filament 1kg / Stardust Pink; image-derived conf=0.697"
+    },
+    "creality/hyper-pla-rfid-stardust/stardust-yellow": {
+      "hex": [
+        "#E0C096"
+      ],
+      "note": "shopify creality Hyper PLA RFID Stardust 3D Printing Filament 1kg / Stardust Yellow; image-derived conf=0.838"
+    },
+    "creality/hyper-pla-rfid/black": {
+      "hex": [
+        "#2C2D2E"
+      ],
+      "note": "shopify creality Hyper PLA RFID Lightweight 3D Printing Filament 1kg / Black; image-derived conf=0.446"
+    },
+    "creality/hyper-pla-rfid/gold": {
+      "hex": [
+        "#CC9D53"
+      ],
+      "note": "shopify creality Hyper PLA RFID 3D Printing Filament 1kg / Gold; image-derived conf=0.411"
+    },
+    "creality/hyper-pla-rfid/green": {
+      "hex": [
+        "#93CE97"
+      ],
+      "note": "shopify creality Hyper PLA RFID Luminous 3D Printing Filament 1kg / Green; image-derived conf=0.353"
+    },
+    "creality/hyper-pla-rfid/orange": {
+      "hex": [
+        "#FD822D"
+      ],
+      "note": "shopify creality Hyper PLA RFID 3D Printing Filament 1kg / Orange; image-derived conf=0.368"
+    },
+    "creality/hyper-pla-rfid/peach-fuzz": {
+      "hex": [
+        "#F7B796"
+      ],
+      "note": "shopify creality Hyper PLA RFID 3D Printing Filament 1kg / Peach Fuzz; image-derived conf=0.376"
+    },
+    "creality/hyper-pla-rfid/purple": {
+      "hex": [
+        "#C64895"
+      ],
+      "note": "shopify creality Hyper PLA RFID 3D Printing Filament 1kg / Purple; image-derived conf=0.379"
+    },
+    "creality/hyper-pla-rfid/skin": {
+      "hex": [
+        "#E8C8A6"
+      ],
+      "note": "shopify creality Hyper PLA RFID 3D Printing Filament 1kg / Skin; image-derived conf=0.462"
+    },
+    "creality/hyper-pla-rfid/very-peri": {
+      "hex": [
+        "#4F4DBB"
+      ],
+      "note": "shopify creality Hyper PLA RFID 3D Printing Filament 1kg / Very Peri; image-derived conf=0.832"
+    },
+    "creality/hyper-pla-rfid/viva-magenta": {
+      "hex": [
+        "#DD4874"
+      ],
+      "note": "shopify creality Hyper PLA RFID 3D Printing Filament 1kg / Viva Magenta; image-derived conf=0.353"
+    },
+    "creality/hyper-pla-rfid/white": {
+      "hex": [
+        "#BFBDBC"
+      ],
+      "note": "shopify creality Hyper PLA RFID Lightweight 3D Printing Filament 1kg / White; image-derived conf=0.398"
+    },
+    "creality/hyper-rainbow-pla/spring-lake": {
+      "hex": [
+        "#A0815F"
+      ],
+      "note": "shopify creality Hyper Rainbow PLA 3D Printing Filament 1kg / Spring Lake; image-derived conf=0.496"
+    },
+    "creality/hyper-series-petg/black": {
+      "hex": [
+        "#312C2B"
+      ],
+      "note": "shopify creality Hyper Series PETG 3D Printing Filament 1kg / Black; image-derived conf=0.734"
+    },
+    "creality/hyper-series-petg/blue": {
+      "hex": [
+        "#203277"
+      ],
+      "note": "shopify creality Hyper Series PETG 3D Printing Filament 1kg / Blue; image-derived conf=0.755"
+    },
+    "creality/hyper-series-petg/green": {
+      "hex": [
+        "#438E57"
+      ],
+      "note": "shopify creality Hyper Series PETG 3D Printing Filament 1kg / Green; image-derived conf=0.714"
+    },
+    "creality/hyper-series-petg/red": {
+      "hex": [
+        "#DE2625"
+      ],
+      "note": "shopify creality Hyper Series PETG 3D Printing Filament 1kg / Red; image-derived conf=0.788"
+    },
+    "creality/hyper-series-petg/white": {
+      "hex": [
+        "#CE9567"
+      ],
+      "note": "shopify creality Hyper Series PETG 3D Printing Filament 1kg / White; image-derived conf=0.595"
+    },
+    "creality/hyper-series-petg/yellow": {
+      "hex": [
+        "#FCDC4F"
+      ],
+      "note": "shopify creality Hyper Series PETG 3D Printing Filament 1kg / Yellow; image-derived conf=0.866"
+    },
+    "creality/hyper-series-pla-carbon-fibre/black": {
+      "hex": [
+        "#313131"
+      ],
+      "note": "shopify creality Hyper Series PLA Carbon Fibre 3D Printing Filament 1kg / Black; image-derived conf=0.804"
+    },
+    "creality/hyper-series-pla-carbon-fibre/dark-green": {
+      "hex": [
+        "#2C3131"
+      ],
+      "note": "shopify creality Hyper Series PLA Carbon Fibre 3D Printing Filament 1kg / Dark Green; image-derived conf=0.714"
+    },
+    "creality/hyper-series-pla-carbon-fibre/greyish-yellow": {
+      "hex": [
+        "#D19A6A"
+      ],
+      "note": "shopify creality Hyper Series PLA Carbon Fibre 3D Printing Filament 1kg / Greyish Yellow; image-derived conf=0.356"
+    },
+    "creality/hyper-series-pla-carbon-fibre/ochre": {
+      "hex": [
+        "#D29C6B"
+      ],
+      "note": "shopify creality Hyper Series PLA Carbon Fibre 3D Printing Filament 1kg / Ochre; image-derived conf=0.37"
+    },
+    "creality/hyper-series-pla-carbon-fibre/purple": {
+      "hex": [
+        "#38304D"
+      ],
+      "note": "shopify creality Hyper Series PLA Carbon Fibre 3D Printing Filament 1kg / Purple; image-derived conf=0.81"
+    },
+    "creality/hyper-series-pla/black": {
+      "hex": [
+        "#313131"
+      ],
+      "note": "shopify creality Hyper Series PLA Carbon Fibre 3D Printing Filament 1kg / Black; image-derived conf=0.804"
+    },
+    "creality/hyper-series-pla/blue": {
+      "hex": [
+        "#49A3F1"
+      ],
+      "note": "shopify creality Hyper Series PLA 3D Printing Filament 1kg / Blue; image-derived conf=0.855"
+    },
+    "creality/hyper-series-pla/brown": {
+      "hex": [
+        "#BD8E5A"
+      ],
+      "note": "shopify creality Hyper Series PLA 3D Printing Filament 1kg / Brown; image-derived conf=0.369"
+    },
+    "creality/hyper-series-pla/green": {
+      "hex": [
+        "#58C068"
+      ],
+      "note": "shopify creality Hyper Series PLA 3D Printing Filament 1kg / Green; image-derived conf=0.855"
+    },
+    "creality/hyper-series-pla/grey": {
+      "hex": [
+        "#B1B3B4"
+      ],
+      "note": "shopify creality Hyper Series PLA 3D Printing Filament 1kg / Grey; image-derived conf=0.784"
+    },
+    "creality/hyper-series-pla/orange": {
+      "hex": [
+        "#F87E1E"
+      ],
+      "note": "shopify creality Hyper Series PLA 3D Printing Filament 1kg / Orange; image-derived conf=0.812"
+    },
+    "creality/hyper-series-pla/peach-fuzz": {
+      "hex": [
+        "#F6BE89"
+      ],
+      "note": "shopify creality Hyper Series PLA 3D Printing Filament 1kg / Peach Fuzz; image-derived conf=0.856"
+    },
+    "creality/hyper-series-pla/purple": {
+      "hex": [
+        "#38304D"
+      ],
+      "note": "shopify creality Hyper Series PLA Carbon Fibre 3D Printing Filament 1kg / Purple; image-derived conf=0.81"
+    },
+    "creality/hyper-series-pla/red": {
+      "hex": [
+        "#E52C30"
+      ],
+      "note": "shopify creality Hyper Series PLA 3D Printing Filament 1kg / Red; image-derived conf=0.837"
+    },
+    "creality/hyper-series-pla/skin": {
+      "hex": [
+        "#AD7C4A"
+      ],
+      "note": "shopify creality Hyper Series PLA 3D Printing Filament 1kg / Skin; image-derived conf=0.419"
+    },
+    "creality/hyper-series-pla/viva-magenta": {
+      "hex": [
+        "#DA407F"
+      ],
+      "note": "shopify creality Hyper Series PLA 3D Printing Filament 1kg / Viva Magenta; image-derived conf=0.785"
+    },
+    "creality/hyper-series-pla/white": {
+      "hex": [
+        "#C2915F"
+      ],
+      "note": "shopify creality Hyper Series PLA 3D Printing Filament 1kg / White; image-derived conf=0.864"
+    },
+    "creality/hyper-series-pla/yellow": {
+      "hex": [
+        "#F6D922"
+      ],
+      "note": "shopify creality Hyper Series PLA 3D Printing Filament 1kg / Yellow; image-derived conf=0.923"
+    },
+    "creality/soleyin-ultra-pla/black": {
+      "hex": [
+        "#252A2B"
+      ],
+      "note": "shopify creality Soleyin Ultra PLA 3D Printing Filament 1kg / Black; image-derived conf=0.507"
+    },
+    "creality/soleyin-ultra-pla/gray": {
+      "hex": [
+        "#8C9CA1"
+      ],
+      "note": "shopify creality Soleyin Ultra PLA 3D Printing Filament 1kg / Gray; image-derived conf=0.722"
+    },
+    "creality/soleyin-ultra-pla/greenery": {
+      "hex": [
+        "#8CD347"
+      ],
+      "note": "shopify creality Soleyin Ultra PLA 3D Printing Filament 1kg / Greenery; image-derived conf=0.868"
+    },
+    "creality/soleyin-ultra-pla/light-green": {
+      "hex": [
+        "#88C439"
+      ],
+      "note": "shopify creality Soleyin Ultra PLA 3D Printing Filament 1kg / Light Green; image-derived conf=0.875"
+    },
+    "creality/soleyin-ultra-pla/matte-black": {
+      "hex": [
+        "#252A2B"
+      ],
+      "note": "shopify creality Soleyin Ultra PLA 3D Printing Filament 1kg / Matte Black; image-derived conf=0.507"
+    },
+    "creality/soleyin-ultra-pla/matte-fluonte": {
+      "hex": [
+        "#70BD38"
+      ],
+      "note": "shopify creality Soleyin Ultra PLA 3D Printing Filament 1kg / Matte Fluonte; image-derived conf=0.922"
+    },
+    "creality/soleyin-ultra-pla/matte-gray": {
+      "hex": [
+        "#8C9CA1"
+      ],
+      "note": "shopify creality Soleyin Ultra PLA 3D Printing Filament 1kg / Matte Gray; image-derived conf=0.722"
+    },
+    "creality/soleyin-ultra-pla/matte-moonstone": {
+      "hex": [
+        "#7EC03A"
+      ],
+      "note": "shopify creality Soleyin Ultra PLA 3D Printing Filament 1kg / Matte Moonstone; image-derived conf=0.942"
+    },
+    "creality/soleyin-ultra-pla/matte-rose-stone": {
+      "hex": [
+        "#7EC33F"
+      ],
+      "note": "shopify creality Soleyin Ultra PLA 3D Printing Filament 1kg / Matte Rose Stone; image-derived conf=0.927"
+    },
+    "creality/soleyin-ultra-pla/matte-white": {
+      "hex": [
+        "#282E2F"
+      ],
+      "note": "shopify creality Soleyin Ultra PLA 3D Printing Filament 1kg / Matte White; image-derived conf=0.372"
+    },
+    "creality/soleyin-ultra-pla/ocean-blue": {
+      "hex": [
+        "#8CCB4D"
+      ],
+      "note": "shopify creality Soleyin Ultra PLA 3D Printing Filament 1kg / Ocean Blue; image-derived conf=0.836"
+    },
+    "creality/soleyin-ultra-pla/rosehip": {
+      "hex": [
+        "#F37032"
+      ],
+      "note": "shopify creality Soleyin Ultra PLA 3D Printing Filament 1kg / Rosehip; image-derived conf=0.797"
+    },
+    "creality/soleyin-ultra-pla/strawberry-milk": {
+      "hex": [
+        "#F75441"
+      ],
+      "note": "shopify creality Soleyin Ultra PLA 3D Printing Filament 1kg / Strawberry Milk; image-derived conf=0.808"
+    },
+    "creality/soleyin-ultra-pla/white": {
+      "hex": [
+        "#A6AFA6"
+      ],
+      "note": "shopify creality Soleyin Ultra PLA 3D Printing Filament 1kg / White; image-derived conf=0.553"
+    },
+    "creality/spool-free-cr-petg/black": {
+      "hex": [
+        "#393939"
+      ],
+      "note": "shopify creality Spool-Free CR PETG 3D Printing Filament 1kg / Black; image-derived conf=0.845"
+    },
+    "creality/spool-free-cr-petg/brown": {
+      "hex": [
+        "#805447"
+      ],
+      "note": "shopify creality Spool-Free CR PETG 3D Printing Filament 1kg / Brown; image-derived conf=0.425"
+    },
+    "creality/spool-free-cr-petg/green": {
+      "hex": [
+        "#5EBF69"
+      ],
+      "note": "shopify creality Spool-Free CR PETG 3D Printing Filament 1kg / Green; image-derived conf=0.438"
+    },
+    "creality/spool-free-cr-petg/grey": {
+      "hex": [
+        "#939190"
+      ],
+      "note": "shopify creality Spool-Free CR PETG 3D Printing Filament 1kg / Grey; image-derived conf=0.849"
+    },
+    "creality/spool-free-cr-petg/magenta": {
+      "hex": [
+        "#D25CA4"
+      ],
+      "note": "shopify creality Spool-Free CR PETG 3D Printing Filament 1kg / Magenta; image-derived conf=0.397"
+    },
+    "creality/spool-free-cr-petg/orange": {
+      "hex": [
+        "#D76A43"
+      ],
+      "note": "shopify creality Spool-Free CR PETG 3D Printing Filament 1kg / Orange; image-derived conf=0.381"
+    },
+    "creality/spool-free-cr-petg/pink": {
+      "hex": [
+        "#C87684"
+      ],
+      "note": "shopify creality Spool-Free CR PETG 3D Printing Filament 1kg / Pink; image-derived conf=0.376"
+    },
+    "creality/spool-free-cr-petg/red": {
+      "hex": [
+        "#D84745"
+      ],
+      "note": "shopify creality Spool-Free CR PETG 3D Printing Filament 1kg / Red; image-derived conf=0.355"
+    },
+    "creality/spool-free-cr-petg/technology-blue": {
+      "hex": [
+        "#40A3DE"
+      ],
+      "note": "shopify creality Spool-Free CR PETG 3D Printing Filament 1kg / Technology Blue; image-derived conf=0.45"
+    },
+    "creality/spool-free-cr-petg/transparent": {
+      "hex": [
+        "#5F3A21"
+      ],
+      "note": "shopify creality Spool-Free CR PETG 3D Printing Filament 1kg / Transparent; image-derived conf=0.456"
+    },
+    "creality/spool-free-cr-petg/transparent-wine-red": {
+      "hex": [
+        "#953534"
+      ],
+      "note": "shopify creality Spool-Free CR PETG 3D Printing Filament 1kg / Transparent Wine Red; image-derived conf=0.421"
+    },
+    "creality/spool-free-cr-petg/white": {
+      "hex": [
+        "#C0BEBE"
+      ],
+      "note": "shopify creality Spool-Free CR PETG 3D Printing Filament 1kg / White; image-derived conf=0.503"
+    },
+    "creality/spool-free-cr-petg/yellow": {
+      "hex": [
+        "#CFA847"
+      ],
+      "note": "shopify creality Spool-Free CR PETG 3D Printing Filament 1kg / Yellow; image-derived conf=0.393"
+    },
+    "eryone/petg-carbon-fiber/carbon-fiber-grass-green": {
+      "hex": [
+        "#828C4E"
+      ],
+      "note": "shopify eryone image-derived conf=0.778"
+    },
+    "eryone/petg-carbon-fiber/carbon-fibre-black": {
+      "hex": [
+        "#2F2F2E"
+      ],
+      "note": "shopify eryone image-derived conf=0.799"
+    },
+    "eryone/petg-carbon-fiber/carbon-fibre-olive-green": {
+      "hex": [
+        "#DFA96E"
+      ],
+      "note": "shopify eryone image-derived conf=0.821"
+    },
+    "eryone/petg-fiberglass/black": {
+      "hex": [
+        "#302F30"
+      ],
+      "note": "shopify eryone image-derived conf=0.857"
+    },
+    "eryone/petg-fiberglass/orange": {
+      "hex": [
+        "#F9681B"
+      ],
+      "note": "shopify eryone image-derived conf=0.856"
+    },
+    "eryone/petg-fiberglass/purple": {
+      "hex": [
+        "#663E84"
+      ],
+      "note": "shopify eryone image-derived conf=0.814"
+    },
+    "eryone/petg-high-speed-burnt-titanium/blue": {
+      "hex": [
+        "#F6831C"
+      ],
+      "note": "shopify eryone image-derived conf=0.942"
+    },
+    "eryone/petg-high-speed-burnt-titanium/blue-purple": {
+      "hex": [
+        "#FC8D1B"
+      ],
+      "note": "shopify eryone image-derived conf=0.926"
+    },
+    "eryone/petg-high-speed-burnt-titanium/dark-gold": {
+      "hex": [
+        "#F6821D"
+      ],
+      "note": "shopify eryone image-derived conf=0.932"
+    },
+    "eryone/petg-high-speed-burnt-titanium/green": {
+      "hex": [
+        "#FC8615"
+      ],
+      "note": "shopify eryone image-derived conf=0.941"
+    },
+    "eryone/petg-high-speed-burnt-titanium/rose-red": {
+      "hex": [
+        "#FA7E17"
+      ],
+      "note": "shopify eryone image-derived conf=0.933"
+    },
+    "eryone/petg-high-speed/high-speed-blue": {
+      "hex": [
+        "#3677CE"
+      ],
+      "note": "shopify eryone image-derived conf=0.661"
+    },
+    "eryone/petg-high-speed/high-speed-orange": {
+      "hex": [
+        "#EA7614"
+      ],
+      "note": "shopify eryone image-derived conf=0.764"
+    },
+    "eryone/petg-high-speed/high-speed-red": {
+      "hex": [
+        "#D52923"
+      ],
+      "note": "shopify eryone image-derived conf=0.84"
+    },
+    "eryone/petg-high-speed/high-speed-transparent": {
+      "hex": [
+        "#C6730D"
+      ],
+      "note": "shopify eryone image-derived conf=0.563"
+    },
+    "eryone/petg-high-speed/high-speed-transparent-blue": {
+      "hex": [
+        "#2AACE5"
+      ],
+      "note": "shopify eryone image-derived conf=0.413"
+    },
+    "eryone/petg-high-speed/high-speed-white": {
+      "hex": [
+        "#C5B9A9"
+      ],
+      "note": "shopify eryone image-derived conf=0.593"
+    },
+    "eryone/petg-high-speed/high-speed-yellow": {
+      "hex": [
+        "#F0D221"
+      ],
+      "note": "shopify eryone image-derived conf=0.902"
+    },
+    "eryone/petg-lite/petg-lite-black": {
+      "hex": [
+        "#313437"
+      ],
+      "note": "shopify eryone image-derived conf=0.429"
+    },
+    "eryone/petg-lite/petg-lite-blue": {
+      "hex": [
+        "#E99326"
+      ],
+      "note": "shopify eryone image-derived conf=0.887"
+    },
+    "eryone/petg-lite/petg-lite-gray": {
+      "hex": [
+        "#474948"
+      ],
+      "note": "shopify eryone image-derived conf=0.755"
+    },
+    "eryone/petg-lite/petg-lite-transparent-orange": {
+      "hex": [
+        "#E36621"
+      ],
+      "note": "shopify eryone image-derived conf=0.384"
+    },
+    "eryone/petg-lite/petg-lite-white": {
+      "hex": [
+        "#B5AEA2"
+      ],
+      "note": "shopify eryone image-derived conf=0.607"
+    },
+    "eryone/petg-matte/black": {
+      "hex": [
+        "#3A332F"
+      ],
+      "note": "shopify eryone image-derived conf=0.73"
+    },
+    "eryone/petg-matte/dark-blue": {
+      "hex": [
+        "#DA8310"
+      ],
+      "note": "shopify eryone image-derived conf=0.925"
+    },
+    "eryone/petg-matte/grass-green": {
+      "hex": [
+        "#53713E"
+      ],
+      "note": "shopify eryone image-derived conf=0.676"
+    },
+    "eryone/petg-matte/gray": {
+      "hex": [
+        "#A2A3A4"
+      ],
+      "note": "shopify eryone image-derived conf=0.808"
+    },
+    "eryone/petg-matte/off-white": {
+      "hex": [
+        "#CDB4A0"
+      ],
+      "note": "shopify eryone image-derived conf=0.817"
+    },
+    "eryone/petg-matte/pink": {
+      "hex": [
+        "#F1B1C0"
+      ],
+      "note": "shopify eryone image-derived conf=0.848"
+    },
+    "eryone/petg/black": {
+      "hex": [
+        "#302F30"
+      ],
+      "note": "shopify eryone image-derived conf=0.857"
+    },
+    "eryone/petg/blue": {
+      "hex": [
+        "#1F66BC"
+      ],
+      "note": "shopify eryone image-derived conf=0.605"
+    },
+    "eryone/petg/carbon-fiber-grass-green": {
+      "hex": [
+        "#828C4E"
+      ],
+      "note": "shopify eryone image-derived conf=0.778"
+    },
+    "eryone/petg/carbon-fibre-olive-green": {
+      "hex": [
+        "#DFA96E"
+      ],
+      "note": "shopify eryone image-derived conf=0.819"
+    },
+    "eryone/petg/gray": {
+      "hex": [
+        "#7A7D7C"
+      ],
+      "note": "shopify eryone image-derived conf=0.673"
+    },
+    "eryone/petg/orange": {
+      "hex": [
+        "#F9681B"
+      ],
+      "note": "shopify eryone image-derived conf=0.856"
+    },
+    "eryone/petg/red": {
+      "hex": [
+        "#D23833"
+      ],
+      "note": "shopify eryone image-derived conf=0.749"
+    },
+    "eryone/petg/trans-blue": {
+      "hex": [
+        "#235C90"
+      ],
+      "note": "shopify eryone image-derived conf=0.567"
+    },
+    "eryone/petg/trans-red": {
+      "hex": [
+        "#942A2C"
+      ],
+      "note": "shopify eryone image-derived conf=0.67"
+    },
+    "eryone/petg/transparent": {
+      "hex": [
+        "#7A583F"
+      ],
+      "note": "shopify eryone image-derived conf=0.431"
+    },
+    "eryone/pla-burnt-titanium-dual-color/black-blue": {
+      "hex": [
+        "#C8A084"
+      ],
+      "note": "shopify eryone image-derived conf=0.528"
+    },
+    "eryone/pla-burnt-titanium-dual-color/black-purple-blue": {
+      "hex": [
+        "#CAA387"
+      ],
+      "note": "shopify eryone image-derived conf=0.515"
+    },
+    "eryone/pla-burnt-titanium-dual-color/black-rose-red": {
+      "hex": [
+        "#CC9876"
+      ],
+      "note": "shopify eryone image-derived conf=0.401"
+    },
+    "eryone/pla-burnt-titanium-dual-color/blue-rose-red": {
+      "hex": [
+        "#C8A185"
+      ],
+      "note": "shopify eryone image-derived conf=0.46"
+    },
+    "eryone/pla-burnt-titanium-dual-color/green-blue": {
+      "hex": [
+        "#C89E82"
+      ],
+      "note": "shopify eryone image-derived conf=0.44"
+    },
+    "eryone/pla-burnt-titanium-dual-color/green-gold": {
+      "hex": [
+        "#CAA286"
+      ],
+      "note": "shopify eryone image-derived conf=0.457"
+    },
+    "eryone/pla-burnt-titanium-dual-color/green-purple-blue": {
+      "hex": [
+        "#C8A084"
+      ],
+      "note": "shopify eryone image-derived conf=0.511"
+    },
+    "eryone/pla-burnt-titanium-dual-color/green-rose-red": {
+      "hex": [
+        "#BD977D"
+      ],
+      "note": "shopify eryone image-derived conf=0.409"
+    },
+    "eryone/pla-burnt-titanium-triple-color/black-green-rose-red": {
+      "hex": [
+        "#CBA58F"
+      ],
+      "note": "shopify eryone image-derived conf=0.368"
+    },
+    "eryone/pla-burnt-titanium-triple-color/blue-gold-green": {
+      "hex": [
+        "#D2B09B"
+      ],
+      "note": "shopify eryone image-derived conf=0.367"
+    },
+    "eryone/pla-burnt-titanium-triple-color/blue-green-rose-red": {
+      "hex": [
+        "#CEA990"
+      ],
+      "note": "shopify eryone image-derived conf=0.383"
+    },
+    "eryone/pla-burnt-titanium-triple-color/green-rose-red-purple-blue": {
+      "hex": [
+        "#CFA991"
+      ],
+      "note": "shopify eryone image-derived conf=0.404"
+    },
+    "eryone/pla-burnt-titanium-triple-color/purple-blue-gold-green": {
+      "hex": [
+        "#E2C4B1"
+      ],
+      "note": "shopify eryone image-derived conf=0.431"
+    },
+    "eryone/pla-burnt-titanium/blue-purple": {
+      "hex": [
+        "#50629D"
+      ],
+      "note": "shopify eryone image-derived conf=0.561"
+    },
+    "eryone/pla-burnt-titanium/constellation-rose-red-flash-black": {
+      "hex": [
+        "#BD8D62"
+      ],
+      "note": "shopify eryone image-derived conf=0.408"
+    },
+    "eryone/pla-burnt-titanium/dark-gold": {
+      "hex": [
+        "#705D3E"
+      ],
+      "note": "shopify eryone image-derived conf=0.59"
+    },
+    "eryone/pla-burnt-titanium/green": {
+      "hex": [
+        "#DBA772"
+      ],
+      "note": "shopify eryone image-derived conf=0.783"
+    },
+    "eryone/pla-burnt-titanium/nebula-dark-gold-green-blue-purple": {
+      "hex": [
+        "#D19C77"
+      ],
+      "note": "shopify eryone image-derived conf=0.406"
+    },
+    "eryone/pla-burnt-titanium/red": {
+      "hex": [
+        "#E1AD78"
+      ],
+      "note": "shopify eryone image-derived conf=0.855"
+    },
+    "eryone/pla-burnt-titanium/technology-blue": {
+      "hex": [
+        "#4A6482"
+      ],
+      "note": "shopify eryone image-derived conf=0.61"
+    },
+    "eryone/pla-galaxy-sparkly-glitter/bipolar-nebula-dark-green": {
+      "hex": [
+        "#D47E1D"
+      ],
+      "note": "shopify eryone image-derived conf=0.565"
+    },
+    "eryone/pla-galaxy-sparkly-glitter/blue": {
+      "hex": [
+        "#829DDB"
+      ],
+      "note": "shopify eryone image-derived conf=0.404"
+    },
+    "eryone/pla-galaxy-sparkly-glitter/owl-nebula-dark-purple": {
+      "hex": [
+        "#D57E1D"
+      ],
+      "note": "shopify eryone image-derived conf=0.557"
+    },
+    "eryone/pla-high-speed/high-speed-agate-gray": {
+      "hex": [
+        "#7B8281"
+      ],
+      "note": "shopify eryone image-derived conf=0.77"
+    },
+    "eryone/pla-high-speed/high-speed-black": {
+      "hex": [
+        "#413A35"
+      ],
+      "note": "shopify eryone image-derived conf=0.655"
+    },
+    "eryone/pla-high-speed/high-speed-gray": {
+      "hex": [
+        "#585E5F"
+      ],
+      "note": "shopify eryone image-derived conf=0.785"
+    },
+    "eryone/pla-high-speed/high-speed-signal-gray": {
+      "hex": [
+        "#664D39"
+      ],
+      "note": "shopify eryone image-derived conf=0.813"
+    },
+    "eryone/pla-high-speed/high-speed-skin-color": {
+      "hex": [
+        "#E8BBAD"
+      ],
+      "note": "shopify eryone image-derived conf=0.842"
+    },
+    "eryone/pla-high-speed/high-speed-white": {
+      "hex": [
+        "#674F3A"
+      ],
+      "note": "shopify eryone image-derived conf=0.809"
+    },
+    "eryone/pla-light-weight/black": {
+      "hex": [
+        "#332820"
+      ],
+      "note": "shopify eryone image-derived conf=0.633"
+    },
+    "eryone/pla-lite-matte/black": {
+      "hex": [
+        "#303031"
+      ],
+      "note": "shopify eryone image-derived conf=0.54"
+    },
+    "eryone/pla-lite-matte/classic-blue": {
+      "hex": [
+        "#F9A442"
+      ],
+      "note": "shopify eryone image-derived conf=0.868"
+    },
+    "eryone/pla-lite-matte/dancing-white": {
+      "hex": [
+        "#B8B1A9"
+      ],
+      "note": "shopify eryone image-derived conf=0.692"
+    },
+    "eryone/pla-lite-matte/mist": {
+      "hex": [
+        "#38373B"
+      ],
+      "note": "shopify eryone image-derived conf=0.363"
+    },
+    "eryone/pla-lite-matte/vibrant-yellow": {
+      "hex": [
+        "#EBD15A"
+      ],
+      "note": "shopify eryone image-derived conf=0.356"
+    },
+    "eryone/pla-lite/black": {
+      "hex": [
+        "#2F2824"
+      ],
+      "note": "shopify eryone image-derived conf=0.714"
+    },
+    "eryone/pla-lite/bright-yellow": {
+      "hex": [
+        "#E3BE20"
+      ],
+      "note": "shopify eryone image-derived conf=0.856"
+    },
+    "eryone/pla-lite/grass-green": {
+      "hex": [
+        "#5AD27E"
+      ],
+      "note": "shopify eryone image-derived conf=0.806"
+    },
+    "eryone/pla-lite/light-pink": {
+      "hex": [
+        "#E8B7C9"
+      ],
+      "note": "shopify eryone image-derived conf=0.858"
+    },
+    "eryone/pla-lite/mint-green": {
+      "hex": [
+        "#C68E61"
+      ],
+      "note": "shopify eryone image-derived conf=0.808"
+    },
+    "eryone/pla-lite/red": {
+      "hex": [
+        "#D12D26"
+      ],
+      "note": "shopify eryone image-derived conf=0.744"
+    },
+    "eryone/pla-lite/skin": {
+      "hex": [
+        "#D17920"
+      ],
+      "note": "shopify eryone image-derived conf=0.916"
+    },
+    "eryone/pla-lite/white": {
+      "hex": [
+        "#B4B0AE"
+      ],
+      "note": "shopify eryone image-derived conf=0.78"
+    },
+    "eryone/pla-matte-gradient-dual-color/black-white": {
+      "hex": [
+        "#DDA263"
+      ],
+      "note": "shopify eryone image-derived conf=0.396"
+    },
+    "eryone/pla-matte-gradient-dual-color/blue-green-burnt-orange": {
+      "hex": [
+        "#D0A27C"
+      ],
+      "note": "shopify eryone image-derived conf=0.409"
+    },
+    "eryone/pla-matte-gradient-dual-color/blue-purple": {
+      "hex": [
+        "#DEA874"
+      ],
+      "note": "shopify eryone image-derived conf=0.369"
+    },
+    "eryone/pla-matte-gradient-dual-color/blue-white": {
+      "hex": [
+        "#C9A06E"
+      ],
+      "note": "shopify eryone image-derived conf=0.594"
+    },
+    "eryone/pla-matte-gradient-dual-color/blue-yellow": {
+      "hex": [
+        "#CBA77A"
+      ],
+      "note": "shopify eryone image-derived conf=0.36"
+    },
+    "eryone/pla-matte-gradient-dual-color/dusty-blue-mustard-yellow": {
+      "hex": [
+        "#D3A572"
+      ],
+      "note": "shopify eryone image-derived conf=0.452"
+    },
+    "eryone/pla-matte-gradient-dual-color/gradient-red-yellow": {
+      "hex": [
+        "#CD9F5D"
+      ],
+      "note": "shopify eryone image-derived conf=0.38"
+    },
+    "eryone/pla-matte-gradient-dual-color/navy-blue-olive-green": {
+      "hex": [
+        "#E2B37E"
+      ],
+      "note": "shopify eryone image-derived conf=0.352"
+    },
+    "eryone/pla-matte-gradient-dual-color/pink-blue": {
+      "hex": [
+        "#D9B487"
+      ],
+      "note": "shopify eryone image-derived conf=0.391"
+    },
+    "eryone/pla-matte-gradient-dual-color/pink-matte-white": {
+      "hex": [
+        "#BF936B"
+      ],
+      "note": "shopify eryone image-derived conf=0.484"
+    },
+    "eryone/pla-matte-gradient-dual-color/rose-pink-sage-green": {
+      "hex": [
+        "#CFAB7E"
+      ],
+      "note": "shopify eryone image-derived conf=0.501"
+    },
+    "eryone/pla-matte-high-speed-gradient-multi-color/high-speed-matte-gradient-multi-color-coffee-khaki-white": {
+      "hex": [
+        "#AF8561"
+      ],
+      "note": "shopify eryone image-derived conf=0.352"
+    },
+    "eryone/pla-matte-high-speed-gradient-multi-color/high-speed-matte-gradient-multi-color-dark-brown-yellow": {
+      "hex": [
+        "#B68B66"
+      ],
+      "note": "shopify eryone image-derived conf=0.361"
+    },
+    "eryone/pla-matte-high-speed-gradient-multi-color/high-speed-matte-gradient-multi-color-glacier-blue-white": {
+      "hex": [
+        "#E4BA7C"
+      ],
+      "note": "shopify eryone image-derived conf=0.397"
+    },
+    "eryone/pla-matte-high-speed-gradient-multi-color/high-speed-matte-gradient-multi-color-gold-red": {
+      "hex": [
+        "#B88A63"
+      ],
+      "note": "shopify eryone image-derived conf=0.488"
+    },
+    "eryone/pla-matte-high-speed-gradient-multi-color/high-speed-matte-gradient-multi-color-marshmallow-blue-pink": {
+      "hex": [
+        "#D8A764"
+      ],
+      "note": "shopify eryone image-derived conf=0.483"
+    },
+    "eryone/pla-matte-high-speed-gradient-multi-color/high-speed-matte-gradient-multi-color-red-velvet-red-white": {
+      "hex": [
+        "#D5A668"
+      ],
+      "note": "shopify eryone image-derived conf=0.395"
+    },
+    "eryone/pla-matte-high-speed-gradient-multi-color/high-speed-matte-gradient-multi-color-snowfield-blue-white": {
+      "hex": [
+        "#E3B36E"
+      ],
+      "note": "shopify eryone image-derived conf=0.433"
+    },
+    "eryone/pla-matte-high-speed/high-speed-twisted-arctic-blue": {
+      "hex": [
+        "#5EC2F2"
+      ],
+      "note": "shopify eryone image-derived conf=0.827"
+    },
+    "eryone/pla-matte-high-speed/high-speed-twisted-maple-syrup-amber": {
+      "hex": [
+        "#E78943"
+      ],
+      "note": "shopify eryone image-derived conf=0.79"
+    },
+    "eryone/pla-matte-high-speed/high-speed-twisted-navajo-pottery-red": {
+      "hex": [
+        "#DD833B"
+      ],
+      "note": "shopify eryone image-derived conf=0.94"
+    },
+    "eryone/pla-matte-high-speed/high-speed-twisted-salt-flat-veins": {
+      "hex": [
+        "#7E8DA7"
+      ],
+      "note": "shopify eryone image-derived conf=0.677"
+    },
+    "eryone/pla-matte-high-speed/high-speed-twisted-zebra-stone": {
+      "hex": [
+        "#50474A"
+      ],
+      "note": "shopify eryone image-derived conf=0.566"
+    },
+    "eryone/pla-matte-high-speed/high-speed-white": {
+      "hex": [
+        "#C9BDB1"
+      ],
+      "note": "shopify eryone image-derived conf=0.73"
+    },
+    "eryone/pla-matte-matte-rainbow/aqua-blue": {
+      "hex": [
+        "#BF976E"
+      ],
+      "note": "shopify eryone image-derived conf=0.573"
+    },
+    "eryone/pla-matte-matte-rainbow/army-green": {
+      "hex": [
+        "#957055"
+      ],
+      "note": "shopify eryone image-derived conf=0.503"
+    },
+    "eryone/pla-matte-matte-rainbow/black": {
+      "hex": [
+        "#292929"
+      ],
+      "note": "shopify eryone image-derived conf=0.622"
+    },
+    "eryone/pla-matte-matte-rainbow/black-forest-green": {
+      "hex": [
+        "#2E443A"
+      ],
+      "note": "shopify eryone image-derived conf=0.546"
+    },
+    "eryone/pla-matte-matte-rainbow/blue-lilac": {
+      "hex": [
+        "#D2A273"
+      ],
+      "note": "shopify eryone image-derived conf=0.585"
+    },
+    "eryone/pla-matte-matte-rainbow/fig-color": {
+      "hex": [
+        "#C3894C"
+      ],
+      "note": "shopify eryone image-derived conf=0.605"
+    },
+    "eryone/pla-matte-matte-rainbow/grass-green": {
+      "hex": [
+        "#699F57"
+      ],
+      "note": "shopify eryone image-derived conf=0.571"
+    },
+    "eryone/pla-matte-matte-rainbow/gray": {
+      "hex": [
+        "#9FA19F"
+      ],
+      "note": "shopify eryone image-derived conf=0.525"
+    },
+    "eryone/pla-matte-matte-rainbow/iced-latte": {
+      "hex": [
+        "#BF8E56"
+      ],
+      "note": "shopify eryone image-derived conf=0.534"
+    },
+    "eryone/pla-matte-matte-rainbow/mint-green": {
+      "hex": [
+        "#BF9163"
+      ],
+      "note": "shopify eryone image-derived conf=0.484"
+    },
+    "eryone/pla-matte-matte-rainbow/navy-blue": {
+      "hex": [
+        "#2C4667"
+      ],
+      "note": "shopify eryone image-derived conf=0.598"
+    },
+    "eryone/pla-matte-matte-rainbow/nut-brown": {
+      "hex": [
+        "#C39057"
+      ],
+      "note": "shopify eryone image-derived conf=0.544"
+    },
+    "eryone/pla-matte-matte-rainbow/olive-green": {
+      "hex": [
+        "#435035"
+      ],
+      "note": "shopify eryone image-derived conf=0.582"
+    },
+    "eryone/pla-matte-matte-rainbow/pink": {
+      "hex": [
+        "#B6875A"
+      ],
+      "note": "shopify eryone image-derived conf=0.501"
+    },
+    "eryone/pla-matte-matte-rainbow/pottery-red": {
+      "hex": [
+        "#A8835E"
+      ],
+      "note": "shopify eryone image-derived conf=0.564"
+    },
+    "eryone/pla-matte-matte-rainbow/pumpkin-orange": {
+      "hex": [
+        "#C08A53"
+      ],
+      "note": "shopify eryone image-derived conf=0.518"
+    },
+    "eryone/pla-matte-matte-rainbow/red": {
+      "hex": [
+        "#DA303D"
+      ],
+      "note": "shopify eryone image-derived conf=0.539"
+    },
+    "eryone/pla-matte-matte-rainbow/red-wax": {
+      "hex": [
+        "#946E56"
+      ],
+      "note": "shopify eryone image-derived conf=0.598"
+    },
+    "eryone/pla-matte-matte-rainbow/ruby-red": {
+      "hex": [
+        "#50302C"
+      ],
+      "note": "shopify eryone image-derived conf=0.529"
+    },
+    "eryone/pla-matte-matte-rainbow/white": {
+      "hex": [
+        "#C29A6D"
+      ],
+      "note": "shopify eryone image-derived conf=0.451"
+    },
+    "eryone/pla-matte-matte-rainbow/yellow": {
+      "hex": [
+        "#D2C347"
+      ],
+      "note": "shopify eryone image-derived conf=0.586"
+    },
+    "eryone/pla-metallic/iron": {
+      "hex": [
+        "#1F1F1E"
+      ],
+      "note": "shopify eryone image-derived conf=0.599"
+    },
+    "eryone/pla-metallic/wolfram": {
+      "hex": [
+        "#232323"
+      ],
+      "note": "shopify eryone image-derived conf=0.373"
+    },
+    "eryone/pla-plus-high-speed/high-speed-azure-blue": {
+      "hex": [
+        "#2694E3"
+      ],
+      "note": "shopify eryone image-derived conf=0.684"
+    },
+    "eryone/pla-plus-high-speed/high-speed-black": {
+      "hex": [
+        "#413A35"
+      ],
+      "note": "shopify eryone image-derived conf=0.655"
+    },
+    "eryone/pla-plus-high-speed/high-speed-blue": {
+      "hex": [
+        "#2262E1"
+      ],
+      "note": "shopify eryone image-derived conf=0.682"
+    },
+    "eryone/pla-plus-high-speed/high-speed-brown": {
+      "hex": [
+        "#C79061"
+      ],
+      "note": "shopify eryone image-derived conf=0.355"
+    },
+    "eryone/pla-plus-high-speed/high-speed-dark-brown": {
+      "hex": [
+        "#574943"
+      ],
+      "note": "shopify eryone image-derived conf=0.358"
+    },
+    "eryone/pla-plus-high-speed/high-speed-gray": {
+      "hex": [
+        "#585E5F"
+      ],
+      "note": "shopify eryone image-derived conf=0.785"
+    },
+    "eryone/pla-plus-high-speed/high-speed-green": {
+      "hex": [
+        "#119949"
+      ],
+      "note": "shopify eryone image-derived conf=0.738"
+    },
+    "eryone/pla-plus-high-speed/high-speed-ivory": {
+      "hex": [
+        "#BE8C59"
+      ],
+      "note": "shopify eryone image-derived conf=0.463"
+    },
+    "eryone/pla-plus-high-speed/high-speed-magenta": {
+      "hex": [
+        "#ED29A6"
+      ],
+      "note": "shopify eryone image-derived conf=0.836"
+    },
+    "eryone/pla-plus-high-speed/high-speed-mint-green": {
+      "hex": [
+        "#CC7112"
+      ],
+      "note": "shopify eryone image-derived conf=0.93"
+    },
+    "eryone/pla-plus-high-speed/high-speed-orange": {
+      "hex": [
+        "#EB651E"
+      ],
+      "note": "shopify eryone image-derived conf=0.745"
+    },
+    "eryone/pla-plus-high-speed/high-speed-purple": {
+      "hex": [
+        "#8029DA"
+      ],
+      "note": "shopify eryone image-derived conf=0.802"
+    },
+    "eryone/pla-plus-high-speed/high-speed-rainbow-stone-brown-khaki-white": {
+      "hex": [
+        "#AA8260"
+      ],
+      "note": "shopify eryone image-derived conf=0.492"
+    },
+    "eryone/pla-plus-high-speed/high-speed-red": {
+      "hex": [
+        "#E7341E"
+      ],
+      "note": "shopify eryone image-derived conf=0.804"
+    },
+    "eryone/pla-plus-high-speed/high-speed-white": {
+      "hex": [
+        "#674F3A"
+      ],
+      "note": "shopify eryone image-derived conf=0.809"
+    },
+    "eryone/pla-plus-high-speed/high-speed-yellow": {
+      "hex": [
+        "#ECC926"
+      ],
+      "note": "shopify eryone image-derived conf=0.829"
+    },
+    "eryone/pla-plus/army-green": {
+      "hex": [
+        "#585C4C"
+      ],
+      "note": "shopify eryone image-derived conf=0.761"
+    },
+    "eryone/pla-plus/black": {
+      "hex": [
+        "#2F2824"
+      ],
+      "note": "shopify eryone image-derived conf=0.714"
+    },
+    "eryone/pla-plus/cool-white": {
+      "hex": [
+        "#D7C1AE"
+      ],
+      "note": "shopify eryone image-derived conf=0.736"
+    },
+    "eryone/pla-plus/green": {
+      "hex": [
+        "#0B9044"
+      ],
+      "note": "shopify eryone image-derived conf=0.641"
+    },
+    "eryone/pla-plus/ivory-white": {
+      "hex": [
+        "#BEB6AB"
+      ],
+      "note": "shopify eryone image-derived conf=0.776"
+    },
+    "eryone/pla-plus/olive-green": {
+      "hex": [
+        "#C77D2E"
+      ],
+      "note": "shopify eryone image-derived conf=0.874"
+    },
+    "eryone/pla-plus/red": {
+      "hex": [
+        "#D12D26"
+      ],
+      "note": "shopify eryone image-derived conf=0.744"
+    },
+    "eryone/pla-plus/skin": {
+      "hex": [
+        "#D17920"
+      ],
+      "note": "shopify eryone image-derived conf=0.916"
+    },
+    "eryone/pla-plus/white": {
+      "hex": [
+        "#B4B0AE"
+      ],
+      "note": "shopify eryone image-derived conf=0.78"
+    },
+    "eryone/pla-silk/apple-green": {
+      "hex": [
+        "#459C2B"
+      ],
+      "note": "shopify eryone image-derived conf=0.372"
+    },
+    "eryone/pla-silk/azalea-pink": {
+      "hex": [
+        "#D24496"
+      ],
+      "note": "shopify eryone image-derived conf=0.383"
+    },
+    "eryone/pla-silk/black": {
+      "hex": [
+        "#2E2F2D"
+      ],
+      "note": "shopify eryone image-derived conf=0.463"
+    },
+    "eryone/pla-silk/blue": {
+      "hex": [
+        "#4CB4F0"
+      ],
+      "note": "shopify eryone image-derived conf=0.455"
+    },
+    "eryone/pla-silk/brass": {
+      "hex": [
+        "#BE993C"
+      ],
+      "note": "shopify eryone image-derived conf=0.384"
+    },
+    "eryone/pla-silk/coffee-gold": {
+      "hex": [
+        "#7B3F20"
+      ],
+      "note": "shopify eryone image-derived conf=0.377"
+    },
+    "eryone/pla-silk/metallic-ceramic-red": {
+      "hex": [
+        "#C51B29"
+      ],
+      "note": "shopify eryone image-derived conf=0.399"
+    },
+    "eryone/pla-silk/pink": {
+      "hex": [
+        "#F6B4C2"
+      ],
+      "note": "shopify eryone image-derived conf=0.492"
+    },
+    "eryone/pla-silk/rose-red": {
+      "hex": [
+        "#D13EA3"
+      ],
+      "note": "shopify eryone image-derived conf=0.379"
+    },
+    "eryone/pla-silk/white": {
+      "hex": [
+        "#C6BCB1"
+      ],
+      "note": "shopify eryone image-derived conf=0.458"
+    },
+    "eryone/pla-silk/yellow": {
+      "hex": [
+        "#C4643E"
+      ],
+      "note": "shopify eryone image-derived conf=0.361"
+    },
+    "eryone/pla-ultra-silk/black": {
+      "hex": [
+        "#2E2F2D"
+      ],
+      "note": "shopify eryone image-derived conf=0.463"
+    },
+    "eryone/pla-ultra-silk/dark-gold": {
+      "hex": [
+        "#F4A845"
+      ],
+      "note": "shopify eryone image-derived conf=0.515"
+    },
+    "eryone/pla-ultra-silk/red": {
+      "hex": [
+        "#CE2D22"
+      ],
+      "note": "shopify eryone image-derived conf=0.378"
+    },
+    "eryone/pla-wood/charcoal-ash": {
+      "hex": [
+        "#C69463"
+      ],
+      "note": "shopify eryone image-derived conf=0.924"
+    },
+    "eryone/pla-wood/deep": {
+      "hex": [
+        "#644934"
+      ],
+      "note": "shopify eryone image-derived conf=0.846"
+    },
+    "eryone/pla-wood/light": {
+      "hex": [
+        "#6F5139"
+      ],
+      "note": "shopify eryone image-derived conf=0.824"
+    },
+    "eryone/pla-wood/pine-wood": {
+      "hex": [
+        "#C89364"
+      ],
+      "note": "shopify eryone image-derived conf=0.351"
+    },
+    "eryone/pla-wood/red": {
+      "hex": [
+        "#CA3D45"
+      ],
+      "note": "shopify eryone image-derived conf=0.811"
+    },
+    "eryone/pla/agate-gray": {
+      "hex": [
+        "#838281"
+      ],
+      "note": "shopify eryone image-derived conf=0.625"
+    },
+    "eryone/pla/apple-green": {
+      "hex": [
+        "#87C85D"
+      ],
+      "note": "shopify eryone image-derived conf=0.922"
+    },
+    "eryone/pla/black": {
+      "hex": [
+        "#2F2824"
+      ],
+      "note": "shopify eryone image-derived conf=0.714"
+    },
+    "eryone/pla/carbon-black": {
+      "hex": [
+        "#2D2D2D"
+      ],
+      "note": "shopify eryone image-derived conf=0.828"
+    },
+    "eryone/pla/chinese-red": {
+      "hex": [
+        "#C01724"
+      ],
+      "note": "shopify eryone image-derived conf=0.741"
+    },
+    "eryone/pla/cool-white": {
+      "hex": [
+        "#D7C1AE"
+      ],
+      "note": "shopify eryone image-derived conf=0.736"
+    },
+    "eryone/pla/dark-purple": {
+      "hex": [
+        "#7048AF"
+      ],
+      "note": "shopify eryone image-derived conf=0.715"
+    },
+    "eryone/pla/green": {
+      "hex": [
+        "#0B9044"
+      ],
+      "note": "shopify eryone image-derived conf=0.641"
+    },
+    "eryone/pla/ivory-white": {
+      "hex": [
+        "#BEB6AB"
+      ],
+      "note": "shopify eryone image-derived conf=0.776"
+    },
+    "eryone/pla/lavender-purple": {
+      "hex": [
+        "#AF9CDC"
+      ],
+      "note": "shopify eryone image-derived conf=0.913"
+    },
+    "eryone/pla/mango-yellow": {
+      "hex": [
+        "#D99F25"
+      ],
+      "note": "shopify eryone image-derived conf=0.93"
+    },
+    "eryone/pla/military-green": {
+      "hex": [
+        "#69765C"
+      ],
+      "note": "shopify eryone image-derived conf=0.627"
+    },
+    "eryone/pla/milky-white": {
+      "hex": [
+        "#BFBCB5"
+      ],
+      "note": "shopify eryone image-derived conf=0.877"
+    },
+    "eryone/pla/pearl-white": {
+      "hex": [
+        "#BAB5AC"
+      ],
+      "note": "shopify eryone image-derived conf=0.794"
+    },
+    "eryone/pla/red": {
+      "hex": [
+        "#D12D26"
+      ],
+      "note": "shopify eryone image-derived conf=0.744"
+    },
+    "eryone/pla/rose-red": {
+      "hex": [
+        "#8C1620"
+      ],
+      "note": "shopify eryone image-derived conf=0.953"
+    },
+    "eryone/pla/signal-gray": {
+      "hex": [
+        "#A7A198"
+      ],
+      "note": "shopify eryone image-derived conf=0.724"
+    },
+    "eryone/pla/skin": {
+      "hex": [
+        "#D17920"
+      ],
+      "note": "shopify eryone image-derived conf=0.916"
+    },
+    "eryone/pla/transparent": {
+      "hex": [
+        "#D0853F"
+      ],
+      "note": "shopify eryone image-derived conf=0.566"
+    },
+    "eryone/pla/white": {
+      "hex": [
+        "#B4B0AE"
+      ],
+      "note": "shopify eryone image-derived conf=0.78"
+    },
+    "eryone/pla/white-jade": {
+      "hex": [
+        "#5B3F26"
+      ],
+      "note": "shopify eryone image-derived conf=0.72"
+    },
+    "jayo/matte-pla/black": {
+      "hex": [
+        "#3B3D41"
+      ],
+      "note": "shopify jayo image-derived conf=0.561"
+    },
+    "jayo/matte-pla/grey": {
+      "hex": [
+        "#58585C"
+      ],
+      "note": "shopify jayo image-derived conf=0.843"
+    },
+    "jayo/matte-pla/white": {
+      "hex": [
+        "#3B3D42"
+      ],
+      "note": "shopify jayo image-derived conf=0.741"
+    },
+    "jayo/petg/black": {
+      "hex": [
+        "#292929"
+      ],
+      "note": "shopify jayo image-derived conf=0.398"
+    },
+    "jayo/petg/orange": {
+      "hex": [
+        "#07188A"
+      ],
+      "note": "shopify jayo image-derived conf=0.966"
+    },
+    "sunlu/glow-in-the-dark-pla/cyber-orange-glow-orange": {
+      "hex": [
+        "#FEA247"
+      ],
+      "note": "shopify sunlu image-derived conf=0.389"
+    },
+    "sunlu/glow-in-the-dark-pla/future-green-glow-green": {
+      "hex": [
+        "#69EA52"
+      ],
+      "note": "shopify sunlu image-derived conf=0.441"
+    },
+    "sunlu/glow-in-the-dark-pla/white-filament-glow-blue": {
+      "hex": [
+        "#E2E6CE"
+      ],
+      "note": "shopify sunlu image-derived conf=0.568"
+    },
+    "sunlu/glow-in-the-dark-pla/white-filament-glow-green": {
+      "hex": [
+        "#E2E5CE"
+      ],
+      "note": "shopify sunlu image-derived conf=0.566"
+    },
+    "sunlu/high-speed-matte-petg/black": {
+      "hex": [
+        "#2F2F2F"
+      ],
+      "note": "shopify sunlu image-derived conf=0.505"
+    },
+    "sunlu/high-speed-matte-petg/blue": {
+      "hex": [
+        "#3D29AB"
+      ],
+      "note": "shopify sunlu image-derived conf=0.664"
+    },
+    "sunlu/high-speed-matte-petg/green": {
+      "hex": [
+        "#38A61E"
+      ],
+      "note": "shopify sunlu image-derived conf=0.602"
+    },
+    "sunlu/high-speed-matte-petg/grey": {
+      "hex": [
+        "#575757"
+      ],
+      "note": "shopify sunlu image-derived conf=0.356"
+    },
+    "sunlu/high-speed-matte-petg/mint-green": {
+      "hex": [
+        "#2CC1AA"
+      ],
+      "note": "shopify sunlu image-derived conf=0.593"
+    },
+    "sunlu/high-speed-matte-petg/orange": {
+      "hex": [
+        "#F07222"
+      ],
+      "note": "shopify sunlu image-derived conf=0.354"
+    },
+    "sunlu/high-speed-matte-petg/red": {
+      "hex": [
+        "#CF3D42"
+      ],
+      "note": "shopify sunlu image-derived conf=0.641"
+    },
+    "sunlu/high-speed-matte-petg/sky-blue": {
+      "hex": [
+        "#6DD4FA"
+      ],
+      "note": "shopify sunlu image-derived conf=0.483"
+    },
+    "sunlu/high-speed-matte-petg/yellow": {
+      "hex": [
+        "#F7DD27"
+      ],
+      "note": "shopify sunlu image-derived conf=0.768"
+    },
+    "sunlu/high-speed-matte-pla/black": {
+      "hex": [
+        "#3B3B3B"
+      ],
+      "note": "shopify sunlu image-derived conf=0.512"
+    },
+    "sunlu/high-speed-matte-pla/cherry-red": {
+      "hex": [
+        "#D55257"
+      ],
+      "note": "shopify sunlu image-derived conf=0.589"
+    },
+    "sunlu/high-speed-matte-pla/cmyk-cyan-plus-magenta-plus-white-plus-yellow": {
+      "hex": [
+        "#C4447E"
+      ],
+      "note": "shopify sunlu image-derived conf=0.763"
+    },
+    "sunlu/high-speed-matte-pla/grey": {
+      "hex": [
+        "#8F9198"
+      ],
+      "note": "shopify sunlu image-derived conf=0.553"
+    },
+    "sunlu/high-speed-matte-pla/lemon-yellow": {
+      "hex": [
+        "#E5DBA2"
+      ],
+      "note": "shopify sunlu image-derived conf=0.479"
+    },
+    "sunlu/high-speed-matte-pla/mint-green": {
+      "hex": [
+        "#2FC0B8"
+      ],
+      "note": "shopify sunlu image-derived conf=0.546"
+    },
+    "sunlu/high-speed-matte-pla/pink-sakura-pink": {
+      "hex": [
+        "#FEDFEB"
+      ],
+      "note": "shopify sunlu image-derived conf=0.683"
+    },
+    "sunlu/high-speed-matte-pla/sky-blue": {
+      "hex": [
+        "#96DFFE"
+      ],
+      "note": "shopify sunlu image-derived conf=0.759"
+    },
+    "sunlu/high-speed-matte-pla/sunny-orange": {
+      "hex": [
+        "#FE9D5E"
+      ],
+      "note": "shopify sunlu image-derived conf=0.597"
+    },
+    "sunlu/high-speed-pla/black": {
+      "hex": [
+        "#232426"
+      ],
+      "note": "shopify sunlu image-derived conf=0.439"
+    },
+    "sunlu/high-speed-pla/blue-klein-blue": {
+      "hex": [
+        "#2B42CA"
+      ],
+      "note": "shopify sunlu image-derived conf=0.744"
+    },
+    "sunlu/high-speed-pla/coral-pink": {
+      "hex": [
+        "#FE9E91"
+      ],
+      "note": "shopify sunlu image-derived conf=0.473"
+    },
+    "sunlu/high-speed-pla/green": {
+      "hex": [
+        "#4DBB53"
+      ],
+      "note": "shopify sunlu image-derived conf=0.661"
+    },
+    "sunlu/high-speed-pla/grey": {
+      "hex": [
+        "#4C5154"
+      ],
+      "note": "shopify sunlu image-derived conf=0.668"
+    },
+    "sunlu/high-speed-pla/jelly-green": {
+      "hex": [
+        "#5DEEE5"
+      ],
+      "note": "shopify sunlu image-derived conf=0.778"
+    },
+    "sunlu/high-speed-pla/mocha-mousse": {
+      "hex": [
+        "#7B4732"
+      ],
+      "note": "shopify sunlu image-derived conf=0.832"
+    },
+    "sunlu/high-speed-pla/olive-green": {
+      "hex": [
+        "#516A40"
+      ],
+      "note": "shopify sunlu image-derived conf=0.54"
+    },
+    "sunlu/high-speed-pla/orange": {
+      "hex": [
+        "#FE813A"
+      ],
+      "note": "shopify sunlu image-derived conf=0.663"
+    },
+    "sunlu/high-speed-pla/pink": {
+      "hex": [
+        "#F282AB"
+      ],
+      "note": "shopify sunlu image-derived conf=0.486"
+    },
+    "sunlu/high-speed-pla/red": {
+      "hex": [
+        "#AB3B36"
+      ],
+      "note": "shopify sunlu image-derived conf=0.597"
+    },
+    "sunlu/high-speed-pla/white": {
+      "hex": [
+        "#B9B9B9"
+      ],
+      "note": "shopify sunlu image-derived conf=0.546"
+    },
+    "sunlu/high-speed-pla/yellow": {
+      "hex": [
+        "#FDEE0E"
+      ],
+      "note": "shopify sunlu image-derived conf=0.783"
+    },
+    "sunlu/matte-pla-dual-color-esthenic/black-plus-red": {
+      "hex": [
+        "#585555"
+      ],
+      "note": "shopify sunlu image-derived conf=0.389"
+    },
+    "sunlu/matte-pla-dual-color-esthenic/orange-plus-red": {
+      "hex": [
+        "#FD8BC1"
+      ],
+      "note": "shopify sunlu image-derived conf=0.4"
+    },
+    "sunlu/matte-pla-dual-color-esthenic/red-plus-blue": {
+      "hex": [
+        "#556CD1"
+      ],
+      "note": "shopify sunlu image-derived conf=0.36"
+    },
+    "sunlu/matte-pla-dual-color-esthenic/red-plus-yellow": {
+      "hex": [
+        "#FDCE81"
+      ],
+      "note": "shopify sunlu image-derived conf=0.371"
+    },
+    "sunlu/matte-pla-dual-color-esthenic/yellow-plus-cyan": {
+      "hex": [
+        "#4BDFF3"
+      ],
+      "note": "shopify sunlu image-derived conf=0.412"
+    },
+    "sunlu/matte-pla/black": {
+      "hex": [
+        "#2E2E2E"
+      ],
+      "note": "shopify sunlu image-derived conf=0.634"
+    },
+    "sunlu/matte-pla/blue": {
+      "hex": [
+        "#1722AA"
+      ],
+      "note": "shopify sunlu image-derived conf=0.742"
+    },
+    "sunlu/matte-pla/bright-yellow": {
+      "hex": [
+        "#EAF642"
+      ],
+      "note": "shopify sunlu image-derived conf=0.794"
+    },
+    "sunlu/matte-pla/cherry-red": {
+      "hex": [
+        "#F23F40"
+      ],
+      "note": "shopify sunlu image-derived conf=0.406"
+    },
+    "sunlu/matte-pla/clay": {
+      "hex": [
+        "#574931"
+      ],
+      "note": "shopify sunlu image-derived conf=0.879"
+    },
+    "sunlu/matte-pla/green": {
+      "hex": [
+        "#38A22D"
+      ],
+      "note": "shopify sunlu image-derived conf=0.599"
+    },
+    "sunlu/matte-pla/grey": {
+      "hex": [
+        "#737375"
+      ],
+      "note": "shopify sunlu image-derived conf=0.49"
+    },
+    "sunlu/matte-pla/klein-blue": {
+      "hex": [
+        "#1722AA"
+      ],
+      "note": "shopify sunlu image-derived conf=0.742"
+    },
+    "sunlu/matte-pla/light-blue": {
+      "hex": [
+        "#73B8C7"
+      ],
+      "note": "shopify sunlu image-derived conf=0.868"
+    },
+    "sunlu/matte-pla/ocean-blue": {
+      "hex": [
+        "#9BE0EE"
+      ],
+      "note": "shopify sunlu image-derived conf=0.751"
+    },
+    "sunlu/matte-pla/orange-sunny-orange": {
+      "hex": [
+        "#FF8B49"
+      ],
+      "note": "shopify sunlu image-derived conf=0.477"
+    },
+    "sunlu/matte-pla/powder-blue": {
+      "hex": [
+        "#C3E7E1"
+      ],
+      "note": "shopify sunlu image-derived conf=0.758"
+    },
+    "sunlu/matte-pla/purple-lavender-purple": {
+      "hex": [
+        "#8773CC"
+      ],
+      "note": "shopify sunlu image-derived conf=0.672"
+    },
+    "sunlu/matte-pla/red": {
+      "hex": [
+        "#C02E2F"
+      ],
+      "note": "shopify sunlu image-derived conf=0.636"
+    },
+    "sunlu/matte-pla/sky-blue": {
+      "hex": [
+        "#3ECFFC"
+      ],
+      "note": "shopify sunlu image-derived conf=0.699"
+    },
+    "sunlu/matte-pla/sprout-green": {
+      "hex": [
+        "#C8E805"
+      ],
+      "note": "shopify sunlu image-derived conf=0.801"
+    },
+    "sunlu/matte-pla/yellow": {
+      "hex": [
+        "#EDE339"
+      ],
+      "note": "shopify sunlu image-derived conf=0.723"
+    },
+    "sunlu/petg-2-0/aqua-blue": {
+      "hex": [
+        "#0ABFBF"
+      ],
+      "note": "shopify sunlu image-derived conf=0.67"
+    },
+    "sunlu/petg-2-0/beige-skin": {
+      "hex": [
+        "#EBD1C1"
+      ],
+      "note": "shopify sunlu image-derived conf=0.393"
+    },
+    "sunlu/petg-2-0/black": {
+      "hex": [
+        "#2E2E2E"
+      ],
+      "note": "shopify sunlu image-derived conf=0.634"
+    },
+    "sunlu/petg-2-0/blue-klein-blue": {
+      "hex": [
+        "#1722AA"
+      ],
+      "note": "shopify sunlu image-derived conf=0.742"
+    },
+    "sunlu/petg-2-0/blush-pink": {
+      "hex": [
+        "#FED1CD"
+      ],
+      "note": "shopify sunlu image-derived conf=0.73"
+    },
+    "sunlu/petg-2-0/bone-white": {
+      "hex": [
+        "#E2D9BB"
+      ],
+      "note": "shopify sunlu image-derived conf=0.515"
+    },
+    "sunlu/petg-2-0/coffee-brown": {
+      "hex": [
+        "#58321A"
+      ],
+      "note": "shopify sunlu image-derived conf=0.685"
+    },
+    "sunlu/petg-2-0/cyan": {
+      "hex": [
+        "#029BD5"
+      ],
+      "note": "shopify sunlu image-derived conf=0.688"
+    },
+    "sunlu/petg-2-0/green": {
+      "hex": [
+        "#38A22D"
+      ],
+      "note": "shopify sunlu image-derived conf=0.599"
+    },
+    "sunlu/petg-2-0/grey": {
+      "hex": [
+        "#6A6E71"
+      ],
+      "note": "shopify sunlu image-derived conf=0.61"
+    },
+    "sunlu/petg-2-0/lavender-purple-purple": {
+      "hex": [
+        "#8773CC"
+      ],
+      "note": "shopify sunlu image-derived conf=0.672"
+    },
+    "sunlu/petg-2-0/magenta": {
+      "hex": [
+        "#BF206A"
+      ],
+      "note": "shopify sunlu image-derived conf=0.701"
+    },
+    "sunlu/petg-2-0/oak-wood": {
+      "hex": [
+        "#BAA687"
+      ],
+      "note": "shopify sunlu image-derived conf=0.616"
+    },
+    "sunlu/petg-2-0/oliver-green": {
+      "hex": [
+        "#606D44"
+      ],
+      "note": "shopify sunlu image-derived conf=0.558"
+    },
+    "sunlu/petg-2-0/peach-pink": {
+      "hex": [
+        "#FCA08C"
+      ],
+      "note": "shopify sunlu image-derived conf=0.656"
+    },
+    "sunlu/petg-2-0/red": {
+      "hex": [
+        "#C02E2F"
+      ],
+      "note": "shopify sunlu image-derived conf=0.636"
+    },
+    "sunlu/petg-2-0/sunny-orange": {
+      "hex": [
+        "#FD8230"
+      ],
+      "note": "shopify sunlu image-derived conf=0.618"
+    },
+    "sunlu/petg-2-0/vivid-yellow": {
+      "hex": [
+        "#E7C429"
+      ],
+      "note": "shopify sunlu image-derived conf=0.756"
+    },
+    "sunlu/petg-2-0/yellow": {
+      "hex": [
+        "#EDE339"
+      ],
+      "note": "shopify sunlu image-derived conf=0.723"
+    },
+    "sunlu/petg-glow-in-the-dark/red-filament-glow-red": {
+      "hex": [
+        "#F15A73"
+      ],
+      "note": "shopify sunlu image-derived conf=0.512"
+    },
+    "sunlu/petg-glow-in-the-dark/white-filament-glow-blue": {
+      "hex": [
+        "#E2E5CE"
+      ],
+      "note": "shopify sunlu image-derived conf=0.565"
+    },
+    "sunlu/petg-glow-in-the-dark/white-filament-glow-green": {
+      "hex": [
+        "#E2E5CE"
+      ],
+      "note": "shopify sunlu image-derived conf=0.562"
+    },
+    "sunlu/petg-glow-in-the-dark/yellow-filament-glow-yellow": {
+      "hex": [
+        "#C4D607"
+      ],
+      "note": "shopify sunlu image-derived conf=0.533"
+    },
+    "sunlu/petg/beige-skin": {
+      "hex": [
+        "#EBD1C1"
+      ],
+      "note": "shopify sunlu image-derived conf=0.393"
+    },
+    "sunlu/petg/black": {
+      "hex": [
+        "#2E2E2E"
+      ],
+      "note": "shopify sunlu image-derived conf=0.634"
+    },
+    "sunlu/petg/blue-klein-blue": {
+      "hex": [
+        "#1722AA"
+      ],
+      "note": "shopify sunlu image-derived conf=0.742"
+    },
+    "sunlu/petg/bone-white": {
+      "hex": [
+        "#E2D9BB"
+      ],
+      "note": "shopify sunlu image-derived conf=0.515"
+    },
+    "sunlu/petg/cherry-red": {
+      "hex": [
+        "#F23F40"
+      ],
+      "note": "shopify sunlu image-derived conf=0.406"
+    },
+    "sunlu/petg/chocolate": {
+      "hex": [
+        "#704C35"
+      ],
+      "note": "shopify sunlu image-derived conf=0.649"
+    },
+    "sunlu/petg/coffee-brown": {
+      "hex": [
+        "#58321A"
+      ],
+      "note": "shopify sunlu image-derived conf=0.685"
+    },
+    "sunlu/petg/cyan": {
+      "hex": [
+        "#029BD5"
+      ],
+      "note": "shopify sunlu image-derived conf=0.688"
+    },
+    "sunlu/petg/green": {
+      "hex": [
+        "#38A22D"
+      ],
+      "note": "shopify sunlu image-derived conf=0.599"
+    },
+    "sunlu/petg/grey": {
+      "hex": [
+        "#6A6E71"
+      ],
+      "note": "shopify sunlu image-derived conf=0.61"
+    },
+    "sunlu/petg/lavender-purple-purple": {
+      "hex": [
+        "#8773CC"
+      ],
+      "note": "shopify sunlu image-derived conf=0.672"
+    },
+    "sunlu/petg/lemon-yellow": {
+      "hex": [
+        "#F7F298"
+      ],
+      "note": "shopify sunlu image-derived conf=0.73"
+    },
+    "sunlu/petg/magenta": {
+      "hex": [
+        "#BF206A"
+      ],
+      "note": "shopify sunlu image-derived conf=0.701"
+    },
+    "sunlu/petg/midnigh": {
+      "hex": [
+        "#26273C"
+      ],
+      "note": "shopify sunlu image-derived conf=0.63"
+    },
+    "sunlu/petg/mint-green": {
+      "hex": [
+        "#0CBBA8"
+      ],
+      "note": "shopify sunlu image-derived conf=0.518"
+    },
+    "sunlu/petg/oak-wood": {
+      "hex": [
+        "#BAA687"
+      ],
+      "note": "shopify sunlu image-derived conf=0.616"
+    },
+    "sunlu/petg/oliver-green": {
+      "hex": [
+        "#606D44"
+      ],
+      "note": "shopify sunlu image-derived conf=0.558"
+    },
+    "sunlu/petg/orange": {
+      "hex": [
+        "#FE832D"
+      ],
+      "note": "shopify sunlu image-derived conf=0.616"
+    },
+    "sunlu/petg/red": {
+      "hex": [
+        "#C02E2F"
+      ],
+      "note": "shopify sunlu image-derived conf=0.636"
+    },
+    "sunlu/petg/roasted-chestnut": {
+      "hex": [
+        "#2D1916"
+      ],
+      "note": "shopify sunlu image-derived conf=0.545"
+    },
+    "sunlu/petg/sakura-pink": {
+      "hex": [
+        "#FBA0AF"
+      ],
+      "note": "shopify sunlu image-derived conf=0.379"
+    },
+    "sunlu/petg/sky-blue": {
+      "hex": [
+        "#3ECFFC"
+      ],
+      "note": "shopify sunlu image-derived conf=0.699"
+    },
+    "sunlu/petg/sunny-orange": {
+      "hex": [
+        "#FD8230"
+      ],
+      "note": "shopify sunlu image-derived conf=0.618"
+    },
+    "sunlu/petg/transparent-blue": {
+      "hex": [
+        "#2753FB"
+      ],
+      "note": "shopify sunlu image-derived conf=0.536"
+    },
+    "sunlu/petg/vivid-yellow": {
+      "hex": [
+        "#E7C429"
+      ],
+      "note": "shopify sunlu image-derived conf=0.756"
+    },
+    "sunlu/petg/yellow": {
+      "hex": [
+        "#EDE339"
+      ],
+      "note": "shopify sunlu image-derived conf=0.723"
+    },
+    "sunlu/pla-macaron-colors/apple-green": {
+      "hex": [
+        "#89D48E"
+      ],
+      "note": "shopify sunlu image-derived conf=0.679"
+    },
+    "sunlu/pla-macaron-colors/black": {
+      "hex": [
+        "#252525"
+      ],
+      "note": "shopify sunlu image-derived conf=0.425"
+    },
+    "sunlu/pla-macaron-colors/blue-sky-blue": {
+      "hex": [
+        "#5CCCEC"
+      ],
+      "note": "shopify sunlu image-derived conf=0.558"
+    },
+    "sunlu/pla-macaron-colors/chocolate": {
+      "hex": [
+        "#704C35"
+      ],
+      "note": "shopify sunlu image-derived conf=0.649"
+    },
+    "sunlu/pla-macaron-colors/cream-white": {
+      "hex": [
+        "#E2DDBE"
+      ],
+      "note": "shopify sunlu image-derived conf=0.371"
+    },
+    "sunlu/pla-macaron-colors/green-mint-green": {
+      "hex": [
+        "#4FC8A5"
+      ],
+      "note": "shopify sunlu image-derived conf=0.623"
+    },
+    "sunlu/pla-macaron-colors/grey": {
+      "hex": [
+        "#737375"
+      ],
+      "note": "shopify sunlu image-derived conf=0.49"
+    },
+    "sunlu/pla-macaron-colors/ice-blue": {
+      "hex": [
+        "#8AE7EE"
+      ],
+      "note": "shopify sunlu image-derived conf=0.735"
+    },
+    "sunlu/pla-macaron-colors/red-cherry-red": {
+      "hex": [
+        "#E14E58"
+      ],
+      "note": "shopify sunlu image-derived conf=0.673"
+    },
+    "sunlu/pla-macaron-colors/sakura-pink": {
+      "hex": [
+        "#FBA0AF"
+      ],
+      "note": "shopify sunlu image-derived conf=0.379"
+    },
+    "sunlu/pla-macaron-colors/taro-purple": {
+      "hex": [
+        "#BFB0EE"
+      ],
+      "note": "shopify sunlu image-derived conf=0.648"
+    },
+    "sunlu/pla-macaron-colors/white": {
+      "hex": [
+        "#B6B6B6"
+      ],
+      "note": "shopify sunlu image-derived conf=0.433"
+    },
+    "sunlu/pla-macaron-colors/yellow-lemon-yellow": {
+      "hex": [
+        "#F7F298"
+      ],
+      "note": "shopify sunlu image-derived conf=0.73"
+    },
+    "sunlu/pla-metallic/brass-gold": {
+      "hex": [
+        "#4F2F17"
+      ],
+      "note": "shopify sunlu image-derived conf=0.758"
+    },
+    "sunlu/pla-plus-2-0/black": {
+      "hex": [
+        "#232426"
+      ],
+      "note": "shopify sunlu image-derived conf=0.439"
+    },
+    "sunlu/pla-plus-2-0/blue-grey": {
+      "hex": [
+        "#447FD8"
+      ],
+      "note": "shopify sunlu image-derived conf=0.46"
+    },
+    "sunlu/pla-plus-2-0/blue-klein-blue": {
+      "hex": [
+        "#1722AA"
+      ],
+      "note": "shopify sunlu image-derived conf=0.742"
+    },
+    "sunlu/pla-plus-2-0/bone-white": {
+      "hex": [
+        "#E2D9BB"
+      ],
+      "note": "shopify sunlu image-derived conf=0.515"
+    },
+    "sunlu/pla-plus-2-0/cherry-red": {
+      "hex": [
+        "#F23F40"
+      ],
+      "note": "shopify sunlu image-derived conf=0.406"
+    },
+    "sunlu/pla-plus-2-0/chocolate": {
+      "hex": [
+        "#5C3D3A"
+      ],
+      "note": "shopify sunlu image-derived conf=0.574"
+    },
+    "sunlu/pla-plus-2-0/coffee-brown": {
+      "hex": [
+        "#58321A"
+      ],
+      "note": "shopify sunlu image-derived conf=0.685"
+    },
+    "sunlu/pla-plus-2-0/cyan": {
+      "hex": [
+        "#029BD5"
+      ],
+      "note": "shopify sunlu image-derived conf=0.688"
+    },
+    "sunlu/pla-plus-2-0/gold": {
+      "hex": [
+        "#B99637"
+      ],
+      "note": "shopify sunlu image-derived conf=0.6"
+    },
+    "sunlu/pla-plus-2-0/green": {
+      "hex": [
+        "#4DBB53"
+      ],
+      "note": "shopify sunlu image-derived conf=0.661"
+    },
+    "sunlu/pla-plus-2-0/grey": {
+      "hex": [
+        "#4C5154"
+      ],
+      "note": "shopify sunlu image-derived conf=0.668"
+    },
+    "sunlu/pla-plus-2-0/lavender-purple": {
+      "hex": [
+        "#8773CC"
+      ],
+      "note": "shopify sunlu image-derived conf=0.672"
+    },
+    "sunlu/pla-plus-2-0/lemon-yellow": {
+      "hex": [
+        "#EEEE72"
+      ],
+      "note": "shopify sunlu image-derived conf=0.801"
+    },
+    "sunlu/pla-plus-2-0/magenta-fuchsia": {
+      "hex": [
+        "#BF206A"
+      ],
+      "note": "shopify sunlu image-derived conf=0.701"
+    },
+    "sunlu/pla-plus-2-0/midnight": {
+      "hex": [
+        "#26273C"
+      ],
+      "note": "shopify sunlu image-derived conf=0.63"
+    },
+    "sunlu/pla-plus-2-0/mint-green": {
+      "hex": [
+        "#0CBBA8"
+      ],
+      "note": "shopify sunlu image-derived conf=0.518"
+    },
+    "sunlu/pla-plus-2-0/oak-wood": {
+      "hex": [
+        "#BAA687"
+      ],
+      "note": "shopify sunlu image-derived conf=0.616"
+    },
+    "sunlu/pla-plus-2-0/olive-green": {
+      "hex": [
+        "#606D44"
+      ],
+      "note": "shopify sunlu image-derived conf=0.558"
+    },
+    "sunlu/pla-plus-2-0/orange": {
+      "hex": [
+        "#FE813A"
+      ],
+      "note": "shopify sunlu image-derived conf=0.663"
+    },
+    "sunlu/pla-plus-2-0/pure-yellow-vivid-yellow": {
+      "hex": [
+        "#E7C429"
+      ],
+      "note": "shopify sunlu image-derived conf=0.756"
+    },
+    "sunlu/pla-plus-2-0/red": {
+      "hex": [
+        "#AB3B36"
+      ],
+      "note": "shopify sunlu image-derived conf=0.597"
+    },
+    "sunlu/pla-plus-2-0/roasted-chestnut-black": {
+      "hex": [
+        "#2D1916"
+      ],
+      "note": "shopify sunlu image-derived conf=0.545"
+    },
+    "sunlu/pla-plus-2-0/silver": {
+      "hex": [
+        "#B2BDCB"
+      ],
+      "note": "shopify sunlu image-derived conf=0.471"
+    },
+    "sunlu/pla-plus-2-0/skin-beige": {
+      "hex": [
+        "#EED1BD"
+      ],
+      "note": "shopify sunlu image-derived conf=0.7"
+    },
+    "sunlu/pla-plus-2-0/sunny-orange": {
+      "hex": [
+        "#FD8230"
+      ],
+      "note": "shopify sunlu image-derived conf=0.618"
+    },
+    "sunlu/pla-plus-2-0/white": {
+      "hex": [
+        "#B9B9B9"
+      ],
+      "note": "shopify sunlu image-derived conf=0.546"
+    },
+    "sunlu/pla-plus-2-0/yellow": {
+      "hex": [
+        "#FDEE0E"
+      ],
+      "note": "shopify sunlu image-derived conf=0.783"
+    },
+    "sunlu/pla-plus/beige-skin": {
+      "hex": [
+        "#EED1BD"
+      ],
+      "note": "shopify sunlu image-derived conf=0.7"
+    },
+    "sunlu/pla-plus/black": {
+      "hex": [
+        "#232426"
+      ],
+      "note": "shopify sunlu image-derived conf=0.439"
+    },
+    "sunlu/pla-plus/blue-klein-blue": {
+      "hex": [
+        "#1722AA"
+      ],
+      "note": "shopify sunlu image-derived conf=0.742"
+    },
+    "sunlu/pla-plus/bone-white": {
+      "hex": [
+        "#E2D9BB"
+      ],
+      "note": "shopify sunlu image-derived conf=0.515"
+    },
+    "sunlu/pla-plus/cherry-red": {
+      "hex": [
+        "#F23F40"
+      ],
+      "note": "shopify sunlu image-derived conf=0.406"
+    },
+    "sunlu/pla-plus/coffee-brown": {
+      "hex": [
+        "#58321A"
+      ],
+      "note": "shopify sunlu image-derived conf=0.685"
+    },
+    "sunlu/pla-plus/gold": {
+      "hex": [
+        "#D59B3A"
+      ],
+      "note": "shopify sunlu image-derived conf=0.772"
+    },
+    "sunlu/pla-plus/gold-light-gold": {
+      "hex": [
+        "#B99637"
+      ],
+      "note": "shopify sunlu image-derived conf=0.6"
+    },
+    "sunlu/pla-plus/green": {
+      "hex": [
+        "#4DBB53"
+      ],
+      "note": "shopify sunlu image-derived conf=0.661"
+    },
+    "sunlu/pla-plus/grey": {
+      "hex": [
+        "#4C5154"
+      ],
+      "note": "shopify sunlu image-derived conf=0.668"
+    },
+    "sunlu/pla-plus/lemon-yellow": {
+      "hex": [
+        "#EEEE72"
+      ],
+      "note": "shopify sunlu image-derived conf=0.801"
+    },
+    "sunlu/pla-plus/magenta-fuchsia": {
+      "hex": [
+        "#BF206A"
+      ],
+      "note": "shopify sunlu image-derived conf=0.701"
+    },
+    "sunlu/pla-plus/midnight": {
+      "hex": [
+        "#26273C"
+      ],
+      "note": "shopify sunlu image-derived conf=0.63"
+    },
+    "sunlu/pla-plus/mint-green": {
+      "hex": [
+        "#0CBBA8"
+      ],
+      "note": "shopify sunlu image-derived conf=0.518"
+    },
+    "sunlu/pla-plus/oak-wood": {
+      "hex": [
+        "#BAA687"
+      ],
+      "note": "shopify sunlu image-derived conf=0.616"
+    },
+    "sunlu/pla-plus/oliver-green": {
+      "hex": [
+        "#606D44"
+      ],
+      "note": "shopify sunlu image-derived conf=0.558"
+    },
+    "sunlu/pla-plus/orange": {
+      "hex": [
+        "#FE813A"
+      ],
+      "note": "shopify sunlu image-derived conf=0.663"
+    },
+    "sunlu/pla-plus/purple-lavender-purple": {
+      "hex": [
+        "#8773CC"
+      ],
+      "note": "shopify sunlu image-derived conf=0.672"
+    },
+    "sunlu/pla-plus/red": {
+      "hex": [
+        "#AB3B36"
+      ],
+      "note": "shopify sunlu image-derived conf=0.597"
+    },
+    "sunlu/pla-plus/roasted-chestnut-black": {
+      "hex": [
+        "#2D1916"
+      ],
+      "note": "shopify sunlu image-derived conf=0.545"
+    },
+    "sunlu/pla-plus/sakura-pink": {
+      "hex": [
+        "#FBA0AF"
+      ],
+      "note": "shopify sunlu image-derived conf=0.379"
+    },
+    "sunlu/pla-plus/sky-blue": {
+      "hex": [
+        "#3ECFFC"
+      ],
+      "note": "shopify sunlu image-derived conf=0.699"
+    },
+    "sunlu/pla-plus/sunny-orange": {
+      "hex": [
+        "#FD8230"
+      ],
+      "note": "shopify sunlu image-derived conf=0.618"
+    },
+    "sunlu/pla-plus/transparent-blue": {
+      "hex": [
+        "#2753FB"
+      ],
+      "note": "shopify sunlu image-derived conf=0.536"
+    },
+    "sunlu/pla-plus/vivid-yellow": {
+      "hex": [
+        "#E7C429"
+      ],
+      "note": "shopify sunlu image-derived conf=0.756"
+    },
+    "sunlu/pla-plus/white": {
+      "hex": [
+        "#B9B9B9"
+      ],
+      "note": "shopify sunlu image-derived conf=0.546"
+    },
+    "sunlu/pla-plus/yellow": {
+      "hex": [
+        "#FDEE0E"
+      ],
+      "note": "shopify sunlu image-derived conf=0.783"
+    },
+    "sunlu/pla/black": {
+      "hex": [
+        "#252525"
+      ],
+      "note": "shopify sunlu image-derived conf=0.425"
+    },
+    "sunlu/pla/blue-grey": {
+      "hex": [
+        "#447FD8"
+      ],
+      "note": "shopify sunlu image-derived conf=0.46"
+    },
+    "sunlu/pla/blue-klein-blue": {
+      "hex": [
+        "#1722AA"
+      ],
+      "note": "shopify sunlu image-derived conf=0.742"
+    },
+    "sunlu/pla/bone-white": {
+      "hex": [
+        "#E2D9BB"
+      ],
+      "note": "shopify sunlu image-derived conf=0.515"
+    },
+    "sunlu/pla/cherry-red": {
+      "hex": [
+        "#F23F40"
+      ],
+      "note": "shopify sunlu image-derived conf=0.406"
+    },
+    "sunlu/pla/cyan": {
+      "hex": [
+        "#029BD5"
+      ],
+      "note": "shopify sunlu image-derived conf=0.688"
+    },
+    "sunlu/pla/fuchsia": {
+      "hex": [
+        "#F944C6"
+      ],
+      "note": "shopify sunlu image-derived conf=0.674"
+    },
+    "sunlu/pla/gold": {
+      "hex": [
+        "#B99637"
+      ],
+      "note": "shopify sunlu image-derived conf=0.6"
+    },
+    "sunlu/pla/green": {
+      "hex": [
+        "#38A22D"
+      ],
+      "note": "shopify sunlu image-derived conf=0.599"
+    },
+    "sunlu/pla/grey": {
+      "hex": [
+        "#737375"
+      ],
+      "note": "shopify sunlu image-derived conf=0.49"
+    },
+    "sunlu/pla/lemon-yellow": {
+      "hex": [
+        "#E5DBA2"
+      ],
+      "note": "shopify sunlu image-derived conf=0.479"
+    },
+    "sunlu/pla/magenta": {
+      "hex": [
+        "#BF206A"
+      ],
+      "note": "shopify sunlu image-derived conf=0.701"
+    },
+    "sunlu/pla/magenta-fuchsia": {
+      "hex": [
+        "#F944C6"
+      ],
+      "note": "shopify sunlu image-derived conf=0.674"
+    },
+    "sunlu/pla/midnight": {
+      "hex": [
+        "#26273C"
+      ],
+      "note": "shopify sunlu image-derived conf=0.63"
+    },
+    "sunlu/pla/mint-green": {
+      "hex": [
+        "#0CBBA8"
+      ],
+      "note": "shopify sunlu image-derived conf=0.518"
+    },
+    "sunlu/pla/oak-wood": {
+      "hex": [
+        "#BAA687"
+      ],
+      "note": "shopify sunlu image-derived conf=0.616"
+    },
+    "sunlu/pla/orange": {
+      "hex": [
+        "#FE832D"
+      ],
+      "note": "shopify sunlu image-derived conf=0.616"
+    },
+    "sunlu/pla/pink-sakura-pink": {
+      "hex": [
+        "#FAC9D2"
+      ],
+      "note": "shopify sunlu image-derived conf=0.719"
+    },
+    "sunlu/pla/purple-lavender-purple": {
+      "hex": [
+        "#8773CC"
+      ],
+      "note": "shopify sunlu image-derived conf=0.672"
+    },
+    "sunlu/pla/red": {
+      "hex": [
+        "#C02E2F"
+      ],
+      "note": "shopify sunlu image-derived conf=0.636"
+    },
+    "sunlu/pla/roasted-chestnut-black": {
+      "hex": [
+        "#2D1916"
+      ],
+      "note": "shopify sunlu image-derived conf=0.545"
+    },
+    "sunlu/pla/silver": {
+      "hex": [
+        "#A3B1C1"
+      ],
+      "note": "shopify sunlu image-derived conf=0.36"
+    },
+    "sunlu/pla/skin-beige": {
+      "hex": [
+        "#EED1BD"
+      ],
+      "note": "shopify sunlu image-derived conf=0.7"
+    },
+    "sunlu/pla/sky-blue": {
+      "hex": [
+        "#3ECFFC"
+      ],
+      "note": "shopify sunlu image-derived conf=0.699"
+    },
+    "sunlu/pla/transparent-blue": {
+      "hex": [
+        "#2753FB"
+      ],
+      "note": "shopify sunlu image-derived conf=0.536"
+    },
+    "sunlu/pla/vivid-yellow": {
+      "hex": [
+        "#E7C429"
+      ],
+      "note": "shopify sunlu image-derived conf=0.756"
+    },
+    "sunlu/pla/white": {
+      "hex": [
+        "#B6B6B6"
+      ],
+      "note": "shopify sunlu image-derived conf=0.433"
+    },
+    "sunlu/pla/yellow": {
+      "hex": [
+        "#EDE339"
+      ],
+      "note": "shopify sunlu image-derived conf=0.723"
+    },
+    "sunlu/silk-pla-plus-2-0/violet": {
+      "hex": [
+        "#5C31A9"
+      ],
+      "note": "shopify sunlu image-derived conf=0.415"
+    },
+    "sunlu/silk-pla-plus/grey": {
+      "hex": [
+        "#7A8B95"
+      ],
+      "note": "shopify sunlu image-derived conf=0.506"
+    },
+    "sunlu/silk-pla-plus/red-copper": {
+      "hex": [
+        "#954D2F"
+      ],
+      "note": "shopify sunlu image-derived conf=0.445"
+    },
+    "sunlu/silk-pla-plus/yellow": {
+      "hex": [
+        "#E9DD16"
+      ],
+      "note": "shopify sunlu image-derived conf=0.374"
+    },
+    "sunlu/wood-pla/wood": {
+      "hex": [
+        "#BAA687"
+      ],
+      "note": "shopify sunlu image-derived conf=0.616"
+    },
+    "amolen/petg-transparent/pink": {
+      "hex": [
+        "#E57C8B"
+      ],
+      "note": "sku-image-derived conf=0.507"
+    },
+    "amolen/petg/transparent-watermelon-red": {
+      "hex": [
+        "#C0393D"
+      ],
+      "note": "sku-image-derived conf=0.424"
+    },
+    "amolen/pla-basic-dual-color-high-speed/black-gold": {
+      "hex": [
+        "#B29E79"
+      ],
+      "note": "sku-image-derived conf=0.374"
+    },
+    "amolen/pla-crystal-transparent/olive-green": {
+      "hex": [
+        "#96B077"
+      ],
+      "note": "sku-image-derived conf=0.361"
+    },
+    "amolen/pla-marble/fossil-gradient": {
+      "hex": [
+        "#84756F"
+      ],
+      "note": "sku-image-derived conf=0.393"
+    },
+    "amolen/pla-matte-dual/green-purple": {
+      "hex": [
+        "#BDEBB5"
+      ],
+      "note": "sku-image-derived conf=0.416"
+    },
+    "amolen/pla-metal/metal-iron": {
+      "hex": [
+        "#2E2D2D"
+      ],
+      "note": "sku-image-derived conf=0.391"
+    },
+    "amolen/pla-s-series-glow-in-the-dark/red-yellow": {
+      "hex": [
+        "#B0351D"
+      ],
+      "note": "sku-image-derived conf=0.368"
+    },
+    "amolen/pla-silk-basic/silk-coffee-gold": {
+      "hex": [
+        "#895D3F"
+      ],
+      "note": "sku-image-derived conf=0.446"
+    },
+    "anycubic/pla-basic/spring-leaf": {
+      "hex": [
+        "#76A445"
+      ],
+      "note": "sku-image-derived conf=0.903"
+    },
+    "anycubic/pla-basic/tropical-turquoise": {
+      "hex": [
+        "#35BFED"
+      ],
+      "note": "sku-image-derived conf=0.381"
+    },
+    "anycubic/pla-glow/yellow-yellow-glow": {
+      "hex": [
+        "#F4DF2A"
+      ],
+      "note": "sku-image-derived conf=0.539"
+    },
+    "anycubic/pla-special/peach-pink": {
+      "hex": [
+        "#F4A181"
+      ],
+      "note": "sku-image-derived conf=0.94"
+    },
+    "anycubic/pla-special/spring-leaf": {
+      "hex": [
+        "#76A445"
+      ],
+      "note": "sku-image-derived conf=0.903"
+    },
+    "anycubic/pla-special/tropical-turquoise": {
+      "hex": [
+        "#35BFED"
+      ],
+      "note": "sku-image-derived conf=0.381"
+    },
+    "atomic-filament/petg-pro/gun-metal-gray-opaque": {
+      "hex": [
+        "#626564"
+      ],
+      "note": "sku-image-derived conf=0.783"
+    },
+    "atomic-filament/petg-pro/perfect-orange-opaque": {
+      "hex": [
+        "#C75B28"
+      ],
+      "note": "sku-image-derived conf=0.567"
+    },
+    "atomic-filament/petg-pro/perfect-purple": {
+      "hex": [
+        "#592F76"
+      ],
+      "note": "sku-image-derived conf=0.701"
+    },
+    "atomic-filament/petg-pro/perfect-red-opaque": {
+      "hex": [
+        "#AC3538"
+      ],
+      "note": "sku-image-derived conf=0.708"
+    },
+    "atomic-filament/petg-pro/perfect-yellow": {
+      "hex": [
+        "#B98F11"
+      ],
+      "note": "sku-image-derived conf=0.799"
+    },
+    "atomic-filament/petg-pro/reprap-green": {
+      "hex": [
+        "#174D1E"
+      ],
+      "note": "sku-image-derived conf=0.77"
+    },
+    "atomic-filament/petg-pro/translucent-sapphire-blue": {
+      "hex": [
+        "#5379D8"
+      ],
+      "note": "sku-image-derived conf=0.404"
+    },
+    "atomic-filament/petg/extreme-translucent-fluorescent-neon-green": {
+      "hex": [
+        "#61BD1E"
+      ],
+      "note": "sku-image-derived conf=0.396"
+    },
+    "atomic-filament/pla-shade-shifting/too-good-to-be-blue": {
+      "hex": [
+        "#232627"
+      ],
+      "note": "sku-image-derived conf=0.354"
+    },
+    "atomic-filament/pla/neon-yellow-uv-reactive": {
+      "hex": [
+        "#959010"
+      ],
+      "note": "sku-image-derived conf=0.811"
+    },
+    "atomic-filament/pla/translucent-midnight-blue": {
+      "hex": [
+        "#5F5091"
+      ],
+      "note": "sku-image-derived conf=0.361"
+    },
+    "atomic-filament/pla/translucent-sapphire-blue": {
+      "hex": [
+        "#5865C2"
+      ],
+      "note": "sku-image-derived conf=0.4"
+    },
+    "atomic-filament/translucent-petg-pro/indigo-golden-sparkle-v3": {
+      "hex": [
+        "#6A5CB4"
+      ],
+      "note": "sku-image-derived conf=0.358"
+    },
+    "atomic-filament/translucent-petg-pro/rose-gold-metallic": {
+      "hex": [
+        "#C88F9D"
+      ],
+      "note": "sku-image-derived conf=0.37"
+    },
+    "atomic-filament/translucent-pla/amethyst-violet-gemstone": {
+      "hex": [
+        "#8D325E"
+      ],
+      "note": "sku-image-derived conf=0.386"
+    },
+    "atomic-filament/translucent-pla/aqua-gemstone": {
+      "hex": [
+        "#0E7785"
+      ],
+      "note": "sku-image-derived conf=0.435"
+    },
+    "atomic-filament/translucent-pla/gemstone-ruby-red": {
+      "hex": [
+        "#CC3832"
+      ],
+      "note": "sku-image-derived conf=0.39"
+    },
+    "atomic-filament/translucent-pla/indigo-golden-sparkle-v3": {
+      "hex": [
+        "#6A5CB4"
+      ],
+      "note": "sku-image-derived conf=0.358"
+    },
+    "cailab/matte-pla/cloud-dancer-mt7527": {
+      "hex": [
+        "#CACEBD"
+      ],
+      "note": "sku-image-derived conf=0.374"
+    },
+    "cailab/matte-pla/latte-mt2317": {
+      "hex": [
+        "#B9936A"
+      ],
+      "note": "sku-image-derived conf=0.395"
+    },
+    "cailab/matte-pla/lavender-mt2645": {
+      "hex": [
+        "#B1A2D4"
+      ],
+      "note": "sku-image-derived conf=0.35"
+    },
+    "cailab/matte-pla/light-brown-mt4655": {
+      "hex": [
+        "#CFB081"
+      ],
+      "note": "sku-image-derived conf=0.362"
+    },
+    "cailab/matte-pla/muted-olive-mt6178": {
+      "hex": [
+        "#A3D3AB"
+      ],
+      "note": "sku-image-derived conf=0.35"
+    },
+    "cailab/matte-pla/rose-quartz-mt1404": {
+      "hex": [
+        "#D6B3A7"
+      ],
+      "note": "sku-image-derived conf=0.893"
+    },
+    "cailab/matte-pla/sakura-pink-mt6050": {
+      "hex": [
+        "#E6B7C7"
+      ],
+      "note": "sku-image-derived conf=0.368"
+    },
+    "cailab/petg-cf/matcha-green": {
+      "hex": [
+        "#9CC197"
+      ],
+      "note": "sku-image-derived conf=0.367"
+    },
+    "cailab/petg-cf/misty-purple-gcf4124": {
+      "hex": [
+        "#252525"
+      ],
+      "note": "sku-image-derived conf=0.431"
+    },
+    "cailab/petg/black-g419": {
+      "hex": [
+        "#272727"
+      ],
+      "note": "sku-image-derived conf=0.38"
+    },
+    "cailab/petg/blue-g2145": {
+      "hex": [
+        "#233D99"
+      ],
+      "note": "sku-image-derived conf=0.369"
+    },
+    "cailab/petg/cyan-g2925": {
+      "hex": [
+        "#0A8CD5"
+      ],
+      "note": "sku-image-derived conf=0.876"
+    },
+    "cailab/petg/gray-g11": {
+      "hex": [
+        "#66686D"
+      ],
+      "note": "sku-image-derived conf=0.361"
+    },
+    "cailab/petg/hunter-green-g2265": {
+      "hex": [
+        "#405A38"
+      ],
+      "note": "sku-image-derived conf=0.363"
+    },
+    "cailab/petg/ice-blue-g635": {
+      "hex": [
+        "#C6E5E5"
+      ],
+      "note": "sku-image-derived conf=0.4"
+    },
+    "cailab/petg/orange-g021": {
+      "hex": [
+        "#F36529"
+      ],
+      "note": "sku-image-derived conf=0.393"
+    },
+    "cailab/petg/peach-cream-g6023": {
+      "hex": [
+        "#FACEB3"
+      ],
+      "note": "sku-image-derived conf=0.393"
+    },
+    "cailab/petg/pink-g6050": {
+      "hex": [
+        "#FCCFD0"
+      ],
+      "note": "sku-image-derived conf=0.431"
+    },
+    "cailab/petg/red-g199": {
+      "hex": [
+        "#E0494B"
+      ],
+      "note": "sku-image-derived conf=0.396"
+    },
+    "cailab/pla-plus/brown-ac2317": {
+      "hex": [
+        "#946D49"
+      ],
+      "note": "sku-image-derived conf=0.356"
+    },
+    "cailab/pla-plus/hunter-green-ac6060": {
+      "hex": [
+        "#182E28"
+      ],
+      "note": "sku-image-derived conf=0.395"
+    },
+    "cailab/pla-plus/lavender-ac2725": {
+      "hex": [
+        "#6D62B4"
+      ],
+      "note": "sku-image-derived conf=0.351"
+    },
+    "cailab/pla-plus/lilac-ac2583": {
+      "hex": [
+        "#8F4BAF"
+      ],
+      "note": "sku-image-derived conf=0.381"
+    },
+    "cailab/pla-plus/magenta-ac239": {
+      "hex": [
+        "#E34BA1"
+      ],
+      "note": "sku-image-derived conf=0.366"
+    },
+    "cailab/pla-plus/ruby-ac3517": {
+      "hex": [
+        "#BC1D2B"
+      ],
+      "note": "sku-image-derived conf=0.373"
+    },
+    "cailab/rainbow-shift-pla/rock-rb014": {
+      "hex": [
+        "#987C7E"
+      ],
+      "note": "sku-image-derived conf=0.357"
+    },
+    "cailab/rainbow-shift-pla/terra-rb013": {
+      "hex": [
+        "#E2B386"
+      ],
+      "note": "sku-image-derived conf=0.361"
+    },
+    "creality/cr-silk-pla/gold": {
+      "hex": [
+        "#E5AB3B"
+      ],
+      "note": "sku-image-derived conf=0.447"
+    },
+    "creality/cr-silk-pla/purple": {
+      "hex": [
+        "#914689"
+      ],
+      "note": "sku-image-derived conf=0.398"
+    },
+    "creality/cr-silk-pla/red-copper": {
+      "hex": [
+        "#B26044"
+      ],
+      "note": "sku-image-derived conf=0.39"
+    },
+    "creality/hyper-pla-rfid-stardust/stardust-blue": {
+      "hex": [
+        "#617CB4"
+      ],
+      "note": "sku-image-derived conf=0.694"
+    },
+    "creality/hyper-pla-rfid-stardust/stardust-coffee": {
+      "hex": [
+        "#B05845"
+      ],
+      "note": "sku-image-derived conf=0.766"
+    },
+    "creality/hyper-pla-rfid-stardust/stardust-green": {
+      "hex": [
+        "#3B4B5D"
+      ],
+      "note": "sku-image-derived conf=0.714"
+    },
+    "creality/hyper-series-petg/grey": {
+      "hex": [
+        "#AFA39C"
+      ],
+      "note": "sku-image-derived conf=0.743"
+    },
+    "creality/soleyin-ultra-pla/almond-purple": {
+      "hex": [
+        "#90C142"
+      ],
+      "note": "sku-image-derived conf=0.842"
+    },
+    "creality/spool-free-cr-petg/blue": {
+      "hex": [
+        "#3357C9"
+      ],
+      "note": "sku-image-derived conf=0.37"
+    },
+    "creality/spool-free-cr-petg/purple": {
+      "hex": [
+        "#776DAA"
+      ],
+      "note": "sku-image-derived conf=0.377"
+    },
+    "elegoo/petg-cf/carbon-fiber-purple": {
+      "hex": [
+        "#7C5AA7"
+      ],
+      "note": "sku-image-derived conf=0.714"
+    },
+    "elegoo/petg-hf/beige": {
+      "hex": [
+        "#CDAF82"
+      ],
+      "note": "sku-image-derived conf=0.478"
+    },
+    "elegoo/pla-basic/black": {
+      "hex": [
+        "#212121"
+      ],
+      "note": "sku-image-derived conf=0.453"
+    },
+    "elegoo/pla-basic/purple": {
+      "hex": [
+        "#6F5AD1"
+      ],
+      "note": "sku-image-derived conf=0.806"
+    },
+    "elegoo/pla-basic/translucent": {
+      "hex": [
+        "#314498"
+      ],
+      "note": "sku-image-derived conf=0.507"
+    },
+    "elegoo/pla-cf/carbon-fiber-blue": {
+      "hex": [
+        "#2D334B"
+      ],
+      "note": "sku-image-derived conf=0.572"
+    },
+    "elegoo/pla-cf/carbon-fiber-brown": {
+      "hex": [
+        "#533A2A"
+      ],
+      "note": "sku-image-derived conf=0.759"
+    },
+    "elegoo/pla-emoji-brand-edition/orange": {
+      "hex": [
+        "#E97C2C"
+      ],
+      "note": "sku-image-derived conf=0.8"
+    },
+    "elegoo/pla-metallic/metallic-gold": {
+      "hex": [
+        "#807262"
+      ],
+      "note": "sku-image-derived conf=0.761"
+    },
+    "elegoo/pla-plus/translucent": {
+      "hex": [
+        "#CEC4AE"
+      ],
+      "note": "sku-image-derived conf=0.478"
+    },
+    "elegoo/pla-sparkle/sparkle-dark-grey": {
+      "hex": [
+        "#666667"
+      ],
+      "note": "sku-image-derived conf=0.401"
+    },
+    "elegoo/pla-sparkle/sparkle-turquoise": {
+      "hex": [
+        "#1D8D86"
+      ],
+      "note": "sku-image-derived conf=0.4"
+    },
+    "elegoo/pla-wood/wood-filled": {
+      "hex": [
+        "#D6B07D"
+      ],
+      "note": "sku-image-derived conf=0.374"
+    },
+    "elegoo/pla/beige": {
+      "hex": [
+        "#E4B37D"
+      ],
+      "note": "sku-image-derived conf=0.354"
+    },
+    "elegoo/pla/copper-filled": {
+      "hex": [
+        "#DBB78D"
+      ],
+      "note": "sku-image-derived conf=0.368"
+    },
+    "eryone/petg-high-speed/high-speed-black": {
+      "hex": [
+        "#2F2E31"
+      ],
+      "note": "sku-image-derived conf=0.759"
+    },
+    "eryone/petg-high-speed/high-speed-gray": {
+      "hex": [
+        "#5E6369"
+      ],
+      "note": "sku-image-derived conf=0.668"
+    },
+    "eryone/petg/carbon-fibre-black": {
+      "hex": [
+        "#2F2F2E"
+      ],
+      "note": "sku-image-derived conf=0.781"
+    },
+    "eryone/pla-burnt-titanium-triple-color/black-rose-red-purple-blue": {
+      "hex": [
+        "#CBA990"
+      ],
+      "note": "sku-image-derived conf=0.382"
+    },
+    "eryone/pla-galaxy-sparkly-glitter/purple": {
+      "hex": [
+        "#43345F"
+      ],
+      "note": "sku-image-derived conf=0.404"
+    },
+    "eryone/pla-galaxy-sparkly-glitter/red": {
+      "hex": [
+        "#C85762"
+      ],
+      "note": "sku-image-derived conf=0.358"
+    },
+    "eryone/pla-matte-high-speed/high-speed-olive-green": {
+      "hex": [
+        "#656A55"
+      ],
+      "note": "sku-image-derived conf=0.814"
+    },
+    "eryone/pla-matte-high-speed/high-speed-twisted-grand-canyon-red": {
+      "hex": [
+        "#764D4F"
+      ],
+      "note": "sku-image-derived conf=0.581"
+    },
+    "eryone/pla-matte-high-speed/high-speed-twisted-totem-engraving": {
+      "hex": [
+        "#785C54"
+      ],
+      "note": "sku-image-derived conf=0.573"
+    },
+    "eryone/pla-matte-matte-rainbow/skin": {
+      "hex": [
+        "#8C6852"
+      ],
+      "note": "sku-image-derived conf=0.486"
+    },
+    "eryone/pla-silk/champagne": {
+      "hex": [
+        "#D79727"
+      ],
+      "note": "sku-image-derived conf=0.507"
+    },
+    "eryone/pla-silk/dark-green": {
+      "hex": [
+        "#809993"
+      ],
+      "note": "sku-image-derived conf=0.384"
+    },
+    "eryone/pla-silk/lake-blue": {
+      "hex": [
+        "#CE8C25"
+      ],
+      "note": "sku-image-derived conf=0.515"
+    },
+    "eryone/pla-silk/rose-gold": {
+      "hex": [
+        "#D88924"
+      ],
+      "note": "sku-image-derived conf=0.502"
+    },
+    "eryone/pla-wood/clay": {
+      "hex": [
+        "#B16D35"
+      ],
+      "note": "sku-image-derived conf=0.751"
+    },
+    "eryone/pla/jet-black": {
+      "hex": [
+        "#2B2B2E"
+      ],
+      "note": "sku-image-derived conf=0.801"
+    },
+    "hatchbox/matte-pla/light-periwinkle": {
+      "hex": [
+        "#2C2C2D"
+      ],
+      "note": "sku-image-derived conf=0.364"
+    },
+    "hatchbox/pla-max-v2/mustard": {
+      "hex": [
+        "#AB884A"
+      ],
+      "note": "sku-image-derived conf=0.685"
+    },
+    "hatchbox/pla-max-v2/teal": {
+      "hex": [
+        "#232627"
+      ],
+      "note": "sku-image-derived conf=0.352"
+    },
+    "hatchbox/pla-pro-plus/bronze": {
+      "hex": [
+        "#302F2F"
+      ],
+      "note": "sku-image-derived conf=0.36"
+    },
+    "hatchbox/pla-pro-plus/copper": {
+      "hex": [
+        "#2D2C2C"
+      ],
+      "note": "sku-image-derived conf=0.377"
+    },
+    "hatchbox/pla-pro-plus/mint": {
+      "hex": [
+        "#29292A"
+      ],
+      "note": "sku-image-derived conf=0.382"
+    },
+    "hatchbox/pla/black": {
+      "hex": [
+        "#272727"
+      ],
+      "note": "sku-image-derived conf=0.373"
+    },
+    "hatchbox/pla/bronze": {
+      "hex": [
+        "#302F2F"
+      ],
+      "note": "sku-image-derived conf=0.36"
+    },
+    "hatchbox/pla/copper": {
+      "hex": [
+        "#2D2C2C"
+      ],
+      "note": "sku-image-derived conf=0.377"
+    },
+    "hatchbox/pla/metallic-finish-copper": {
+      "hex": [
+        "#242328"
+      ],
+      "note": "sku-image-derived conf=0.374"
+    },
+    "hatchbox/pla/natural": {
+      "hex": [
+        "#232323"
+      ],
+      "note": "sku-image-derived conf=0.376"
+    },
+    "hatchbox/pla/red-performance": {
+      "hex": [
+        "#D3373B"
+      ],
+      "note": "sku-image-derived conf=0.714"
+    },
+    "hatchbox/pla/silk-brown": {
+      "hex": [
+        "#C0968F"
+      ],
+      "note": "sku-image-derived conf=0.357"
+    },
+    "hatchbox/pla/silk-gold": {
+      "hex": [
+        "#E7B64F"
+      ],
+      "note": "sku-image-derived conf=0.442"
+    },
+    "hatchbox/pla/silk-pink": {
+      "hex": [
+        "#F1B5B6"
+      ],
+      "note": "sku-image-derived conf=0.399"
+    },
+    "hatchbox/pla/sparkle-blue": {
+      "hex": [
+        "#39778D"
+      ],
+      "note": "sku-image-derived conf=0.369"
+    },
+    "hatchbox/pla/sparkle-red": {
+      "hex": [
+        "#7C3632"
+      ],
+      "note": "sku-image-derived conf=0.368"
+    },
+    "hatchbox/pla/transparent-yellow": {
+      "hex": [
+        "#DEC71C"
+      ],
+      "note": "sku-image-derived conf=0.383"
+    },
+    "kexcelled/the-k5-petg-gf/skylight": {
+      "hex": [
+        "#B4D6C8"
+      ],
+      "note": "sku-image-derived conf=0.391"
+    },
+    "kexcelled/the-k5-petg-gf/summer-song": {
+      "hex": [
+        "#96BBCF"
+      ],
+      "note": "sku-image-derived conf=0.382"
+    },
+    "kexcelled/the-k5-petg-m/army-green": {
+      "hex": [
+        "#405134"
+      ],
+      "note": "sku-image-derived conf=0.392"
+    },
+    "kexcelled/the-k5-petg-m/grayish-purple": {
+      "hex": [
+        "#6B687E"
+      ],
+      "note": "sku-image-derived conf=0.371"
+    },
+    "kexcelled/the-k5-petg-m/matte-turquoise": {
+      "hex": [
+        "#58C8CE"
+      ],
+      "note": "sku-image-derived conf=0.482"
+    },
+    "kexcelled/the-k5-petg/copper": {
+      "hex": [
+        "#4F2811"
+      ],
+      "note": "sku-image-derived conf=0.363"
+    },
+    "kexcelled/the-k5-petg/gray-blue": {
+      "hex": [
+        "#767F90"
+      ],
+      "note": "sku-image-derived conf=0.359"
+    },
+    "kexcelled/the-k5-petg/skin": {
+      "hex": [
+        "#E9D8C0"
+      ],
+      "note": "sku-image-derived conf=0.436"
+    },
+    "kexcelled/the-k5-pla-cf/carbon-blue": {
+      "hex": [
+        "#466287"
+      ],
+      "note": "sku-image-derived conf=0.389"
+    },
+    "kexcelled/the-k5-pla-m/lilac-purple": {
+      "hex": [
+        "#BCACDC"
+      ],
+      "note": "sku-image-derived conf=0.356"
+    },
+    "kexcelled/the-k5-pla-m/matte-kraft": {
+      "hex": [
+        "#C8B68A"
+      ],
+      "note": "sku-image-derived conf=0.899"
+    },
+    "kexcelled/the-k5-pla-m/mint-green": {
+      "hex": [
+        "#C3CE83"
+      ],
+      "note": "sku-image-derived conf=0.534"
+    },
+    "kexcelled/the-k5-pla-magic/magic-black-2": {
+      "hex": [
+        "#A9ADA9"
+      ],
+      "note": "sku-image-derived conf=0.351"
+    },
+    "kexcelled/the-k5-pla-magic/magic-brown": {
+      "hex": [
+        "#ABA5A3"
+      ],
+      "note": "sku-image-derived conf=0.364"
+    },
+    "kexcelled/the-k5-pla-magic/magic-granite-1": {
+      "hex": [
+        "#ADACAA"
+      ],
+      "note": "sku-image-derived conf=0.359"
+    },
+    "kexcelled/the-k5-pla-magic/magic-green": {
+      "hex": [
+        "#BFC6BF"
+      ],
+      "note": "sku-image-derived conf=0.35"
+    },
+    "kexcelled/the-k5-pla-p/light-gray-green": {
+      "hex": [
+        "#74A39F"
+      ],
+      "note": "sku-image-derived conf=0.376"
+    },
+    "kexcelled/the-k5-pla-p/silver": {
+      "hex": [
+        "#A0A1A2"
+      ],
+      "note": "sku-image-derived conf=0.366"
+    },
+    "overture/easy-pla/easy-pumpkin-orange": {
+      "hex": [
+        "#F18A28"
+      ],
+      "note": "sku-image-derived conf=0.828"
+    },
+    "overture/easy-pla/easy-purple": {
+      "hex": [
+        "#5A428C"
+      ],
+      "note": "sku-image-derived conf=0.82"
+    },
+    "overture/easy-pla/easy-yellow": {
+      "hex": [
+        "#EED02F"
+      ],
+      "note": "sku-image-derived conf=0.893"
+    },
+    "overture/high-speed-petg/starry-blue": {
+      "hex": [
+        "#D2A546"
+      ],
+      "note": "sku-image-derived conf=0.49"
+    },
+    "overture/high-speed-pla/northern-lights": {
+      "hex": [
+        "#C3A676"
+      ],
+      "note": "sku-image-derived conf=0.355"
+    },
+    "overture/high-speed-pla/orange": {
+      "hex": [
+        "#C6682E"
+      ],
+      "note": "sku-image-derived conf=0.594"
+    },
+    "overture/high-speed-pla/rainbow": {
+      "hex": [
+        "#C4A573"
+      ],
+      "note": "sku-image-derived conf=0.371"
+    },
+    "overture/high-speed-pla/rocket-pop": {
+      "hex": [
+        "#C4A575"
+      ],
+      "note": "sku-image-derived conf=0.374"
+    },
+    "overture/high-speed-pla/royal-gold": {
+      "hex": [
+        "#CF9728"
+      ],
+      "note": "sku-image-derived conf=0.658"
+    },
+    "overture/matte-pla-gradient/light-blue-yellow": {
+      "hex": [
+        "#C4A774"
+      ],
+      "note": "sku-image-derived conf=0.357"
+    },
+    "overture/matte-pla/bamboo-green": {
+      "hex": [
+        "#D5745D"
+      ],
+      "note": "sku-image-derived conf=0.584"
+    },
+    "overture/matte-pla/blue": {
+      "hex": [
+        "#85C8E2"
+      ],
+      "note": "sku-image-derived conf=0.823"
+    },
+    "overture/matte-pla/light-blue": {
+      "hex": [
+        "#85C8E2"
+      ],
+      "note": "sku-image-derived conf=0.823"
+    },
+    "overture/matte-pla/light-blue-yellow": {
+      "hex": [
+        "#C4A774"
+      ],
+      "note": "sku-image-derived conf=0.357"
+    },
+    "overture/matte-pla/orange": {
+      "hex": [
+        "#E98411"
+      ],
+      "note": "sku-image-derived conf=0.809"
+    },
+    "overture/pla-gradient/northern-lights": {
+      "hex": [
+        "#C3A673"
+      ],
+      "note": "sku-image-derived conf=0.353"
+    },
+    "overture/pla-gradient/rainbow": {
+      "hex": [
+        "#C4A573"
+      ],
+      "note": "sku-image-derived conf=0.371"
+    },
+    "overture/pla-gradient/rocket-pop": {
+      "hex": [
+        "#C4A575"
+      ],
+      "note": "sku-image-derived conf=0.374"
+    },
+    "overture/pla-plus/green": {
+      "hex": [
+        "#379A5B"
+      ],
+      "note": "sku-image-derived conf=0.681"
+    },
+    "overture/pla-pro/army-green": {
+      "hex": [
+        "#595023"
+      ],
+      "note": "sku-image-derived conf=0.551"
+    },
+    "overture/pla-pro/green": {
+      "hex": [
+        "#595023"
+      ],
+      "note": "sku-image-derived conf=0.551"
+    },
+    "overture/pla-pro/light-green": {
+      "hex": [
+        "#B2D48B"
+      ],
+      "note": "sku-image-derived conf=0.824"
+    },
+    "overture/rock-pla-gradient/pink-lake": {
+      "hex": [
+        "#EDC9E7"
+      ],
+      "note": "sku-image-derived conf=0.434"
+    },
+    "overture/rock-pla/pink-lake": {
+      "hex": [
+        "#F4B435"
+      ],
+      "note": "sku-image-derived conf=0.903"
+    },
+    "overture/silk-pla/silk-caramel": {
+      "hex": [
+        "#BD7444"
+      ],
+      "note": "sku-image-derived conf=0.391"
+    },
+    "overture/silk-pla/silk-chrome-gray": {
+      "hex": [
+        "#919A9E"
+      ],
+      "note": "sku-image-derived conf=0.384"
+    },
+    "overture/silk-pla/silk-copper": {
+      "hex": [
+        "#8C4721"
+      ],
+      "note": "sku-image-derived conf=0.357"
+    },
+    "overture/silk-pla/silk-gold": {
+      "hex": [
+        "#E3B920"
+      ],
+      "note": "sku-image-derived conf=0.413"
+    },
+    "overture/silk-pla/silk-golden-ember": {
+      "hex": [
+        "#D05147"
+      ],
+      "note": "sku-image-derived conf=0.359"
+    },
+    "overture/silk-pla/silk-green": {
+      "hex": [
+        "#3FB28F"
+      ],
+      "note": "sku-image-derived conf=0.391"
+    },
+    "overture/silk-pla/silk-lettuce-tomato": {
+      "hex": [
+        "#CA5A3E"
+      ],
+      "note": "sku-image-derived conf=0.398"
+    },
+    "overture/silk-pla/silk-lime-surge": {
+      "hex": [
+        "#B9DF43"
+      ],
+      "note": "sku-image-derived conf=0.475"
+    },
+    "overture/silk-pla/silk-punch-pink": {
+      "hex": [
+        "#DB5E69"
+      ],
+      "note": "sku-image-derived conf=0.412"
+    },
+    "overture/silk-pla/silk-red": {
+      "hex": [
+        "#B72938"
+      ],
+      "note": "sku-image-derived conf=0.412"
+    },
+    "overture/silk-pla/silk-silver": {
+      "hex": [
+        "#949AA4"
+      ],
+      "note": "sku-image-derived conf=0.372"
+    },
+    "overture/silk-pla/silk-tropic": {
+      "hex": [
+        "#59B542"
+      ],
+      "note": "sku-image-derived conf=0.396"
+    },
+    "overture/super-pla-plus/purple": {
+      "hex": [
+        "#826CBE"
+      ],
+      "note": "sku-image-derived conf=0.735"
+    },
+    "polymaker/ht-pla/orange": {
+      "hex": [
+        "#DF864C"
+      ],
+      "note": "sku-image-derived conf=0.551"
+    },
+    "polymaker/panchroma-celestial-pla/celestial-light-yellow": {
+      "hex": [
+        "#CFD17E"
+      ],
+      "note": "sku-image-derived conf=0.628"
+    },
+    "polymaker/panchroma-neon-pla/neon-magenta": {
+      "hex": [
+        "#E65C98"
+      ],
+      "note": "sku-image-derived conf=0.671"
+    },
+    "polymaker/panchroma-silk-pla/silk-quartz-pink": {
+      "hex": [
+        "#F7867A"
+      ],
+      "note": "sku-image-derived conf=0.365"
+    },
+    "polymaker/panchroma-silk-pla/silk-yellow": {
+      "hex": [
+        "#E8D851"
+      ],
+      "note": "sku-image-derived conf=0.383"
+    },
+    "polymaker/petg/army-brown": {
+      "hex": [
+        "#B29276"
+      ],
+      "note": "sku-image-derived conf=0.405"
+    },
+    "polymaker/petg/dark-green": {
+      "hex": [
+        "#62432E"
+      ],
+      "note": "sku-image-derived conf=0.614"
+    },
+    "polymaker/petg/silver": {
+      "hex": [
+        "#563F30"
+      ],
+      "note": "sku-image-derived conf=0.621"
+    },
+    "polymaker/polylite-metallic-pla-pro/metallic-red": {
+      "hex": [
+        "#823525"
+      ],
+      "note": "sku-image-derived conf=0.557"
+    },
+    "polymaker/polylite-pla/black": {
+      "hex": [
+        "#533C2B"
+      ],
+      "note": "sku-image-derived conf=0.653"
+    },
+    "polymaker/polylite-pla/grey": {
+      "hex": [
+        "#959599"
+      ],
+      "note": "sku-image-derived conf=0.659"
+    },
+    "polymaker/polylite-translucent-petg/translucent-red": {
+      "hex": [
+        "#7B1C1B"
+      ],
+      "note": "sku-image-derived conf=0.378"
+    },
+    "proto-pasta/composite-htpla/bronze-filled-metal": {
+      "hex": [
+        "#563E32"
+      ],
+      "note": "sku-image-derived conf=0.394"
+    },
+    "proto-pasta/composite-pla/electrically-conductive": {
+      "hex": [
+        "#232425"
+      ],
+      "note": "sku-image-derived conf=0.354"
+    },
+    "proto-pasta/composite-pla/steel-filled-metal": {
+      "hex": [
+        "#63615F"
+      ],
+      "note": "sku-image-derived conf=0.38"
+    },
+    "proto-pasta/htpla/dusty-smoke": {
+      "hex": [
+        "#504F50"
+      ],
+      "note": "sku-image-derived conf=0.383"
+    },
+    "proto-pasta/htpla/filafetti-confetti-frosting": {
+      "hex": [
+        "#C9C0B7"
+      ],
+      "note": "sku-image-derived conf=0.407"
+    },
+    "proto-pasta/htpla/fleck-n-fiesta-magenta": {
+      "hex": [
+        "#BB2732"
+      ],
+      "note": "sku-image-derived conf=0.379"
+    },
+    "proto-pasta/htpla/fluorescent-yellow": {
+      "hex": [
+        "#E0DC30"
+      ],
+      "note": "sku-image-derived conf=0.885"
+    },
+    "proto-pasta/htpla/gloop-purple": {
+      "hex": [
+        "#4D3753"
+      ],
+      "note": "sku-image-derived conf=0.36"
+    },
+    "proto-pasta/htpla/heartthrob-metallic-red": {
+      "hex": [
+        "#5A2726"
+      ],
+      "note": "sku-image-derived conf=0.396"
+    },
+    "proto-pasta/htpla/high-density-stainless-steel-filled": {
+      "hex": [
+        "#63615F"
+      ],
+      "note": "sku-image-derived conf=0.38"
+    },
+    "proto-pasta/htpla/lab-coat-white": {
+      "hex": [
+        "#BEBBBA"
+      ],
+      "note": "sku-image-derived conf=0.514"
+    },
+    "proto-pasta/htpla/mango-medley-multicolor": {
+      "hex": [
+        "#EF2F3C"
+      ],
+      "note": "sku-image-derived conf=0.36"
+    },
+    "proto-pasta/htpla/sun-gold-metallic-yellow": {
+      "hex": [
+        "#EBAC2B"
+      ],
+      "note": "sku-image-derived conf=0.848"
+    },
+    "proto-pasta/htpla/what-karat-smooth-gold": {
+      "hex": [
+        "#7B4713"
+      ],
+      "note": "sku-image-derived conf=0.388"
+    },
+    "proto-pasta/petg/composite-steel": {
+      "hex": [
+        "#63615F"
+      ],
+      "note": "sku-image-derived conf=0.38"
+    },
+    "proto-pasta/pla-hfpla/natural-high-flow": {
+      "hex": [
+        "#E6D6BD"
+      ],
+      "note": "sku-image-derived conf=0.546"
+    },
+    "prusament/pla/cmyk-magenta": {
+      "hex": [
+        "#D84771"
+      ],
+      "note": "sku-image-derived conf=0.405"
+    },
+    "prusament/pla/opal-green": {
+      "hex": [
+        "#1C6F55"
+      ],
+      "note": "sku-image-derived conf=0.74"
+    },
+    "sunlu/high-speed-matte-petg/pink": {
+      "hex": [
+        "#E372B6"
+      ],
+      "note": "sku-image-derived conf=0.534"
+    },
+    "sunlu/matte-pla-dual-color-esthenic/black-plus-blue": {
+      "hex": [
+        "#4B4F55"
+      ],
+      "note": "sku-image-derived conf=0.371"
+    },
+    "sunlu/silk-pla-plus/green": {
+      "hex": [
+        "#15B49B"
+      ],
+      "note": "sku-image-derived conf=0.487"
+    },
+    "jayo/matte-pla/bone-white": {
+      "hex": [
+        "#3B3D42"
+      ],
+      "note": "shopify jayo 5KG Large Spool PLA, PLA+ and PLA Matte 3D Printer Filament / WHITE; conf=0.741"
+    },
+    "jayo/matte-pla/dual-matte-black-blue": {
+      "hex": [
+        "#3A3B40"
+      ],
+      "note": "shopify jayo 5KG Large Spool PLA, PLA+ and PLA Matte 3D Printer Filament / BLACK; conf=0.659"
+    },
+    "jayo/matte-pla/dual-matte-black-red": {
+      "hex": [
+        "#3A3B40"
+      ],
+      "note": "shopify jayo 5KG Large Spool PLA, PLA+ and PLA Matte 3D Printer Filament / BLACK; conf=0.659"
+    },
+    "jayo/petg/grey": {
+      "hex": [
+        "#58585C"
+      ],
+      "note": "shopify jayo 5KG Large Spool PLA, PLA+ and PLA Matte 3D Printer Filament / GREY; conf=0.843"
+    },
+    "polymaker/ht-pla-pro/white": {
+      "hex": [
+        "#DADBD9"
+      ],
+      "note": "HT-PLA Pro PA20002; hex from left-filament crop of isometric (#DADBD9). Full product image kept as SKU thumb. Grey/Dark Grey share PA20003 upstream → both #888C8F."
+    },
+    "byehassle/pla-ya-guang/red": {
+      "hex": [
+        "#CF3736"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/light-grey": {
+      "hex": [
+        "#A8ABAA"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/black": {
+      "hex": [
+        "#1A1A1A"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/cool-white": {
+      "hex": [
+        "#FAFCFC"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/orange": {
+      "hex": [
+        "#FC812C"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/blue": {
+      "hex": [
+        "#1547DD"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/yellow": {
+      "hex": [
+        "#F1EC98"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/khaki": {
+      "hex": [
+        "#E1D1B7"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/dark-grey": {
+      "hex": [
+        "#575855"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/mu-se": {
+      "hex": [
+        "#C7985F"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/beige-skin": {
+      "hex": [
+        "#F9EFE5"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/green": {
+      "hex": [
+        "#01B44E"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/e-huang-se": {
+      "hex": [
+        "#FAFCC1"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/qing-lan-se": {
+      "hex": [
+        "#A4E4D9"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/lime": {
+      "hex": [
+        "#9BB843"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/ka-fei-se": {
+      "hex": [
+        "#7F574E"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/burnt-caramel": {
+      "hex": [
+        "#8E5836"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/glacial-blue": {
+      "hex": [
+        "#B8F1FB"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/hui-lan-se": {
+      "hex": [
+        "#56646D"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/zu-mu-lv": {
+      "hex": [
+        "#1F6642"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/jun-lv-se": {
+      "hex": [
+        "#ACB49E"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/li-zong-se": {
+      "hex": [
+        "#633C2E"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/mei-fen-se": {
+      "hex": [
+        "#FFA1B3"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/sakura-bloom": {
+      "hex": [
+        "#FCE0EE"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "byehassle/pla-ya-guang/royal-violet": {
+      "hex": [
+        "#6454C8"
+      ],
+      "note": "pdd local color-chart crop; image-derived from saved 色卡 (no CDN); src=/workspace/cn-sku/screenshots/931315367733_palette_zoom.png"
+    },
+    "cailab/matte-pla/hazy-blue-mt6109": {
+      "hex": [
+        "#738190"
+      ],
+      "note": "re-extract hex from existing local SKU thumb (empty hex fill); conf~0.336; src=cailab__matte-pla__hazy-blue-mt6109.jpg"
+    },
+    "cailab/matte-pla/misty-lilac-mt256": {
+      "hex": [
+        "#C3ACC9"
+      ],
+      "note": "re-extract hex from existing local SKU thumb (empty hex fill); conf~0.306; src=cailab__matte-pla__misty-lilac-mt256.jpg"
+    },
+    "cailab/matte-pla/beige-mt4030": {
+      "hex": [
+        "#ECD2B3"
+      ],
+      "note": "re-extract hex from existing local SKU thumb (empty hex fill); conf~0.311; src=cailab__matte-pla__beige-mt4030.jpg"
+    },
+    "cailab/matte-pla/dark-night-blue-mt2165": {
+      "hex": [
+        "#283B52"
+      ],
+      "note": "re-extract hex from existing local SKU thumb (empty hex fill); conf~0.259; src=cailab__matte-pla__dark-night-blue-mt2165.jpg"
+    },
+    "cailab/matte-pla/ya-guang-bao-wu-fen": {
+      "hex": [
+        "#C3ACC9"
+      ],
+      "note": "alias of cailab/matte-pla/misty-lilac-mt256 via PDD 薄雾粉 name match"
+    },
+    "cailab/pla-plus/clear-acl": {
+      "hex": [
+        "#C4C4C4"
+      ],
+      "note": "re-extract hex from existing local SKU thumb (empty hex fill); conf~0.447"
+    },
+    "sunlu/pla-plus-2-0/ceramic-white": {
+      "hex": [
+        "#E4E5EA"
+      ],
+      "note": "re-extract hex from existing local SKU thumb (empty hex fill); conf~0.250; PDD name=瓷白色"
+    },
+    "sunlu/pla-plus-2-0/ci-bai-se": {
+      "hex": [
+        "#E4E5EA"
+      ],
+      "note": "alias ceramic-white for PDD 瓷白色"
+    },
+    "cailab/matte-pla/army-green-mt2407": {
+      "hex": [
+        "#7FA07B"
+      ],
+      "note": "re-extract empty hex from local SKU thumb conf=0.311"
+    },
+    "cailab/matte-pla/desert-mt4249": {
+      "hex": [
+        "#E7D4AE"
+      ],
+      "note": "re-extract empty hex from local SKU thumb conf=0.338"
+    },
+    "cailab/matte-pla/encore-red-mt7622": {
+      "hex": [
+        "#922F3A"
+      ],
+      "note": "re-extract empty hex from local SKU thumb conf=0.338"
+    },
+    "cailab/pla-plus/tou-ming-se": {
+      "hex": [
+        "#C4C4C4"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/clear-acl"
+    },
+    "cailab/pla-plus/bai-se": {
+      "hex": [
+        "#C6C4C2"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/white-ac9003"
+    },
+    "cailab/pla-plus/bao-he-lan": {
+      "hex": [
+        "#8BD1CA"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/light-blue-ac635"
+    },
+    "cailab/pla-plus/ci-bai": {
+      "hex": [
+        "#C6C4C2"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/white-ac9003"
+    },
+    "cailab/pla-plus/guo-qi-hong": {
+      "hex": [
+        "#610A0E"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/crimson-ac1807"
+    },
+    "cailab/pla-plus/hai-lan": {
+      "hex": [
+        "#032B79"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/blue-ac2145"
+    },
+    "cailab/pla-plus/hei-se": {
+      "hex": [
+        "#292625"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/black-ac419"
+    },
+    "cailab/pla-plus/huang-se": {
+      "hex": [
+        "#DBBA2B"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/mustard-yellow-ac115"
+    },
+    "cailab/pla-plus/mang-guo-huang": {
+      "hex": [
+        "#FDB815"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/mango-yellow-ac2010"
+    },
+    "cailab/pla-plus/pin-hong": {
+      "hex": [
+        "#E34BA1"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/magenta-ac239"
+    },
+    "cailab/pla-plus/light-gray-ac421": {
+      "hex": [
+        "#818380"
+      ],
+      "note": "re-extract for PDD alias donor conf=0.334"
+    },
+    "cailab/pla-plus/qian-hui-se": {
+      "hex": [
+        "#818380"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/light-gray-ac421"
+    },
+    "cailab/pla-plus/qing-se": {
+      "hex": [
+        "#3C96DA"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/cyan-ac2925"
+    },
+    "cailab/pla-plus/rou-tao-se": {
+      "hex": [
+        "#E9B183"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/peach-fuzz-ac6023"
+    },
+    "cailab/pla-plus/sha-mo-se": {
+      "hex": [
+        "#C7B284"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/desert-ac7501"
+    },
+    "cailab/pla-plus/shen-zong-se": {
+      "hex": [
+        "#83552F"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/dark-brown-ac7517"
+    },
+    "cailab/pla-plus/gray-ac11": {
+      "hex": [
+        "#4F5054"
+      ],
+      "note": "re-extract for PDD alias donor conf=0.349"
+    },
+    "cailab/pla-plus/tan-hui": {
+      "hex": [
+        "#4F5054"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/gray-ac11"
+    },
+    "cailab/pla-plus/xun-yi-cao-zi": {
+      "hex": [
+        "#6D62B4"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/lavender-ac2725"
+    },
+    "cailab/pla-plus/ying-hua-fen": {
+      "hex": [
+        "#FDD3E0"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/sakura-pink-ac6050"
+    },
+    "cailab/pla-plus/zheng-hong": {
+      "hex": [
+        "#C71C1C"
+      ],
+      "note": "PDD Bio name-match alias of cailab/pla-plus/red-ac199"
+    }
+  },
   "store_swatch_confidence": {
     "esun": 0.3
   }

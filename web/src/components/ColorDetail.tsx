@@ -32,10 +32,31 @@ export function ColorDetail(props: {
       <div className="drawer-backdrop" onClick={onClose} aria-hidden="true" />
       <aside className="color-detail" role="dialog" aria-label="颜色详情">
         <div
-          className={entry.hex[0] === undefined ? "color-detail-swatch swatch-empty" : "color-detail-swatch"}
-          style={entry.hex[0] === undefined ? undefined : { backgroundColor: entry.hex[0] }}
-          aria-label={entry.hex[0] ?? "无色值"}
-        />
+          className={[
+            "color-detail-swatch",
+            entry.img ? "swatch-has-img" : "",
+            !entry.img && entry.hex[0] === undefined ? "swatch-empty" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          style={
+            !entry.img && entry.hex[0] !== undefined
+              ? { backgroundColor: entry.hex[0] }
+              : undefined
+          }
+          aria-label={entry.hex[0] ?? (entry.img ? "SKU 图片" : "无色值")}
+        >
+          {entry.img ? (
+            <img className="swatch-img" src={entry.img} alt="" />
+          ) : null}
+          {entry.img && entry.hex[0] !== undefined ? (
+            <span
+              className="swatch-hex-dot"
+              style={{ backgroundColor: entry.hex[0] }}
+              title={entry.hex[0]}
+            />
+          ) : null}
+        </div>
         <div className="color-detail-body">
           <header className="color-detail-header">
             <div>

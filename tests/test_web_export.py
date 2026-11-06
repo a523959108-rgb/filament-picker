@@ -14,7 +14,11 @@ def _example_catalog() -> dict:
 def test_export_web_matches_fixture() -> None:
     catalog = _example_catalog()
     expected = json.loads(Path("docs/fixtures/web-catalog.sample.json").read_text(encoding="utf-8"))
-    assert export_web(catalog) == expected
+    actual = export_web(catalog)
+    # Example fixture keeps img=null so it stays portable without web/public/sku/.
+    for entry in actual["entries"]:
+        entry["img"] = None
+    assert actual == expected
 
 
 def test_retired_entry_and_unused_brand_are_not_exported() -> None:
@@ -50,6 +54,7 @@ def test_export_entry_has_required_key_order() -> None:
         "conf",
         "url",
         "price",
+        "img",
     ]
     for entry in catalog["entries"]:
         assert list(export_entry(entry)) == expected_keys
@@ -63,3 +68,15 @@ def test_export_web_cli_writes_output(tmp_path, capsys) -> None:
     assert main(["export-web", "--catalog", str(catalog_path), "--out", str(output_path)]) == 0
     assert output_path.exists()
     assert capsys.readouterr().out.rstrip().splitlines()[-1] == "entries=4"
+
+
+def test_export_entry_img_when_cached(tmp_path, monkeypatch) -> None:
+    from filament_picker import web_export
+
+    sku = tmp_path / "sku"
+    sku.mkdir()
+    (sku / "bambu-lab__petg-basic__black-30105.jpg").write_bytes(b"fake")
+    monkeypatch.setattr(web_export, "SKU_DIR", sku)
+    entry = _example_catalog()["entries"][0]
+    exported = web_export.export_entry(entry)
+    assert exported["img"] == "/sku/bambu-lab__petg-basic__black-30105.jpg"
