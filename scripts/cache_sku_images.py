@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Copy catalog variant_image files into web/public/sku/ as 240px JPEG thumbs."""
+
 from __future__ import annotations
 
 import json
