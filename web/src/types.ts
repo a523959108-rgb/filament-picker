@@ -14,6 +14,7 @@ export interface WebEntry {
   src: "official" | "store_swatch" | "image_extracted" | "manual" | null;
   conf: number | null;
   url: string;
+  alt_url: string | null;
   price: string | null;
   img: string | null;
 }
@@ -73,6 +74,7 @@ export interface PlanResult {
       label: "几乎一样" | "接近" | "勉强";
       is_approx: boolean;
       url: string;
+      alt_url?: string | null;
       price_text: string | null;
     }[];
   }[];

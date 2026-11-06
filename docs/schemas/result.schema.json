@@ -61,7 +61,7 @@
             "type": "array", "maxItems": 3,
             "items": {
               "type": "object", "additionalProperties": false,
-              "required": ["id", "brand_name", "series_name", "name_display", "hex", "hex_source", "delta_e", "label", "is_approx", "url", "price_text"],
+              "required": ["id", "brand_name", "series_name", "name_display", "hex", "hex_source", "delta_e", "label", "is_approx", "url", "alt_url", "price_text"],
               "properties": {
                 "id": {"type": "string"},
                 "brand_name": {"type": "string"},
@@ -72,7 +72,14 @@
                 "delta_e": {"type": "number", "minimum": 0, "maximum": 10},
                 "label": {"enum": ["几乎一样", "接近", "勉强"]},
                 "is_approx": {"type": "boolean", "description": "hex_source != official"},
-                "url": {"type": "string", "pattern": "^https?://"},
+                "url": {"type": "string", "pattern": "^https?://", "description": "购买链接。已有拼多多商品页则用该链接，否则为拼多多搜索页。"},
+                "alt_url": {
+                  "description": "原官网/店铺链接。没有、或原来只是 GitHub 色号表时为 null。",
+                  "anyOf": [
+                    {"type": "null"},
+                    {"type": "string", "pattern": "^https?://"}
+                  ]
+                },
                 "price_text": {"type": ["string", "null"]}
               }
             }

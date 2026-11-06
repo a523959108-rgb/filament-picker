@@ -655,7 +655,7 @@ not params.brands or entry.brand_slug in params.brands
 not (set(entry.effects) & MATCH_EXCLUDE_EFFECTS)
 entry.hex_source == "official" or (params.allow_approx and entry.hex_confidence >= MATCH_MIN_CONF)
 ```
-每个目标色：用 `PaletteColor.lab`（已 round 2 位）与候选条目的 `lab` 算 ΔE00，过滤 `ΔE <= MATCH_MAX_DE`，排序键 `(round(ΔE,4), SOURCE_RANK[hex_source], id)`，取前 `per_color` 个为 picks。`delta_e` 输出 round 2 位；`label` 用未取整 ΔE 查 `LABEL_THRESHOLDS`（<2、<5、≤10）；`is_approx = hex_source != "official"`；`url/price_text` 取 `offers[0]`（无 offers → 二者 null；`price_text` 为空串 `""` 时也输出 null，即 `price_text or None`）。
+每个目标色：用 `PaletteColor.lab`（已 round 2 位）与候选条目的 `lab` 算 ΔE00，过滤 `ΔE <= MATCH_MAX_DE`，排序键 `(round(ΔE,4), SOURCE_RANK[hex_source], id)`，取前 `per_color` 个为 picks。`delta_e` 输出 round 2 位；`label` 用未取整 ΔE 查 `LABEL_THRESHOLDS`（<2、<5、≤10）；`is_approx = hex_source != "official"`。`url` / `alt_url` 按 §10.1 的拼多多优先规则从 `offers` 算出（`url` 必为 `https?://`；`alt_url` 没有则为 null）。`price_text` 取提供 `url` 的那条 offer，主链接不是任一 offer 时取 `offers[0]`（无 offers → null；`price_text` 为空串 `""` 时也输出 null，即 `price_text or None`）。
 `name_display(entry)`（定义在 `matcher.py`）= `" ".join(非空的 name_zh, name_en)`，有 code 时追加 ` ({code})`；两者都空 → `name_raw`。例：`黑色 Black (30105)`、`Sakura Bloom` 条目 → `樱花粉 Sakura Bloom`。
 - 某目标无 pick → warning `NO_MATCH_FOR_COLOR:<index>`；所有目标都无 pick → 抛 `NoMatchError`。
 - `slots_used` = 各目标首选 id 去重后的个数。
@@ -717,14 +717,14 @@ exec .venv/bin/filament-picker worker --root "${FP_ROOT:-/home/box/agent-data/sh
 [若 card_url] ![配色卡]({card_url})
 [对每个目标 i]
 {i+1}. `{hex}` 占比 {round(share*100)}%
-   - 推荐：{brand_name} {series_name} · {name_display}（ΔE {delta_e:.1f}，{label}[，近似色]）[购买]({url})
+   - 推荐：{brand_name} {series_name} · {name_display}（ΔE {delta_e:.1f}，{label}[，近似色]）[购买]({url})[若 alt_url][原链接]({alt_url})
    [对第 2、3 个 pick] - 备选：同上格式
    [若无 pick] - 暂无 ΔE ≤ 10 的耗材
 [若 single_series_option] **同系列方案**：{brand_name} {series_name}（最大 ΔE {max_delta_e:.1f}）
 [若任何 pick 的 is_approx] > 近似色 = 颜色来自店铺示意色或商品图取色，不是官方色值，请以实物为准。
 需要 {slots_used} 个料槽。
 ```
-- `url` 为 null 时省略整个 `[购买](…)`；`label` 后面的「，近似色」仅在 `is_approx` 为真时出现。
+- `url` 为 null 时省略整个 `[购买](…)`；`alt_url` 为 http(s) 字符串时在购买链接后紧接 `[原链接](…)`，否则省略。`label` 后面的「，近似色」仅在 `is_approx` 为真时出现。
 - **金标**：`build_reply_markdown(docs/schemas/examples/result.example.json 的内容)` 必须逐字等于该文件里的 `reply_markdown`（该例的 palette/request 是示例，picks 与 ΔE 是用 M0 真实目录对 `#1B1B1D` 按 §9.4 算出的）。
 
 失败时 = `error.message_zh` 单行。
@@ -746,18 +746,30 @@ exec .venv/bin/filament-picker worker --root "${FP_ROOT:-/home/box/agent-data/sh
 
 ## 10. M3 网站
 ### 10.1 `web-catalog.json`（`filament-picker export-web --out web/public/web-catalog.json`）
-只导出 `status == "active"` 的条目，键名缩短：
+只导出 `status == "active"` 的条目，键名缩短。购买链接优先拼多多，由 `buy.purchase_links` 决定，不改 `filament-catalog` 里的原始 `offers`：
+
+- `offers` 中已有真实商品页（主机名为 `mobile.pinduoduo.com` / `pinduoduo.com` / `mobile.yangkeduo.com` / `yangkeduo.com` 及其 `www`，路径含 `goods`，且 `goods_id` 为纯数字）→ `url` 用第一条这样的链接，不改写、不编造 `goods_id`。
+- 否则 `url` 为 `https://mobile.pinduoduo.com/search_result.html?search_key=` 加上百分号编码的关键词。关键词 = 品牌检索名 + 系列（系列已含 PLA/PETG 则不再重复材料；去掉系列名里的「（拼多多）」）+ 颜色（有 `name_zh` 用中文，否则 `name_en`）。不把色号写进关键词。
+- 品牌检索名：`BRAND_ALIASES` 里第一个含汉字的别名；没有汉字别名时用 `buy.BRAND_SEARCH_NAMES`（`polymaker` → 宝丽玛，`eryone` → 艾瑞欧，`kexcelled` → 凯想）；再没有则用 `brand_name`。
+- GitHub 上的 `filaments_color_codes` 色号表不是购买链接，不能当 `url` 或 `alt_url`。
+- `alt_url`：按 offer 顺序，第一条既不是主链接、也不是拼多多商品页、也不是上述 GitHub 色号表的 URL；没有则为 null。
+- `price` 仍来自提供主链接的那条 offer；主链接是搜索页时用 `offers[0].price_text`（空串作 null）。
+
+键顺序：`id,b,s,m,en,zh,code,py,pyi,fam,eff,hex,src,conf,url,alt_url,price,img`。
+
 ```json
 {"generated_at": "...", "brands": [{"slug":"bambu-lab","name":"Bambu Lab"}],
  "entries": [{"id":"bambu-lab/petg-basic/black-30105","b":"bambu-lab","s":"PETG Basic","m":"PETG",
    "en":"Black","zh":"黑色","code":"30105","py":"hei se","pyi":"hs","fam":"黑白灰","eff":[],
-   "hex":["#000000"],"src":"official","conf":1.0,"url":"https://jp.store.bambulab.com/products/petg-basic","price":"¥2,800 JPY"}]}
+   "hex":["#000000"],"src":"official","conf":1.0,
+   "url":"https://mobile.pinduoduo.com/search_result.html?search_key=...",
+   "alt_url":"https://jp.store.bambulab.com/products/petg-basic","price":"¥2,800 JPY"}]}
 ```
-（上例为真实条目的导出结果。）
+（上例为真实条目的导出形状；`url` 的关键词是「拓竹 PETG Basic 黑色」。已有拼多多商品页的条目 `url` 保持原商品链接，`alt_url` 为 null。）
 ### 10.2 页面
 - `#/` 色卡浏览：顶部搜索框 + 筛选（品牌多选、材料 PLA/PETG、色系 15 项、"只看有色值"、"只看官方色"）；下方色块网格（每块 120×120，显示 hex 色块、品牌系列、名称；无 hex 显示斜线占位）。
 - 搜索：MiniSearch `fields: ["en","zh","py","pyi","code","b","s"]`，`storeFields: ["id"]`，`searchOptions: {prefix: true, fuzzy: 0.2, boost: {zh: 2, en: 2, code: 3}}`。空查询按 品牌表顺序 → 系列名 → id 排序。
-- 点色块 → 详情抽屉：大色块、hex、来源徽章（official「官方色值」/store_swatch「店铺示意色（近似）」/image_extracted「商品图取色（近似，置信度 0.xx）」/manual「人工校对」）、所有购买链接、"相似色"前 8（culori `differenceCiede2000()`，只在单 hex、非 multi 条目中找，ΔE ≤ 10）。
+- 点色块 → 详情抽屉：大色块、hex、来源徽章（official「官方色值」/store_swatch「店铺示意色（近似）」/image_extracted「商品图取色（近似，置信度 0.xx）」/manual「人工校对」）、购买链接（`url`，拼多多优先；GitHub 色号表显示「暂未上架」）和有 `alt_url` 时的「原链接」、"相似色"前 8（culori `differenceCiede2000()`，只在单 hex、非 multi 条目中找，ΔE ≤ 10）。配色页每个推荐同样显示「购买」（`url`）和有 `alt_url` 时的「原链接」。
 - 对比栏：最多 4 个，显示两两 ΔE（保留 1 位）。
 - `#/plan` 图片配色：上传图片 + 备注输入 → `POST /api/plan` → 渲染调色板与推荐（结构同 result.json）+ 色卡图（`/api/cards/<文件名>`）。
 ### 10.3 `api.py`（FastAPI）

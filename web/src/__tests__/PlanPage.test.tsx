@@ -72,6 +72,33 @@ describe("PlanPage", () => {
     expect(document.body.textContent).not.toContain("8,080");
   });
 
+  it("shows the pinduoduo link first and the original store as 原链接", async () => {
+    const withAlt: PlanResult = {
+      ...fixture,
+      matches: fixture.matches.map((match) => ({
+        ...match,
+        picks: match.picks.map((pick) => ({ ...pick })),
+      })),
+    };
+    const search = "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%8B%93%E7%AB%B9";
+    withAlt.matches[0].picks[1].url = search;
+    withAlt.matches[0].picks[1].alt_url = "https://jp.store.bambulab.com/products/pla-aero";
+    render(<PlanPage post={vi.fn().mockResolvedValue(withAlt)} />);
+    const file = new File(["image"], "a.png", { type: "image/png" });
+    fireEvent.change(screen.getByLabelText("图片"), { target: { files: [file] } });
+    fireEvent.click(screen.getByRole("button", { name: "开始配色" }));
+
+    expect(await screen.findByRole("link", { name: "原链接" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "原链接" }).getAttribute("href")).toBe(
+      "https://jp.store.bambulab.com/products/pla-aero",
+    );
+    expect(
+      screen
+        .getAllByRole("link", { name: "购买" })
+        .some((link) => link.getAttribute("href") === search),
+    ).toBe(true);
+  });
+
   it("requires an image before submitting", () => {
     const post = vi.fn();
     render(<PlanPage post={post} />);

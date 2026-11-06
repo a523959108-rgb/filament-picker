@@ -53,6 +53,7 @@ def test_export_entry_has_required_key_order() -> None:
         "src",
         "conf",
         "url",
+        "alt_url",
         "price",
         "img",
     ]

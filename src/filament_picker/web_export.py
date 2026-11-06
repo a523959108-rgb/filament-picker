@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from .buy import price_text_for, purchase_links
 from .config import REPO_ROOT
 
 DEFAULT_WEB_CATALOG = REPO_ROOT / "web" / "public" / "web-catalog.json"
@@ -17,9 +18,7 @@ def _sku_web_path(entry_id: str) -> str | None:
 
 
 def export_entry(entry: dict[str, Any]) -> dict[str, Any]:
-    offers = entry["offers"]
-    offer = offers[0] if offers else {}
-    price = offer.get("price_text")
+    primary, alt = purchase_links(entry)
     return {
         "id": entry["id"],
         "b": entry["brand_slug"],
@@ -35,8 +34,9 @@ def export_entry(entry: dict[str, Any]) -> dict[str, Any]:
         "hex": entry["hex"],
         "src": entry["hex_source"],
         "conf": entry["hex_confidence"],
-        "url": offer.get("url"),
-        "price": price if price else None,
+        "url": primary,
+        "alt_url": alt,
+        "price": price_text_for(entry, primary),
         "img": _sku_web_path(entry["id"]),
     }
 
