@@ -1,7 +1,10 @@
 .venv/
 web/node_modules/
 web/dist/
-data/build/
+# Ignore build artifacts, but keep the deploy catalog tracked.
+# `data/build/*` (not `data/build/`) so the negation below can re-include one file.
+data/build/*
+!data/build/filament-catalog.json
 data/extracted/
 data/qa/
 __pycache__/
