@@ -37,7 +37,8 @@
       "src": "official",
       "conf": 1.0,
       "url": "https://jp.store.bambulab.com/products/petg-basic",
-      "price": "¥2,800 JPY"
+      "price": "¥2,800 JPY",
+      "img": null
     },
     {
       "id": "esun/petg-basic/black",
@@ -57,7 +58,8 @@
       "src": "store_swatch",
       "conf": 0.8,
       "url": "https://www.esun3d.com/epetg-lite-product",
-      "price": "US$18.99"
+      "price": "US$18.99",
+      "img": null
     },
     {
       "id": "cailab/rainbow-shift-pla/bamboo-rb009",
@@ -78,7 +80,8 @@
       "src": null,
       "conf": null,
       "url": "https://www.cailab3d.com/products/rainbow-shift-pla-filament",
-      "price": "US$23.99"
+      "price": "US$23.99",
+      "img": null
     },
     {
       "id": "byehassle/pla-ya-guang/sakura-bloom",
@@ -98,7 +101,8 @@
       "src": null,
       "conf": null,
       "url": "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
-      "price": "¥34.5 CNY（商品卡价，非单色价）"
+      "price": "¥34.5 CNY（商品卡价，非单色价）",
+      "img": null
     }
   ]
 }

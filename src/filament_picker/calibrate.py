@@ -42,8 +42,20 @@ def run_extract(catalog: Catalog, now: str, limit: int | None = None) -> dict[st
     results: dict[str, Any] = {}
     for entry in candidates:
         image = str(entry["variant_image"])
+        color_name = (
+            " ".join(
+                part
+                for part in (
+                    entry.get("name_en"),
+                    entry.get("name_zh"),
+                    entry.get("name_raw"),
+                )
+                if part
+            )
+            or None
+        )
         try:
-            extracted = extract_colors(Path(image), entry.get("effects", []))
+            extracted = extract_colors(Path(image), entry.get("effects", []), color_name=color_name)
         except (ImageMissingError, ImageUnreadableError) as exc:
             results[entry["id"]] = _empty_result(image, exc.code)
             continue
@@ -175,3 +187,63 @@ def qa_sample(
         )
     lines.append("</body></html>")
     return "\n".join(lines) + "\n"
+
+
+def series_color_collapse(
+    catalog: Catalog,
+    extracted: dict[str, Any],
+    *,
+    min_colors: int = 4,
+    max_delta_e: float = 3.0,
+) -> list[dict[str, Any]]:
+    """Flag series where many differently-named colors share near-identical extracts.
+
+    A hit means image sampling likely locked onto packaging / a shared background
+    instead of each variant's filament. Used as a QA gate after re-extract.
+    """
+    from collections import defaultdict
+
+    extracted_results = extracted.get("results", {})
+    by_series: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for entry in catalog.entries:
+        result = extracted_results.get(entry["id"])
+        if not isinstance(result, dict) or result.get("status") != "ok":
+            continue
+        hexes = result.get("hexes") or []
+        if len(hexes) != 1:
+            continue
+        by_series[(entry["brand_slug"], entry["series_slug"])].append(
+            {
+                "id": entry["id"],
+                "name": entry.get("name_en")
+                or entry.get("name_zh")
+                or entry.get("name_raw")
+                or entry["id"],
+                "hex": str(hexes[0]).upper(),
+                "lab": hex_to_lab(hexes[0]),
+            }
+        )
+
+    hits: list[dict[str, Any]] = []
+    for (brand, series), group in sorted(by_series.items()):
+        if len(group) < min_colors:
+            continue
+        labs = np.asarray([row["lab"] for row in group], dtype=np.float64)
+        centroid = labs.mean(axis=0)
+        deltas = delta_e_2000(labs, centroid)
+        close = deltas < max_delta_e
+        close_rows = [row for row, flag in zip(group, close, strict=True) if flag]
+        names = {str(row["name"]).casefold() for row in close_rows}
+        if len(close_rows) >= min_colors and len(names) >= min_colors:
+            hits.append(
+                {
+                    "brand_slug": brand,
+                    "series_slug": series,
+                    "n_close": len(close_rows),
+                    "n_series": len(group),
+                    "median_delta_e": round(float(np.median(deltas[close])), 2),
+                    "ids": [row["id"] for row in close_rows],
+                    "names": sorted(names),
+                }
+            )
+    return hits

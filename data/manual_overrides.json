@@ -1,6 +1,49 @@
 {
   "schema_version": 1,
-  "hex": {},
+  "hex": {
+    "jayo/pla-meta/pink-sakura-pink": {
+      "hex": [
+        "#E7C2CB"
+      ],
+      "note": "jayo PLA Meta official gallery gallery_05.jpg; image-derived from SKU photo"
+    },
+    "jayo/pla-meta/green": {
+      "hex": [
+        "#36DA4C"
+      ],
+      "note": "jayo PLA Meta official gallery gallery_14.jpg; image-derived from SKU photo"
+    },
+    "jayo/pla-meta/yellow": {
+      "hex": [
+        "#E0DE99"
+      ],
+      "note": "jayo PLA Meta official gallery gallery_03.jpg; image-derived from SKU photo"
+    },
+    "jayo/pla-meta/blue": {
+      "hex": [
+        "#3EC9F1"
+      ],
+      "note": "jayo PLA Meta official gallery gallery_02.jpg; image-derived from SKU photo"
+    },
+    "jayo/pla-meta/red": {
+      "hex": [
+        "#EA4857"
+      ],
+      "note": "jayo PLA Meta official gallery gallery_04.jpg; image-derived from SKU photo"
+    },
+    "jayo/pla-meta/grey": {
+      "hex": [
+        "#696B6D"
+      ],
+      "note": "jayo PLA Meta official gallery gallery_08.jpg; image-derived from SKU photo"
+    },
+    "jayo/pla-meta/black": {
+      "hex": [
+        "#262627"
+      ],
+      "note": "jayo PLA Meta official gallery gallery_20.jpg; image-derived from SKU photo"
+    }
+  },
   "store_swatch_confidence": {
     "esun": 0.3
   }
