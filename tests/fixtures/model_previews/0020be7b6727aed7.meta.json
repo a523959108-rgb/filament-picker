@@ -1,0 +1,133 @@
+{
+  "id": "0020be7b6727aed7",
+  "rel_path": "1-系列分类/labubu整合/王铁锤/labubu拉布布/zimomo+134mm+牙齿支撑改良.3mf",
+  "file_name": "zimomo+134mm+牙齿支撑改良.3mf",
+  "size_bytes": 4263562,
+  "mtime": 1791744602,
+  "title": "labubu拉布布",
+  "designer": "王铁锤",
+  "source": {
+    "designer_user_id": "764758712",
+    "description": "&lt;p&gt;无需AMS 即可获得 ，实物超可爱，脸部百分百还原，我的材料和拍照技术比较差，效果参考评论区各路大神&lt;/p&gt;&lt;boostme&gt;&lt;boosttitle&gt;为我助力&lt;/boosttitle&gt;&lt;boostcontent&gt;感谢各位老铁的支持让我有动力设计出更好的模型&lt;/boostcontent&gt;&lt;/boostme&gt;",
+    "license": "Standard Digital File License",
+    "copyright": "[]",
+    "creation_date": "2025-05-07",
+    "modification_date": "2025-05-07",
+    "application": "BambuStudio-02.00.03.54",
+    "design_model_id": "CNb1b08d7a6e9d8b",
+    "design_profile_id": "55607673",
+    "design_region": "CN",
+    "profile_title": "牙齿优化【超好拆支撑！】0.2mm 层高, 2 层墙, 10% 填充",
+    "origin": "profile"
+  },
+  "model_metadata": {
+    "Application": "BambuStudio-02.00.03.54",
+    "BambuStudio:3mfVersion": "1",
+    "CopyRight": "[]",
+    "Copyright": "[]",
+    "CreationDate": "2025-05-07",
+    "Description": "&lt;p&gt;无需AMS 即可获得 ，实物超可爱，脸部百分百还原，我的材料和拍照技术比较差，效果参考评论区各路大神&lt;/p&gt;&lt;boostme&gt;&lt;boosttitle&gt;为我助力&lt;/boosttitle&gt;&lt;boostcontent&gt;感谢各位老铁的支持让我有动力设计出更好的模型&lt;/boostcontent&gt;&lt;/boostme&gt;",
+    "DesignModelId": "CNb1b08d7a6e9d8b",
+    "DesignProfileId": "55607673",
+    "DesignRegion": "CN",
+    "Designer": "王铁锤",
+    "DesignerCover": "2025-01-21_7588a07d6fae7.jpg",
+    "DesignerUserId": "764758712",
+    "License": "Standard Digital File License",
+    "ModificationDate": "2025-05-07",
+    "Origin": "profile",
+    "ProfileCover": "2025-05-07_60dd5d0b7c9698.jpg",
+    "ProfileDescription": "<p>zimomo大首领，带尾巴</p><p>134mm高，</p><p>10%的填充</p><p>尾巴的小牙不好安装，建议打印大的250mm和255mm的</p><p>尾巴的背鳍到我主页可以下载</p><p><a target=&#34;_blank&#34; rel=&#34;noopener noreferrer ugc&#34; href=&#34;https://makerworld.com.cn/zh/models/1156450-zimomo-da-shou-ling-de-wei-ba-bei-qi-labubula-bu-b#profileId-1219327&#34;>点击此处转到Zimomo背鳍小牙下载链接</a></p>",
+    "ProfileTitle": "牙齿优化【超好拆支撑！】0.2mm 层高, 2 层墙, 10% 填充",
+    "ProfileUserId": "764758712",
+    "ProfileUserName": "大汉忠良袁公路",
+    "Thumbnail_Middle": "/Metadata/plate_1.png",
+    "Thumbnail_Small": "/Metadata/plate_1_small.png",
+    "Title": "labubu拉布布"
+  },
+  "plates": [
+    {
+      "index": 1,
+      "name": "改良支持牙齿",
+      "objects": [
+        "眼睛嘴.stl_2"
+      ],
+      "image": "plate_1.png",
+      "thumb": "thumb_1.jpg",
+      "extra_images": [
+        "pick_1.png",
+        "plate_no_light_1.png",
+        "top_1.png"
+      ],
+      "filaments": [
+        {
+          "slot": 3,
+          "hex": "#FFFFFF",
+          "type": "PLA",
+          "vendor": "Bambu Lab",
+          "settings_id": "Bambu PLA Basic @BBL A1",
+          "used_g": null
+        }
+      ]
+    }
+  ],
+  "filaments": [
+    {
+      "slot": 1,
+      "hex": "#805340",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Basic @BBL A1"
+    },
+    {
+      "slot": 2,
+      "hex": "#000000",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Matte @BBL A1"
+    },
+    {
+      "slot": 3,
+      "hex": "#FFFFFF",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Basic @BBL A1"
+    },
+    {
+      "slot": 4,
+      "hex": "#A6A9AA",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Basic @BBL A1"
+    },
+    {
+      "slot": 5,
+      "hex": "#FFFF00",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Basic @BBL A1"
+    },
+    {
+      "slot": 6,
+      "hex": "#FF0000",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Basic @BBL A1"
+    },
+    {
+      "slot": 7,
+      "hex": "#FFFFFF",
+      "type": "PETG",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PETG Basic @BBL A1"
+    }
+  ],
+  "project": {
+    "printer_model": "Bambu Lab A1",
+    "printer_settings_id": "Bambu Lab A1 0.4 nozzle",
+    "print_settings_id": "0.20mm Standard @BBL A1"
+  },
+  "extracted_at": "2026-11-07T02:38:00.982837+00:00",
+  "errors": [],
+  "ok": true
+}

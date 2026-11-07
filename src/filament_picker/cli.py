@@ -327,6 +327,30 @@ def _cmd_assign_ids(args: argparse.Namespace) -> int:
     return 0
 
 
+def _add_models(sub: argparse._SubParsersAction) -> None:
+    parser = sub.add_parser("models", help="import model preview data")
+    commands = parser.add_subparsers(dest="models_command", required=True)
+    importer = commands.add_parser(
+        "import-previews", help="import extracted 3MF plate previews into the model library"
+    )
+    importer.add_argument("directory", type=Path)
+    importer.add_argument("--dry-run", action="store_true", help="print stats without writing")
+    importer.set_defaults(handler=_cmd_import_previews)
+
+
+def _cmd_import_previews(args: argparse.Namespace) -> int:
+    from .model_import import import_previews
+    from .models import models_root
+
+    try:
+        stats = import_previews(args.directory, models_root(), dry_run=args.dry_run)
+    except (OSError, ValueError) as exc:
+        print(str(exc))
+        return 1
+    print(stats.format())
+    return 0
+
+
 def _add_auth(sub: argparse._SubParsersAction) -> None:
     parser = sub.add_parser("auth", help="manage the single model-preview account")
     commands = parser.add_subparsers(dest="auth_command", required=True)
@@ -379,6 +403,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_worker(sub)
     _add_export_web(sub)
     _add_serve(sub)
+    _add_models(sub)
     _add_auth(sub)
     return parser
 

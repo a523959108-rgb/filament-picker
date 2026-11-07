@@ -33,7 +33,14 @@
 .model-card p { margin-top: 6px; color: var(--text-2); }
 .model-pagination { display: flex; gap: 20px; align-items: center; justify-content: center; margin-top: 28px; }
 .model-detail { display: grid; grid-template-columns: minmax(0, 3fr) minmax(240px, 2fr); gap: 32px; }
+.model-shots { display: grid; gap: 16px; }
+.model-shots figure { margin: 0; }
+.model-shots img,
 .model-large-image { width: 100%; max-height: 650px; object-fit: contain; background: var(--surface-2); border-radius: var(--radius-sm); }
+.model-shots figcaption { margin-top: 6px; color: var(--text-2); }
+.model-description { white-space: pre-wrap; overflow-wrap: anywhere; margin: 16px 0; }
+.model-colour-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.model-colour-match { color: var(--text-2); }
 .model-detail dl { display: grid; grid-template-columns: auto 1fr; gap: 12px 20px; margin: 24px 0; }
 .model-detail dt { color: var(--text-2); }
 .model-detail dd { margin: 0; }

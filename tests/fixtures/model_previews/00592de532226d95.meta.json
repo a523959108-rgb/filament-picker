@@ -1,0 +1,233 @@
+{
+  "id": "00592de532226d95",
+  "rel_path": "1-系列分类/labubu整合/顿顿/分件版 仙子伊布拉布布labubu（无需AMS）/仙子伊布拉布布V1(1).3mf",
+  "file_name": "仙子伊布拉布布V1(1).3mf",
+  "size_bytes": 64062830,
+  "mtime": 1791739842,
+  "title": "分件版 仙子伊布拉布布labubu（无需AMS）",
+  "designer": "顿顿",
+  "source": {
+    "designer_user_id": "1071089531",
+    "description": "&lt;p&gt;穿着仙子伊布头套的快乐拉布布。&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: #E14747&#34;&gt;注意事项：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;1.拆件需小心，支撑较多。可以自行调整&lt;/p&gt;&lt;p&gt;2.除了飘带全拆件，飘带用丙烯马克笔上色，需自备马克笔。&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: #E14747&#34;&gt;&lt;strong&gt;喜欢的话，欢迎收藏下载助力！&lt;/strong&gt;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: #E14747&#34;&gt;&lt;strong&gt;更新了几个配置！&lt;/strong&gt;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;p&gt;1、已更新加装了&lt;span style=&#34;color: #E14747&#34;&gt;桩的头和身体&lt;/span&gt;，&lt;/p&gt;&lt;p&gt;2、新的配置都更新了打印&lt;span style=&#34;color: #E14747&#34;&gt;支撑的参数&lt;/span&gt;，Z轴距顶部距离，我打了个迷你的试了下好撕了不少&lt;/p&gt;&lt;p&gt;3、更新了和&lt;span style=&#34;color: #E14747&#34;&gt;月亮伊布一样大小的两个拉布布&lt;/span&gt;，给希望一样大小的朋友，小仙子伊布因为蝴蝶结桩有点小，嫌麻烦可以直接削了502&lt;/p&gt;",
+    "license": "Standard Digital File License",
+    "copyright": "[]",
+    "creation_date": "2025-06-05",
+    "modification_date": "2025-06-05",
+    "application": "BambuStudio-02.00.03.54",
+    "design_model_id": "CN3ac58333457e31",
+    "design_profile_id": "60893438",
+    "design_region": "CN",
+    "profile_title": "mini摆盘",
+    "origin": "original"
+  },
+  "model_metadata": {
+    "Application": "BambuStudio-02.00.03.54",
+    "BambuStudio:3mfVersion": "1",
+    "CopyRight": "[]",
+    "Copyright": "[]",
+    "CreationDate": "2025-06-05",
+    "Description": "&lt;p&gt;穿着仙子伊布头套的快乐拉布布。&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: #E14747&#34;&gt;注意事项：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;1.拆件需小心，支撑较多。可以自行调整&lt;/p&gt;&lt;p&gt;2.除了飘带全拆件，飘带用丙烯马克笔上色，需自备马克笔。&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: #E14747&#34;&gt;&lt;strong&gt;喜欢的话，欢迎收藏下载助力！&lt;/strong&gt;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;p&gt;&lt;span style=&#34;color: #E14747&#34;&gt;&lt;strong&gt;更新了几个配置！&lt;/strong&gt;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;p&gt;1、已更新加装了&lt;span style=&#34;color: #E14747&#34;&gt;桩的头和身体&lt;/span&gt;，&lt;/p&gt;&lt;p&gt;2、新的配置都更新了打印&lt;span style=&#34;color: #E14747&#34;&gt;支撑的参数&lt;/span&gt;，Z轴距顶部距离，我打了个迷你的试了下好撕了不少&lt;/p&gt;&lt;p&gt;3、更新了和&lt;span style=&#34;color: #E14747&#34;&gt;月亮伊布一样大小的两个拉布布&lt;/span&gt;，给希望一样大小的朋友，小仙子伊布因为蝴蝶结桩有点小，嫌麻烦可以直接削了502&lt;/p&gt;",
+    "DesignModelId": "CN3ac58333457e31",
+    "DesignProfileId": "60893438",
+    "DesignRegion": "CN",
+    "Designer": "顿顿",
+    "DesignerCover": "2025-06-02_615630642f4108.jpg",
+    "DesignerUserId": "1071089531",
+    "License": "Standard Digital File License",
+    "ModificationDate": "2025-06-05",
+    "Origin": "original",
+    "ProfileCover": "2025-06-05_ddea810b8d674.png",
+    "ProfileTitle": "mini摆盘",
+    "ProfileUserId": "1071089531",
+    "ProfileUserName": "我来助你 I can HPY 3D",
+    "Thumbnail_Middle": "/Metadata/plate_1.png",
+    "Thumbnail_Small": "/Metadata/plate_1_small.png",
+    "Title": "分件版 仙子伊布拉布布labubu（无需AMS）"
+  },
+  "plates": [
+    {
+      "index": 1,
+      "name": null,
+      "objects": [
+        "组合体"
+      ],
+      "image": "plate_1.png",
+      "thumb": "thumb_1.jpg",
+      "extra_images": [
+        "pick_1.png",
+        "plate_no_light_1.png",
+        "top_1.png"
+      ],
+      "filaments": [
+        {
+          "slot": 4,
+          "hex": "#F7E6DE",
+          "type": "PLA",
+          "vendor": "Bambu Lab",
+          "settings_id": "Bambu PLA Basic @BBL A1M",
+          "used_g": null
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "name": null,
+      "objects": [
+        "头套(2).stl",
+        "尾巴蝴蝶结 内.stl",
+        "胸前蝴蝶结 内.stl"
+      ],
+      "image": "plate_2.png",
+      "thumb": "thumb_2.jpg",
+      "extra_images": [
+        "pick_2.png",
+        "plate_no_light_2.png",
+        "top_2.png"
+      ],
+      "filaments": [
+        {
+          "slot": 1,
+          "hex": "#F73CA0",
+          "type": "PLA",
+          "vendor": "Bambu Lab",
+          "settings_id": "Bambu PLA Basic @BBL A1M",
+          "used_g": null
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "name": null,
+      "objects": [
+        "胸前飘带.stl",
+        "身体(1).stl",
+        "头顶飘带.stl",
+        "未插装 1ooo(1).stl_3",
+        "头顶蝴蝶结 外.stl",
+        "组合体",
+        "组合体",
+        "尾巴蝴蝶结 外.stl",
+        "胸前蝴蝶结 外.stl"
+      ],
+      "image": "plate_3.png",
+      "thumb": "thumb_3.jpg",
+      "extra_images": [
+        "pick_3.png",
+        "plate_no_light_3.png",
+        "top_3.png"
+      ],
+      "filaments": [
+        {
+          "slot": 6,
+          "hex": "#FFFFFF",
+          "type": "PLA",
+          "vendor": "Bambu Lab",
+          "settings_id": "Bambu PLA Basic @BBL A1M",
+          "used_g": null
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "name": null,
+      "objects": [
+        "内耳1.stl",
+        "内耳2.stl",
+        "未插装 1ooo(1).stl_10",
+        "未插装 1ooo(1).stl_11",
+        "未插装 1ooo.stl",
+        "组合体"
+      ],
+      "image": "plate_4.png",
+      "thumb": "thumb_4.jpg",
+      "extra_images": [
+        "pick_4.png",
+        "plate_no_light_4.png",
+        "top_4.png"
+      ],
+      "filaments": [
+        {
+          "slot": 2,
+          "hex": "#0086D6",
+          "type": "PLA",
+          "vendor": "Bambu Lab",
+          "settings_id": "Bambu PLA Basic @BBL A1M",
+          "used_g": null
+        }
+      ]
+    }
+  ],
+  "filaments": [
+    {
+      "slot": 1,
+      "hex": "#F73CA0",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Basic @BBL A1M"
+    },
+    {
+      "slot": 2,
+      "hex": "#0086D6",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Basic @BBL A1M"
+    },
+    {
+      "slot": 3,
+      "hex": "#86FF00",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Basic @BBL A1M"
+    },
+    {
+      "slot": 4,
+      "hex": "#F7E6DE",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Basic @BBL A1M"
+    },
+    {
+      "slot": 5,
+      "hex": "#6F472B",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Basic @BBL A1M"
+    },
+    {
+      "slot": 6,
+      "hex": "#FFFFFF",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Basic @BBL A1M"
+    },
+    {
+      "slot": 7,
+      "hex": "#000000",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Matte @BBL A1M"
+    },
+    {
+      "slot": 8,
+      "hex": "#FFFF00",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Matte @BBL A1M"
+    },
+    {
+      "slot": 9,
+      "hex": "#FFFFFF",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Basic @BBL A1M"
+    }
+  ],
+  "project": {
+    "printer_model": "Bambu Lab A1 mini",
+    "printer_settings_id": "Bambu Lab A1 mini 0.4 nozzle",
+    "print_settings_id": "0.12mm Fine @BBL A1M"
+  },
+  "extracted_at": "2026-11-07T02:38:03.194686+00:00",
+  "errors": [],
+  "ok": true
+}

@@ -2,6 +2,27 @@ import { useEffect, useState } from "react";
 import type { FormEvent, JSX } from "react";
 import "./model-preview.css";
 
+interface ModelImage {
+  kind: "plate" | "top";
+  plate: number;
+  url: string;
+}
+
+interface ColourPick {
+  id: string;
+  name: string;
+  brand_name: string;
+  series_name: string;
+  hex: string;
+  delta_e: number;
+  label: string | null;
+}
+
+interface ColourMatch {
+  hex: string;
+  picks: ColourPick[];
+}
+
 interface Model {
   id: string;
   title: string;
@@ -12,6 +33,9 @@ interface Model {
   colours: string[];
   thumb_url: string;
   created_at: string;
+  description?: string;
+  images?: ModelImage[];
+  colour_matches?: ColourMatch[];
 }
 
 interface ModelList {
@@ -173,11 +197,23 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
   }, [id, navigate]);
   if (error) return <p className="panel" role="alert">{error}</p>;
   if (model === null) return <p role="status">模型加载中…</p>;
+  const shots = model.images && model.images.length > 0
+    ? model.images
+    : [{ kind: "plate" as const, plate: 1, url: model.thumb_url }];
+  const matches = model.colour_matches ?? model.colours.map((hex) => ({ hex, picks: [] }));
   return (
     <article className="panel model-detail">
-      <img className="model-large-image" src={model.thumb_url} alt={model.title} />
+      <div className="model-shots">
+        {shots.map((shot) => (
+          <figure key={shot.url}>
+            <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
+            <figcaption>{shot.kind === "top" ? `俯视 ${shot.plate}` : `盘面 ${shot.plate}`}</figcaption>
+          </figure>
+        ))}
+      </div>
       <div>
         <h2>{model.title}</h2>
+        {model.description ? <p className="model-description">{model.description}</p> : null}
         <dl>
           <dt>系列</dt><dd>{model.series || "—"}</dd>
           <dt>作者</dt><dd>{model.author || "—"}</dd>
@@ -186,12 +222,26 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
         </dl>
         <h3>原配色</h3>
         <div className="model-colours">
-          {model.colours.map((colour, index) => <span className="model-colour" key={`${colour}-${index}`}
-            role="img" aria-label={colour} title={colour} style={{ backgroundColor: colour }} />)}
+          {matches.map((match, index) => (
+            <div className="model-colour-row" key={`${match.hex}-${index}`}>
+              <span className="model-colour" role="img" aria-label={match.hex} title={match.hex}
+                style={{ backgroundColor: match.hex }} />
+              {match.picks[0] ? (
+                <span className="model-colour-match">
+                  {match.picks[0].brand_name} {match.picks[0].name}
+                  {match.picks[0].label ? ` · ${match.picks[0].label}` : ""}
+                </span>
+              ) : null}
+            </div>
+          ))}
         </div>
       </div>
     </article>
   );
+}
+
+function shotLabel(title: string, kind: "plate" | "top", plate: number): string {
+  return `${title} ${kind === "top" ? "俯视" : "盘面"} ${plate}`;
 }
 
 export function ModelPreview({ path = window.location.pathname, navigate = goTo }: {

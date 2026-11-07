@@ -76,6 +76,39 @@ describe("model preview", () => {
     });
   });
 
+  it("renders plate and top shots, plain description, and filament matches", async () => {
+    const detailed = {
+      ...model,
+      description: "说明 <img src=x onerror=alert(1)>",
+      images: [
+        { kind: "plate" as const, plate: 1, url: "/api/models/sample-01/media/plate_1.png" },
+        { kind: "top" as const, plate: 1, url: "/api/models/sample-01/media/top_1.png" },
+      ],
+      colour_matches: [{
+        hex: "#112233",
+        picks: [{
+          id: "bambu-lab/petg-basic/black-30105",
+          name: "黑色 Black (30105)",
+          brand_name: "Bambu Lab",
+          series_name: "PETG Basic",
+          hex: "#000000",
+          delta_e: 1.2,
+          label: "几乎一样",
+        }],
+      }],
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(detailed)));
+    const { findByRole, getByText, container } = render(<ModelPreview path="/models/sample-01" />);
+    expect((await findByRole("img", { name: "示例方块 01 盘面 1" })).getAttribute("src"))
+      .toBe(detailed.images[0].url);
+    expect(getByText("俯视 1")).toBeTruthy();
+    const description = container.querySelector(".model-description");
+    expect(description?.textContent).toContain("<img");
+    expect(description?.querySelector("img")).toBeNull();
+    expect(getByText(/几乎一样/)).toBeTruthy();
+    expect(getByText(/Bambu Lab/)).toBeTruthy();
+  });
+
   it("renders detail metadata and original color swatches", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(model)));
     const { findByRole, getByText, getByLabelText } = render(<ModelPreview path="/models/sample-01" />);

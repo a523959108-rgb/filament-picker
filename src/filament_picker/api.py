@@ -62,7 +62,7 @@ def create_app(
     catalog = load_catalog(catalog_path)
     now_fn = now or (lambda: datetime.now(ZoneInfo(TZ)))
     app = FastAPI()
-    mount_model_preview(app)
+    mount_model_preview(app, catalog)
 
     @app.get("/api/health")
     async def health() -> dict[str, Any]:

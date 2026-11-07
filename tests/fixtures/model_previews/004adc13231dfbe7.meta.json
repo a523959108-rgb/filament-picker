@@ -1,0 +1,139 @@
+{
+  "id": "004adc13231dfbe7",
+  "rel_path": "1-系列分类/labubu整合/王铁锤/labubu拉布布/云顶3D免支撑免胶水拉布布H2D一盘打印.3mf",
+  "file_name": "云顶3D免支撑免胶水拉布布H2D一盘打印.3mf",
+  "size_bytes": 51684112,
+  "mtime": 1791743811,
+  "title": "labubu拉布布",
+  "designer": "王铁锤",
+  "source": {
+    "designer_user_id": "456554613",
+    "description": "&lt;p&gt;无需AMS 即可获得 ，实物超可爱，脸部百分百还原，我的材料和拍照技术比较差，效果参考评论区各路大神&lt;/p&gt;&lt;boostme&gt;&lt;boosttitle&gt;为我助力&lt;/boosttitle&gt;&lt;boostcontent&gt;感谢各位老铁的支持让我有动力设计出更好的模型&lt;/boostcontent&gt;&lt;/boostme&gt;",
+    "license": "Standard Digital File License",
+    "copyright": "[]",
+    "creation_date": "2025-06-30",
+    "modification_date": "2025-06-30",
+    "application": "BambuStudio-02.01.01.52",
+    "design_model_id": "CNb1b08d7a6e9d8b",
+    "design_profile_id": "66168561",
+    "design_region": "CN",
+    "profile_title": "0.16mm 层高, 1 层墙, 15% 填充",
+    "origin": "profile"
+  },
+  "model_metadata": {
+    "Application": "BambuStudio-02.01.01.52",
+    "BambuStudio:3mfVersion": "1",
+    "CopyRight": "[]",
+    "Copyright": "[]",
+    "CreationDate": "2025-06-30",
+    "Description": "&lt;p&gt;无需AMS 即可获得 ，实物超可爱，脸部百分百还原，我的材料和拍照技术比较差，效果参考评论区各路大神&lt;/p&gt;&lt;boostme&gt;&lt;boosttitle&gt;为我助力&lt;/boosttitle&gt;&lt;boostcontent&gt;感谢各位老铁的支持让我有动力设计出更好的模型&lt;/boostcontent&gt;&lt;/boostme&gt;",
+    "DesignModelId": "CNb1b08d7a6e9d8b",
+    "DesignProfileId": "66168561",
+    "DesignRegion": "CN",
+    "Designer": "王铁锤",
+    "DesignerCover": "2025-01-21_7588a07d6fae7.jpg",
+    "DesignerUserId": "456554613",
+    "License": "Standard Digital File License",
+    "ModificationDate": "2025-06-30",
+    "Origin": "profile",
+    "ProfileCover": "2025-06-30_f4e6d725711888.png",
+    "ProfileDescription": "&lt;p&gt;H2D 4色一盘出&lt;/p&gt;",
+    "ProfileTitle": "0.16mm 层高, 1 层墙, 15% 填充",
+    "ProfileUserId": "456554613",
+    "ProfileUserName": "无夜世世",
+    "Thumbnail_Middle": "/Metadata/plate_1.png",
+    "Thumbnail_Small": "/Metadata/plate_1_small.png",
+    "Title": "labubu拉布布"
+  },
+  "plates": [
+    {
+      "index": 1,
+      "name": "大天使眼白",
+      "objects": [
+        "组合体(2).stl",
+        "组合体",
+        "body1.stl.stl - union - union - union - union - difference - difference - difference - difference",
+        "组合体"
+      ],
+      "image": "plate_1.png",
+      "thumb": "thumb_1.jpg",
+      "extra_images": [
+        "pick_1.png",
+        "plate_no_light_1.png",
+        "top_1.png"
+      ],
+      "filaments": [
+        {
+          "slot": 1,
+          "hex": "#161616",
+          "type": "PETG",
+          "vendor": "Generic",
+          "settings_id": "Generic PETG @BBL H2D",
+          "used_g": null
+        },
+        {
+          "slot": 2,
+          "hex": "#FFFFFF",
+          "type": "PLA",
+          "vendor": "Bambu Lab",
+          "settings_id": "Bambu PLA Matte @BBL H2D",
+          "used_g": null
+        },
+        {
+          "slot": 3,
+          "hex": "#F95D73",
+          "type": "PLA",
+          "vendor": "Bambu Lab",
+          "settings_id": "Bambu PLA Matte @BBL H2D",
+          "used_g": null
+        },
+        {
+          "slot": 4,
+          "hex": "#FCECD6",
+          "type": "PETG",
+          "vendor": "Generic",
+          "settings_id": "Generic PETG @BBL H2D",
+          "used_g": null
+        }
+      ]
+    }
+  ],
+  "filaments": [
+    {
+      "slot": 1,
+      "hex": "#161616",
+      "type": "PETG",
+      "vendor": "Generic",
+      "settings_id": "Generic PETG @BBL H2D"
+    },
+    {
+      "slot": 2,
+      "hex": "#FFFFFF",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Matte @BBL H2D"
+    },
+    {
+      "slot": 3,
+      "hex": "#F95D73",
+      "type": "PLA",
+      "vendor": "Bambu Lab",
+      "settings_id": "Bambu PLA Matte @BBL H2D"
+    },
+    {
+      "slot": 4,
+      "hex": "#FCECD6",
+      "type": "PETG",
+      "vendor": "Generic",
+      "settings_id": "Generic PETG @BBL H2D"
+    }
+  ],
+  "project": {
+    "printer_model": "Bambu Lab H2D",
+    "printer_settings_id": "Bambu Lab H2D 0.4 nozzle",
+    "print_settings_id": "0.20mm Standard @BBL H2D"
+  },
+  "extracted_at": "2026-11-07T02:38:01.302469+00:00",
+  "errors": [],
+  "ok": true
+}

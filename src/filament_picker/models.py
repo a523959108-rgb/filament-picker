@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sqlite3
 from contextlib import closing
 from pathlib import Path, PurePosixPath
@@ -18,28 +19,100 @@ from fastapi.responses import (
 )
 
 from .auth import COOKIE_NAME, ModelAuth
-from .config import REPO_ROOT
+from .catalog import Catalog
+from .ciede2000 import delta_e_2000
+from .colorspace import hex_to_lab
+from .config import (
+    DEFAULT_AMS_SLOTS,
+    DEFAULT_MAX_COLORS,
+    MATCH_MAX_DE,
+    REPO_ROOT,
+    SOURCE_RANK,
+)
+from .matcher import eligible, label_for, name_display
+from .note_parser import Params
 
 
 def models_root() -> Path:
     return Path(os.environ.get("FILAMENT_PICKER_MODELS_ROOT", REPO_ROOT / "data/models-private"))
 
 
-def _public_model(row: sqlite3.Row) -> dict[str, Any]:
-    return {
+_IMAGE_TYPES = {
+    ".png": "image/png",
+    ".webp": "image/webp",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+}
+_MEDIA_NAME = re.compile(r"^(plate|top)_[1-9][0-9]{0,3}\.png$")
+_COLOUR_PARAMS = Params(
+    max_colors=DEFAULT_MAX_COLORS,
+    ams_slots=DEFAULT_AMS_SLOTS,
+    n_colors=1,
+    materials=("PLA", "PETG"),
+    brands=(),
+    allow_approx=True,
+    keep_small=False,
+    per_color=2,
+    note_parsed={},
+)
+
+
+def _column(row: sqlite3.Row, name: str, default: Any) -> Any:
+    names = set(row.keys())
+    return row[name] if name in names else default
+
+
+def _public_model(row: sqlite3.Row, *, detail: bool = False) -> dict[str, Any]:
+    payload: dict[str, Any] = {
         key: row[key]
         for key in ("id", "title", "series", "author", "size_bytes", "plate_count", "created_at")
     } | {
         "colours": json.loads(row["colours"]),
         "thumb_url": f"/api/models/{quote(row['id'], safe='')}/thumb",
     }
+    if detail:
+        payload["description"] = _column(row, "description", "")
+        payload["images"] = _public_images(row)
+    return payload
+
+
+def _public_images(row: sqlite3.Row) -> list[dict[str, Any]]:
+    raw = _column(row, "images", "[]")
+    try:
+        parsed = json.loads(raw)
+    except (TypeError, json.JSONDecodeError):
+        return []
+    if not isinstance(parsed, list):
+        return []
+    images: list[dict[str, Any]] = []
+    model_id = quote(row["id"], safe="")
+    for item in parsed:
+        if not isinstance(item, dict):
+            continue
+        kind = item.get("kind")
+        name = item.get("name")
+        plate = item.get("plate")
+        if kind not in ("plate", "top") or not isinstance(name, str) or not isinstance(plate, int):
+            continue
+        if _MEDIA_NAME.fullmatch(name) is None:
+            continue
+        images.append(
+            {
+                "kind": kind,
+                "plate": plate,
+                "url": f"/api/models/{model_id}/media/{quote(name, safe='')}",
+            }
+        )
+    return images
 
 
 class ModelPreview:
-    def __init__(self) -> None:
+    def __init__(self, catalog: Catalog | None = None) -> None:
         self.auth = ModelAuth()
         self.root = models_root()
         self.direct = os.environ.get("FILAMENT_PICKER_MODELS_DIRECT", "1") == "1"
+        self.catalog = catalog
+        self._candidates: list[dict[str, Any]] | None = None
 
     def _connect(self) -> sqlite3.Connection:
         path = self.root / "manifest.sqlite"
@@ -100,20 +173,42 @@ class ModelPreview:
 
     def thumbnail(self, model_id: str) -> Response:
         rel = PurePosixPath(self.record(model_id)["thumb_path"])
+        path = self._guarded_file(rel, {".png", ".webp", ".jpg", ".jpeg"}, ("thumbs",))
+        return self._image_response(path, rel)
+
+    def media(self, model_id: str, name: str) -> Response:
+        if _MEDIA_NAME.fullmatch(name) is None:
+            raise HTTPException(status_code=404, detail="图片不存在")
+        images = _public_images(self.record(model_id))
+        if not any(image["url"].endswith("/" + quote(name, safe="")) for image in images):
+            raise HTTPException(status_code=404, detail="图片不存在")
+        rel = PurePosixPath("images") / model_id / name
+        path = self._guarded_file(rel, {".png"}, ("images", model_id))
+        return self._image_response(path, rel)
+
+    def _guarded_file(
+        self, rel: PurePosixPath, suffixes: set[str], parents: tuple[str, ...]
+    ) -> Path:
         base = self.root.resolve()
-        candidate = base / rel
+        candidate = base.joinpath(*rel.parts)
         path = candidate.resolve()
+        expected = base.joinpath(*parents)
         if (
-            len(rel.parts) != 2
-            or rel.parts[0] != "thumbs"
+            rel.is_absolute()
+            or ".." in rel.parts
             or "\\" in str(rel)
-            or path.parent != base / "thumbs"
+            or len(rel.parts) != len(parents) + 1
+            or rel.parts[: len(parents)] != parents
+            or path.parent != expected
             or candidate.is_symlink()
-            or path.suffix.lower() not in (".png", ".webp")
+            or path.suffix.lower() not in suffixes
             or not path.is_file()
         ):
-            raise HTTPException(status_code=404, detail="缩略图不存在")
-        media_type = "image/png" if path.suffix.lower() == ".png" else "image/webp"
+            raise HTTPException(status_code=404, detail="图片不存在")
+        return path
+
+    def _image_response(self, path: Path, rel: PurePosixPath) -> Response:
+        media_type = _IMAGE_TYPES[path.suffix.lower()]
         if self.direct:
             return FileResponse(path, media_type=media_type)
         return Response(
@@ -121,9 +216,58 @@ class ModelPreview:
             headers={"X-Accel-Redirect": "/internal-models/" + quote(rel.as_posix(), safe="/")},
         )
 
+    def match_colours(self, colours: list[str]) -> list[dict[str, Any]]:
+        candidates = self._colour_candidates()
+        matches: list[dict[str, Any]] = []
+        for colour in colours:
+            picks: list[dict[str, Any]] = []
+            try:
+                lab = hex_to_lab(colour)
+            except ValueError:
+                lab = None
+            if lab is not None:
+                ranked = sorted(
+                    (
+                        (distance, entry)
+                        for entry in candidates
+                        if isinstance(entry.get("lab"), list)
+                        and len(entry["lab"]) == 3
+                        and (distance := float(delta_e_2000(lab, entry["lab"]))) <= MATCH_MAX_DE
+                    ),
+                    key=lambda item: (
+                        round(item[0], 4),
+                        SOURCE_RANK.get(item[1].get("hex_source"), 9),
+                        item[1]["id"],
+                    ),
+                )
+                picks = [
+                    {
+                        "id": entry["id"],
+                        "name": name_display(entry),
+                        "brand_name": entry.get("brand_name", ""),
+                        "series_name": entry.get("series_name", ""),
+                        "hex": entry["hex"][0],
+                        "delta_e": round(distance, 2),
+                        "label": label_for(distance),
+                    }
+                    for distance, entry in ranked[: _COLOUR_PARAMS.per_color]
+                ]
+            matches.append({"hex": colour, "picks": picks})
+        return matches
 
-def mount_model_preview(app: FastAPI) -> None:
-    preview = ModelPreview()
+    def _colour_candidates(self) -> list[dict[str, Any]]:
+        if self._candidates is not None:
+            return self._candidates
+        catalog = self.catalog
+        if catalog is None:
+            self._candidates = []
+            return self._candidates
+        self._candidates = [entry for entry in catalog.entries if eligible(entry, _COLOUR_PARAMS)]
+        return self._candidates
+
+
+def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
+    preview = ModelPreview(catalog)
     app.state.model_preview = preview
     router = APIRouter(prefix="/api/models")
 
@@ -216,8 +360,15 @@ def mount_model_preview(app: FastAPI) -> None:
     def thumbnail(model_id: str) -> Response:
         return preview.thumbnail(model_id)
 
+    @router.get("/{model_id}/media/{name}")
+    def media(model_id: str, name: str) -> Response:
+        return preview.media(model_id, name)
+
     @router.get("/{model_id}")
     def detail(model_id: str) -> dict[str, Any]:
-        return _public_model(preview.record(model_id))
+        row = preview.record(model_id)
+        payload = _public_model(row, detail=True)
+        payload["colour_matches"] = preview.match_colours(payload["colours"])
+        return payload
 
     app.include_router(router)
