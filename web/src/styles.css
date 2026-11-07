@@ -563,10 +563,17 @@ textarea:focus {
   gap: 4px;
 }
 
+.similar-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .similar-item {
   display: flex;
   align-items: center;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   padding: 8px 10px;
   border: 0;
   border-radius: var(--radius-sm);
@@ -578,6 +585,13 @@ textarea:focus {
 
 .similar-item:hover {
   background: var(--surface-2);
+}
+
+.similar-compare {
+  flex: none;
+  padding: 6px 8px;
+  font-size: 0.78rem;
+  white-space: nowrap;
 }
 
 .similar-dot {

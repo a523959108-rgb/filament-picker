@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
 import { SWATCH_PAGE_SIZE } from "../config";
 import type { WebEntry } from "../types";
@@ -16,10 +16,16 @@ export function SwatchGrid({
 }): JSX.Element {
   const brandNames = new Map(brands.map((brand) => [brand.slug, brand.name]));
   const [visibleCount, setVisibleCount] = useState(pageSize);
+  // Reset only when the filtered result set changes (ids/order), not when the
+  // parent re-renders with a fresh array for the same filters (e.g. open detail).
+  const entriesKey = useMemo(
+    () => `${entries.length}:${entries.map((entry) => entry.id).join("\0")}`,
+    [entries],
+  );
 
   useEffect(() => {
     setVisibleCount(pageSize);
-  }, [entries, pageSize]);
+  }, [entriesKey, pageSize]);
 
   const shown = entries.slice(0, visibleCount);
   const remaining = Math.max(0, entries.length - shown.length);

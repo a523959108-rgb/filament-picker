@@ -70,6 +70,13 @@ function CatalogApp(): JSX.Element {
   }, [route]);
 
   const index = useMemo(() => (catalog === null ? null : buildIndex(catalog.entries)), [catalog]);
+  const entries = useMemo(
+    () =>
+      catalog === null || index === null
+        ? []
+        : query(index, catalog, searchText, filters),
+    [index, catalog, searchText, filters],
+  );
 
   if (route === "#/plan") {
     return <main className="page"><PlanPage /></main>;
@@ -90,7 +97,6 @@ function CatalogApp(): JSX.Element {
       </main>
     );
   }
-  const entries = index === null ? [] : query(index, catalog, searchText, filters);
   const selected = selectedId === null ? null : catalog.entries.find((entry) => entry.id === selectedId) ?? null;
   const compareEntries = compareIds
     .map((id) => catalog.entries.find((entry) => entry.id === id))
@@ -135,6 +141,7 @@ function CatalogApp(): JSX.Element {
           catalog={catalog}
           onClose={() => setSelectedId(null)}
           onCompare={addCompare}
+          onSelect={setSelectedId}
         />
       )}
     </main>

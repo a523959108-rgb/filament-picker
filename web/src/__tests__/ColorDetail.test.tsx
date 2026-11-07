@@ -92,10 +92,110 @@ describe("color detail and compare", () => {
     render(<App />);
     await screen.findByText("共 4 个颜色");
     fireEvent.click(screen.getByRole("button", { name: /Bambu Lab PETG Basic/ }));
-    fireEvent.click(screen.getByRole("button", { name: "加入对比" }));
+    fireEvent.click(screen.getByRole("dialog", { name: "颜色详情" }).querySelector(".btn-primary")!);
     fireEvent.click(screen.getByRole("button", { name: "关闭" }));
     fireEvent.click(screen.getByRole("button", { name: /eSUN PETG-Basic/ }));
-    fireEvent.click(screen.getByRole("button", { name: "加入对比" }));
+    fireEvent.click(screen.getByRole("dialog", { name: "颜色详情" }).querySelector(".btn-primary")!);
     expect(screen.getByRole("complementary", { name: "对比栏" }).textContent).toContain("9.8");
   });
+
+  it("calls onSelect for similar item and onCompare for its compare button", () => {
+    const onSelect = vi.fn();
+    const onCompare = vi.fn();
+    render(
+      <ColorDetail
+        entry={catalog.entries[0]}
+        catalog={catalog}
+        onClose={vi.fn()}
+        onCompare={onCompare}
+        onSelect={onSelect}
+      />,
+    );
+    const dialog = screen.getByRole("dialog", { name: "颜色详情" });
+    const similarButton = dialog.querySelector(".similar-item");
+    expect(similarButton).not.toBeNull();
+    fireEvent.click(similarButton!);
+    expect(onSelect).toHaveBeenCalledWith("esun/petg-basic/black");
+    expect(onCompare).not.toHaveBeenCalled();
+
+    const compareButtons = screen.getAllByRole("button", { name: "加入对比" });
+    // First is the detail primary action; the rest are per similar row.
+    expect(compareButtons.length).toBeGreaterThan(1);
+    fireEvent.click(compareButtons[1]!);
+    expect(onCompare).toHaveBeenCalledWith("esun/petg-basic/black");
+    expect(onSelect).toHaveBeenCalledTimes(1);
+  });
+
+  it("switches detail to a similar color that is not on the current page", async () => {
+    const pageSize = 48;
+    const base = catalog.entries[0];
+    const esun = catalog.entries[1];
+    const padded = Array.from({ length: pageSize + 5 }, (_, index) => ({
+      ...base,
+      id: `pad/${index}`,
+      en: `Pad ${index}`,
+      zh: `填充${index}`,
+      hex: ["#ABCDEF"],
+      b: "cailab",
+    }));
+    // Put the similar target after the first page so it is not among visible swatches.
+    const farSimilar = {
+      ...esun,
+      id: "esun/petg-basic/far-black",
+      en: "Far Black",
+      zh: "远端黑",
+    };
+    const bigCatalog = {
+      ...catalog,
+      entries: [base, ...padded, farSimilar],
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => bigCatalog }));
+    render(<App />);
+    await screen.findByText(`共 ${bigCatalog.entries.length} 个颜色 · 已显示 ${pageSize}`);
+    expect(screen.queryByRole("button", { name: /远端黑/ })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /Bambu Lab PETG Basic黑色/ }));
+    const dialog = await screen.findByRole("dialog", { name: "颜色详情" });
+    expect(dialog.textContent).toContain("Black");
+    const similarFar = Array.from(dialog.querySelectorAll(".similar-item")).find((node) =>
+      (node.textContent ?? "").includes("远端黑"),
+    );
+    expect(similarFar).toBeTruthy();
+    fireEvent.click(similarFar!);
+    const updated = await screen.findByRole("dialog", { name: "颜色详情" });
+    expect(updated.textContent).toContain("Far Black");
+    expect(updated.textContent).toContain("远端黑");
+    // Pagination must stay on the first page after the detail switch.
+    expect(screen.getByText(`共 ${bigCatalog.entries.length} 个颜色 · 已显示 ${pageSize}`)).toBeTruthy();
+  });
+
+  it("keeps loaded swatches when opening and closing a detail drawer", async () => {
+    const pageSize = 48;
+    const bigCatalog = {
+      ...catalog,
+      entries: Array.from({ length: 60 }, (_, index) => ({
+        ...catalog.entries[0],
+        id: `item/${index}`,
+        en: `Color ${index}`,
+        zh: `颜色${index}`,
+      })),
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => bigCatalog }));
+    const { container } = render(<App />);
+    await screen.findByText(`共 60 个颜色 · 已显示 ${pageSize}`);
+    fireEvent.click(screen.getByRole("button", { name: /加载更多/ }));
+    expect(screen.getByText("共 60 个颜色 · 已显示 60")).toBeTruthy();
+    expect(container.querySelectorAll(".swatch-card")).toHaveLength(60);
+
+    fireEvent.click(screen.getByRole("button", { name: /颜色0/ }));
+    expect(await screen.findByRole("dialog", { name: "颜色详情" })).toBeTruthy();
+    expect(screen.getByText("共 60 个颜色 · 已显示 60")).toBeTruthy();
+    expect(container.querySelectorAll(".swatch-card")).toHaveLength(60);
+
+    fireEvent.click(screen.getByRole("button", { name: "关闭" }));
+    expect(screen.queryByRole("dialog", { name: "颜色详情" })).toBeNull();
+    expect(screen.getByText("共 60 个颜色 · 已显示 60")).toBeTruthy();
+    expect(container.querySelectorAll(".swatch-card")).toHaveLength(60);
+  });
+
 });
