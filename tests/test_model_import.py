@@ -456,4 +456,202 @@ def test_detail_uses_thumb_plate_top_and_catalog_match(
     assert picks[0]["brand_name"] == "Bambu Lab"
     assert picks[0]["label"] == "几乎一样"
     assert picks[0]["delta_e"] <= 2
+    assert body["cover_url"] is None
     assert _request(app, "GET", f"/api/models/{META_0020}/media/plate_1.png").status_code == 401
+
+
+def _cover_png(path: Path, color: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    Image.new("RGB", (6, 4), color).save(path, format="PNG")
+
+
+def _cover_model(
+    directory: Path, model_id: str, design: tuple[str, str], cover: str | None
+) -> dict:
+    dest = directory / "models" / model_id
+    dest.mkdir(parents=True, exist_ok=True)
+    meta = {
+        "id": model_id,
+        "title": "封面模型",
+        "designer": "封面作者",
+        "source": {
+            "description": "封面说明",
+            "design_model_id": design[0],
+            "design_profile_id": design[1],
+        },
+        "plates": [{"index": 1, "filaments": [{"hex": "#112233"}]}],
+        "extracted_at": "2026-11-07T00:00:00+00:00",
+    }
+    (dest / "meta.json").write_text(
+        json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    _write_image(dest / "thumb_1.jpg", "#336699", "jpg")
+    _write_image(dest / "plate_1.png", "#C04040", "png")
+    if cover is not None:
+        _cover_png(dest / "cover.png", cover)
+    return {
+        "id": model_id,
+        "rel_path": f"系列/封面模型/{model_id}.3mf",
+        "file_name": f"{model_id}.3mf",
+        "size_bytes": 32,
+        "mtime": 1_700_000_000,
+        "title": "封面模型",
+        "designer": "封面作者",
+        "source": meta["source"],
+        "colors": ["#112233"],
+        "plates": 1,
+        "ok": True,
+        "errors": [],
+    }
+
+
+def _write_index(directory: Path, rows: list[dict]) -> None:
+    directory.mkdir(parents=True, exist_ok=True)
+    lines = [json.dumps(row, ensure_ascii=False) for row in rows]
+    (directory / "index.jsonl").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def test_import_cover_is_idempotent_and_prefers_canonical_file(tmp_path: Path) -> None:
+    directory = tmp_path / "incoming"
+    own = "aa00000000000001"
+    other = "aa00000000000002"
+    row_own = _cover_model(directory, own, ("MODEL-COVER", "PROFILE-1"), "#00FF00")
+    row_other = _cover_model(directory, other, ("MODEL-COVER", "PROFILE-1"), "#FF00FF")
+    _write_index(directory, [row_other, row_own])
+    root = tmp_path / "models-private"
+    first = _parse_stats(import_previews(directory, root).format())
+    assert first["canonical"] == 1
+    assert first["aliases"] == 1
+    assert first["inserted"] == 1
+    assert first["images"] == 3
+    stored = root / "images" / own / "cover.png"
+    assert stored.read_bytes() == (directory / "models" / own / "cover.png").read_bytes()
+    assert stored.read_bytes() != (directory / "models" / other / "cover.png").read_bytes()
+    with sqlite3.connect(root / "manifest.sqlite") as conn:
+        raw = conn.execute("SELECT images FROM models WHERE id = ?", (own,)).fetchone()[0]
+        images = json.loads(raw)
+        assert images[0] == {"kind": "cover", "plate": 0, "name": "cover.png"}
+        assert conn.execute("SELECT COUNT(*) FROM models").fetchone()[0] == 1
+    again = _parse_stats(import_previews(directory, root).format())
+    assert again["inserted"] == 0
+    assert again["updated"] == 0
+    assert again["unchanged"] == 1
+
+
+def test_alias_cover_is_used_when_canonical_has_none(tmp_path: Path) -> None:
+    directory = tmp_path / "incoming"
+    canonical = "bb00000000000001"
+    alias = "bb00000000000002"
+    row_canonical = _cover_model(directory, canonical, ("MODEL-COVER", "PROFILE-2"), None)
+    row_alias = _cover_model(directory, alias, ("MODEL-COVER", "PROFILE-2"), "#0000FF")
+    _write_index(directory, [row_alias, row_canonical])
+    root = tmp_path / "models-private"
+    stats = _parse_stats(import_previews(directory, root).format())
+    assert stats["canonical"] == 1
+    assert stats["aliases"] == 1
+    assert stats["inserted"] == 1
+    copied = root / "images" / canonical / "cover.png"
+    assert copied.read_bytes() == (directory / "models" / alias / "cover.png").read_bytes()
+    assert not (root / "images" / alias).exists()
+    again = _parse_stats(import_previews(directory, root).format())
+    assert again["inserted"] == 0
+    assert again["updated"] == 0
+    assert again["unchanged"] == 1
+
+
+def test_adding_cover_updates_existing_models_without_inserting(tmp_path: Path) -> None:
+    directory = tmp_path / "incoming"
+    first_id = "cc00000000000001"
+    second_id = "cc00000000000002"
+    rows = [
+        _cover_model(directory, first_id, ("MODEL-A", "1"), None),
+        _cover_model(directory, second_id, ("MODEL-B", "1"), None),
+    ]
+    _write_index(directory, rows)
+    root = tmp_path / "models-private"
+    imported = _parse_stats(import_previews(directory, root).format())
+    assert imported["inserted"] == 2
+    _cover_png(directory / "models" / first_id / "cover.png", "#ABCDEF")
+    _cover_png(directory / "models" / second_id / "cover.png", "#123456")
+    updated = _parse_stats(import_previews(directory, root, dry_run=True).format())
+    assert updated["inserted"] == 0
+    assert updated["updated"] == 2
+    assert updated["unchanged"] == 0
+    assert updated["dry_run"] == 1
+    applied = _parse_stats(import_previews(directory, root).format())
+    assert applied["inserted"] == 0
+    assert applied["updated"] == 2
+    with sqlite3.connect(root / "manifest.sqlite") as conn:
+        assert conn.execute("SELECT COUNT(*) FROM models").fetchone()[0] == 2
+    repeat = _parse_stats(import_previews(directory, root).format())
+    assert repeat["inserted"] == 0
+    assert repeat["updated"] == 0
+    assert repeat["unchanged"] == 2
+
+
+def test_symlink_cover_is_ignored(tmp_path: Path) -> None:
+    directory = tmp_path / "incoming"
+    model_id = "dd00000000000001"
+    row = _cover_model(directory, model_id, ("MODEL-LINK", "1"), None)
+    outside = tmp_path / "secret.png"
+    _cover_png(outside, "#010101")
+    (directory / "models" / model_id / "cover.png").symlink_to(outside)
+    _write_index(directory, [row])
+    root = tmp_path / "models-private"
+    import_previews(directory, root)
+    assert not (root / "images" / model_id / "cover.png").exists()
+    with sqlite3.connect(root / "manifest.sqlite") as conn:
+        images = json.loads(
+            conn.execute("SELECT images FROM models WHERE id = ?", (model_id,)).fetchone()[0]
+        )
+    assert all(item["kind"] != "cover" for item in images)
+
+
+def test_list_and_detail_prefer_cover_through_the_media_route(
+    tmp_path: Path, repo_root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    directory = tmp_path / "incoming"
+    covered = "ee0000000000000a"
+    plain = "ee0000000000000b"
+    rows = [
+        _cover_model(directory, covered, ("MODEL-SHOW", "1"), "#00AA00"),
+        _cover_model(directory, plain, ("MODEL-SHOW", "2"), None),
+    ]
+    _write_index(directory, rows)
+    root = tmp_path / "models-private"
+    import_previews(directory, root)
+    db = tmp_path / "auth" / "users.sqlite"
+    monkeypatch.setenv("FILAMENT_PICKER_AUTH_DB", str(db))
+    monkeypatch.setenv("FILAMENT_PICKER_MODELS_ROOT", str(root))
+    monkeypatch.setenv("FILAMENT_PICKER_SESSION_SECRET", secrets.token_urlsafe(48))
+    monkeypatch.setenv("FILAMENT_PICKER_SESSION_SECURE", "0")
+    monkeypatch.setenv("FILAMENT_PICKER_MODELS_DIRECT", "1")
+    password = secrets.token_urlsafe(24)
+    AuthStore(db).create_user("yulanmoxing", password)
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    (dist / "index.html").write_text('<div id="root"></div>\n', encoding="utf-8")
+    app = build_server_app(
+        dist, repo_root / "docs/schemas/examples/filament-catalog.example.json", tmp_path, None
+    )
+    login = _request(
+        app, "POST", "/api/models/login", json={"username": "yulanmoxing", "password": password}
+    )
+    cookie = login.headers["set-cookie"].split(";", 1)[0]
+    listing = _request(app, "GET", "/api/models?page_size=100", cookie).json()
+    by_id = {item["id"]: item for item in listing["items"]}
+    assert by_id[covered]["cover_url"] == f"/api/models/{covered}/media/cover.png"
+    assert by_id[covered]["thumb_url"] == f"/api/models/{covered}/thumb"
+    assert by_id[plain]["cover_url"] is None
+    detail = _request(app, "GET", f"/api/models/{covered}", cookie).json()
+    assert detail["images"][0]["kind"] == "cover"
+    assert detail["images"][0]["url"] == detail["cover_url"]
+    assert detail["images"][1]["kind"] == "plate"
+    cover = _request(app, "GET", detail["cover_url"], cookie)
+    assert cover.status_code == 200
+    assert cover.headers["content-type"].startswith("image/png")
+    assert cover.content == (directory / "models" / covered / "cover.png").read_bytes()
+    assert _request(app, "GET", detail["cover_url"]).status_code == 401
+    plain_detail = _request(app, "GET", f"/api/models/{plain}", cookie).json()
+    assert plain_detail["cover_url"] is None
+    assert plain_detail["images"][0]["kind"] == "plate"

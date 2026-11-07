@@ -158,7 +158,7 @@ def import_previews(directory: Path, root: Path, dry_run: bool = False) -> Impor
     duplicate_groups = sum(1 for group in grouped.values() if len(group) > 1)
     duplicate_rows = sum(len(group) - 1 for group in grouped.values() if len(group) > 1)
 
-    canonical_rows: list[tuple[_Preview, list[_Preview]]] = []
+    canonical_rows: list[tuple[_Preview, list[_Preview], Path | None]] = []
     skipped_missing = 0
     alias_count = 0
     image_count = 0
@@ -169,14 +169,15 @@ def import_previews(directory: Path, root: Path, dry_run: bool = False) -> Impor
             continue
         canonical = min(present, key=lambda item: item.id)
         aliases = [item for item in group if item.id != canonical.id]
+        cover = _resolve_cover(canonical, aliases)
         alias_count += len(aliases)
-        canonical_rows.append((canonical, aliases))
-        image_count += _count_images(canonical.model_dir)
+        canonical_rows.append((canonical, aliases, cover))
+        image_count += _count_images(canonical.model_dir, cover)
 
     existing = _load_existing(root / "manifest.sqlite")
     inserted = updated = unchanged = 0
-    for canonical, _aliases in canonical_rows:
-        payload = _payload(canonical)
+    for canonical, _aliases, cover in canonical_rows:
+        payload = _payload(canonical, cover)
         current = existing.get(canonical.id)
         if current is None:
             inserted += 1
@@ -212,12 +213,12 @@ def import_previews(directory: Path, root: Path, dry_run: bool = False) -> Impor
     demoted: list[str] = []
     with closing(sqlite3.connect(root / "manifest.sqlite")) as conn, conn:
         _ensure_schema(conn)
-        for canonical, _aliases in canonical_rows:
-            _write_images(root, canonical)
-            _upsert(conn, canonical, existing.get(canonical.id))
-        for canonical, aliases in canonical_rows:
+        for canonical, _aliases, cover in canonical_rows:
+            _write_images(root, canonical, cover)
+            _upsert(conn, canonical, existing.get(canonical.id), cover)
+        for canonical, aliases, _cover in canonical_rows:
             demoted.extend(_delete_demoted(conn, canonical, aliases))
-        for canonical, aliases in canonical_rows:
+        for canonical, aliases, _cover in canonical_rows:
             _insert_aliases(conn, canonical, aliases)
     for model_id in demoted:
         _remove_media(root, model_id)
@@ -451,13 +452,40 @@ def _iter_shots(model_dir: Path) -> tuple[Path | None, list[_Shot]]:
     return (thumbs[0][1] if thumbs else None), shots
 
 
-def _count_images(model_dir: Path) -> int:
+def _cover_file(model_dir: Path) -> Path | None:
+    if model_dir.is_symlink() or not model_dir.is_dir():
+        return None
+    path = model_dir / "cover.png"
+    if path.is_symlink() or not path.is_file():
+        return None
+    try:
+        if not path.resolve().is_relative_to(model_dir.resolve()):
+            return None
+    except OSError:
+        return None
+    return path
+
+
+def _resolve_cover(canonical: _Preview, aliases: list[_Preview]) -> Path | None:
+    own = _cover_file(canonical.model_dir)
+    if own is not None:
+        return own
+    for alias in sorted(aliases, key=lambda item: item.id):
+        found = _cover_file(alias.model_dir)
+        if found is not None:
+            return found
+    return None
+
+
+def _count_images(model_dir: Path, cover: Path | None = None) -> int:
     thumb, shots = _iter_shots(model_dir)
-    return (1 if thumb is not None else 0) + len(shots)
+    return (1 if thumb is not None else 0) + len(shots) + (0 if cover is None else 1)
 
 
-def _payload(preview: _Preview) -> tuple[Any, ...]:
+def _payload(preview: _Preview, cover: Path | None = None) -> tuple[Any, ...]:
     thumb, shots = _iter_shots(preview.model_dir)
+    if cover is not None:
+        shots = [_Shot("cover", 0, "cover.png", cover), *shots]
     suffix = thumb.suffix.lower() if thumb is not None else ""
     thumb_path = f"thumbs/{preview.id}{suffix}" if thumb is not None else ""
     return (
@@ -526,6 +554,11 @@ def _stored_shots(value: object) -> tuple[tuple[str, int, str], ...]:
         kind = item.get("kind")
         plate = item.get("plate")
         name = item.get("name")
+        if not isinstance(name, str):
+            continue
+        if kind == "cover" and name == "cover.png":
+            shots.append(("cover", 0, "cover.png"))
+            continue
         if kind in ("plate", "top") and isinstance(plate, int) and isinstance(name, str):
             shots.append((kind, plate, name))
     return tuple(shots)
@@ -540,8 +573,10 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
     conn.execute(_CREATE_ALIASES)
 
 
-def _write_images(root: Path, preview: _Preview) -> None:
+def _write_images(root: Path, preview: _Preview, cover: Path | None = None) -> None:
     thumb, shots = _iter_shots(preview.model_dir)
+    if cover is not None:
+        shots = [_Shot("cover", 0, "cover.png", cover), *shots]
     thumb_dir = root / "thumbs"
     if thumb is not None:
         destination = thumb_dir / f"{preview.id}{thumb.suffix.lower()}"
@@ -590,8 +625,13 @@ def _sha256(path: Path) -> bytes:
     return digest.digest()
 
 
-def _upsert(conn: sqlite3.Connection, preview: _Preview, current: tuple[Any, ...] | None) -> None:
-    payload = _payload(preview)
+def _upsert(
+    conn: sqlite3.Connection,
+    preview: _Preview,
+    current: tuple[Any, ...] | None,
+    cover: Path | None,
+) -> None:
+    payload = _payload(preview, cover)
     thumb_path = payload[7]
     shot_tuples = payload[10]
     images = [{"kind": kind, "plate": plate, "name": name} for kind, plate, name in shot_tuples]

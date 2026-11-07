@@ -3,7 +3,7 @@ import type { FormEvent, JSX } from "react";
 import "./model-preview.css";
 
 interface ModelImage {
-  kind: "plate" | "top";
+  kind: "cover" | "plate" | "top";
   plate: number;
   url: string;
 }
@@ -32,6 +32,7 @@ interface Model {
   plate_count: number;
   colours: string[];
   thumb_url: string;
+  cover_url?: string | null;
   created_at: string;
   description?: string;
   images?: ModelImage[];
@@ -148,7 +149,7 @@ function Gallery({ navigate }: { navigate: Navigate }): JSX.Element {
           {data.items.map((model) => (
             <article className="panel model-card" key={model.id}>
               <a href={`/models/${encodeURIComponent(model.id)}`} aria-labelledby={`model-title-${model.id}`}>
-                <img src={model.thumb_url} alt={model.title} loading="lazy" />
+                <img src={model.cover_url || model.thumb_url} alt={model.title} loading="lazy" />
                 <h2 id={`model-title-${model.id}`}>{model.title}</h2>
               </a>
               <p>{model.series || "—"} / {model.author || "—"}</p>
@@ -197,9 +198,7 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
   }, [id, navigate]);
   if (error) return <p className="panel" role="alert">{error}</p>;
   if (model === null) return <p role="status">模型加载中…</p>;
-  const shots = model.images && model.images.length > 0
-    ? model.images
-    : [{ kind: "plate" as const, plate: 1, url: model.thumb_url }];
+  const shots = orderedShots(model);
   const matches = model.colour_matches ?? model.colours.map((hex) => ({ hex, picks: [] }));
   return (
     <article className="panel model-detail">
@@ -207,7 +206,7 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
         {shots.map((shot) => (
           <figure key={shot.url}>
             <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
-            <figcaption>{shot.kind === "top" ? `俯视 ${shot.plate}` : `盘面 ${shot.plate}`}</figcaption>
+            <figcaption>{shotCaption(shot.kind, shot.plate)}</figcaption>
           </figure>
         ))}
       </div>
@@ -240,8 +239,22 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
   );
 }
 
-function shotLabel(title: string, kind: "plate" | "top", plate: number): string {
-  return `${title} ${kind === "top" ? "俯视" : "盘面"} ${plate}`;
+function orderedShots(model: Model): ModelImage[] {
+  const images = model.images ?? [];
+  const cover = images.filter((image) => image.kind === "cover");
+  const rest = images.filter((image) => image.kind !== "cover");
+  if (cover.length + rest.length > 0) return [...cover, ...rest];
+  if (model.cover_url) return [{ kind: "cover", plate: 0, url: model.cover_url }];
+  return [{ kind: "plate", plate: 1, url: model.thumb_url }];
+}
+
+function shotCaption(kind: ModelImage["kind"], plate: number): string {
+  if (kind === "cover") return "封面";
+  return kind === "top" ? `俯视 ${plate}` : `盘面 ${plate}`;
+}
+
+function shotLabel(title: string, kind: ModelImage["kind"], plate: number): string {
+  return `${title} ${shotCaption(kind, plate)}`;
 }
 
 export function ModelPreview({ path = window.location.pathname, navigate = goTo }: {

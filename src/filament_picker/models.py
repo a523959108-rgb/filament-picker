@@ -43,7 +43,7 @@ _IMAGE_TYPES = {
     ".jpg": "image/jpeg",
     ".jpeg": "image/jpeg",
 }
-_MEDIA_NAME = re.compile(r"^(plate|top)_[1-9][0-9]{0,3}\.png$")
+_MEDIA_NAME = re.compile(r"^(?:cover\.png|(?:plate|top)_[1-9][0-9]{0,3}\.png)$")
 _COLOUR_PARAMS = Params(
     max_colors=DEFAULT_MAX_COLORS,
     ams_slots=DEFAULT_AMS_SLOTS,
@@ -69,6 +69,7 @@ def _public_model(row: sqlite3.Row, *, detail: bool = False) -> dict[str, Any]:
     } | {
         "colours": json.loads(row["colours"]),
         "thumb_url": f"/api/models/{quote(row['id'], safe='')}/thumb",
+        "cover_url": _cover_url(row),
     }
     if detail:
         payload["description"] = _column(row, "description", "")
@@ -92,9 +93,11 @@ def _public_images(row: sqlite3.Row) -> list[dict[str, Any]]:
         kind = item.get("kind")
         name = item.get("name")
         plate = item.get("plate")
-        if kind not in ("plate", "top") or not isinstance(name, str) or not isinstance(plate, int):
+        if not isinstance(name, str) or _MEDIA_NAME.fullmatch(name) is None:
             continue
-        if _MEDIA_NAME.fullmatch(name) is None:
+        if kind == "cover":
+            plate = 0
+        elif kind not in ("plate", "top") or not isinstance(plate, int):
             continue
         images.append(
             {
@@ -104,6 +107,14 @@ def _public_images(row: sqlite3.Row) -> list[dict[str, Any]]:
             }
         )
     return images
+
+
+def _cover_url(row: sqlite3.Row) -> str | None:
+    for image in _public_images(row):
+        if image["kind"] == "cover":
+            url = image["url"]
+            return url if isinstance(url, str) else None
+    return None
 
 
 class ModelPreview:

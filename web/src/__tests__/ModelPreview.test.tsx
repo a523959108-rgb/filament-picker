@@ -109,6 +109,28 @@ describe("model preview", () => {
     expect(getByText(/Bambu Lab/)).toBeTruthy();
   });
 
+  it("uses the cover photo on the card and as the detail hero", async () => {
+    const cover = "/api/models/sample-01/media/cover.png";
+    const covered = {
+      ...model,
+      cover_url: cover,
+      images: [
+        { kind: "plate" as const, plate: 1, url: "/api/models/sample-01/media/plate_1.png" },
+        { kind: "cover" as const, plate: 0, url: cover },
+      ],
+    };
+    const fetcher = vi.fn().mockResolvedValue(response({ ...listing, items: [covered] }));
+    vi.stubGlobal("fetch", fetcher);
+    const gallery = render(<ModelPreview path="/models" />);
+    expect((await gallery.findByRole("img", { name: model.title })).getAttribute("src")).toBe(cover);
+    gallery.unmount();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(covered)));
+    const detail = render(<ModelPreview path="/models/sample-01" />);
+    expect((await detail.findByRole("img", { name: "示例方块 01 封面" })).getAttribute("src")).toBe(cover);
+    expect(detail.getByText("封面")).toBeTruthy();
+    expect(detail.getAllByRole("img").map((img) => img.getAttribute("src"))[0]).toBe(cover);
+  });
+
   it("renders detail metadata and original color swatches", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(model)));
     const { findByRole, getByText, getByLabelText } = render(<ModelPreview path="/models/sample-01" />);
