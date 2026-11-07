@@ -1,11 +1,14 @@
 import argparse
 import csv
+import getpass
 import json
+import sqlite3
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from . import __version__
+from .auth import AuthStore, auth_db_path
 from .calibrate import (
     CALIBRATION_PATH,
     EXTRACTED_PATH,
@@ -324,6 +327,43 @@ def _cmd_assign_ids(args: argparse.Namespace) -> int:
     return 0
 
 
+def _add_auth(sub: argparse._SubParsersAction) -> None:
+    parser = sub.add_parser("auth", help="manage the single model-preview account")
+    commands = parser.add_subparsers(dest="auth_command", required=True)
+    create = commands.add_parser("create-user", help="create an account using interactive getpass")
+    create.add_argument("--username", required=True)
+    create.set_defaults(handler=_cmd_create_user)
+    listing = commands.add_parser("list-users", help="print usernames only")
+    listing.set_defaults(handler=_cmd_list_users)
+
+
+def _cmd_create_user(args: argparse.Namespace) -> int:
+    store = AuthStore(auth_db_path())
+    try:
+        if args.username != "yulanmoxing" or store.list_users():
+            raise ValueError("仅允许首次创建单账号 yulanmoxing；不重置密码或追加账号")
+        import warnings
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", getpass.GetPassWarning)
+            password = getpass.getpass("密码：")
+            confirmation = getpass.getpass("再次输入密码：")
+        if not password or password != confirmation:
+            raise ValueError("密码为空或两次输入不一致")
+        store.create_user(args.username, password)
+    except (OSError, ValueError, sqlite3.Error, EOFError, getpass.GetPassWarning):
+        print("建号失败：请检查交互终端、账号状态及两次密码输入")
+        return 1
+    print(f"created user: {args.username}")
+    return 0
+
+
+def _cmd_list_users(args: argparse.Namespace) -> int:
+    for username in AuthStore(auth_db_path()).list_users():
+        print(username)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="filament-picker")
     parser.add_argument("--version", action="version", version=f"filament-picker {__version__}")
@@ -339,6 +379,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_worker(sub)
     _add_export_web(sub)
     _add_serve(sub)
+    _add_auth(sub)
     return parser
 
 

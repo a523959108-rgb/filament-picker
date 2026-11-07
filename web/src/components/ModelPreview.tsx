@@ -1,0 +1,233 @@
+import { useEffect, useState } from "react";
+import type { FormEvent, JSX } from "react";
+import "./model-preview.css";
+
+interface Model {
+  id: string;
+  title: string;
+  series: string;
+  author: string;
+  size_bytes: number;
+  plate_count: number;
+  colours: string[];
+  thumb_url: string;
+  created_at: string;
+}
+
+interface ModelList {
+  items: Model[];
+  total: number;
+  page: number;
+  page_size: number;
+  series: string[];
+  authors: string[];
+}
+
+type Navigate = (path: string) => void;
+const goTo: Navigate = (path) => window.location.assign(path);
+
+function Login({ navigate }: { navigate: Navigate }): JSX.Element {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch("/api/models/login", {
+        method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      if (response.ok) navigate("/models");
+      else if (response.status === 429) setError("登录尝试过多，请稍后重试");
+      else if (response.status === 401) setError("用户名或密码错误");
+      else setError("暂时无法登录，请稍后重试");
+    } catch {
+      setError("连接失败，请稍后重试");
+    } finally {
+      setPassword("");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="panel model-login">
+      <h2>登录模型预览</h2>
+      <form onSubmit={submit}>
+        <label>用户名<input name="username" autoComplete="username" value={username}
+          onChange={(event) => setUsername(event.target.value)} required /></label>
+        <label>密码<input name="password" type="password" autoComplete="current-password" value={password}
+          onChange={(event) => setPassword(event.target.value)} required /></label>
+        {error && <p role="alert">{error}</p>}
+        <button type="submit" disabled={busy}>{busy ? "登录中…" : "登录"}</button>
+      </form>
+    </section>
+  );
+}
+
+function Gallery({ navigate }: { navigate: Navigate }): JSX.Element {
+  const [data, setData] = useState<ModelList | null>(null);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [params, setParams] = useState({ q: "", series: "", author: "", page: 1 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
+    setLoading(true);
+    setError("");
+    const query = new URLSearchParams({ ...params, page: String(params.page), page_size: "12" });
+    fetch(`/api/models?${query}`, { credentials: "same-origin", signal: controller.signal })
+      .then(async (response) => {
+        if (!active) return;
+        if (response.status === 401) { navigate("/models/login"); return; }
+        if (!response.ok) throw new Error();
+        const result = await response.json() as ModelList;
+        if (active) setData(result);
+      })
+      .catch(() => { if (active) setError("模型加载失败，请重试"); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; controller.abort(); };
+  }, [params, navigate]);
+
+  const pageCount = Math.max(1, Math.ceil((data?.total ?? 0) / 12));
+  return (
+    <>
+      <form className="panel model-filters" onSubmit={(event) => {
+        event.preventDefault(); setParams((current) => ({ ...current, q: search, page: 1 }));
+      }}>
+        <label>搜索模型<input type="search" value={search} placeholder="按标题搜索"
+          onChange={(event) => setSearch(event.target.value)} /></label>
+        <label>系列<select value={params.series} onChange={(event) => {
+          setParams((current) => ({ ...current, series: event.target.value, page: 1 }));
+        }}><option value="">全部系列</option>
+          {data?.series.map((value) => <option key={value} value={value}>{value}</option>)}
+        </select></label>
+        <label>作者<select value={params.author} onChange={(event) => {
+          setParams((current) => ({ ...current, author: event.target.value, page: 1 }));
+        }}><option value="">全部作者</option>
+          {data?.authors.map((value) => <option key={value} value={value}>{value}</option>)}
+        </select></label>
+        <button type="submit">搜索</button>
+      </form>
+      {error && <p className="panel" role="alert">{error}</p>}
+      {loading && <p role="status">模型加载中…</p>}
+      {data && !error && <>
+        <p className="model-count">共 {data.total} 个模型</p>
+        {data.items.length === 0 && <p className="panel">没有找到模型</p>}
+        <div className="model-grid" aria-busy={loading}>
+          {data.items.map((model) => (
+            <article className="panel model-card" key={model.id}>
+              <a href={`/models/${encodeURIComponent(model.id)}`} aria-labelledby={`model-title-${model.id}`}>
+                <img src={model.thumb_url} alt={model.title} loading="lazy" />
+                <h2 id={`model-title-${model.id}`}>{model.title}</h2>
+              </a>
+              <p>{model.series || "—"} / {model.author || "—"}</p>
+            </article>
+          ))}
+        </div>
+        <nav className="model-pagination" aria-label="模型分页">
+          <button disabled={loading || params.page <= 1} onClick={() => {
+            setParams((current) => ({ ...current, page: current.page - 1 }));
+          }}>上一页</button>
+          <span>第 {params.page} / {pageCount} 页</span>
+          <button disabled={loading || params.page >= pageCount} onClick={() => {
+            setParams((current) => ({ ...current, page: current.page + 1 }));
+          }}>下一页</button>
+        </nav>
+      </>}
+    </>
+  );
+}
+
+function fileSize(bytes: number): string {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${bytes} B`;
+}
+
+function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Element {
+  const [model, setModel] = useState<Model | null>(null);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
+    setModel(null);
+    setError("");
+    fetch(`/api/models/${encodeURIComponent(id)}`, { credentials: "same-origin", signal: controller.signal })
+      .then(async (response) => {
+        if (!active) return;
+        if (response.status === 401) { navigate("/models/login"); return; }
+        if (response.status === 404) { setError("模型不存在"); return; }
+        if (!response.ok) throw new Error();
+        const result = await response.json() as Model;
+        if (active) setModel(result);
+      })
+      .catch(() => { if (active) setError("模型加载失败，请重试"); });
+    return () => { active = false; controller.abort(); };
+  }, [id, navigate]);
+  if (error) return <p className="panel" role="alert">{error}</p>;
+  if (model === null) return <p role="status">模型加载中…</p>;
+  return (
+    <article className="panel model-detail">
+      <img className="model-large-image" src={model.thumb_url} alt={model.title} />
+      <div>
+        <h2>{model.title}</h2>
+        <dl>
+          <dt>系列</dt><dd>{model.series || "—"}</dd>
+          <dt>作者</dt><dd>{model.author || "—"}</dd>
+          <dt>盘数</dt><dd>{model.plate_count} 盘</dd>
+          <dt>大小</dt><dd>{fileSize(model.size_bytes)}</dd>
+        </dl>
+        <h3>原配色</h3>
+        <div className="model-colours">
+          {model.colours.map((colour, index) => <span className="model-colour" key={`${colour}-${index}`}
+            role="img" aria-label={colour} title={colour} style={{ backgroundColor: colour }} />)}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export function ModelPreview({ path = window.location.pathname, navigate = goTo }: {
+  path?: string; navigate?: Navigate;
+}): JSX.Element {
+  const normalized = path.replace(/\/+$/, "");
+  const login = normalized === "/models/login";
+  const [error, setError] = useState("");
+  async function logout() {
+    setError("");
+    try {
+      const response = await fetch("/api/models/logout", { method: "POST", credentials: "same-origin" });
+      if (response.ok || response.status === 401) navigate("/models/login");
+      else setError("退出失败，请重试");
+    } catch { setError("连接失败，请稍后重试"); }
+  }
+  let id = "";
+  try { id = decodeURIComponent(normalized.slice("/models/".length)); }
+  catch { id = ""; }
+  return (
+    <main className="page model-preview">
+      <header className="topbar">
+        <h1>模型预览</h1>
+        <nav className="topbar-nav" aria-label="页面导航">
+          <a className="nav-link" href="/">耗材选色</a>
+          {!login && <>
+            <a className="nav-link" href="/models">模型画廊</a>
+            <button onClick={logout}>退出登录</button>
+          </>}
+        </nav>
+      </header>
+      <p className="model-banner" role="note">仅私人收藏预览、禁止外传</p>
+      {error && <p role="alert">{error}</p>}
+      {login ? <Login navigate={navigate} /> : normalized === "/models" ? <Gallery navigate={navigate} /> : (
+        <Detail id={id} navigate={navigate} />
+      )}
+    </main>
+  );
+}

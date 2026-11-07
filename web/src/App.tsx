@@ -7,6 +7,7 @@ import { ColorDetail } from "./components/ColorDetail";
 import { CompareBar } from "./components/CompareBar";
 import { SwatchGrid } from "./components/SwatchGrid";
 import { PlanPage } from "./components/PlanPage";
+import { ModelPreview } from "./components/ModelPreview";
 import { buildIndex, EMPTY_FILTER, query } from "./search";
 import type { FilterState } from "./search";
 import type { WebCatalog } from "./types";
@@ -24,12 +25,20 @@ function CatalogHeader(): JSX.Element {
       </div>
       <nav className="topbar-nav" aria-label="页面导航">
         <a href="#/plan" className="nav-link">图片配色</a>
+        <a href="/models/login" className="nav-link">模型预览</a>
       </nav>
     </header>
   );
 }
 
 export default function App(): JSX.Element {
+  if (window.location.pathname === "/models" || window.location.pathname.startsWith("/models/")) {
+    return <ModelPreview />;
+  }
+  return <CatalogApp />;
+}
+
+function CatalogApp(): JSX.Element {
   const [route, setRoute] = useState(routeFromHash);
   const [catalog, setCatalog] = useState<WebCatalog | null>(null);
   const [loadError, setLoadError] = useState(false);
