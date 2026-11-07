@@ -9,6 +9,7 @@ export function ColorDetail(props: {
   catalog: WebCatalog;
   onClose: () => void;
   onCompare: (id: string) => void;
+  onSelect?: (id: string) => void;
 }): JSX.Element {
   const { entry, catalog, onClose } = props;
   const brandName = catalog.brands.find((brand) => brand.slug === entry.b)?.name ?? entry.b;
@@ -112,8 +113,8 @@ export function ColorDetail(props: {
               <h3>相似色</h3>
               <ul>
                 {matches.map(({ entry: match, delta, isApprox }) => (
-                  <li key={match.id}>
-                    <button type="button" className="similar-item" onClick={() => props.onCompare(match.id)}>
+                  <li key={match.id} className="similar-row">
+                    <button type="button" className="similar-item" onClick={() => props.onSelect?.(match.id)}>
                       <span
                         className={match.hex[0] === undefined ? "similar-dot swatch-empty" : "similar-dot"}
                         style={match.hex[0] === undefined ? undefined : { backgroundColor: match.hex[0] }}
@@ -124,6 +125,13 @@ export function ColorDetail(props: {
                         （ΔE {delta.toFixed(1)}）
                         {isApprox ? <span className="badge badge-warn"> 近似色</span> : null}
                       </span>
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-ghost similar-compare"
+                      onClick={() => props.onCompare(match.id)}
+                    >
+                      加入对比
                     </button>
                   </li>
                 ))}
