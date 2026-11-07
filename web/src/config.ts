@@ -1,5 +1,28 @@
 export const CATALOG_URL = "./web-catalog.json";
 
+/** First paint swatch count; more load on demand. */
+export const SWATCH_PAGE_SIZE = 48;
+
+/**
+ * Effects whose hex is unreliable for cross-brand matching
+ * (aligned with backend MATCH_EXCLUDE_EFFECTS in SPEC §8).
+ */
+export const SIMILAR_EXCLUDE_EFFECTS = [
+  "multi",
+  "dual",
+  "tri",
+  "gradient",
+  "color_change",
+  "translucent",
+  "glow",
+  "sparkle",
+  "marble",
+  "wood",
+] as const;
+
+/** Prefer matching within the same finish when both sides carry it. */
+export const SIMILAR_PREFERRED_EFFECTS = ["silk", "metallic", "matte", "cf", "gf"] as const;
+
 export const FAMILIES = [
   "黑白灰",
   "多色/渐变",
