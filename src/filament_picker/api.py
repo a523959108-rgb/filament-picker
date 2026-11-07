@@ -14,6 +14,7 @@ from fastapi.responses import FileResponse
 from .card import CARD_NAME_RE
 from .catalog import load_catalog
 from .config import TZ
+from .models import mount_model_preview
 from .planner import run_plan
 
 MAX_UPLOAD_BYTES: int = 10 * 1024 * 1024
@@ -61,6 +62,7 @@ def create_app(
     catalog = load_catalog(catalog_path)
     now_fn = now or (lambda: datetime.now(ZoneInfo(TZ)))
     app = FastAPI()
+    mount_model_preview(app, catalog)
 
     @app.get("/api/health")
     async def health() -> dict[str, Any]:

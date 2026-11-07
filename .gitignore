@@ -11,3 +11,9 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 *.egg-info/
+data/auth/
+data/models-private/
+.env
+.env.*
+!.env.example
+deploy/*.env
