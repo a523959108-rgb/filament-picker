@@ -592,6 +592,27 @@ textarea:focus {
   font-size: 0.9rem;
 }
 
+
+.swatch-more {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0 8px;
+}
+
+.swatch-more-btn {
+  min-width: 200px;
+}
+
+.similar-note {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--text-2);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
 /* ---------- Compare bar / toast ---------- */
 .compare-bar {
   position: fixed;
@@ -812,8 +833,6 @@ textarea:focus {
 
 .pick-buy {
   margin-left: auto;
-  display: inline-flex;
-  gap: 10px;
   font-size: 0.9rem;
 }
 

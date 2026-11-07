@@ -19,6 +19,12 @@ export function ColorDetail(props: {
   const brandBySlug = new Map(catalog.brands.map((brand) => [brand.slug, brand.name]));
   const href = purchaseHref(entry.url);
   const altHref = entry.alt_url ? purchaseHref(entry.alt_url) : null;
+  const specialNote =
+    entry.eff.some((e) =>
+      ["multi", "dual", "tri", "gradient", "translucent", "glow", "sparkle"].includes(e),
+    )
+      ? "该耗材为特殊效果料，色值仅供参考，不做跨品牌相似推荐。"
+      : null;
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -48,7 +54,7 @@ export function ColorDetail(props: {
           aria-label={entry.hex[0] ?? (entry.img ? "SKU 图片" : "无色值")}
         >
           {entry.img ? (
-            <img className="swatch-img" src={entry.img} alt="" />
+            <img className="swatch-img" src={entry.img} alt="" loading="lazy" decoding="async" />
           ) : null}
           {entry.img && entry.hex[0] !== undefined ? (
             <span
@@ -79,9 +85,11 @@ export function ColorDetail(props: {
             </div>
             <div>
               <dt>材料</dt>
-              <dd>{entry.m} · {entry.fam}</dd>
+              <dd>{entry.m} · {entry.fam}{entry.eff.length > 0 ? ` · ${entry.eff.join("/")}` : ""}</dd>
             </div>
           </dl>
+
+          {specialNote !== null && <p className="similar-note">{specialNote}</p>}
 
           <div className="detail-actions">
             <button type="button" className="btn btn-primary" onClick={() => props.onCompare(entry.id)}>加入对比</button>
@@ -103,7 +111,7 @@ export function ColorDetail(props: {
             <section className="similar">
               <h3>相似色</h3>
               <ul>
-                {matches.map(({ entry: match, delta }) => (
+                {matches.map(({ entry: match, delta, isApprox }) => (
                   <li key={match.id}>
                     <button type="button" className="similar-item" onClick={() => props.onCompare(match.id)}>
                       <span
@@ -112,7 +120,9 @@ export function ColorDetail(props: {
                         aria-hidden="true"
                       />
                       <span className="similar-text">
-                        {brandBySlug.get(match.b) ?? match.b} {match.s} {match.zh ?? match.en ?? match.id}（ΔE {delta.toFixed(1)}）
+                        {brandBySlug.get(match.b) ?? match.b} {match.s} {match.zh ?? match.en ?? match.id}
+                        （ΔE {delta.toFixed(1)}）
+                        {isApprox ? <span className="badge badge-warn"> 近似色</span> : null}
                       </span>
                     </button>
                   </li>
