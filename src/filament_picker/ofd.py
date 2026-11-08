@@ -44,6 +44,8 @@ ORCA_PRESET_BASE = "https://api.openfilamentdatabase.org/orcaslicer/"
 # Historical esun store-swatch calibration (SPEC §14.5): median ΔE 32.4 → 0.3.
 ESUN_CONFIDENCE_FLOOR_DE: float = 32.4
 ESUN_CONFIDENCE_FLOOR: float = 0.3
+# p80 still above MATCH_MAX_DE: keep the remaining swatches out of recommendations.
+ESUN_WIDE_TAIL_CONFIDENCE: float = 0.4
 
 # Catalog brand slug → OFD brand slugs. Product lines published under a
 # sibling brand (PolyLite, Panchroma, …) are listed explicitly.
@@ -212,6 +214,18 @@ def confidence_from_median(median_de: float) -> float:
         HEX_CONF_STORE_SWATCH - ESUN_CONFIDENCE_FLOOR
     )
     return round(float(value), 2)
+
+
+def esun_store_swatch_confidence(summary: dict[str, float]) -> float:
+    """Confidence for eSUN colors that are still store swatches.
+
+    The median alone can land above ``MATCH_MIN_CONF`` (0.5) and let those
+    swatches into recommendations. A p80 above ``MATCH_MAX_DE`` means the
+    tail is still wide, so the confidence stays at 0.4.
+    """
+    if float(summary["p80"]) > MATCH_MAX_DE:
+        return ESUN_WIDE_TAIL_CONFIDENCE
+    return confidence_from_median(float(summary["median"]))
 
 
 def load_snapshot(path: Path) -> dict[str, Any]:
@@ -530,7 +544,7 @@ def import_ofd(
     summary = summarize_deltas(deltas)
     confidence: float | None = None
     if summary is not None:
-        confidence = confidence_from_median(summary["median"])
+        confidence = esun_store_swatch_confidence(summary)
     generated_at = now or datetime.now(ZoneInfo(TZ)).isoformat(timespec="seconds")
     calibration: dict[str, Any] = {
         "method": method,

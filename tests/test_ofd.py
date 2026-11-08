@@ -7,6 +7,7 @@ from filament_picker.ofd import (
     apply_matches,
     color_key,
     confidence_from_median,
+    esun_store_swatch_confidence,
     filaments_from_payload,
     import_ofd,
     match_catalog,
@@ -132,6 +133,11 @@ def test_confidence_interpolates_between_the_historical_floor_and_the_default() 
     assert confidence_from_median(21.2) == 0.55
     assert confidence_from_median(32.4) == 0.3
     assert confidence_from_median(40) == 0.3
+
+
+def test_wide_p80_keeps_esun_swatches_out_of_recommendations() -> None:
+    assert esun_store_swatch_confidence({"n": 121.0, "median": 11.21, "p80": 29.64}) == 0.4
+    assert esun_store_swatch_confidence({"n": 5.0, "median": 8.0, "p80": 9.0}) == 0.8
 
 
 def test_match_fills_missing_hex_replaces_esun_swatch_and_skips_the_rest() -> None:
@@ -334,7 +340,7 @@ def test_import_ofd_records_coverage_and_esun_confidence(tmp_path: Path) -> None
     assert enrichment["esun_calibration"]["method"] == "store_swatch_vs_official"
     compared = enrichment["esun_calibration"]["compared"]
     assert compared["n"] == 1.0
-    assert confidence == confidence_from_median(compared["median"])
+    assert confidence == esun_store_swatch_confidence(compared)
     assert enrichment["entries"]["esun/pla-basic/black"]["orca_url"].endswith(
         "/orcaslicer/brands/esun/pla.json"
     )
@@ -358,8 +364,21 @@ def test_committed_ofd_import_matches_catalog(repo_root: Path) -> None:
     assert enrichment["stats"]["skipped_variants"] == 2657
     assert enrichment["esun_calibration"]["method"] == "sku_extract_vs_official"
     assert enrichment["esun_calibration"]["compared"]["median"] == 11.21
-    assert enrichment["esun_calibration"]["confidence_after"] == 0.77
-    assert overrides["store_swatch_confidence"]["esun"] == 0.77
+    assert enrichment["esun_calibration"]["compared"]["p80"] == 29.64
+    assert enrichment["esun_calibration"]["confidence_after"] == 0.4
+    assert overrides["store_swatch_confidence"]["esun"] == 0.4
+    esun_swatches = [
+        entry
+        for entry in catalog["entries"]
+        if entry["brand_slug"] == "esun" and entry["hex_source"] == "store_swatch"
+    ]
+    assert len(esun_swatches) == 74
+    assert {entry["hex_confidence"] for entry in esun_swatches} == {0.4}
+    assert all(
+        entry["hex_confidence"] == 1.0
+        for entry in catalog["entries"]
+        if entry["hex_source"] == "ofd"
+    )
     assert catalog["counts"]["with_hex"] == 2664
     assert catalog["counts"]["ofd"] == 434
     black = next(entry for entry in catalog["entries"] if entry["id"] == "esun/pla-basic/black")

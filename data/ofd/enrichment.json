@@ -44,7 +44,8 @@
       "median": 9.52,
       "p80": 15.79
     },
-    "confidence_after": 0.77
+    "confidence_after": 0.4,
+    "confidence_note": "p80 仍高于匹配上限，剩余店铺示意色置信度设为 0.4，不参与推荐"
   },
   "entries": {
     "amolen/petg/transparent-watermelon-red": {
