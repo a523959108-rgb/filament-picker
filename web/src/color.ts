@@ -131,6 +131,8 @@ export function sourceBadge(src: WebEntry["src"], conf: number | null): string {
       return `商品图取色（近似，置信度 ${(conf ?? 0).toFixed(2)}）`;
     case "manual":
       return "人工校对";
+    case "ofd":
+      return "OFD 官方色";
     default:
       return "无色值";
   }

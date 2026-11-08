@@ -3,6 +3,8 @@ import type { JSX } from "react";
 import { similar, sourceBadge } from "../color";
 import { purchaseHref } from "../purchase";
 import type { WebCatalog, WebEntry } from "../types";
+import { CostCalculator } from "./CostCalculator";
+import { PrintParams } from "./PrintParams";
 
 export function ColorDetail(props: {
   entry: WebEntry;
@@ -92,6 +94,8 @@ export function ColorDetail(props: {
 
           {specialNote !== null && <p className="similar-note">{specialNote}</p>}
 
+          <PrintParams print={entry.print} />
+
           <div className="detail-actions">
             <button type="button" className="btn btn-primary" onClick={() => props.onCompare(entry.id)}>加入对比</button>
             {entry.url !== "" && (
@@ -107,6 +111,8 @@ export function ColorDetail(props: {
               </p>
             )}
           </div>
+
+          <CostCalculator />
 
           {matches.length > 0 && (
             <section className="similar">

@@ -28,7 +28,8 @@
         "official": {"type": "integer", "minimum": 0},
         "store_swatch": {"type": "integer", "minimum": 0},
         "image_extracted": {"type": "integer", "minimum": 0},
-        "manual": {"type": "integer", "minimum": 0}
+        "manual": {"type": "integer", "minimum": 0},
+        "ofd": {"type": "integer", "minimum": 0}
       }
     },
     "brands": {
@@ -75,7 +76,7 @@
           "items": {"enum": ["matte", "silk", "dual", "tri", "gradient", "glow", "translucent", "metallic", "sparkle", "wood", "marble", "cf", "gf", "color_change", "multi"]}
         },
         "hex": {"type": "array", "maxItems": 4, "items": {"$ref": "#/$defs/hex"}},
-        "hex_source": {"enum": ["official", "store_swatch", "image_extracted", "manual", null]},
+        "hex_source": {"enum": ["official", "store_swatch", "image_extracted", "manual", "ofd", null]},
         "hex_confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
         "lab": {
           "oneOf": [

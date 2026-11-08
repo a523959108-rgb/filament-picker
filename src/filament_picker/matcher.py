@@ -35,7 +35,7 @@ def eligible(entry: dict[str, Any], params: Params) -> bool:
         return False
     if set(entry.get("effects", ())) & set(MATCH_EXCLUDE_EFFECTS):
         return False
-    if entry.get("hex_source") == "official":
+    if entry.get("hex_source") in {"official", "ofd"}:
         return True
     return bool(
         params.allow_approx
@@ -75,7 +75,7 @@ def _pick(entry: dict[str, Any], distance: float) -> dict[str, Any]:
         "hex_source": entry["hex_source"],
         "delta_e": round(distance, 2),
         "label": label_for(distance),
-        "is_approx": entry["hex_source"] != "official",
+        "is_approx": entry["hex_source"] not in {"official", "ofd"},
         "url": primary,
         "alt_url": alt,
         "price_text": price_text_for(entry, primary),

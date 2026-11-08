@@ -68,6 +68,58 @@ describe("color detail and compare", () => {
     expect(screen.queryByRole("link", { name: "原链接" })).toBeNull();
   });
 
+  it("shows print settings only when the entry has them", () => {
+    const { unmount } = render(
+      <ColorDetail
+        entry={{
+          ...catalog.entries[0],
+          print: {
+            nozzle_c: [190, 230],
+            bed_c: [35, 35],
+            density_g_cm3: 1.24,
+            diameter_mm: 1.75,
+            orca_url: "https://api.openfilamentdatabase.org/orcaslicer/example.json",
+          },
+        }}
+        catalog={catalog}
+        onClose={vi.fn()}
+        onCompare={vi.fn()}
+      />,
+    );
+    const dialog = screen.getByRole("dialog", { name: "颜色详情" });
+    expect(dialog.textContent).toContain("打印参数");
+    expect(dialog.textContent).toContain("190–230 °C");
+    expect(dialog.textContent).toContain("35 °C");
+    expect(dialog.textContent).toContain("1.24 g/cm³");
+    expect(dialog.textContent).toContain("1.75 mm");
+    expect(screen.getByRole("link", { name: "下载耗材预设" }).getAttribute("href")).toContain(
+      "orcaslicer/example.json",
+    );
+    unmount();
+
+    render(
+      <ColorDetail
+        entry={catalog.entries[0]}
+        catalog={catalog}
+        onClose={vi.fn()}
+        onCompare={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("dialog", { name: "颜色详情" }).textContent).not.toContain("打印参数");
+  });
+
+  it("shows the cost calculator with the default total", () => {
+    render(
+      <ColorDetail
+        entry={catalog.entries[0]}
+        catalog={catalog}
+        onClose={vi.fn()}
+        onCompare={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("region", { name: "打印成本" }).textContent).toContain("3.86 元");
+  });
+
   it("omits the purchase entry when its URL is empty", () => {
     render(
       <ColorDetail

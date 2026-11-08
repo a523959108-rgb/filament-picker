@@ -47,6 +47,7 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
         </div>
         <nav className="topbar-nav" aria-label="页面导航">
           <a href="#/" className="nav-link">色卡浏览</a>
+          <a href="#/cost" className="nav-link">打印成本</a>
         </nav>
       </header>
 

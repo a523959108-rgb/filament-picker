@@ -35,6 +35,7 @@ describe("color helpers", () => {
 
   it("marks store_swatch / image_extracted as approx", () => {
     expect(isApproxSource("official")).toBe(false);
+    expect(isApproxSource("ofd")).toBe(false);
     expect(isApproxSource("store_swatch")).toBe(true);
     expect(isApproxSource("image_extracted")).toBe(true);
     expect(similar(bambu, entries)[0]?.isApprox).toBe(true);
@@ -106,6 +107,7 @@ describe("color helpers", () => {
     expect(sourceBadge("store_swatch", 0.8)).toBe("店铺示意色（近似）");
     expect(sourceBadge("image_extracted", 0.5)).toBe("商品图取色（近似，置信度 0.50）");
     expect(sourceBadge("manual", 0.9)).toBe("人工校对");
+    expect(sourceBadge("ofd", 1)).toBe("OFD 官方色");
     expect(sourceBadge(null, null)).toBe("无色值");
   });
 });

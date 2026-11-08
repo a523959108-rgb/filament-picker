@@ -1,5 +1,12 @@
 export const CATALOG_URL = "./web-catalog.json";
 
+/** Print-cost calculator defaults. Editable in the form; not fetched. */
+export const COST_DEFAULT_GRAMS = 50;
+export const COST_DEFAULT_PRICE_PER_KG = 70;
+export const COST_DEFAULT_HOURS = 3;
+export const COST_DEFAULT_WATTS = 200;
+export const COST_DEFAULT_KWH_PRICE = 0.6;
+
 /** First paint swatch count; more load on demand. */
 export const SWATCH_PAGE_SIZE = 48;
 

@@ -7,6 +7,7 @@ import { ColorDetail } from "./components/ColorDetail";
 import { CompareBar } from "./components/CompareBar";
 import { SwatchGrid } from "./components/SwatchGrid";
 import { PlanPage } from "./components/PlanPage";
+import { CostPage } from "./components/CostPage";
 import { ModelPreview } from "./components/ModelPreview";
 import { buildIndex, EMPTY_FILTER, query } from "./search";
 import type { FilterState } from "./search";
@@ -25,6 +26,7 @@ function CatalogHeader(): JSX.Element {
       </div>
       <nav className="topbar-nav" aria-label="页面导航">
         <a href="#/plan" className="nav-link">图片配色</a>
+        <a href="#/cost" className="nav-link">打印成本</a>
         <a href="/models/login" className="nav-link">模型预览</a>
       </nav>
     </header>
@@ -80,6 +82,9 @@ function CatalogApp(): JSX.Element {
 
   if (route === "#/plan") {
     return <main className="page"><PlanPage /></main>;
+  }
+  if (route === "#/cost") {
+    return <main className="page"><CostPage /></main>;
   }
   if (loadError) {
     return (

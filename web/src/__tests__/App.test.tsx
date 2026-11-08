@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, fireEvent, render } from "@testing-library/react";
 import sample from "../../../docs/fixtures/web-catalog.sample.json";
 import App from "../App";
 
@@ -23,6 +23,15 @@ describe("App", () => {
     const link = await findByRole("link", { name: "图片配色" });
     expect(link.getAttribute("href")).toBe("#/plan");
     expect(link.className).toBe("nav-link");
+  });
+
+  it("opens the cost page from the hash", async () => {
+    window.location.hash = "#/cost";
+    const { findByRole } = render(<App />);
+    expect(await findByRole("heading", { level: 1, name: "打印成本" })).toBeTruthy();
+    const grams = await findByRole("spinbutton", { name: "用料（克）" });
+    fireEvent.change(grams, { target: { value: "1000" } });
+    expect((await findByRole("region", { name: "打印成本" })).textContent).toContain("70.36 元");
   });
 
   it("shows the plan and a catalog link after a hash change", async () => {

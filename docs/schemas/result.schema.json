@@ -68,10 +68,10 @@
                 "series_name": {"type": "string"},
                 "name_display": {"type": "string", "description": "name_zh 与 name_en 都有时为 \"{name_zh} {name_en}\"，否则取有的那个，再否则 name_raw；有 code 时追加 \" ({code})\""},
                 "hex": {"type": "string", "pattern": "^#[0-9A-F]{6}$"},
-                "hex_source": {"enum": ["official", "store_swatch", "image_extracted", "manual"]},
+                "hex_source": {"enum": ["official", "store_swatch", "image_extracted", "manual", "ofd"]},
                 "delta_e": {"type": "number", "minimum": 0, "maximum": 10},
                 "label": {"enum": ["几乎一样", "接近", "勉强"]},
-                "is_approx": {"type": "boolean", "description": "hex_source != official"},
+                "is_approx": {"type": "boolean", "description": "hex_source 不是 official 或 ofd"},
                 "url": {"type": "string", "pattern": "^https?://", "description": "购买链接。已有拼多多商品页则用该链接，否则为拼多多搜索页。"},
                 "alt_url": {
                   "description": "原官网/店铺链接。没有、或原来只是 GitHub 色号表时为 null。",
