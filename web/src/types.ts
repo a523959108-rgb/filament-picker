@@ -11,12 +11,21 @@ export interface WebEntry {
   fam: string;
   eff: string[];
   hex: string[];
-  src: "official" | "store_swatch" | "image_extracted" | "manual" | null;
+  src: "official" | "store_swatch" | "image_extracted" | "manual" | "ofd" | null;
   conf: number | null;
   url: string;
   alt_url?: string | null;
   price: string | null;
   img: string | null;
+  print?: PrintParams | null;
+}
+
+export interface PrintParams {
+  nozzle_c?: [number, number];
+  bed_c?: [number, number];
+  density_g_cm3?: number;
+  diameter_mm?: number;
+  orca_url?: string;
 }
 
 export interface WebCatalog {

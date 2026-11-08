@@ -231,6 +231,7 @@ a {
 }
 
 input[type="search"],
+input[type="number"],
 textarea {
   width: 100%;
   padding: 9px 12px;
@@ -241,6 +242,7 @@ textarea {
 }
 
 input[type="search"]:focus,
+input[type="number"]:focus,
 textarea:focus {
   border-color: var(--accent);
   outline: none;
@@ -545,6 +547,52 @@ textarea:focus {
 
 .purchase a:hover {
   text-decoration: underline;
+}
+
+.print-params h3,
+.cost-calc h3 {
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.print-credit,
+.cost-formula {
+  margin-top: 8px;
+  color: var(--text-3);
+  font-size: 0.82rem;
+}
+
+.cost-fields {
+  display: grid;
+  gap: 10px;
+}
+
+.cost-result {
+  display: grid;
+  margin: 12px 0 0;
+  gap: 6px;
+}
+
+.cost-result div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cost-result dt {
+  color: var(--text-2);
+}
+
+.cost-result dd {
+  margin: 0;
+}
+
+.cost-total {
+  font-weight: 700;
+}
+
+.cost-panel {
+  max-width: 520px;
 }
 
 .similar h3 {

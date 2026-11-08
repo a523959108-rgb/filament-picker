@@ -8,11 +8,12 @@
   },
   "counts": {
     "entries": 3848,
-    "with_hex": 2362,
+    "with_hex": 2664,
     "official": 246,
-    "store_swatch": 354,
+    "store_swatch": 222,
     "image_extracted": 1007,
-    "manual": 755
+    "manual": 755,
+    "ofd": 434
   },
   "brands": [
     {
@@ -931,10 +932,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FADB24"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        87.54,
+        -5.61,
+        82.72
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -968,10 +975,16 @@
         "translucent",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FD3DB5"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        59.49,
+        79.63,
+        -20.31
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -1240,10 +1253,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#B5A7AA"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        69.73,
+        5.58,
+        0.28
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -1318,10 +1337,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#C1A7E2"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        72.54,
+        20.74,
+        -26.23
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -1356,10 +1381,16 @@
         "translucent",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FD3DB5"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        59.49,
+        79.63,
+        -20.31
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -1910,10 +1941,16 @@
       "effects": [
         "marble"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#5C5B59"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        38.69,
+        -0.02,
+        1.29
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -2120,10 +2157,16 @@
       "effects": [
         "marble"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#C3CCD5"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        81.62,
+        -1.33,
+        -5.52
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -2198,10 +2241,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#003B80"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        25.82,
+        12.65,
+        -43.51
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -3606,10 +3655,16 @@
         "dual",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#4921C1"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        30.29,
+        57.53,
+        -75.5
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -3644,10 +3699,16 @@
         "dual",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -3682,10 +3743,16 @@
         "dual",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -3720,10 +3787,16 @@
         "dual",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FC6D8E"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        64.64,
+        57.39,
+        9.75
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -3758,10 +3831,16 @@
         "dual",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -3796,10 +3875,16 @@
         "dual",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -3834,10 +3919,16 @@
         "dual",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#2941BD"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        33.83,
+        35.98,
+        -67.39
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -3872,10 +3963,16 @@
         "dual",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#0BD10B"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        73.35,
+        -73.55,
+        70.54
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -3910,10 +4007,16 @@
         "dual",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#63D6D6"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        79.38,
+        -32.35,
+        -9.92
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -3948,10 +4051,16 @@
         "dual",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#0378D0"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        49.5,
+        5.52,
+        -53.0
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -4024,10 +4133,16 @@
         "dual",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#EB0075"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        50.63,
+        79.44,
+        4.09
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -4100,10 +4215,16 @@
         "dual",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -4138,10 +4259,16 @@
         "dual",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FF0505"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        53.37,
+        79.78,
+        66.01
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -4176,10 +4303,16 @@
         "dual",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#40B6E4"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        69.57,
+        -17.99,
+        -32.48
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -4698,10 +4831,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#0353BA"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        37.39,
+        20.64,
+        -59.84
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -4735,10 +4874,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F7A7A1"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        76.06,
+        28.76,
+        15.16
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -4809,10 +4954,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FF0505"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        53.37,
+        79.78,
+        66.01
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -4846,10 +4997,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#2A3940"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        22.96,
+        -4.11,
+        -6.33
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -4957,10 +5114,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#39B9DB"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        69.95,
+        -23.3,
+        -27.0
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -4994,10 +5157,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#0353BA"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        37.39,
+        20.64,
+        -59.84
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -5031,10 +5200,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F3C102"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        80.29,
+        4.22,
+        81.75
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -5105,10 +5280,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#C00698"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        43.66,
+        73.42,
+        -28.53
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -5142,10 +5323,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FF0039"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        53.56,
+        80.96,
+        44.59
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -5522,10 +5709,16 @@
         "tri",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -5560,10 +5753,16 @@
         "tri",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#4921C1"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        30.29,
+        57.53,
+        -75.5
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -5835,10 +6034,16 @@
       "effects": [
         "wood"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#8B3A3A"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        35.64,
+        34.54,
+        17.3
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -5871,10 +6076,16 @@
       "effects": [
         "wood"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#AD7032"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        52.63,
+        18.49,
+        43.2
+      ],
       "offers": [
         {
           "channel": "Amolen 官网",
@@ -6153,10 +6364,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFFF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        100.0,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Anycubic 官方商城",
@@ -6685,10 +6902,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFFF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        100.0,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Anycubic 官方商城",
@@ -7937,10 +8160,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFFF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        100.0,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Anycubic 官方商城",
@@ -12651,10 +12880,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FF41B8"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        60.34,
+        79.3,
+        -20.71
+      ],
       "offers": [
         {
           "channel": "Anycubic 官方商城",
@@ -15092,10 +15327,16 @@
       "effects": [
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#214327"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        25.21,
+        -19.61,
+        13.27
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -15168,10 +15409,16 @@
       "pinyin_initials": null,
       "family": "棕/米/肤",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#503529"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        24.99,
+        10.44,
+        12.45
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -15474,10 +15721,16 @@
       "effects": [
         "marble"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -15508,10 +15761,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFFF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        100.0,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -15542,10 +15801,16 @@
       "pinyin_initials": null,
       "family": "金属/金银铜",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#98282F"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        34.8,
+        46.47,
+        23.63
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -15688,10 +15953,16 @@
       "pinyin_initials": null,
       "family": "红",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#520B0F"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        15.84,
+        31.99,
+        17.92
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -15804,10 +16075,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -15880,10 +16157,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#55555E"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        36.44,
+        2.01,
+        -5.2
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -15956,10 +16239,16 @@
       "pinyin_initials": null,
       "family": "粉",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F06E92"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        63.14,
+        53.42,
+        5.08
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -15990,10 +16279,16 @@
       "pinyin_initials": null,
       "family": "棕/米/肤",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#B8AF99"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        71.66,
+        -0.51,
+        12.44
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16058,10 +16353,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#AFAEAB"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        71.1,
+        -0.2,
+        1.66
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16092,10 +16393,16 @@
       "pinyin_initials": null,
       "family": "棕/米/肤",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#55331A"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        24.87,
+        12.63,
+        21.98
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16128,10 +16435,16 @@
       "effects": [
         "marble"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#EDF0F2"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        94.63,
+        -0.64,
+        -1.31
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16162,10 +16475,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16196,10 +16515,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F5F5F4"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        96.51,
+        -0.18,
+        0.48
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16232,10 +16557,16 @@
       "effects": [
         "metallic"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#ABACB0"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        70.38,
+        0.41,
+        -2.17
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16300,10 +16631,16 @@
       "pinyin_initials": null,
       "family": "绿",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#ADEBB3"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        87.75,
+        -30.36,
+        21.02
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16334,10 +16671,16 @@
       "pinyin_initials": null,
       "family": "其他",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#224C5D"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        30.15,
+        -8.89,
+        -14.4
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16442,10 +16785,16 @@
       "pinyin_initials": null,
       "family": "橙",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FF5F2E"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        61.35,
+        58.68,
+        57.71
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16556,10 +16905,16 @@
       "pinyin_initials": null,
       "family": "紫",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#AE96D4"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        66.19,
+        21.2,
+        -28.43
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16590,10 +16945,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#6D8DFD"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        61.12,
+        20.95,
+        -59.35
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16626,10 +16987,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#83E665"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        83.1,
+        -52.46,
+        53.09
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16660,10 +17027,16 @@
       "pinyin_initials": null,
       "family": "粉",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#E2DEDB"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        88.7,
+        0.83,
+        1.95
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16694,10 +17067,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#5C50E0"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        43.35,
+        45.17,
+        -71.92
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16728,10 +17107,16 @@
       "pinyin_initials": null,
       "family": "橙",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F67405"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        63.43,
+        45.27,
+        70.41
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16762,10 +17147,16 @@
       "pinyin_initials": null,
       "family": "紫",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#7F068C"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        30.73,
+        59.79,
+        -42.48
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16916,10 +17307,16 @@
       "pinyin_initials": null,
       "family": "绿",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#089A45"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        55.68,
+        -53.14,
+        34.84
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -16950,10 +17347,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#0E21AE"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        24.44,
+        48.09,
+        -74.01
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -17244,10 +17647,16 @@
         "translucent",
         "sparkle"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#5E1490"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        26.43,
+        52.36,
+        -52.19
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -17442,10 +17851,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -17478,10 +17893,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#36DBE7"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        80.3,
+        -36.46,
+        -17.73
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -17512,10 +17933,16 @@
       "pinyin_initials": null,
       "family": "金属/金银铜",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#CE8D00"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        63.49,
+        15.7,
+        68.58
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -17546,10 +17973,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#00A594"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        60.82,
+        -39.82,
+        -1.38
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -17580,10 +18013,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFFF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        100.0,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Atomic 官网",
@@ -33186,10 +33625,16 @@
       "pinyin_initials": null,
       "family": "棕/米/肤",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#7B4B2A"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        36.76,
+        16.99,
+        27.86
+      ],
       "offers": [
         {
           "channel": "CaiLab 海外官网",
@@ -33294,10 +33739,16 @@
       "pinyin_initials": null,
       "family": "透明",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#8B4513"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        37.47,
+        26.44,
+        40.98
+      ],
       "offers": [
         {
           "channel": "CaiLab 海外官网",
@@ -33408,10 +33859,16 @@
       "pinyin_initials": null,
       "family": "金属/金银铜",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#D9A62E"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        71.03,
+        7.97,
+        64.62
+      ],
       "offers": [
         {
           "channel": "CaiLab 海外官网",
@@ -33442,10 +33899,16 @@
       "pinyin_initials": null,
       "family": "绿",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#45A845"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        61.39,
+        -48.98,
+        41.9
+      ],
       "offers": [
         {
           "channel": "CaiLab 海外官网",
@@ -33750,10 +34213,16 @@
       "pinyin_initials": null,
       "family": "绿",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#6B8E23"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        54.65,
+        -28.22,
+        49.69
+      ],
       "offers": [
         {
           "channel": "CaiLab 海外官网",
@@ -33938,10 +34407,16 @@
       "pinyin_initials": null,
       "family": "紫",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#8A4FA8"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        43.98,
+        40.56,
+        -38.18
+      ],
       "offers": [
         {
           "channel": "CaiLab 海外官网",
@@ -34046,10 +34521,16 @@
       "pinyin_initials": null,
       "family": "金属/金银铜",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#B8B8B8"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        74.78,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "CaiLab 海外官网",
@@ -34164,10 +34645,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#A87B5A"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        55.31,
+        13.33,
+        24.89
+      ],
       "offers": [
         {
           "channel": "CaiLab 海外官网",
@@ -34200,10 +34687,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#C8C8C8"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        80.6,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "CaiLab 海外官网",
@@ -34278,10 +34771,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#EBA868"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        73.98,
+        17.84,
+        42.54
+      ],
       "offers": [
         {
           "channel": "CaiLab 海外官网",
@@ -34356,10 +34855,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#EAD87A"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        86.01,
+        -6.07,
+        48.29
+      ],
       "offers": [
         {
           "channel": "CaiLab 海外官网",
@@ -34390,10 +34895,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFFF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        100.0,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "CaiLab 海外官网",
@@ -41011,10 +41522,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#D7A7A8"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        72.84,
+        17.77,
+        6.28
+      ],
       "offers": [
         {
           "channel": "Creality 官方商城",
@@ -41048,10 +41565,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#68B484"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        67.46,
+        -34.38,
+        17.28
+      ],
       "offers": [
         {
           "channel": "Creality 官方商城",
@@ -41284,10 +41807,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#DCD6D3"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        86.01,
+        1.52,
+        2.21
+      ],
       "offers": [
         {
           "channel": "Creality 官方商城",
@@ -41728,10 +42257,16 @@
       "pinyin_initials": null,
       "family": "金属/金银铜",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#DAB255"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        74.45,
+        4.05,
+        51.98
+      ],
       "offers": [
         {
           "channel": "Creality 官方商城",
@@ -42042,10 +42577,16 @@
       "pinyin_initials": null,
       "family": "其他",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#6768D2"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        48.8,
+        28.47,
+        -55.06
+      ],
       "offers": [
         {
           "channel": "Creality 官方商城",
@@ -42688,10 +43229,16 @@
       "pinyin_initials": null,
       "family": "黄",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#E6DFA2"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        88.07,
+        -6.83,
+        30.83
+      ],
       "offers": [
         {
           "channel": "Creality 官方商城",
@@ -44824,10 +45371,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -44898,10 +45451,16 @@
       "pinyin_initials": null,
       "family": "红",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#9C2129"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        34.64,
+        49.86,
+        27.36
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -45212,10 +45771,16 @@
       "pinyin_initials": null,
       "family": "金属/金银铜",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#9F9F9F"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        65.49,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -45246,10 +45811,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFFF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        100.0,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -45804,10 +46375,16 @@
       "pinyin_initials": null,
       "family": "棕/米/肤",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#665345"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        36.82,
+        5.56,
+        11.17
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -45918,10 +46495,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#8F949B"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        61.12,
+        -0.39,
+        -4.31
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -45952,10 +46535,16 @@
       "pinyin_initials": null,
       "family": "粉",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FF5D8E"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        62.55,
+        65.17,
+        6.83
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -45986,10 +46575,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#4A7BAF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        50.35,
+        -0.79,
+        -32.6
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -46060,10 +46655,16 @@
       "pinyin_initials": null,
       "family": "粉",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F9B0BD"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        78.97,
+        28.41,
+        4.1
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -46134,10 +46735,16 @@
       "pinyin_initials": null,
       "family": "红",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#EA140E"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        49.53,
+        73.39,
+        59.43
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -46582,10 +47189,16 @@
       "effects": [
         "cf"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#8000FF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        40.91,
+        83.17,
+        -93.29
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -47934,10 +48547,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F4E0B8"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        89.86,
+        0.79,
+        22.11
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -48006,10 +48625,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#B3F3FD"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        92.03,
+        -17.66,
+        -11.27
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -48042,10 +48667,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#9D85D1"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        60.38,
+        25.01,
+        -35.88
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -48162,10 +48793,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#DBEBBA"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        90.79,
+        -13.58,
+        22.06
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -48282,10 +48919,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#BB2C2E"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        42.1,
+        56.04,
+        34.49
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -48318,10 +48961,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F9C2D5"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        83.72,
+        22.5,
+        -1.9
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -48354,10 +49003,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#969799"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        62.44,
+        0.03,
+        -1.18
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -48474,10 +49129,16 @@
       "effects": [
         "metallic"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#2E4560"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        28.59,
+        -0.41,
+        -18.68
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -48510,10 +49171,16 @@
       "effects": [
         "metallic"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#4A2F26"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        22.41,
+        11.1,
+        10.82
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -48588,10 +49255,16 @@
       "effects": [
         "metallic"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#34523F"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        32.09,
+        -15.88,
+        7.67
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -49340,10 +50013,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -49374,10 +50053,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#2240AF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        32.04,
+        30.78,
+        -62.05
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -49408,10 +50093,16 @@
       "pinyin_initials": null,
       "family": "红",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#9C2129"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        34.64,
+        49.86,
+        27.36
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -49442,10 +50133,16 @@
       "pinyin_initials": null,
       "family": "绿",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#08E327"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        79.12,
+        -77.56,
+        70.6
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -49476,10 +50173,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#8F949B"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        61.12,
+        -0.39,
+        -4.31
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -49550,10 +50253,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#339BF7"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        62.39,
+        2.06,
+        -54.17
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -49624,10 +50333,16 @@
       "pinyin_initials": null,
       "family": "紫",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#603BA0"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        34.3,
+        39.02,
+        -49.17
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -49658,10 +50373,16 @@
       "pinyin_initials": null,
       "family": "金属/金银铜",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#9F9F9F"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        65.49,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -49766,10 +50487,16 @@
       "pinyin_initials": null,
       "family": "黄",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FBEC07"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        91.92,
+        -14.01,
+        90.0
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -51636,10 +52363,16 @@
       "pinyin_initials": null,
       "family": "棕/米/肤",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#9E6A4B"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        49.6,
+        17.21,
+        25.77
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -52112,10 +52845,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F5F5F5"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        96.54,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -52188,10 +52927,16 @@
       "effects": [
         "wood"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#B19870"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        64.14,
+        3.43,
+        24.5
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -52624,10 +53369,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F9FAF9"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        98.17,
+        -0.51,
+        0.36
+      ],
       "offers": [
         {
           "channel": "Elegoo 美国官网",
@@ -55932,10 +56683,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F0EFF2"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        94.6,
+        0.87,
+        -1.33
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -55966,10 +56723,16 @@
       "pinyin_initials": null,
       "family": "黄",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F8E449"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        89.83,
+        -9.7,
+        73.94
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -56433,10 +57196,16 @@
         "tri",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#9C8FB8"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        61.8,
+        13.14,
+        -19.61
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -56639,10 +57408,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#2B548D"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        35.55,
+        5.47,
+        -35.86
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -59924,10 +60699,16 @@
         "tri",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#CEA79B"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        71.64,
+        12.48,
+        11.61
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -59962,10 +60743,16 @@
         "tri",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#8E9D95"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        63.37,
+        -6.92,
+        2.37
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -60000,10 +60787,16 @@
         "tri",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#E7CCCA"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        84.19,
+        9.11,
+        4.46
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -60038,10 +60831,16 @@
         "tri",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F7B7C6"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        80.58,
+        25.3,
+        1.55
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -60076,10 +60875,16 @@
         "tri",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#9BC0DA"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        75.9,
+        -6.38,
+        -17.03
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -60114,10 +60919,16 @@
         "tri",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#81E7BC"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        84.71,
+        -39.56,
+        11.76
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -61766,10 +62577,16 @@
       "effects": [
         "metallic"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#DEA56F"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        71.95,
+        14.73,
+        36.09
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -61844,10 +62661,16 @@
       "effects": [
         "metallic"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#DCDCDC"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        87.76,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -62677,10 +63500,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#0762D3"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        43.48,
+        20.89,
+        -64.43
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -62751,10 +63580,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#505050"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        34.03,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -62905,10 +63740,16 @@
       "pinyin_initials": null,
       "family": "橙",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FF7832"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        65.69,
+        47.52,
+        59.96
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -63059,10 +63900,16 @@
       "pinyin_initials": null,
       "family": "黄",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FDE63E"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        90.7,
+        -9.08,
+        78.63
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -64318,10 +65165,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#344161"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        27.77,
+        4.29,
+        -20.57
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -64355,10 +65208,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#9B5082"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        44.69,
+        37.86,
+        -14.14
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -64392,10 +65251,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#9A4942"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        41.26,
+        33.18,
+        20.18
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -64429,10 +65294,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#8C6081"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        46.35,
+        23.41,
+        -11.2
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -64466,10 +65337,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#96859B"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        57.68,
+        10.61,
+        -9.36
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -64503,10 +65380,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#563D2C"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        28.11,
+        8.53,
+        14.79
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -64541,10 +65424,16 @@
         "metallic",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#8E899D"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        58.11,
+        5.91,
+        -9.94
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -64578,10 +65467,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#B1E4DE"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        87.05,
+        -17.52,
+        -2.43
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -64615,10 +65510,16 @@
         "silk",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#3A6663"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        40.09,
+        -16.0,
+        -3.09
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -64653,10 +65554,16 @@
         "glow",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#9E3E33"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        39.51,
+        39.24,
+        27.16
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -64957,10 +65864,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#745596"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        41.86,
+        26.4,
+        -30.96
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -64995,10 +65908,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F4E0FF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        91.58,
+        12.3,
+        -12.53
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -65033,10 +65952,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#2E6A63"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        40.88,
+        -21.29,
+        -1.98
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -65109,10 +66034,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#537648"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        45.99,
+        -21.97,
+        21.46
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -65147,10 +66078,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#46876F"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        51.58,
+        -26.89,
+        6.53
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -65185,10 +66122,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#8F4E66"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        41.61,
+        30.33,
+        -1.78
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -65223,10 +66166,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#119CB8"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        59.3,
+        -23.42,
+        -23.98
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -65299,10 +66248,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#A78A76"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        59.62,
+        7.92,
+        14.84
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -65337,10 +66292,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#651E32"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        23.43,
+        33.55,
+        4.77
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -65375,10 +66336,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#576E86"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        45.5,
+        -2.22,
+        -15.95
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -65413,10 +66380,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#C7A0D8"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        71.04,
+        24.43,
+        -23.0
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -65451,10 +66424,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFB4FC"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        82.34,
+        38.41,
+        -24.77
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -66654,10 +67633,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#DA7A6F"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        61.63,
+        36.11,
+        22.52
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -66768,10 +67753,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F29F43"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        72.28,
+        23.18,
+        58.55
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -66804,10 +67795,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#90F6EA"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        90.68,
+        -32.57,
+        -3.57
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -67485,10 +68482,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#B6BEC7"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        76.62,
+        -1.0,
+        -5.48
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -67683,10 +68686,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F2E767"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        90.33,
+        -11.89,
+        62.29
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -67719,10 +68728,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FA7D45"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        66.08,
+        43.93,
+        51.44
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -67797,10 +68812,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFE880"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        91.92,
+        -5.23,
+        53.01
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -67875,10 +68896,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#84AABD"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        67.52,
+        -8.33,
+        -13.91
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -68281,10 +69308,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#00A0EE"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        62.77,
+        -6.84,
+        -48.66
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -68357,10 +69390,16 @@
       "effects": [
         "cf"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#1D1D1D"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        10.77,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -68511,10 +69550,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#252525"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        14.68,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -68545,10 +69590,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#585858"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        37.41,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -68859,10 +69910,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#485C7C"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        38.7,
+        1.33,
+        -20.42
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -68893,10 +69950,16 @@
       "pinyin_initials": null,
       "family": "橙",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F45D0C"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        59.06,
+        55.15,
+        66.42
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -69087,10 +70150,16 @@
       "pinyin_initials": null,
       "family": "金属/金银铜",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#595B5F"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        38.61,
+        0.08,
+        -2.57
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -69283,10 +70352,16 @@
       "pinyin_initials": null,
       "family": "黄",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFDF0D"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        88.95,
+        -5.85,
+        87.5
+      ],
       "offers": [
         {
           "channel": "Eryone 官网",
@@ -69320,8 +70395,8 @@
       "hex": [
         "#272729"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         15.71,
         0.49,
@@ -69598,14 +70673,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#272729"
+        "#101211"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        15.71,
-        0.49,
-        -1.31
+        5.27,
+        -0.95,
+        0.29
       ],
       "offers": [
         {
@@ -69638,14 +70713,14 @@
       "family": "蓝",
       "effects": [],
       "hex": [
-        "#01378D"
+        "#0D2C7C"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        25.75,
-        21.17,
-        -51.73
+        21.36,
+        22.52,
+        -48.24
       ],
       "offers": [
         {
@@ -69678,14 +70753,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#DBD6DC"
+        "#FFFFFF"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        86.17,
-        2.78,
-        -2.34
+        100.0,
+        -0.0,
+        0.0
       ],
       "offers": [
         {
@@ -69718,14 +70793,14 @@
       "family": "红",
       "effects": [],
       "hex": [
-        "#BB2028"
+        "#8B282D"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        40.82,
-        59.23,
-        36.58
+        32.25,
+        42.02,
+        21.18
       ],
       "offers": [
         {
@@ -69758,14 +70833,14 @@
       "family": "绿",
       "effects": [],
       "hex": [
-        "#1B2D39"
+        "#3E484A"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        17.48,
-        -3.39,
-        -9.96
+        29.8,
+        -3.54,
+        -2.56
       ],
       "offers": [
         {
@@ -69798,14 +70873,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#606783"
+        "#1A3059"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        43.98,
-        4.06,
-        -16.4
+        20.26,
+        6.58,
+        -27.31
       ],
       "offers": [
         {
@@ -69878,14 +70953,14 @@
       "family": "蓝",
       "effects": [],
       "hex": [
-        "#22047E"
+        "#675DF1"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        15.13,
-        46.26,
-        -59.77
+        48.34,
+        44.66,
+        -73.34
       ],
       "offers": [
         {
@@ -69918,14 +70993,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#F2F7F7"
+        "#C2C1BD"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        96.87,
-        -1.65,
-        -0.58
+        78.04,
+        -0.38,
+        2.13
       ],
       "offers": [
         {
@@ -69958,14 +71033,14 @@
       "family": "黄",
       "effects": [],
       "hex": [
-        "#FFFC01"
+        "#F6DC01"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        96.36,
-        -20.12,
-        93.84
+        87.38,
+        -8.26,
+        86.99
       ],
       "offers": [
         {
@@ -70000,14 +71075,14 @@
         "matte"
       ],
       "hex": [
-        "#E9E199"
+        "#F8F1D0"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        88.67,
-        -7.79,
-        36.26
+        94.92,
+        -2.97,
+        16.8
       ],
       "offers": [
         {
@@ -70168,14 +71243,14 @@
         "matte"
       ],
       "hex": [
-        "#5F6366"
+        "#3F4964"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        41.71,
-        -0.9,
-        -2.24
+        31.21,
+        3.38,
+        -17.08
       ],
       "offers": [
         {
@@ -70252,14 +71327,14 @@
         "matte"
       ],
       "hex": [
-        "#169BEA"
+        "#82E3EC"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        61.26,
-        -4.77,
-        -48.83
+        84.86,
+        -26.31,
+        -13.31
       ],
       "offers": [
         {
@@ -70294,14 +71369,14 @@
         "matte"
       ],
       "hex": [
-        "#C6C0A8"
+        "#F2F1E1"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        77.6,
-        -1.96,
-        12.86
+        94.83,
+        -2.4,
+        7.84
       ],
       "offers": [
         {
@@ -70336,14 +71411,14 @@
         "matte"
       ],
       "hex": [
-        "#C78DBF"
+        "#D3A5CC"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        65.71,
-        30.07,
-        -17.22
+        72.97,
+        23.38,
+        -13.37
       ],
       "offers": [
         {
@@ -70378,14 +71453,14 @@
         "matte"
       ],
       "hex": [
-        "#989F4F"
+        "#BCBF8B"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        63.37,
-        -14.42,
-        40.51
+        75.96,
+        -9.49,
+        25.97
       ],
       "offers": [
         {
@@ -70420,14 +71495,14 @@
         "matte"
       ],
       "hex": [
-        "#C9C9C9"
+        "#FBFBF9"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        80.97,
-        -0.0,
-        0.0
+        98.57,
+        -0.35,
+        0.96
       ],
       "offers": [
         {
@@ -70462,14 +71537,14 @@
         "matte"
       ],
       "hex": [
-        "#69C296"
+        "#76A98B"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        72.09,
-        -36.92,
-        13.98
+        65.03,
+        -23.39,
+        10.13
       ],
       "offers": [
         {
@@ -70546,14 +71621,14 @@
         "matte"
       ],
       "hex": [
-        "#C17B7D"
+        "#BD7480"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        58.96,
-        27.52,
-        10.34
+        56.95,
+        30.22,
+        5.67
       ],
       "offers": [
         {
@@ -70630,14 +71705,14 @@
         "matte"
       ],
       "hex": [
-        "#EEB9B3"
+        "#FCF4F6"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        79.69,
-        18.24,
-        10.4
+        96.84,
+        3.01,
+        -0.01
       ],
       "offers": [
         {
@@ -70672,14 +71747,14 @@
         "matte"
       ],
       "hex": [
-        "#F18579"
+        "#FE7083"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        67.17,
-        39.99,
-        24.87
+        65.2,
+        55.67,
+        16.86
       ],
       "offers": [
         {
@@ -70714,14 +71789,14 @@
         "matte"
       ],
       "hex": [
-        "#CE4D0B"
+        "#E86B4A"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        50.05,
-        48.68,
-        57.83
+        60.04,
+        46.22,
+        41.42
       ],
       "offers": [
         {
@@ -70883,14 +71958,14 @@
         "silk"
       ],
       "hex": [
-        "#01378D"
+        "#0544D3"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        25.75,
-        21.17,
-        -51.73
+        35.73,
+        40.36,
+        -77.11
       ],
       "offers": [
         {
@@ -70967,14 +72042,14 @@
         "silk"
       ],
       "hex": [
-        "#AA3D16"
+        "#C9774B"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        41.13,
-        42.97,
-        44.9
+        58.15,
+        28.05,
+        37.57
       ],
       "offers": [
         {
@@ -71093,14 +72168,14 @@
         "silk"
       ],
       "hex": [
-        "#793EB6"
+        "#6120AC"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        39.39,
-        48.64,
-        -53.91
+        30.77,
+        55.31,
+        -62.14
       ],
       "offers": [
         {
@@ -71135,14 +72210,14 @@
         "silk"
       ],
       "hex": [
-        "#B40200"
+        "#FC2922"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        37.39,
-        61.44,
-        51.74
+        54.45,
+        74.83,
+        56.89
       ],
       "offers": [
         {
@@ -71219,14 +72294,14 @@
         "silk"
       ],
       "hex": [
-        "#68676C"
+        "#ABACB0"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        43.84,
-        1.44,
-        -2.67
+        70.38,
+        0.41,
+        -2.17
       ],
       "offers": [
         {
@@ -71261,14 +72336,14 @@
         "silk"
       ],
       "hex": [
-        "#F2F7F7"
+        "#FFFFFF"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        96.87,
-        -1.65,
-        -0.58
+        100.0,
+        -0.0,
+        0.0
       ],
       "offers": [
         {
@@ -71343,14 +72418,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#272729"
+        "#1D1D1F"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        15.71,
-        0.49,
-        -1.31
+        10.84,
+        0.52,
+        -1.37
       ],
       "offers": [
         {
@@ -71383,14 +72458,14 @@
       "family": "蓝",
       "effects": [],
       "hex": [
-        "#01378D"
+        "#1E1E6D"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        25.75,
-        21.17,
-        -51.73
+        17.03,
+        27.99,
+        -45.68
       ],
       "offers": [
         {
@@ -71425,14 +72500,14 @@
         "translucent"
       ],
       "hex": [
-        "#DEDBCC"
+        "#E2E2E4"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        87.27,
-        -1.56,
-        7.73
+        89.93,
+        0.36,
+        -0.97
       ],
       "offers": [
         {
@@ -71465,14 +72540,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#606783"
+        "#35404E"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        43.98,
-        4.06,
-        -16.4
+        26.66,
+        -0.66,
+        -9.94
       ],
       "offers": [
         {
@@ -71505,14 +72580,14 @@
       "family": "红",
       "effects": [],
       "hex": [
-        "#B40200"
+        "#EB1003"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        37.39,
-        61.44,
-        51.74
+        49.55,
+        74.01,
+        62.5
       ],
       "offers": [
         {
@@ -71545,14 +72620,14 @@
       "family": "金属/金银铜",
       "effects": [],
       "hex": [
-        "#68676C"
+        "#84827E"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        43.84,
-        1.44,
-        -2.67
+        54.43,
+        -0.02,
+        2.43
       ],
       "offers": [
         {
@@ -71587,14 +72662,14 @@
         "translucent"
       ],
       "hex": [
-        "#01458E"
+        "#2C2088"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        29.95,
-        11.74,
-        -45.52
+        21.38,
+        37.95,
+        -55.72
       ],
       "offers": [
         {
@@ -71629,14 +72704,14 @@
         "translucent"
       ],
       "hex": [
-        "#A8E6CF"
+        "#124D2D"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        86.71,
-        -24.3,
-        4.9
+        28.45,
+        -27.21,
+        13.71
       ],
       "offers": [
         {
@@ -71881,14 +72956,14 @@
         "translucent"
       ],
       "hex": [
-        "#D65400"
+        "#FD5F00"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        52.55,
-        48.33,
-        62.46
+        60.85,
+        57.32,
+        70.37
       ],
       "offers": [
         {
@@ -71963,14 +73038,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#F2F7F7"
+        "#D7D6DA"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        96.87,
-        -1.65,
-        -0.58
+        85.81,
+        1.07,
+        -1.85
       ],
       "offers": [
         {
@@ -72007,8 +73082,8 @@
       "hex": [
         "#DDCFC2"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         83.91,
         2.68,
@@ -72049,8 +73124,8 @@
       "hex": [
         "#E9E199"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         88.67,
         -7.79,
@@ -72091,8 +73166,8 @@
       "hex": [
         "#E68A1D"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         65.82,
         28.0,
@@ -72133,8 +73208,8 @@
       "hex": [
         "#4A6A8B"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         43.69,
         -2.11,
@@ -72175,8 +73250,8 @@
       "hex": [
         "#9B5347"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         43.67,
         28.59,
@@ -72217,8 +73292,8 @@
       "hex": [
         "#B7B7B5"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         74.36,
         -0.37,
@@ -72259,8 +73334,8 @@
       "hex": [
         "#5F6366"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         41.71,
         -0.9,
@@ -72301,8 +73376,8 @@
       "hex": [
         "#6B4423"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         32.66,
         13.27,
@@ -72343,8 +73418,8 @@
       "hex": [
         "#169BEA"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         61.26,
         -4.77,
@@ -72385,8 +73460,8 @@
       "hex": [
         "#C6C0A8"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         77.6,
         -1.96,
@@ -72427,8 +73502,8 @@
       "hex": [
         "#C78DBF"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         65.71,
         30.07,
@@ -72469,8 +73544,8 @@
       "hex": [
         "#989F4F"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         63.37,
         -14.42,
@@ -72511,8 +73586,8 @@
       "hex": [
         "#69C296"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         72.09,
         -36.92,
@@ -72553,8 +73628,8 @@
       "hex": [
         "#EEB9B3"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         79.69,
         18.24,
@@ -72595,8 +73670,8 @@
       "hex": [
         "#E2725B"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         60.75,
         41.59,
@@ -72635,14 +73710,14 @@
         "matte"
       ],
       "hex": [
-        "#F2F7F7"
+        "#F6F6F6"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        96.87,
-        -1.65,
-        -0.58
+        96.88,
+        -0.0,
+        0.0
       ],
       "offers": [
         {
@@ -72675,14 +73750,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#272729"
+        "#000000"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        15.71,
-        0.49,
-        -1.31
+        0.0,
+        0.0,
+        0.0
       ],
       "offers": [
         {
@@ -72715,14 +73790,14 @@
       "family": "蓝",
       "effects": [],
       "hex": [
-        "#01378D"
+        "#0353BA"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        25.75,
-        21.17,
-        -51.73
+        37.39,
+        20.64,
+        -59.84
       ],
       "offers": [
         {
@@ -72917,14 +73992,14 @@
       "family": "红",
       "effects": [],
       "hex": [
-        "#BB2028"
+        "#683384"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        40.82,
-        59.23,
-        36.58
+        31.75,
+        38.24,
+        -36.06
       ],
       "offers": [
         {
@@ -72957,14 +74032,14 @@
       "family": "绿",
       "effects": [],
       "hex": [
-        "#1B2D39"
+        "#206233"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        17.48,
-        -3.39,
-        -9.96
+        36.52,
+        -32.28,
+        20.74
       ],
       "offers": [
         {
@@ -73231,14 +74306,14 @@
       "family": "橙",
       "effects": [],
       "hex": [
-        "#FF821B"
+        "#F67405"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        67.51,
-        42.12,
-        69.45
+        63.43,
+        45.27,
+        70.41
       ],
       "offers": [
         {
@@ -73473,14 +74548,14 @@
         "translucent"
       ],
       "hex": [
-        "#01458E"
+        "#040C40"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        29.95,
-        11.74,
-        -45.52
+        5.95,
+        18.71,
+        -33.38
       ],
       "offers": [
         {
@@ -73515,14 +74590,14 @@
         "translucent"
       ],
       "hex": [
-        "#A8E6CF"
+        "#1F3D28"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        86.71,
-        -24.3,
-        4.9
+        22.94,
+        -16.85,
+        9.55
       ],
       "offers": [
         {
@@ -73929,14 +75004,14 @@
       "family": "蓝",
       "effects": [],
       "hex": [
-        "#6BBFE3"
+        "#45DBEA"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        73.5,
-        -15.65,
-        -25.78
+        80.66,
+        -33.92,
+        -18.75
       ],
       "offers": [
         {
@@ -73971,8 +75046,8 @@
       "hex": [
         "#FD838E"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         68.8,
         47.32,
@@ -74009,14 +75084,14 @@
       "family": "棕/米/肤",
       "effects": [],
       "hex": [
-        "#FDC094"
+        "#FFE2CB"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        82.23,
-        16.44,
-        30.65
+        91.67,
+        6.44,
+        14.89
       ],
       "offers": [
         {
@@ -74049,14 +75124,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#272729"
+        "#393D47"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        15.71,
-        0.49,
-        -1.31
+        25.75,
+        0.83,
+        -6.67
       ],
       "offers": [
         {
@@ -74089,14 +75164,14 @@
       "family": "蓝",
       "effects": [],
       "hex": [
-        "#01378D"
+        "#1D57A5"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        25.75,
-        21.17,
-        -51.73
+        37.47,
+        10.99,
+        -47.27
       ],
       "offers": [
         {
@@ -74129,14 +75204,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#C7B494"
+        "#EFE1C8"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        74.14,
-        1.79,
-        18.82
+        90.03,
+        0.75,
+        13.95
       ],
       "offers": [
         {
@@ -74169,14 +75244,14 @@
       "family": "棕/米/肤",
       "effects": [],
       "hex": [
-        "#664033"
+        "#634432"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        31.19,
-        14.91,
-        14.79
+        31.85,
+        10.94,
+        16.22
       ],
       "offers": [
         {
@@ -74209,14 +75284,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#DBD6DC"
+        "#F8F8FF"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        86.17,
-        2.78,
-        -2.34
+        97.76,
+        1.25,
+        -3.35
       ],
       "offers": [
         {
@@ -74289,14 +75364,14 @@
       "family": "蓝",
       "effects": [],
       "hex": [
-        "#262431"
+        "#3A4056"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        14.93,
-        4.36,
-        -8.18
+        27.4,
+        3.43,
+        -13.99
       ],
       "offers": [
         {
@@ -74329,14 +75404,14 @@
       "family": "红",
       "effects": [],
       "hex": [
-        "#BB2028"
+        "#912F46"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        40.82,
-        59.23,
-        36.58
+        35.0,
+        42.98,
+        8.94
       ],
       "offers": [
         {
@@ -74409,14 +75484,14 @@
       "family": "紫",
       "effects": [],
       "hex": [
-        "#9E83AC"
+        "#9949BE"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        58.49,
-        18.07,
-        -17.81
+        45.98,
+        52.39,
+        -47.79
       ],
       "offers": [
         {
@@ -74449,14 +75524,14 @@
       "family": "绿",
       "effects": [],
       "hex": [
-        "#1B2D39"
+        "#2CC84D"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        17.48,
-        -3.39,
-        -9.96
+        71.13,
+        -63.84,
+        49.31
       ],
       "offers": [
         {
@@ -74489,14 +75564,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#606783"
+        "#6F828E"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        43.98,
-        4.06,
-        -16.4
+        53.27,
+        -4.1,
+        -8.76
       ],
       "offers": [
         {
@@ -74529,14 +75604,14 @@
       "family": "绿",
       "effects": [],
       "hex": [
-        "#03594E"
+        "#33726D"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        33.38,
-        -25.69,
-        -0.11
+        44.0,
+        -21.49,
+        -3.39
       ],
       "offers": [
         {
@@ -74569,14 +75644,14 @@
       "family": "蓝",
       "effects": [],
       "hex": [
-        "#169BEA"
+        "#489FDF"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        61.26,
-        -4.77,
-        -48.83
+        62.93,
+        -5.99,
+        -40.06
       ],
       "offers": [
         {
@@ -74609,14 +75684,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#7997B3"
+        "#688197"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        61.18,
-        -3.63,
-        -17.97
+        52.81,
+        -3.53,
+        -14.73
       ],
       "offers": [
         {
@@ -74649,14 +75724,14 @@
       "family": "绿",
       "effects": [],
       "hex": [
-        "#1B1F11"
+        "#727661"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        10.95,
-        -5.03,
-        8.61
+        48.76,
+        -5.51,
+        11.08
       ],
       "offers": [
         {
@@ -74689,14 +75764,14 @@
       "family": "橙",
       "effects": [],
       "hex": [
-        "#FF821B"
+        "#FF6A14"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        67.51,
-        42.12,
-        69.45
+        63.03,
+        53.4,
+        68.07
       ],
       "offers": [
         {
@@ -74729,14 +75804,14 @@
       "family": "绿",
       "effects": [],
       "hex": [
-        "#38D844"
+        "#B6DE89"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        76.29,
-        -68.21,
-        58.78
+        83.96,
+        -27.44,
+        37.49
       ],
       "offers": [
         {
@@ -74769,14 +75844,14 @@
       "family": "粉",
       "effects": [],
       "hex": [
-        "#FF7F6F"
+        "#F65C87"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        67.72,
-        47.3,
-        31.48
+        60.78,
+        62.2,
+        8.18
       ],
       "offers": [
         {
@@ -74809,14 +75884,14 @@
       "family": "紫",
       "effects": [],
       "hex": [
-        "#793EB6"
+        "#9E007E"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        39.39,
-        48.64,
-        -53.91
+        35.55,
+        64.22,
+        -25.72
       ],
       "offers": [
         {
@@ -74849,14 +75924,14 @@
       "family": "红",
       "effects": [],
       "hex": [
-        "#B40200"
+        "#DB4437"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        37.39,
-        61.44,
-        51.74
+        51.24,
+        57.92,
+        41.16
       ],
       "offers": [
         {
@@ -74929,14 +76004,14 @@
       "family": "金属/金银铜",
       "effects": [],
       "hex": [
-        "#68676C"
+        "#7E7E82"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        43.84,
-        1.44,
-        -2.67
+        52.92,
+        0.81,
+        -2.17
       ],
       "offers": [
         {
@@ -74971,8 +76046,8 @@
       "hex": [
         "#63D0F9"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
         78.81,
         -19.56,
@@ -75009,14 +76084,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#F2F7F7"
+        "#FFFFFF"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        96.87,
-        -1.65,
-        -0.58
+        100.0,
+        -0.0,
+        0.0
       ],
       "offers": [
         {
@@ -75049,14 +76124,14 @@
       "family": "黄",
       "effects": [],
       "hex": [
-        "#FFFC01"
+        "#FFEB17"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        96.36,
-        -20.12,
-        93.84
+        92.02,
+        -11.69,
+        88.65
       ],
       "offers": [
         {
@@ -75091,14 +76166,14 @@
         "cf"
       ],
       "hex": [
-        "#272729"
+        "#2D2F2C"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        15.71,
-        0.49,
-        -1.31
+        19.11,
+        -1.59,
+        1.62
       ],
       "offers": [
         {
@@ -75133,14 +76208,14 @@
         "cf"
       ],
       "hex": [
-        "#664033"
+        "#756E5B"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        31.19,
-        14.91,
-        14.79
+        46.56,
+        -0.68,
+        11.6
       ],
       "offers": [
         {
@@ -75175,14 +76250,14 @@
         "cf"
       ],
       "hex": [
-        "#1B2D39"
+        "#2D3837"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        17.48,
-        -3.39,
-        -9.96
+        22.52,
+        -4.83,
+        -0.91
       ],
       "offers": [
         {
@@ -75217,14 +76292,14 @@
         "cf"
       ],
       "hex": [
-        "#793EB6"
+        "#353541"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        39.39,
-        48.64,
-        -53.91
+        22.6,
+        3.0,
+        -7.45
       ],
       "offers": [
         {
@@ -75259,14 +76334,14 @@
         "cf"
       ],
       "hex": [
-        "#B40200"
+        "#382618"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        37.39,
-        61.44,
-        51.74
+        16.96,
+        6.43,
+        12.62
       ],
       "offers": [
         {
@@ -75499,14 +76574,14 @@
       "family": "夜光",
       "effects": [],
       "hex": [
-        "#CCC1AD"
+        "#007BD5"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        78.46,
-        0.51,
-        11.46
+        50.65,
+        5.53,
+        -54.0
       ],
       "offers": [
         {
@@ -75539,14 +76614,14 @@
       "family": "夜光",
       "effects": [],
       "hex": [
-        "#BDBDA1"
+        "#01DC8A"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        75.94,
-        -4.82,
-        14.19
+        77.89,
+        -63.54,
+        27.97
       ],
       "offers": [
         {
@@ -75579,14 +76654,14 @@
       "family": "黄",
       "effects": [],
       "hex": [
-        "#E9E199"
+        "#F1EB9C"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        88.67,
-        -7.79,
-        36.26
+        91.92,
+        -9.4,
+        39.11
       ],
       "offers": [
         {
@@ -75619,14 +76694,14 @@
       "family": "橙",
       "effects": [],
       "hex": [
-        "#E68A1D"
+        "#FEAD77"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        65.82,
-        28.0,
-        66.14
+        77.46,
+        24.05,
+        39.61
       ],
       "offers": [
         {
@@ -75699,14 +76774,14 @@
       "family": "棕/米/肤",
       "effects": [],
       "hex": [
-        "#FDC094"
+        "#F1C6A6"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        82.23,
-        16.44,
-        30.65
+        82.83,
+        10.77,
+        21.79
       ],
       "offers": [
         {
@@ -75739,14 +76814,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#272729"
+        "#25282A"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        15.71,
-        0.49,
-        -1.31
+        15.89,
+        -0.83,
+        -1.78
       ],
       "offers": [
         {
@@ -75779,14 +76854,14 @@
       "family": "蓝",
       "effects": [],
       "hex": [
-        "#01378D"
+        "#00358E"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        25.75,
-        21.17,
-        -51.73
+        25.25,
+        22.95,
+        -53.16
       ],
       "offers": [
         {
@@ -75819,14 +76894,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#C7B494"
+        "#D1C1A8"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        74.14,
-        1.79,
-        18.82
+        78.77,
+        1.59,
+        14.64
       ],
       "offers": [
         {
@@ -75899,14 +76974,14 @@
       "family": "棕/米/肤",
       "effects": [],
       "hex": [
-        "#664033"
+        "#785135"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        31.19,
-        14.91,
-        14.79
+        38.09,
+        12.96,
+        22.96
       ],
       "offers": [
         {
@@ -75939,14 +77014,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#DBD6DC"
+        "#F8F8FF"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        86.17,
-        2.78,
-        -2.34
+        97.76,
+        1.25,
+        -3.35
       ],
       "offers": [
         {
@@ -76019,14 +77094,14 @@
       "family": "橙",
       "effects": [],
       "hex": [
-        "#FF8C49"
+        "#FA6E36"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        69.83,
-        38.54,
-        53.74
+        63.13,
+        50.53,
+        55.52
       ],
       "offers": [
         {
@@ -76059,14 +77134,14 @@
       "family": "蓝",
       "effects": [],
       "hex": [
-        "#262431"
+        "#00263A"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        14.93,
-        4.36,
-        -8.18
+        13.78,
+        -4.16,
+        -16.51
       ],
       "offers": [
         {
@@ -76099,14 +77174,14 @@
       "family": "红",
       "effects": [],
       "hex": [
-        "#BB2028"
+        "#A50034"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        40.82,
-        59.23,
-        36.58
+        34.5,
+        59.21,
+        20.63
       ],
       "offers": [
         {
@@ -76139,14 +77214,14 @@
       "family": "金属/金银铜",
       "effects": [],
       "hex": [
-        "#EDA10F"
+        "#D19000"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        71.92,
-        18.56,
-        74.06
+        64.57,
+        15.39,
+        69.47
       ],
       "offers": [
         {
@@ -76179,14 +77254,14 @@
       "family": "绿",
       "effects": [],
       "hex": [
-        "#2B6439"
+        "#61C680"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        37.7,
-        -29.22,
-        18.87
+        72.55,
+        -45.01,
+        26.29
       ],
       "offers": [
         {
@@ -76219,14 +77294,14 @@
       "family": "绿",
       "effects": [],
       "hex": [
-        "#1B2D39"
+        "#1C4538"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        17.48,
-        -3.39,
-        -9.96
+        26.12,
+        -18.11,
+        3.53
       ],
       "offers": [
         {
@@ -76299,14 +77374,14 @@
       "family": "蓝",
       "effects": [],
       "hex": [
-        "#7AB9EF"
+        "#6299DF"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        72.93,
-        -5.7,
-        -33.09
+        62.26,
+        2.14,
+        -41.04
       ],
       "offers": [
         {
@@ -76459,14 +77534,14 @@
       "family": "蓝",
       "effects": [],
       "hex": [
-        "#169BEA"
+        "#28B5C7"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        61.26,
-        -4.77,
-        -48.83
+        67.74,
+        -29.43,
+        -19.43
       ],
       "offers": [
         {
@@ -76499,14 +77574,14 @@
       "family": "棕/米/肤",
       "effects": [],
       "hex": [
-        "#C99367"
+        "#A8714E"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        65.17,
-        15.1,
-        31.22
+        52.61,
+        17.8,
+        28.15
       ],
       "offers": [
         {
@@ -76539,14 +77614,14 @@
       "family": "棕/米/肤",
       "effects": [],
       "hex": [
-        "#C6C0A8"
+        "#D7D9D2"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        77.6,
-        -1.96,
-        12.86
+        86.37,
+        -1.93,
+        3.2
       ],
       "offers": [
         {
@@ -76579,14 +77654,14 @@
       "family": "紫",
       "effects": [],
       "hex": [
-        "#C78DBF"
+        "#D7B9E4"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        65.71,
-        30.07,
-        -17.22
+        78.9,
+        18.39,
+        -17.47
       ],
       "offers": [
         {
@@ -76619,14 +77694,14 @@
       "family": "粉",
       "effects": [],
       "hex": [
-        "#E02552"
+        "#DF1995"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        49.23,
-        69.99,
-        23.21
+        50.17,
+        77.26,
+        -16.21
       ],
       "offers": [
         {
@@ -76659,14 +77734,14 @@
       "family": "绿",
       "effects": [],
       "hex": [
-        "#989F4F"
+        "#A9C47F"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        63.37,
-        -14.42,
-        40.51
+        75.73,
+        -20.9,
+        31.71
       ],
       "offers": [
         {
@@ -76699,14 +77774,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#C9C9C9"
+        "#D9E1E2"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        80.97,
-        -0.0,
-        0.0
+        88.97,
+        -2.49,
+        -1.42
       ],
       "offers": [
         {
@@ -76739,14 +77814,14 @@
       "family": "绿",
       "effects": [],
       "hex": [
-        "#69C296"
+        "#A2E4B8"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        72.09,
-        -36.92,
-        13.98
+        85.32,
+        -29.63,
+        14.92
       ],
       "offers": [
         {
@@ -76819,14 +77894,14 @@
       "family": "绿",
       "effects": [],
       "hex": [
-        "#1B1F11"
+        "#4F5C43"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        10.95,
-        -5.03,
-        8.61
+        37.34,
+        -10.2,
+        12.77
       ],
       "offers": [
         {
@@ -76859,14 +77934,14 @@
       "family": "橙",
       "effects": [],
       "hex": [
-        "#FF821B"
+        "#FF6720"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        67.51,
-        42.12,
-        69.45
+        62.57,
+        54.92,
+        64.21
       ],
       "offers": [
         {
@@ -76899,14 +77974,14 @@
       "family": "粉",
       "effects": [],
       "hex": [
-        "#EEB9B3"
+        "#F1BDC8"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        79.69,
-        18.24,
-        10.4
+        81.44,
+        20.29,
+        1.65
       ],
       "offers": [
         {
@@ -76939,14 +78014,14 @@
       "family": "绿",
       "effects": [],
       "hex": [
-        "#38D844"
+        "#8EDD65"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        76.29,
-        -68.21,
-        58.78
+        80.96,
+        -45.25,
+        50.7
       ],
       "offers": [
         {
@@ -76979,14 +78054,14 @@
       "family": "绿",
       "effects": [],
       "hex": [
-        "#43634E"
+        "#0D5D3F"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        39.01,
-        -16.63,
-        8.26
+        34.54,
+        -30.8,
+        10.89
       ],
       "offers": [
         {
@@ -77019,14 +78094,14 @@
       "family": "粉",
       "effects": [],
       "hex": [
-        "#FF7F6F"
+        "#F65C87"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        67.72,
-        47.3,
-        31.48
+        60.78,
+        62.2,
+        8.18
       ],
       "offers": [
         {
@@ -77059,14 +78134,14 @@
       "family": "紫",
       "effects": [],
       "hex": [
-        "#793EB6"
+        "#500878"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        39.39,
-        48.64,
-        -53.91
+        20.96,
+        48.09,
+        -46.1
       ],
       "offers": [
         {
@@ -77099,14 +78174,14 @@
       "family": "红",
       "effects": [],
       "hex": [
-        "#B40200"
+        "#DC3513"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        37.39,
-        61.44,
-        51.74
+        49.27,
+        62.5,
+        56.25
       ],
       "offers": [
         {
@@ -77139,14 +78214,14 @@
       "family": "蓝",
       "effects": [],
       "hex": [
-        "#1E4FCF"
+        "#0032A0"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        38.5,
-        32.8,
-        -70.23
+        26.21,
+        32.36,
+        -62.62
       ],
       "offers": [
         {
@@ -77179,14 +78254,14 @@
       "family": "绿",
       "effects": [],
       "hex": [
-        "#9AEE74"
+        "#2CC84D"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        86.64,
-        -46.89,
-        50.68
+        71.13,
+        -63.84,
+        49.31
       ],
       "offers": [
         {
@@ -77219,14 +78294,14 @@
       "family": "红",
       "effects": [],
       "hex": [
-        "#E6413F"
+        "#FF0000"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        52.91,
-        62.78,
-        39.14
+        53.24,
+        80.09,
+        67.2
       ],
       "offers": [
         {
@@ -77259,14 +78334,14 @@
       "family": "金属/金银铜",
       "effects": [],
       "hex": [
-        "#68676C"
+        "#9D9C9E"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        43.84,
-        1.44,
-        -2.67
+        64.49,
+        0.74,
+        -0.92
       ],
       "offers": [
         {
@@ -77379,14 +78454,14 @@
       "family": "蓝",
       "effects": [],
       "hex": [
-        "#50D3FF"
+        "#41B6E6"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        79.33,
-        -22.25,
-        -31.93
+        69.67,
+        -17.21,
+        -33.41
       ],
       "offers": [
         {
@@ -77459,14 +78534,14 @@
       "family": "黑白灰",
       "effects": [],
       "hex": [
-        "#F2F7F7"
+        "#FFFFFF"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        96.87,
-        -1.65,
-        -0.58
+        100.0,
+        -0.0,
+        0.0
       ],
       "offers": [
         {
@@ -77499,14 +78574,14 @@
       "family": "黄",
       "effects": [],
       "hex": [
-        "#FFFC01"
+        "#FEDD00"
       ],
-      "hex_source": "store_swatch",
-      "hex_confidence": 0.3,
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
       "lab": [
-        96.36,
-        -20.12,
-        93.84
+        88.35,
+        -5.37,
+        88.09
       ],
       "offers": [
         {
@@ -78128,10 +79203,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#BEC9B4"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        79.62,
+        -7.58,
+        9.21
+      ],
       "offers": [
         {
           "channel": "Hatchbox 官网",
@@ -78990,10 +80071,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#9EF9FF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        92.68,
+        -25.64,
+        -11.45
+      ],
       "offers": [
         {
           "channel": "Hatchbox 官网",
@@ -79658,10 +80745,16 @@
       "pinyin_initials": null,
       "family": "金属/金银铜",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#CE8D00"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        63.49,
+        15.7,
+        68.58
+      ],
       "offers": [
         {
           "channel": "Hatchbox 官网",
@@ -80814,10 +81907,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#E6EAEF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        92.53,
+        -0.42,
+        -2.88
+      ],
       "offers": [
         {
           "channel": "Hatchbox 官网",
@@ -87855,10 +88954,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#3D9441"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        54.61,
+        -43.68,
+        35.78
+      ],
       "offers": [
         {
           "channel": "Amazon.com（JAYO 店）",
@@ -87969,10 +89074,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#8ED9F9"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        83.03,
+        -15.14,
+        -22.9
+      ],
       "offers": [
         {
           "channel": "Amazon.com（JAYO 店）",
@@ -88077,10 +89188,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#6E8451"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        52.3,
+        -17.36,
+        24.97
+      ],
       "offers": [
         {
           "channel": "Amazon.com（JAYO 店）",
@@ -88113,10 +89230,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FF72B6"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        67.03,
+        60.52,
+        -9.47
+      ],
       "offers": [
         {
           "channel": "Amazon.com（JAYO 店）",
@@ -88149,10 +89272,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#AE00FF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        47.26,
+        87.41,
+        -82.61
+      ],
       "offers": [
         {
           "channel": "Amazon.com（JAYO 店）",
@@ -88185,10 +89314,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#CF4042"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        48.67,
+        56.1,
+        31.4
+      ],
       "offers": [
         {
           "channel": "Amazon.com（JAYO 店）",
@@ -88731,10 +89866,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#0000FF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        32.3,
+        79.19,
+        -107.86
+      ],
       "offers": [
         {
           "channel": "Amazon.com（JAYO 店）",
@@ -88971,10 +90112,16 @@
       "pinyin_initials": null,
       "family": "绿",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#1FD44C"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        74.76,
+        -69.1,
+        53.78
+      ],
       "offers": [
         {
           "channel": "Amazon.com（JAYO 店）",
@@ -89153,10 +90300,16 @@
       "pinyin_initials": null,
       "family": "红",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FF0000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        53.24,
+        80.09,
+        67.2
+      ],
       "offers": [
         {
           "channel": "Amazon.com（JAYO 店）",
@@ -89187,10 +90340,16 @@
       "pinyin_initials": null,
       "family": "金属/金银铜",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#A8B0BD"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        71.59,
+        -0.18,
+        -7.58
+      ],
       "offers": [
         {
           "channel": "Amazon.com（JAYO 店）",
@@ -89221,10 +90380,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#87CEEB"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        79.21,
+        -14.84,
+        -21.28
+      ],
       "offers": [
         {
           "channel": "Amazon.com（JAYO 店）",
@@ -89357,10 +90522,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFFF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        100.0,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Amazon.com（JAYO 店）",
@@ -100813,10 +101984,16 @@
       "pinyin_initials": null,
       "family": "绿",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#008059"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        47.18,
+        -40.12,
+        12.87
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -100847,10 +102024,16 @@
       "pinyin_initials": null,
       "family": "紫",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#906482"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        47.82,
+        22.73,
+        -9.54
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -103635,10 +104818,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#6E8451"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        52.3,
+        -17.36,
+        24.97
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -103671,10 +104860,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFE0E0"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        91.66,
+        10.65,
+        3.92
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -103834,10 +105029,16 @@
         "matte",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#A6A9A8"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        68.98,
+        -1.25,
+        0.14
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -103913,10 +105114,16 @@
         "matte",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#5162A0"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        42.8,
+        11.28,
+        -35.66
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -103991,10 +105198,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FCFAA6"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        96.75,
+        -11.52,
+        40.59
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104029,10 +105242,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#8E8E6A"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        58.17,
+        -6.18,
+        19.25
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104108,10 +105327,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#503529"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        24.99,
+        10.44,
+        12.45
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104144,10 +105369,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#CEFF5C"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        94.06,
+        -38.12,
+        70.16
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104180,10 +105411,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#519F62"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        59.37,
+        -37.75,
+        24.63
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104343,10 +105580,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#BAC4C4"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        78.41,
+        -3.42,
+        -1.19
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104379,10 +105622,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#AFDEB9"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        84.41,
+        -22.41,
+        13.23
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104415,10 +105664,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#ECD1FF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        87.32,
+        17.61,
+        -18.99
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104451,10 +105706,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#072E4E"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        18.14,
+        0.33,
+        -23.38
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104574,10 +105835,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#EB3B41"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        53.14,
+        66.34,
+        38.52
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104610,10 +105877,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFE0E1"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        91.69,
+        10.81,
+        3.44
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104646,10 +105919,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#8C69B5"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        50.7,
+        29.41,
+        -35.17
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104684,10 +105963,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#73AF83"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        66.48,
+        -28.87,
+        16.53
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104720,10 +106005,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#E72F1D"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        50.82,
+        67.59,
+        54.46
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104756,10 +106047,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F0DDC2"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        88.99,
+        2.27,
+        15.62
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104792,10 +106089,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#60F0E7"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        87.28,
+        -40.45,
+        -7.21
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -104913,10 +106216,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#EFDC4C"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        87.03,
+        -9.29,
+        69.8
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -107323,10 +108632,16 @@
       "pinyin_initials": null,
       "family": "木/石/大理石",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#C2C0BA"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        77.71,
+        -0.39,
+        3.26
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -107471,10 +108786,16 @@
       "pinyin_initials": null,
       "family": "木/石/大理石",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#7591A4"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        58.71,
+        -5.28,
+        -13.23
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -107505,10 +108826,16 @@
       "pinyin_initials": null,
       "family": "木/石/大理石",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#B76E5D"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        54.04,
+        27.12,
+        21.83
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -107539,10 +108866,16 @@
       "pinyin_initials": null,
       "family": "木/石/大理石",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFDA47"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        87.9,
+        -1.87,
+        72.99
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -107613,10 +108946,16 @@
       "pinyin_initials": null,
       "family": "木/石/大理石",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#BEC3CB"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        78.63,
+        -0.19,
+        -4.6
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -107647,10 +108986,16 @@
       "pinyin_initials": null,
       "family": "木/石/大理石",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#929292"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        60.56,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -107764,10 +109109,16 @@
         "gradient",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#1AB790"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        66.59,
+        -47.21,
+        9.2
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -107798,10 +109149,16 @@
       "pinyin_initials": null,
       "family": "木/石/大理石",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFFF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        100.0,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -107872,10 +109229,16 @@
       "pinyin_initials": null,
       "family": "木/石/大理石",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#E32400"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        49.01,
+        68.77,
+        62.14
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -107906,10 +109269,16 @@
       "pinyin_initials": null,
       "family": "木/石/大理石",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#638BA1"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        55.78,
+        -8.03,
+        -16.05
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -107976,10 +109345,16 @@
       "effects": [
         "wood"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#976B62"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        49.47,
+        16.31,
+        12.03
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -108010,10 +109385,16 @@
       "pinyin_initials": null,
       "family": "木/石/大理石",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#669C35"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        58.84,
+        -35.41,
+        46.68
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -110671,10 +112052,16 @@
       "pinyin_initials": null,
       "family": "棕/米/肤",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#B8AF99"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        71.66,
+        -0.51,
+        12.44
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -110905,10 +112292,16 @@
       "pinyin_initials": null,
       "family": "粉",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFCCCD"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        86.43,
+        18.15,
+        6.37
+      ],
       "offers": [
         {
           "channel": "Overture 官网",
@@ -126849,10 +128242,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#8D8E93"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        59.08,
+        0.63,
+        -2.78
+      ],
       "offers": [
         {
           "channel": "Polymaker 美国官网",
@@ -127163,10 +128562,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "Polymaker 美国官网",
@@ -127277,10 +128682,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#959FA1"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        64.77,
+        -3.15,
+        -2.27
+      ],
       "offers": [
         {
           "channel": "Polymaker 美国官网",
@@ -127391,10 +128802,16 @@
       "pinyin_initials": null,
       "family": "紫",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#6C5BB1"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        44.01,
+        27.72,
+        -43.63
+      ],
       "offers": [
         {
           "channel": "Polymaker 美国官网",
@@ -133522,10 +134939,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#303635"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        22.03,
+        -2.8,
+        -0.25
+      ],
       "offers": [
         {
           "channel": "Prusa 官方商城（列表页仅抓到部分）",
@@ -133598,10 +135021,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#E4E7E5"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        91.37,
+        -1.36,
+        0.62
+      ],
       "offers": [
         {
           "channel": "Prusa 官方商城（列表页仅抓到部分）",
@@ -133714,10 +135143,16 @@
       "pinyin_initials": null,
       "family": "绿",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#A6EC5F"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        86.47,
+        -44.08,
+        60.0
+      ],
       "offers": [
         {
           "channel": "Prusa 官方商城（列表页仅抓到部分）",
@@ -133870,10 +135305,16 @@
       "pinyin_initials": null,
       "family": "紫",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#1D1991"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        20.04,
+        43.32,
+        -63.58
+      ],
       "offers": [
         {
           "channel": "Prusa 官方商城（列表页仅抓到部分）",
@@ -133944,10 +135385,16 @@
       "pinyin_initials": null,
       "family": "蓝",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#346CE3"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        48.26,
+        23.55,
+        -65.72
+      ],
       "offers": [
         {
           "channel": "Prusa 官方商城（列表页仅抓到部分）",
@@ -134222,10 +135669,16 @@
       "effects": [
         "sparkle"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#453A72"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        28.13,
+        19.4,
+        -30.78
+      ],
       "offers": [
         {
           "channel": "Prusa 官方商城（列表页仅抓到部分）",
@@ -134258,10 +135711,16 @@
       "effects": [
         "sparkle"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#999AA0"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        63.69,
+        0.82,
+        -3.26
+      ],
       "offers": [
         {
           "channel": "Prusa 官方商城（列表页仅抓到部分）",
@@ -134494,10 +135953,16 @@
       "effects": [
         "sparkle"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#3D3E3D"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        26.08,
+        -0.65,
+        0.47
+      ],
       "offers": [
         {
           "channel": "Prusa 官方商城（列表页仅抓到部分）",
@@ -136670,10 +138135,16 @@
       "effects": [
         "glow"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#E4002B"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        47.85,
+        74.2,
+        44.75
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -136790,10 +138261,16 @@
       "effects": [
         "glow"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F9E001"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        88.67,
+        -8.98,
+        88.03
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -137204,10 +138681,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFFF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        100.0,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -137745,10 +139228,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFF9"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        99.85,
+        -1.04,
+        2.86
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -137925,10 +139414,16 @@
       "effects": [
         "marble"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#E1E1E1"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        89.53,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -139362,10 +140857,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#BAB86C"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        73.42,
+        -10.42,
+        38.77
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -139476,10 +140977,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFC0CB"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        83.59,
+        24.14,
+        3.33
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -139758,10 +141265,16 @@
       "effects": [
         "matte"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFFF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        100.0,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -140556,10 +142069,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFFF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        100.0,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -140632,10 +142151,16 @@
       "effects": [
         "cf"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -141182,10 +142707,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#D6D5D0"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        85.22,
+        -0.55,
+        2.59
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -141652,10 +143183,16 @@
       "pinyin_initials": null,
       "family": "绿",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#BAB86C"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        73.42,
+        -10.42,
+        38.77
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -141968,10 +143505,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#E4E7E5"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        91.37,
+        -1.36,
+        0.62
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -142046,10 +143589,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#00CC00"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        71.68,
+        -72.84,
+        70.31
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -142082,10 +143631,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFB43F"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        78.62,
+        17.39,
+        66.99
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -142118,10 +143673,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#5C50E0"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        43.35,
+        45.17,
+        -71.92
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -142154,10 +143715,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#D33D3D"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        48.92,
+        58.24,
+        34.78
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -142190,10 +143757,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#E6C934"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        81.21,
+        -4.52,
+        72.37
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -142264,10 +143837,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFFF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        100.0,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -142341,10 +143920,16 @@
         "sparkle",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#31524B"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        32.25,
+        -13.94,
+        0.29
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -142377,10 +143962,16 @@
       "effects": [
         "sparkle"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#735C5B"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        41.3,
+        9.2,
+        4.13
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -142413,10 +144004,16 @@
       "effects": [
         "sparkle"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#170542"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        6.18,
+        26.7,
+        -34.38
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -142450,10 +144047,16 @@
         "sparkle",
         "multi"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#3D566A"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        35.38,
+        -3.68,
+        -14.47
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -143626,10 +145229,16 @@
       "pinyin_initials": null,
       "family": "绿",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#159A87"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        57.09,
+        -37.63,
+        0.54
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -144542,10 +146151,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F4F9FF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        97.71,
+        -0.56,
+        -3.44
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -144616,10 +146231,16 @@
       "pinyin_initials": null,
       "family": "棕/米/肤",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#6C4336"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        32.85,
+        16.12,
+        15.26
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -145366,10 +146987,16 @@
       "pinyin_initials": null,
       "family": "金属/金银铜",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#A4A7AC"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        68.39,
+        -0.09,
+        -2.95
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -145482,10 +147109,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#C9C7C3"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        80.29,
+        -0.03,
+        2.24
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -145560,10 +147193,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#4BDD4C"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        78.3,
+        -65.81,
+        57.89
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -145596,10 +147235,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FC9978"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        72.79,
+        33.78,
+        33.06
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -145632,10 +147277,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#D591F9"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        70.34,
+        43.64,
+        -42.03
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -145668,10 +147319,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FD6B67"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        63.66,
+        55.42,
+        30.63
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -145704,10 +147361,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#ECC82A"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        81.46,
+        -1.76,
+        75.73
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -146018,10 +147681,16 @@
       "pinyin_initials": null,
       "family": "黑白灰",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F4F9FF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        97.71,
+        -0.56,
+        -3.44
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -146092,10 +147761,16 @@
       "pinyin_initials": null,
       "family": "棕/米/肤",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#9A5630"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        43.86,
+        24.74,
+        33.84
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -146518,10 +148193,16 @@
       "pinyin_initials": null,
       "family": "绿",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#008476"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        49.26,
+        -33.87,
+        -1.1
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -147536,10 +149217,16 @@
       "pinyin_initials": null,
       "family": "橙",
       "effects": [],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FF8A00"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        69.07,
+        37.84,
+        75.23
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -147650,10 +149337,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#00CC00"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        71.68,
+        -72.84,
+        70.31
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -147686,10 +149379,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FE6638"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        62.39,
+        55.63,
+        54.07
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -147722,10 +149421,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#CE8BF0"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        67.93,
+        42.96,
+        -40.93
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -147758,10 +149463,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#E20010"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        47.25,
+        73.24,
+        56.61
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -147794,10 +149505,16 @@
       "effects": [
         "translucent"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#EFCB2C"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        82.51,
+        -1.96,
+        76.19
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -148432,10 +150149,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#AC906A"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        61.45,
+        5.05,
+        24.13
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -148722,10 +150445,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#A7C6ED"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        78.88,
+        -1.56,
+        -22.68
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -148908,10 +150637,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#000000"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -148980,10 +150715,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#005BD3"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        41.51,
+        25.27,
+        -67.64
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -149016,10 +150757,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#ED9B33"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        70.66,
+        22.56,
+        63.3
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -149052,10 +150799,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#6DB576"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        67.73,
+        -35.91,
+        25.22
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -149088,10 +150841,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#D25B73"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        54.48,
+        49.12,
+        10.17
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -149208,10 +150967,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F0B323"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        76.61,
+        10.69,
+        73.68
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -149280,10 +151045,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFC0CB"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        83.59,
+        24.14,
+        3.33
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -149316,10 +151087,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#A54DCF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        49.27,
+        56.94,
+        -52.26
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -149352,10 +151129,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#F61F1F"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        52.6,
+        75.07,
+        56.25
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -149430,10 +151213,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#D3D3D3"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        84.56,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -149466,10 +151255,16 @@
       "effects": [
         "silk"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#FFFFFF"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        100.0,
+        -0.0,
+        0.0
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -149580,10 +151375,16 @@
       "effects": [
         "sparkle"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#87CBF2"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        78.62,
+        -11.42,
+        -25.92
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -149616,10 +151417,16 @@
       "effects": [
         "wood"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#896662"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        46.58,
+        13.46,
+        7.75
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",
@@ -149652,10 +151459,16 @@
       "effects": [
         "wood"
       ],
-      "hex": [],
-      "hex_source": null,
-      "hex_confidence": null,
-      "lab": null,
+      "hex": [
+        "#D1B597"
+      ],
+      "hex_source": "ofd",
+      "hex_confidence": 1.0,
+      "lab": [
+        75.35,
+        5.53,
+        19.01
+      ],
       "offers": [
         {
           "channel": "SUNLU 官网商城",

@@ -36,6 +36,7 @@ from .ingest import (
     sha256_file,
     verify_snapshots,
 )
+from .ofd import ENRICHMENT_PATH, import_ofd, update_esun_confidence, write_json
 from .validate import validate_json
 from .web_export import DEFAULT_WEB_CATALOG, export_web
 
@@ -240,12 +241,21 @@ def _cmd_serve(args: argparse.Namespace) -> int:
     return 0
 
 
+def _load_enrichment() -> dict | None:
+    if not ENRICHMENT_PATH.is_file():
+        return None
+    payload = json.loads(ENRICHMENT_PATH.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("ofd enrichment is not an object")
+    return payload
+
+
 def _cmd_export_web(args: argparse.Namespace) -> int:
     settings = get_settings()
     catalog_path = args.catalog or settings.catalog
     try:
         catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
-        exported = export_web(catalog)
+        exported = export_web(catalog, _load_enrichment())
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(
             json.dumps(exported, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
@@ -327,6 +337,67 @@ def _cmd_assign_ids(args: argparse.Namespace) -> int:
     return 0
 
 
+def _add_import_ofd(sub: argparse._SubParsersAction) -> None:
+    parser = sub.add_parser("import-ofd", help="import a local Open Filament Database snapshot")
+    parser.add_argument("--snapshot", type=Path, required=True)
+    parser.add_argument("--orca-index", type=Path)
+    parser.add_argument("--catalog", type=Path, default=CATALOG_PATH)
+    parser.add_argument("--overrides", type=Path, default=OVERRIDES_PATH)
+    parser.add_argument("--enrichment", type=Path, default=ENRICHMENT_PATH)
+    parser.add_argument("--sku-dir", type=Path, default=REPO_ROOT / "web" / "public" / "sku")
+    parser.add_argument("--now")
+    parser.set_defaults(handler=_cmd_import_ofd)
+
+
+def _cmd_import_ofd(args: argparse.Namespace) -> int:
+    try:
+        catalog = json.loads(args.catalog.read_text(encoding="utf-8"))
+        sku_dir = args.sku_dir if args.sku_dir.is_dir() else None
+        updated, enrichment, confidence = import_ofd(
+            args.snapshot,
+            catalog,
+            orca_index=args.orca_index,
+            sku_dir=sku_dir,
+            now=args.now,
+        )
+        write_catalog(args.catalog, updated)
+        write_json(args.enrichment, enrichment)
+        if confidence is not None:
+            overrides = json.loads(args.overrides.read_text(encoding="utf-8"))
+            update_esun_confidence(overrides, confidence)
+            write_json(args.overrides, overrides)
+    except (OSError, UnicodeError, json.JSONDecodeError, RuntimeError, ValueError, KeyError) as exc:
+        print(str(exc))
+        return 1
+    stats = enrichment["stats"]
+    before = enrichment["coverage_before"]
+    after = enrichment["coverage_after"]
+    calibration = enrichment["esun_calibration"]
+    compared = calibration.get("compared") or {}
+    print(
+        "matched_entries={matched_entries} skipped_entries={skipped_entries} "
+        "skipped_filaments={skipped_filaments} skipped_variants={skipped_variants} "
+        "color_matches={color_matches} hex_filled={hex_filled} "
+        "esun_replaced={esun_replaced}".format(**stats)
+    )
+    print(
+        "coverage_before={before}/{entries} coverage_after={after_hex}/{entries}".format(
+            before=before["with_hex"],
+            after_hex=after["with_hex"],
+            entries=after["entries"],
+        )
+    )
+    print(
+        "esun_method={method} esun_n={n} esun_median={median} esun_confidence={confidence}".format(
+            method=calibration["method"],
+            n=compared.get("n", 0),
+            median=compared.get("median", "nan"),
+            confidence=calibration.get("confidence_after"),
+        )
+    )
+    return 0
+
+
 def _add_models(sub: argparse._SubParsersAction) -> None:
     parser = sub.add_parser("models", help="import model preview data")
     commands = parser.add_subparsers(dest="models_command", required=True)
@@ -402,6 +473,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_plan(sub)
     _add_worker(sub)
     _add_export_web(sub)
+    _add_import_ofd(sub)
     _add_serve(sub)
     _add_models(sub)
     _add_auth(sub)

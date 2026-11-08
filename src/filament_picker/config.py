@@ -6,10 +6,12 @@ REPO_ROOT: Path = Path(__file__).resolve().parents[2]
 TZ: str = "Asia/Tokyo"
 MAX_SLUG_LEN: int = 60
 HEX_CONF_OFFICIAL: float = 1.0
+HEX_CONF_OFD: float = 1.0
 HEX_CONF_STORE_SWATCH: float = 0.8
 HEX_CONF_MANUAL: float = 0.9
 SOURCE_RANK: dict[str, int] = {
     "official": 0,
+    "ofd": 0,
     "store_swatch": 1,
     "manual": 2,
     "image_extracted": 3,
