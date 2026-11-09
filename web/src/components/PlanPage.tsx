@@ -1,26 +1,63 @@
-import { useState } from "react";
-import type { ChangeEvent, FormEvent, JSX } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { ChangeEvent, CSSProperties, FormEvent, JSX, PointerEvent as ReactPointerEvent } from "react";
 import { cardSrc, postPlan } from "../api";
 import { purchaseHref } from "../purchase";
+import { pointInBox, regionFromDrag, type SampleRegion } from "../regions";
 import type { PlanResult } from "../types";
+
+function regionStyle(region: SampleRegion, natural: { w: number; h: number } | null): CSSProperties {
+  if (region.w !== undefined && region.h !== undefined) {
+    return {
+      left: `${region.x * 100}%`,
+      top: `${region.y * 100}%`,
+      width: `${region.w * 100}%`,
+      height: `${region.h * 100}%`,
+    };
+  }
+  const radius = region.r ?? 0.04;
+  const minOverW = natural === null ? 1 : Math.min(natural.w, natural.h) / natural.w;
+  const minOverH = natural === null ? 1 : Math.min(natural.w, natural.h) / natural.h;
+  const width = radius * minOverW * 2;
+  const height = radius * minOverH * 2;
+  return {
+    left: `${(region.x - width / 2) * 100}%`,
+    top: `${(region.y - height / 2) * 100}%`,
+    width: `${width * 100}%`,
+    height: `${height * 100}%`,
+  };
+}
 
 export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
   const post = props.post ?? postPlan;
   const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [natural, setNatural] = useState<{ w: number; h: number } | null>(null);
   const [note, setNote] = useState("");
+  const [regions, setRegions] = useState<SampleRegion[]>([]);
+  const [draft, setDraft] = useState<SampleRegion | null>(null);
   const [result, setResult] = useState<PlanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
+  const fileRef = useRef<File | null>(null);
+  const noteRef = useRef("");
+  const regionsRef = useRef<SampleRegion[]>([]);
+  fileRef.current = file;
+  noteRef.current = note;
 
-  const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setFile(event.target.files?.[0] ?? null);
-    setError(null);
-    setResult(null);
-  };
-
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  useEffect(() => {
     if (file === null) {
+      setPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
+
+  const run = async (nextRegions: SampleRegion[]) => {
+    const current = fileRef.current;
+    if (current === null) {
       setError("请先选择图片");
       return;
     }
@@ -28,12 +65,68 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
     setError(null);
     setResult(null);
     try {
-      setResult(await post(file, note));
+      const next =
+        nextRegions.length > 0
+          ? await post(current, noteRef.current, { regions: nextRegions })
+          : await post(current, noteRef.current);
+      setResult(next);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const commitRegions = (next: SampleRegion[]) => {
+    regionsRef.current = next;
+    setRegions(next);
+    if (fileRef.current !== null) {
+      void run(next);
+    }
+  };
+
+  const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    regionsRef.current = [];
+    setRegions([]);
+    setDraft(null);
+    setNatural(null);
+    setFile(event.target.files?.[0] ?? null);
+    setError(null);
+    setResult(null);
+  };
+
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void run(regionsRef.current);
+  };
+
+  const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (submitting) return;
+    event.preventDefault();
+    const box = event.currentTarget.getBoundingClientRect();
+    dragStart.current = pointInBox(event.clientX, event.clientY, box);
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // jsdom 没有指针捕获时，pointerup 仍落在同一元素上。
+    }
+  };
+
+  const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragStart.current === null) return;
+    const box = event.currentTarget.getBoundingClientRect();
+    const end = pointInBox(event.clientX, event.clientY, box);
+    setDraft(regionFromDrag(dragStart.current, end, box.width, box.height));
+  };
+
+  const onPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragStart.current === null) return;
+    const box = event.currentTarget.getBoundingClientRect();
+    const end = pointInBox(event.clientX, event.clientY, box);
+    const region = regionFromDrag(dragStart.current, end, box.width, box.height);
+    dragStart.current = null;
+    setDraft(null);
+    commitRegions([...regionsRef.current, region]);
   };
 
   const imageSource = result === null ? null : cardSrc(result);
@@ -61,6 +154,52 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
             </label>
             <p className="dropzone-hint">{file === null ? "选择 PNG / JPG 图片" : file.name}</p>
           </div>
+          {preview !== null && (
+            <div className="region-editor">
+              <p className="dropzone-hint">在图上拖红框，或点一下取一块颜色。不选则用整张图。</p>
+              <div
+                className="region-stage"
+                role="application"
+                aria-label="取色区域"
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={onPointerUp}
+              >
+                <img
+                  src={preview}
+                  alt="待配色图片"
+                  draggable={false}
+                  onLoad={(event) =>
+                    setNatural({
+                      w: event.currentTarget.naturalWidth,
+                      h: event.currentTarget.naturalHeight,
+                    })
+                  }
+                />
+                {regions.map((region, index) => (
+                  <span
+                    key={`${region.x}-${region.y}-${region.w ?? "p"}-${index}`}
+                    className={region.w === undefined ? "region-mark region-point" : "region-mark"}
+                    style={regionStyle(region, natural)}
+                  />
+                ))}
+                {draft !== null && (
+                  <span
+                    className={draft.w === undefined ? "region-mark region-point" : "region-mark"}
+                    style={regionStyle(draft, natural)}
+                  />
+                )}
+              </div>
+              {regions.length > 0 && (
+                <div className="region-tools">
+                  <span>已选 {regions.length} 处</span>
+                  <button type="button" onClick={() => commitRegions([])}>
+                    清除选区
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
           <label className="field">
             <span className="field-label">备注</span>
             <textarea
@@ -70,7 +209,7 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
             />
           </label>
           <button type="submit" className="btn btn-primary" disabled={submitting}>
-            {submitting ? "配色中…" : "开始配色"}
+            {submitting ? "配色中…" : regions.length > 0 ? "按选区重算" : "开始配色"}
           </button>
           {error !== null && <p className="plan-error">{error}</p>}
           {result?.status === "error" && <p className="plan-error">{result.error?.message_zh}</p>}

@@ -620,6 +620,17 @@ FP_ROOT/
 
 参数合并 `resolve_params(constraints, note) -> Params`：每个键取 **constraints > note.values > 默认值**；`n_colors = min(max_colors, ams_slots)`；默认 `max_colors=4, ams_slots=4, materials=["PLA"], brands=[], allow_approx=True, keep_small=False, per_color=2`。
 
+取样区域不从备注解析。`request.regions` 与 `constraints.regions` 都能给，**constraints.regions 优先**（键不存在才用顶层）；缺省或 `[]` 表示整张图。数组最多 16 项，每项：
+
+| 字段 | 含义 |
+|---|---|
+| space | `norm`（默认，相对原图宽高，0–1）或 `px`（原图像素） |
+| x, y | 矩形左上角，或点击点 |
+| w, h | 都有才是矩形；都没有才是点 |
+| r | 仅点使用。`norm` 时是短边的比例，`px` 时是像素。缺省为短边的 4% |
+
+多个区域取像素并集，并且仍然套用前景掩码。`result.params` 只有真的用了区域才带回 `regions`，没有则省略该键。钉钉侧只写这个 JSON，不另做选区 UI。
+
 ### 9.3 配色规划 `plan_palette(path, n_colors, keep_small) -> list[PaletteColor]`
 ```
 rgb = load_rgb(path)
@@ -634,8 +645,10 @@ loop: 找 ΔE00 最小的一对；若 < MERGE_DE 则合并（center = share 加�
 if not keep_small:
     loop: 若存在 share < SMALL_SHARE 且簇数 > 1：取 share 最小者，并入 ΔE 最近的簇（加权合并）
 clusters 按 share 降序（平局按 L 升序）
+显著色换入（`_protect_salient`，`keep_small` 真假都做）：将被占比截掉、但属于显著色的簇换进前 n 个。显著色 = L* ≤ 22（近黑），或彩度 ≥ 42 且 CHROMA_PEAK_DE=20 内没有更艳的簇（高彩度的峰，避免同一块橙的暗部重复占槽）。换入时只挤掉冗余的非显著色：它与另一颗保留色 ΔE00 < 18。非显著色里最亮和最暗的两颗，若彼此 ΔE00 ≥ 18 则留下（米白和棕都留），只挤中间的过渡灰；若这两颗本身就很近，则按「更近、再占比更小」挤掉一颗。挤不掉就保持按占比的前 n 个。`share < SMALL_SHARE`（0.02）的簇在上一步已经并掉，不会走到这里——所以 1% 蓝点在 `keep_small=false` 时仍并入邻色。
 kept = clusters[:n_colors]; 其余每个的 share 加到 ΔE 最近的 kept 上（中心不变）
 share 重新归一化到和为 1，round 3 位；hex = lab_to_hex(center)；lab round 2 位
+若调用方传入 regions：在前景掩码上再与这些区域的并集相交，只对相交像素做上面的 k-means。`plan_palette(path, n_colors, keep_small, regions=None)`，`regions` 缺省等价于不限制。
 return [PaletteColor(index=i, hex, lab, share) ...]
 ```
 测试图（`tests/helpers_images.py` 用 Pillow 画，**不用真实图**）：
@@ -771,7 +784,7 @@ exec .venv/bin/filament-picker worker --root "${FP_ROOT:-/home/box/agent-data/sh
 - 搜索：MiniSearch `fields: ["en","zh","py","pyi","code","b","s"]`，`storeFields: ["id"]`，`searchOptions: {prefix: true, fuzzy: 0.2, boost: {zh: 2, en: 2, code: 3}}`。空查询按 品牌表顺序 → 系列名 → id 排序。
 - 点色块 → 详情抽屉：大色块、hex、来源徽章（official「官方色值」/store_swatch「店铺示意色（近似）」/image_extracted「商品图取色（近似，置信度 0.xx）」/manual「人工校对」）、购买链接（`url`，拼多多优先；GitHub 色号表显示「暂未上架」）和有 `alt_url` 时的「原链接」、"相似色"前 8（culori `differenceCiede2000()`，只在单 hex、非 multi 条目中找，ΔE ≤ 10）。配色页每个推荐同样显示「购买」（`url`）和有 `alt_url` 时的「原链接」。
 - 对比栏：最多 4 个，显示两两 ΔE（保留 1 位）。
-- `#/plan` 图片配色：上传图片 + 备注输入 → `POST /api/plan` → 渲染调色板与推荐（结构同 result.json）+ 色卡图（`/api/cards/<文件名>`）。
+- `#/plan` 图片配色：上传图片 + 备注输入 → `POST /api/plan` → 渲染调色板与推荐（结构同 result.json）+ 色卡图（`/api/cards/<文件名>`）。选图后可在预览上拖红框或点击；区域以 `constraints.regions`（`space=norm`）随下一次配色提交。已有结果后再改选区会立刻重算。不画选区则用整张图。
 ### 10.3 `api.py`（FastAPI）
 - `GET /api/health` → `{"ok": true, "catalog_generated_at": "..."}`
 - `POST /api/plan`（multipart：`file` 必填 ≤ 10MB，`note` 可选，`constraints` 可选 JSON 字符串）→ 把图存 `FP_ROOT/inbox/web-<uuid4hex>.<ext>`，调用 `run_plan`，返回 result JSON（HTTP 200；status=error 也是 200）；超 10MB → 413。

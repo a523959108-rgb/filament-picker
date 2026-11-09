@@ -36,7 +36,25 @@
         "allow_approx": {"type": "boolean"},
         "keep_small": {"type": "boolean"},
         "per_color": {"type": "integer", "minimum": 1, "maximum": 3},
-        "note_parsed": {"type": "object", "description": "note_parser 的原始输出（只含解析到的键）"}
+        "note_parsed": {"type": "object", "description": "note_parser 的原始输出（只含解析到的键）"},
+        "regions": {
+          "type": "array",
+          "maxItems": 16,
+          "description": "本次实际使用的取样区域。没有指定时省略该字段。",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "space": {"enum": ["norm", "px"]},
+              "x": {"type": "number"},
+              "y": {"type": "number"},
+              "w": {"type": "number", "exclusiveMinimum": 0},
+              "h": {"type": "number", "exclusiveMinimum": 0},
+              "r": {"type": "number", "exclusiveMinimum": 0}
+            },
+            "required": ["space", "x", "y"]
+          }
+        }
       }
     },
     "palette": {

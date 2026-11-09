@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from filament_picker.note_parser import Params, parse_note, resolve_params
+from filament_picker.note_parser import Params, SampleRegion, parse_note, resolve_params
 from filament_picker.validate import validate_json
 
 
@@ -84,6 +84,37 @@ def test_resolve_ams_constraints_affect_n_colors() -> None:
 
 def test_resolve_defaults() -> None:
     assert resolve_params(None, parse_note("")) == Params(4, 4, 4, ("PLA",), (), True, False, 2, {})
+
+
+def test_resolve_regions_round_trip() -> None:
+    params = resolve_params(
+        {
+            "regions": [
+                {"x": 0.1, "y": 0.2, "w": 0.3, "h": 0.4},
+                {"space": "px", "x": 10, "y": 20, "r": 8},
+            ]
+        },
+        parse_note(""),
+    )
+    assert params.regions == (
+        SampleRegion(0.1, 0.2, "norm", 0.3, 0.4, None),
+        SampleRegion(10, 20, "px", None, None, 8),
+    )
+    assert params.to_dict()["regions"] == [
+        {"space": "norm", "x": 0.1, "y": 0.2, "w": 0.3, "h": 0.4},
+        {"space": "px", "x": 10.0, "y": 20.0, "r": 8.0},
+    ]
+
+
+def test_request_regions_validate(repo_root: Path) -> None:
+    request = json.loads(
+        (repo_root / "docs/schemas/examples/request.example.json").read_text(encoding="utf-8")
+    )
+    request["regions"] = [{"space": "norm", "x": 0.2, "y": 0.3, "w": 0.1, "h": 0.2}]
+    request["constraints"] = {"regions": [{"x": 12, "y": 8, "space": "px", "r": 6}]}
+    assert validate_json("request", request) == []
+    request["regions"] = [{"x": 0.1, "y": 0.2, "w": 0.3}]
+    assert validate_json("request", request)
 
 
 def test_to_dict_validates_result_params(repo_root: Path) -> None:
