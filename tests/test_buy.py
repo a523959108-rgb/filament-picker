@@ -211,8 +211,8 @@ def test_catalog_entries_prefer_pdd(repo_root: Path) -> None:
             assert is_github_color_table_url(alt) is False
             assert is_pdd_goods_url(alt) is False
             assert any(offer["url"] == alt for offer in entry["offers"])
-    assert goods == 136
-    assert search == 3712
+    assert goods == 166
+    assert search == 3682
     assert goods + search == len(catalog["entries"]) == 3848
 
     bambu = next(
@@ -228,3 +228,69 @@ def test_catalog_entries_prefer_pdd(repo_root: Path) -> None:
     primary, alt = purchase_links(tough)
     assert unquote(primary.removeprefix(PDD_SEARCH_PREFIX)) == "拓竹 PLA Tough 黑色"
     assert alt is None
+
+
+# Collected 2026-11-09. Shared goods_id values are multi-SKU listings, kept as-is.
+BAMBU_PDD_BATCH1: dict[str, str] = {
+    "bambu-lab/pla-basic/black-10101": "646322960873",
+    "bambu-lab/pla-basic/jade-white-10100": "646322960873",
+    "bambu-lab/pla-basic/gray-10103": "646322960873",
+    "bambu-lab/pla-basic/light-gray-10104": "646322960873",
+    "bambu-lab/pla-basic/dark-gray-10105": "1008327197594",
+    "bambu-lab/pla-basic/blue-gray-10602": "981078022134",
+    "bambu-lab/pla-basic/red-10200": "995613337990",
+    "bambu-lab/pla-basic/maroon-red-10205": "1012953356814",
+    "bambu-lab/pla-basic/blue-10601": "981078022134",
+    "bambu-lab/pla-basic/cobalt-blue-10604": "961735796587",
+    "bambu-lab/pla-basic/blueberry-bubblegum-10905": "955911205517",
+    "bambu-lab/pla-basic/bambu-green-10501": "955911205517",
+    "bambu-lab/pla-basic/mistletoe-green-10502": "646322960873",
+    "bambu-lab/pla-basic/bright-green-10503": "1012953356814",
+    "bambu-lab/pla-basic/yellow-10400": "973331464720",
+    "bambu-lab/pla-basic/sunflower-yellow-10402": "1024899541908",
+    "bambu-lab/pla-basic/orange-10300": "1014117624513",
+    "bambu-lab/pla-basic/pumpkin-orange-10301": "1010819723555",
+    "bambu-lab/pla-basic/beige-10201": "711535009405",
+    "bambu-lab/pla-basic/brown-10800": "954504553679",
+    "bambu-lab/pla-matte/ivory-white-11100": "991922531824",
+    "bambu-lab/pla-matte/bone-white-11103": "1012964573898",
+    "bambu-lab/pla-matte/ash-gray-11102": "981915000568",
+    "bambu-lab/pla-matte/nardo-gray-11104": "956968690774",
+    "bambu-lab/pla-matte/scarlet-red-11200": "981915000568",
+    "bambu-lab/pla-matte/dark-red-11202": "981915000568",
+    "bambu-lab/pla-matte/marine-blue-11600": "982941879558",
+    "bambu-lab/pla-matte/ice-blue-11601": "981915000568",
+    "bambu-lab/pla-matte/dark-blue-11602": "937521722746",
+    "bambu-lab/pla-matte/sky-blue-11603": "850209947277",
+}
+_PLA_BASIC_STORE = "https://jp.store.bambulab.com/products/pla-basic-filament"
+_PLA_MATTE_STORE = "https://jp.store.bambulab.com/products/pla-matte-filament"
+
+
+def test_bambu_pdd_batch1_goods_promote_to_primary(repo_root: Path) -> None:
+    catalog = json.loads(
+        (repo_root / "data/build/filament-catalog.json").read_text(encoding="utf-8")
+    )
+    web = json.loads((repo_root / "web/public/web-catalog.json").read_text(encoding="utf-8"))
+    by_id = {entry["id"]: entry for entry in catalog["entries"]}
+    web_by_id = {entry["id"]: entry for entry in web["entries"]}
+    assert len(BAMBU_PDD_BATCH1) == 30
+    for color_id, goods_id in BAMBU_PDD_BATCH1.items():
+        url = f"https://mobile.pinduoduo.com/goods.html?goods_id={goods_id}"
+        assert is_pdd_goods_url(url) is True
+        assert "search_result.html" not in url
+        entry = by_id[color_id]
+        store = _PLA_MATTE_STORE if "/pla-matte/" in color_id else _PLA_BASIC_STORE
+        assert entry["offers"][0] == {
+            "channel": "Bambu Lab 日本官方商城",
+            "url": store,
+            "price_text": "¥2,400起 JPY",
+        }
+        assert entry["offers"][1] == {"channel": "拼多多", "url": url, "price_text": ""}
+        primary, alt = purchase_links(entry)
+        assert primary == url
+        assert alt == store
+        web_entry = web_by_id[color_id]
+        assert web_entry["url"] == primary
+        assert web_entry["alt_url"] == alt
+        assert web_entry["price"] is None
