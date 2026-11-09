@@ -197,10 +197,20 @@ a {
   color: #b45309;
 }
 
+.badge-stock {
+  background: #e7f6ec;
+  color: #157347;
+}
+
 @media (prefers-color-scheme: dark) {
   .badge-warn {
     background: #3a2a14;
     color: #fbbf24;
+  }
+
+  .badge-stock {
+    background: #143024;
+    color: #86efac;
   }
 }
 

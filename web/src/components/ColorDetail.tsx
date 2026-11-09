@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { JSX } from "react";
+import { fetchInStock } from "../api";
 import { similar, sourceBadge } from "../color";
 import { purchaseHref } from "../purchase";
 import type { WebCatalog, WebEntry } from "../types";
@@ -20,6 +21,7 @@ export function ColorDetail(props: {
   const subName = entry.en !== null && entry.zh !== null ? entry.zh : null;
   const hexText = entry.hex.length > 0 ? entry.hex.join("、") : "无色值";
   const brandBySlug = new Map(catalog.brands.map((brand) => [brand.slug, brand.name]));
+  const [inStock, setInStock] = useState(false);
   const href = purchaseHref(entry.url);
   const altHref = entry.alt_url ? purchaseHref(entry.alt_url) : null;
   const specialNote =
@@ -36,6 +38,21 @@ export function ColorDetail(props: {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
+
+  useEffect(() => {
+    let active = true;
+    setInStock(false);
+    fetchInStock(entry.id)
+      .then((value) => {
+        if (active) setInStock(value);
+      })
+      .catch(() => {
+        if (active) setInStock(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [entry.id]);
 
   return (
     <>
@@ -71,7 +88,10 @@ export function ColorDetail(props: {
           <header className="color-detail-header">
             <div>
               <p className="eyebrow">{brandName} · {entry.s}</p>
-              <h2>{entryName}</h2>
+              <h2>
+                {entryName}
+                {inStock ? <span className="badge badge-stock">库存有</span> : null}
+              </h2>
               {subName !== null && <p className="color-detail-sub">{subName}{entry.code ? ` · ${entry.code}` : ""}</p>}
             </div>
             <button type="button" className="btn btn-ghost" onClick={onClose}>关闭</button>

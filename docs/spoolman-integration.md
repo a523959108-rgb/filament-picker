@@ -1,6 +1,6 @@
 # Spoolman 集成设计：我的耗材柜
 
-状态：设计说明 + 只读骨架。公开站点、配色规划和 CLI 都还没有接上。本文不修改 `docs/SPEC.md`。
+状态：只读库存已接到配色结果。公开站点默认关闭：`FP_SPOOLMAN_ENABLED` 不是 `1` / `true` / `yes` 时，推荐顺序、回复和页面都跟没接库存时一样。本文不修改 `docs/SPEC.md`，也不改 `MATCH_MAX_DE`。
 
 Spoolman（<https://github.com/Donkie/Spoolman>）是 MIT 许可证的自托管耗材库存服务。filament-picker 继续做色卡和选色。库存放在另一台只在局域网或 Tailscale 里能访问的 Spoolman 上，由家里的人自己记账。
 
@@ -10,8 +10,9 @@ Spoolman（<https://github.com/Donkie/Spoolman>）是 MIT 许可证的自托管�
 - 不要求 Spoolman 对公网开放，也不把它和 filament-picker 绑在同一个进程里。
 - 不在公开站点上代理 Spoolman 的管理接口。浏览器不直连 Spoolman。
 - 不从公开站点改库存。这一版骨架只有 `GET /api/v1/spool`，没有 POST、PUT、DELETE。
-- 不做登录后的「我的耗材柜」页面，不部署 Spoolman，不调用打印机。
+- 不做登录后的「我的耗材柜」页面，不部署 Spoolman，不调用打印机。位置和剩余克数也不进公开响应；那一页留到以后，并且只给已登录的人看。
 - 不因为没库存就把推荐色从结果里删掉。没货的颜色仍然保留购买链接。有货只是把对应推荐提前。
+- 不在公开站（例如 filament.ibaozi.com）打开 `FP_SPOOLMAN_ENABLED`。要读库存的进程只跑在能访问局域网或 Tailscale 上那台 Spoolman 的私有主机。
 
 ## 部署
 
@@ -102,17 +103,45 @@ Accept: application/json
 
 `in_stock` 只在 `match == "color_id"` 且那一卷剩余重量大于 0 时为 true。
 
+公开响应不带上面这整份对象。配色结果和 `/api/stock` 只留下两个布尔值，避免把柜子位置、剩余克数和 spool id 发给浏览器：
+
+```json
+{ "in_stock": true, "nearby_in_stock": false }
+```
+
+`nearby_in_stock` 为 true 时，这支推荐可以排到完全没注解的颜色前面，但页面不显示「库存有」。不能把接近色说成就是这个 color_id。
+
+## 接在哪
+
+仍只有原来的三个环境变量，没有新开关，也没有把 Spoolman 地址或密码放进前端包。关闭时 `load_spools()` 不连接，直接当没有卷。配置不合法、超时、HTTP 错误或响应无法解析时同样返回空元组，并写一条 warning。这两种情况下配色请求继续返回，顺序和字段跟没读到库存时一样，不把异常原文放进 JSON。
+
+| 位置 | 行为 |
+| --- | --- |
+| `planner.run_plan` | matcher 给出 picks 之后、画色卡和写回复之前调用。读到卷才重排，并按新的第一名重算 `slots_used`。CLI 和 worker 都走这里。 |
+| `POST /api/plan` | picks 上可选 `stock`。结果 schema 允许这个对象，不要求它出现。回复里只有 `in_stock` 为 true 时追加「库存有」。 |
+| `GET /api/stock?ids=` | 逗号分隔的 color_id，最多 32 个。只返回真正有货的色号。关闭或失败时 HTTP 200，`{"ok": true, "hints": {}}`。 |
+| `web` 图片配色 | `stock.in_stock === true` 时在该推荐旁显示「库存有」。购买链接保留。 |
+| `web` 颜色详情 | 打开时请求 `/api/stock`。失败或没有这条 hint 时不显示徽章。 |
+| 已登录的模型配色 | `ModelPreview.match_colours` 用同一套重排。详情里同样只在 `in_stock` 时写「库存有」。 |
+
+颜色详情和模型页都不直连 Spoolman。浏览器只打 filament-picker 自己的接口。
+
 ## 代码放在哪
 
 | 文件 | 作用 |
 | --- | --- |
-| `src/filament_picker/spoolman.py` | 环境变量、只读客户端、响应解析、库存注解。默认关闭。关闭时 `list_spools()` 返回空元组，不发起连接。 |
-| `tests/test_spoolman.py` | 用注入的 opener 或替身 `urlopen` 测解析和排序。CI 不需要 Spoolman 进程。 |
+| `src/filament_picker/spoolman.py` | 环境变量、只读客户端、响应解析、`load_spools`、`annotate_picks`、`in_stock_hints`。默认关闭。关闭时不发起连接。 |
+| `src/filament_picker/planner.py` | 配色结果上的排序和公开 `stock`。 |
+| `src/filament_picker/api.py` | `GET /api/stock`。`POST /api/plan` 经 `run_plan` 带上库存。 |
+| `src/filament_picker/models.py` | 登录后的模型原配色使用同一排序。 |
+| `src/filament_picker/reply.py` | 有货的推荐在括号里加「库存有」。 |
+| `web/src/components/PlanPage.tsx`、`ColorDetail.tsx`、`ModelPreview.tsx` | 「库存有」徽章。 |
+| `tests/test_spoolman.py` | 用注入的 opener 或替身 `urlopen` 测解析和排序。 |
+| `tests/test_spoolman_plan.py` | 假 HTTP：开启时有货提前、关闭时不连接、Spoolman 挂了仍返回原方案、缺剩余重量不算有货、接近色不算同一个 color_id。 |
 
-`server.py`、`cli.py` 和 `web/` 都没有引用这个模块。不要在这一层之外加开关或改配色阈值。颜色兜底直接复用 `config.MATCH_MAX_DE`，不另设一个 ΔE。
+不要另加开关，也不要改 `MATCH_MAX_DE`。颜色兜底继续用这个现成阈值。
 
 ## 以后才做
 
-- 私有 API 在生成配色结果后调用 `annotate_recommendations`。失败时配色结果照常返回，库存注解为空。这一步要单独设计错误表现，不在这一版里接上。
-- 只给已登录的家里使用者看「柜里有 / 剩余克数 / 位置」。公开访客仍只看色卡和购买链接。
+- 登录后的库存汇总页：列出剩余克数和位置。这一版没有做。公开响应继续不带这两项。
 - 可选：用 color_id 批量给 Spoolman 建 filament。那是写接口，要另开任务，并且仍然只跑在私有主机上。

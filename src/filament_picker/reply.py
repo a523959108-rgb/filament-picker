@@ -12,6 +12,9 @@ def _pick_text(pick: dict[str, Any], prefix: str) -> str:
     )
     if pick.get("is_approx"):
         text += "，近似色"
+    stock = pick.get("stock")
+    if isinstance(stock, dict) and stock.get("in_stock") is True:
+        text += "，库存有"
     text += "）"
     if pick.get("url") is not None:
         text += f"[购买]({pick['url']})"

@@ -16,6 +16,9 @@ from .catalog import load_catalog
 from .config import TZ
 from .models import mount_model_preview
 from .planner import run_plan
+from .spoolman import in_stock_hints, load_spools
+
+_STOCK_ID_LIMIT = 32
 
 MAX_UPLOAD_BYTES: int = 10 * 1024 * 1024
 ALLOWED_EXT: dict[str, str] = {
@@ -67,6 +70,19 @@ def create_app(
     @app.get("/api/health")
     async def health() -> dict[str, Any]:
         return {"ok": True, "catalog_generated_at": catalog.generated_at}
+
+    @app.get("/api/stock")
+    async def stock(ids: str = "") -> dict[str, Any]:
+        requested: list[str] = []
+        for part in ids.split(","):
+            color_id = part.strip()
+            if not color_id or color_id in requested:
+                continue
+            requested.append(color_id)
+            if len(requested) == _STOCK_ID_LIMIT:
+                break
+        hints = in_stock_hints(requested, catalog.by_id, load_spools())
+        return {"ok": True, "hints": hints}
 
     @app.post("/api/plan")
     async def plan(
