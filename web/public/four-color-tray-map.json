@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-11-09T18:05:00+09:00",
+  "brand_preference": "bambu-lab",
+  "series_preference": "PLA Basic",
+  "disclaimer": "RYBW：按 2026-11-09 Lumina 烟测引擎 hex 级联匹配（PLA Basic → 同品牌其他系列，ΔE 阈=8）。红槽 Basic 红色 ΔE 11.26 超阈，主推 PLA Matte 猩红；Basic 红保留为 LUT 名义备选。CMYW 仍待人工确认。选色站不运行叠色引擎。",
+  "palettes": {
+    "RYBW": {
+      "label": "红-黄-蓝-白",
+      "lut_hints": [
+        "Bambulab&PLA&4色&RYBW&红-蓝-黄-白.npy",
+        "bambulab_pla_basic_rybw"
+      ],
+      "slots": [
+        {
+          "slot": "R",
+          "name_zh": "红",
+          "name_en": "Scarlet Red",
+          "catalog_id": "bambu-lab/pla-matte/scarlet-red-11200",
+          "hex": "#DE4343",
+          "code": "11200",
+          "status": "same_brand_fallback",
+          "lut_nominal_id": "bambu-lab/pla-basic/red-10200",
+          "match_reason": "引擎 #E94A39：PLA Basic 红 #C12E1F ΔE 11.26>8；同品牌 PLA Matte 猩红 #DE4343 ΔE 5.06 且有 PDD"
+        },
+        {
+          "slot": "Y",
+          "name_zh": "黄",
+          "name_en": "Yellow",
+          "catalog_id": "bambu-lab/pla-basic/yellow-10400",
+          "hex": "#F4EE2A",
+          "code": "10400",
+          "status": "preferred_series",
+          "match_reason": "引擎 #ECEF35 → Basic 黄 #F4EE2A · ΔE 2.14"
+        },
+        {
+          "slot": "B",
+          "name_zh": "蓝",
+          "name_en": "Cobalt Blue",
+          "catalog_id": "bambu-lab/pla-basic/cobalt-blue-10604",
+          "hex": "#0056B8",
+          "code": "10604",
+          "status": "preferred_series",
+          "match_reason": "引擎 #3451B1 → Basic 钴蓝 #0056B8 · ΔE 4.48"
+        },
+        {
+          "slot": "W",
+          "name_zh": "白",
+          "name_en": "Light Gray",
+          "catalog_id": "bambu-lab/pla-basic/light-gray-10104",
+          "hex": "#D1D3D5",
+          "code": "10104",
+          "status": "preferred_series",
+          "match_reason": "引擎 #D7D2CF → Basic 浅灰 #D1D3D5 · ΔE 3.83（比玉石白更近）"
+        }
+      ],
+      "smoke_engine_hex": {
+        "W": "#D7D2CF",
+        "R": "#E94A39",
+        "Y": "#ECEF35",
+        "B": "#3451B1"
+      }
+    },
+    "CMYW": {
+      "label": "青-品红-黄-白",
+      "lut_hints": [
+        "bambulab_pla_basic_cmyw",
+        "bambulab_pla_basic_cmyw*.npy"
+      ],
+      "slots": [
+        {
+          "slot": "C",
+          "name_zh": "青",
+          "name_en": "Cyan",
+          "catalog_id": "bambu-lab/pla-basic/cyan-10603",
+          "hex": "#0086D6",
+          "code": "10603",
+          "status": "pending_manual_confirm",
+          "match_reason": "待 CMYW 烟测引擎 hex 后再级联匹配"
+        },
+        {
+          "slot": "M",
+          "name_zh": "品红",
+          "name_en": "Magenta",
+          "catalog_id": "bambu-lab/pla-basic/magenta-10202",
+          "hex": "#EC008C",
+          "code": "10202",
+          "status": "pending_manual_confirm",
+          "match_reason": "待 CMYW 烟测引擎 hex 后再级联匹配"
+        },
+        {
+          "slot": "Y",
+          "name_zh": "黄",
+          "name_en": "Yellow",
+          "catalog_id": "bambu-lab/pla-basic/yellow-10400",
+          "hex": "#F4EE2A",
+          "code": "10400",
+          "status": "pending_manual_confirm",
+          "match_reason": "待 CMYW 烟测引擎 hex 后再级联匹配"
+        },
+        {
+          "slot": "W",
+          "name_zh": "白",
+          "name_en": "Jade White",
+          "catalog_id": "bambu-lab/pla-basic/jade-white-10100",
+          "hex": "#FFFFFF",
+          "code": "10100",
+          "status": "pending_manual_confirm",
+          "match_reason": "待 CMYW 烟测引擎 hex 后再级联匹配"
+        }
+      ]
+    }
+  }
+}

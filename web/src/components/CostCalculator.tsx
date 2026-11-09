@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { JSX } from "react";
 import { formatYuan, printCost } from "../cost";
 import {
@@ -19,7 +19,12 @@ const FIELDS = [
 
 type FieldKey = (typeof FIELDS)[number]["key"];
 
-export function CostCalculator(): JSX.Element {
+export interface CostCalculatorProps {
+  /** When set, overwrite the 元/千克 field (from a PDD goods card price). */
+  appliedPricePerKg?: number | null;
+}
+
+export function CostCalculator({ appliedPricePerKg = null }: CostCalculatorProps): JSX.Element {
   const [values, setValues] = useState<Record<FieldKey, string>>({
     grams: String(COST_DEFAULT_GRAMS),
     pricePerKg: String(COST_DEFAULT_PRICE_PER_KG),
@@ -27,6 +32,14 @@ export function CostCalculator(): JSX.Element {
     watts: String(COST_DEFAULT_WATTS),
     kwhPrice: String(COST_DEFAULT_KWH_PRICE),
   });
+
+  useEffect(() => {
+    if (appliedPricePerKg == null || !Number.isFinite(appliedPricePerKg) || appliedPricePerKg <= 0) {
+      return;
+    }
+    setValues((current) => ({ ...current, pricePerKg: String(appliedPricePerKg) }));
+  }, [appliedPricePerKg]);
+
   const cost = printCost({
     grams: Number(values.grams),
     pricePerKg: Number(values.pricePerKg),
