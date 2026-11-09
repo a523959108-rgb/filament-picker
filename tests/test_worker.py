@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
+import signal
 import subprocess
 import time
 from pathlib import Path
@@ -210,3 +212,232 @@ def test_write_json_atomic_leaves_no_tmp(tmp_root: Path) -> None:
     write_json_atomic(path, {"ok": True})
     assert json.loads(path.read_text(encoding="utf-8")) == {"ok": True}
     assert not list(path.parent.glob("*.tmp"))
+
+
+def _log_events(root: Path) -> list[dict[str, object]]:
+    path = root / "logs/worker.log"
+    if not path.exists():
+        return []
+    events: list[dict[str, object]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(event, dict):
+            events.append(event)
+    return events
+
+
+def _wait_for_events(root: Path, proc: subprocess.Popen[bytes], pred, timeout: float = 15) -> list:
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        if proc.poll() is not None:
+            raise AssertionError(f"worker exited early: {proc.returncode}")
+        events = _log_events(root)
+        if pred(events):
+            return events
+        time.sleep(0.05)
+    raise AssertionError(f"timed out waiting for log: {_log_events(root)}")
+
+
+def _worker_command(tmp_root: Path, repo_root: Path, catalog: Path) -> list[str]:
+    return [
+        str(repo_root / ".venv/bin/filament-picker"),
+        "worker",
+        "--root",
+        str(tmp_root),
+        "--catalog",
+        str(catalog),
+    ]
+
+
+def _stop_process(proc: subprocess.Popen[bytes]) -> None:
+    if proc.poll() is None:
+        proc.kill()
+        proc.wait(timeout=5)
+
+
+def test_requeues_orphaned_processing_request(tmp_root: Path, repo_root: Path) -> None:
+    image = tmp_root / "black.png"
+    from helpers_images import square_on_white
+
+    square_on_white(image, "#000000")
+    path = _write_request(tmp_root, _request(image, "orphan"))
+    path.rename(tmp_root / "processing" / path.name)
+    catalog = repo_root / "docs/schemas/examples/filament-catalog.example.json"
+
+    assert run_worker(tmp_root, catalog, True, None) == 0
+    result = json.loads((tmp_root / "outbox/orphan.json").read_text(encoding="utf-8"))
+    assert result["status"] == "ok"
+    assert (tmp_root / "done/orphan.request.json").is_file()
+    assert not list((tmp_root / "processing").iterdir())
+    assert any(
+        event["event"] == "claimed"
+        and event["detail"] == "requeued"
+        and event["request_id"] == "orphan"
+        for event in _log_events(tmp_root)
+    )
+
+
+def test_requeue_does_not_overwrite_inbox_request(tmp_root: Path, repo_root: Path) -> None:
+    image = tmp_root / "black.png"
+    from helpers_images import square_on_white
+
+    square_on_white(image, "#000000")
+    path = _write_request(tmp_root, _request(image, "same"))
+    (tmp_root / "processing" / path.name).write_text("{not json", encoding="utf-8")
+    catalog = repo_root / "docs/schemas/examples/filament-catalog.example.json"
+
+    assert run_worker(tmp_root, catalog, True, None) == 0
+    result = json.loads((tmp_root / "outbox/same.json").read_text(encoding="utf-8"))
+    assert result["status"] == "ok"
+    assert (tmp_root / "done/same.request.json").is_file()
+    assert (tmp_root / "failed/same.request.json").read_text(encoding="utf-8") == "{not json"
+
+
+def test_cleanup_skips_file_that_cannot_be_unlinked(
+    tmp_root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_root / "inbox/old"
+    path.write_text("old", encoding="utf-8")
+    old = time.time() - 8 * 86400
+    os.utime(path, (old, old))
+    real_unlink = Path.unlink
+
+    def flaky_unlink(self: Path, *args: object, **kwargs: object) -> None:
+        if self.name == "old":
+            raise OSError("busy")
+        real_unlink(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", flaky_unlink)
+    assert cleanup(tmp_root, time.time()) == 0
+    assert path.exists()
+    assert any(
+        event["event"] == "error" and "busy" in str(event["detail"])
+        for event in _log_events(tmp_root)
+    )
+
+
+def test_claim_oserror_does_not_stop_the_worker(
+    tmp_root: Path, repo_root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from filament_picker import worker as worker_module
+    from helpers_images import square_on_white
+
+    image = tmp_root / "black.png"
+    square_on_white(image, "#000000")
+    _write_request(tmp_root, _request(image, "a"))
+    _write_request(tmp_root, _request(image, "b"))
+    original = worker_module.claim
+
+    def wrapped(req: Path, root: Path) -> Path | None:
+        if req.name.startswith("a."):
+            raise PermissionError("nope")
+        return original(req, root)
+
+    monkeypatch.setattr(worker_module, "claim", wrapped)
+    catalog = repo_root / "docs/schemas/examples/filament-catalog.example.json"
+    assert run_worker(tmp_root, catalog, True, None) == 0
+    assert (tmp_root / "inbox/a.request.json").is_file()
+    assert (tmp_root / "done/b.request.json").is_file()
+    result = json.loads((tmp_root / "outbox/b.json").read_text(encoding="utf-8"))
+    assert result["status"] == "ok"
+    assert any(event["detail"] == "nope" for event in _log_events(tmp_root))
+
+
+def test_sigterm_exits_zero_and_second_worker_does_not_steal_processing(
+    tmp_root: Path, repo_root: Path
+) -> None:
+    from helpers_images import square_on_white
+
+    catalog = repo_root / "docs/schemas/examples/filament-catalog.example.json"
+    command = _worker_command(tmp_root, repo_root, catalog)
+    proc = subprocess.Popen(command, cwd=repo_root)
+    try:
+        _wait_for_events(
+            tmp_root,
+            proc,
+            lambda events: any(event["event"] == "start" for event in events),
+        )
+        image = tmp_root / "black.png"
+        square_on_white(image, "#000000")
+        processing = tmp_root / "processing/inflight.request.json"
+        processing.write_text(
+            json.dumps(_request(image, "inflight"), ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        second = subprocess.run([*command, "--once"], cwd=repo_root, timeout=60, check=False)
+        assert second.returncode == 0
+        assert processing.is_file()
+        assert not (tmp_root / "outbox/inflight.json").exists()
+        proc.send_signal(signal.SIGTERM)
+        assert proc.wait(timeout=15) == 0
+        third = subprocess.run([*command, "--once"], cwd=repo_root, timeout=60, check=False)
+        assert third.returncode == 0
+        assert (tmp_root / "done/inflight.request.json").is_file()
+        assert not processing.exists()
+        result = json.loads((tmp_root / "outbox/inflight.json").read_text(encoding="utf-8"))
+        assert result["status"] == "ok"
+    finally:
+        _stop_process(proc)
+
+
+def test_catalog_reload_and_failed_reload_keeps_running(tmp_root: Path, repo_root: Path) -> None:
+    from helpers_images import square_on_white
+
+    catalog = tmp_root.parent / "catalog.json"
+    shutil.copy(repo_root / "docs/schemas/examples/filament-catalog.example.json", catalog)
+    command = _worker_command(tmp_root, repo_root, catalog)
+    proc = subprocess.Popen(command, cwd=repo_root)
+    try:
+        _wait_for_events(
+            tmp_root,
+            proc,
+            lambda events: any(event["event"] == "start" for event in events),
+        )
+        replacement = catalog.with_name(f".{catalog.name}.tmp")
+        replacement.write_text(catalog.read_text(encoding="utf-8"), encoding="utf-8")
+        os.replace(replacement, catalog)
+        _wait_for_events(
+            tmp_root,
+            proc,
+            lambda events: any(event["event"] == "catalog_reload" for event in events),
+        )
+        replacement.write_text("{", encoding="utf-8")
+        os.replace(replacement, catalog)
+        _wait_for_events(
+            tmp_root,
+            proc,
+            lambda events: (
+                sum(
+                    1
+                    for event in events
+                    if event["event"] == "error" and event["code"] == "CATALOG_ERROR"
+                )
+                >= 1
+            ),
+        )
+        time.sleep(2.5)
+        assert proc.poll() is None
+        catalog_errors = [
+            event
+            for event in _log_events(tmp_root)
+            if event["event"] == "error" and event["code"] == "CATALOG_ERROR"
+        ]
+        assert len(catalog_errors) == 1
+        image = tmp_root / "black.png"
+        square_on_white(image, "#000000")
+        _write_request(tmp_root, _request(image, "still"))
+        _wait_for_events(
+            tmp_root,
+            proc,
+            lambda events: any(
+                event["event"] == "done" and event["request_id"] == "still" for event in events
+            ),
+            timeout=20,
+        )
+        proc.send_signal(signal.SIGTERM)
+        assert proc.wait(timeout=15) == 0
+    finally:
+        _stop_process(proc)

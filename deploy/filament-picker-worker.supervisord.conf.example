@@ -1,0 +1,19 @@
+; 示例，不是安装文件。
+; 负责人明确同意之前：不要放进 supervisord，不要 start。
+; autostart=false 是故意的。路径、账号、URL 都是占位符，没有密钥。
+; 行为说明见 docs/dingtalk-worker-runbook.md。
+
+[program:filament-picker-worker]
+command=/path/to/filament-picker/scripts/run_worker.sh
+directory=/path/to/filament-picker
+user=WORKER_USER
+autostart=false
+autorestart=true
+startsecs=3
+startretries=5
+stopsignal=TERM
+stopwaitsecs=90
+environment=FP_ROOT="/path/to/shared/filament-picker",FP_CATALOG="/path/to/filament-picker/data/build/filament-catalog.json",FP_CARD_BASE_URL="https://cards.example.invalid/c",FP_FONT_REGULAR="/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",FP_FONT_BOLD="/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",FP_FONT_INDEX="2"
+stdout_logfile=/path/to/shared/filament-picker/logs/supervisord.out.log
+stderr_logfile=/path/to/shared/filament-picker/logs/supervisord.err.log
+priority=999
