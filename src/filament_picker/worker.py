@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import errno
+import fcntl
 import json
 import os
 import signal
@@ -8,7 +10,7 @@ import traceback
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO
 from zoneinfo import ZoneInfo
 
 from . import planner
@@ -170,15 +172,22 @@ def cleanup(root: Path, now: float) -> int:
         path = root / directory
         if not path.is_dir():
             continue
-        for child in path.iterdir():
-            if not child.is_file():
-                continue
+        try:
+            children = list(path.iterdir())
+        except OSError as exc:
+            _log(root, "error", code="INTERNAL", detail=f"cleanup skipped {directory}: {exc}")
+            continue
+        for child in children:
             try:
+                if not child.is_file():
+                    continue
                 if child.stat().st_mtime < cutoff:
                     child.unlink()
                     removed += 1
             except FileNotFoundError:
                 continue
+            except OSError as exc:
+                _log(root, "error", code="INTERNAL", detail=f"cleanup skipped {child.name}: {exc}")
     return removed
 
 
@@ -189,19 +198,107 @@ def _request_files(root: Path) -> list[Path]:
             entries.append((path.stat().st_mtime, path.name, path))
         except FileNotFoundError:
             continue
+        except OSError as exc:
+            _log(
+                root,
+                "error",
+                request_id_from_name(path.name),
+                "error",
+                "INTERNAL",
+                detail=str(exc),
+            )
+            continue
     return [path for _, _, path in sorted(entries)]
+
+
+def _acquire_worker_lock(root: Path) -> TextIO | None:
+    lock_path = root / "logs" / "worker.lock"
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    handle = lock_path.open("a+", encoding="utf-8")
+    try:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError as exc:
+        handle.close()
+        if exc.errno in (errno.EAGAIN, errno.EWOULDBLOCK):
+            return None
+        raise
+    handle.seek(0)
+    handle.truncate()
+    handle.write(f"{os.getpid()}\n")
+    handle.flush()
+    return handle
+
+
+def _requeue_processing(root: Path) -> int:
+    processing = root / "processing"
+    inbox = root / "inbox"
+    if not processing.is_dir():
+        return 0
+    try:
+        paths = sorted(processing.glob(f"*{REQ_SUFFIX}"), key=lambda item: item.name)
+    except OSError as exc:
+        _log(root, "error", code="INTERNAL", detail=str(exc))
+        return 0
+    moved = 0
+    for path in paths:
+        request_id = request_id_from_name(path.name)
+        destination = inbox / path.name
+        try:
+            if not destination.exists():
+                os.link(path, destination)
+                path.unlink()
+            else:
+                failed = root / "failed" / path.name
+                if not failed.exists():
+                    os.rename(path, failed)
+                _log(
+                    root,
+                    "error",
+                    request_id,
+                    "error",
+                    "INTERNAL",
+                    detail="requeue skipped; inbox already has request",
+                )
+                continue
+        except OSError as exc:
+            _log(root, "error", request_id, "error", "INTERNAL", detail=str(exc))
+            continue
+        moved += 1
+        _log(root, "claimed", request_id, detail="requeued")
+    return moved
+
+
+def _reload_catalog(
+    root: Path,
+    catalog_path: Path,
+    catalog: Catalog,
+    catalog_mtime: int,
+    catalog_error_detail: str | None,
+) -> tuple[Catalog, int, str | None]:
+    try:
+        current_mtime = catalog_path.stat().st_mtime_ns
+    except OSError as exc:
+        detail = str(exc)
+        if detail != catalog_error_detail:
+            _log(root, "error", code="CATALOG_ERROR", detail=detail)
+            catalog_error_detail = detail
+        return catalog, catalog_mtime, catalog_error_detail
+    if current_mtime == catalog_mtime:
+        return catalog, catalog_mtime, catalog_error_detail
+    try:
+        loaded = load_catalog(catalog_path)
+    except (OSError, CatalogValidationError, ValueError) as exc:
+        detail = str(exc)
+        if detail != catalog_error_detail:
+            _log(root, "error", code="CATALOG_ERROR", detail=detail)
+            catalog_error_detail = detail
+        return catalog, catalog_mtime, catalog_error_detail
+    _log(root, "catalog_reload")
+    return loaded, current_mtime, None
 
 
 def run_worker(root: Path, catalog_path: Path, once: bool, card_base_url: str | None) -> int:
     ensure_dirs(root)
-    _log(root, "start")
-    try:
-        catalog = load_catalog(catalog_path)
-        catalog_mtime = catalog_path.stat().st_mtime_ns
-    except (OSError, CatalogValidationError, ValueError) as exc:
-        _log(root, "error", code="CATALOG_ERROR", detail=str(exc))
-        return 2
-
     stopping = False
 
     def stop_handler(signum: int, frame: Any) -> None:
@@ -211,20 +308,36 @@ def run_worker(root: Path, catalog_path: Path, once: bool, card_base_url: str | 
 
     previous_int = signal.signal(signal.SIGINT, stop_handler)
     previous_term = signal.signal(signal.SIGTERM, stop_handler)
-    last_cleanup = 0.0
+    lock_handle: TextIO | None = None
     try:
-        while True:
-            try:
-                current_mtime = catalog_path.stat().st_mtime_ns
-                if current_mtime != catalog_mtime:
-                    catalog = load_catalog(catalog_path)
-                    catalog_mtime = current_mtime
-                    _log(root, "catalog_reload")
-            except (OSError, CatalogValidationError, ValueError) as exc:
-                _log(root, "error", code="CATALOG_ERROR", detail=str(exc))
+        try:
+            catalog = load_catalog(catalog_path)
+            catalog_mtime = catalog_path.stat().st_mtime_ns
+        except (OSError, CatalogValidationError, ValueError) as exc:
+            _log(root, "error", code="CATALOG_ERROR", detail=str(exc))
+            return 0 if stopping else 2
+        if stopping:
+            return 0
 
+        lock_handle = _acquire_worker_lock(root)
+        if lock_handle is None:
+            _log(root, "start", detail="lock_busy")
+        else:
+            _requeue_processing(root)
+            _log(root, "start")
+
+        last_cleanup = 0.0
+        catalog_error_detail: str | None = None
+        while True:
+            if stopping:
+                return 0
             for request in _request_files(root):
-                claimed = claim(request, root)
+                request_id = request_id_from_name(request.name)
+                try:
+                    claimed = claim(request, root)
+                except OSError as exc:
+                    _log(root, "error", request_id, "error", "INTERNAL", detail=str(exc))
+                    continue
                 if claimed is None:
                     continue
                 request_id = request_id_from_name(claimed.name)
@@ -259,19 +372,32 @@ def run_worker(root: Path, catalog_path: Path, once: bool, card_base_url: str | 
                     try:
                         if claimed.exists():
                             os.replace(claimed, root / "failed" / claimed.name)
-                    except OSError:
-                        pass
+                    except OSError as move_exc:
+                        _log(root, "error", request_id, "error", "INTERNAL", detail=str(move_exc))
                 if stopping:
                     break
 
             current_time = time.time()
             if current_time - last_cleanup >= CLEANUP_INTERVAL_S:
-                removed = cleanup(root, current_time)
-                _log(root, "cleanup", detail=str(removed))
+                try:
+                    removed = cleanup(root, current_time)
+                except OSError as exc:
+                    _log(root, "error", code="INTERNAL", detail=str(exc))
+                else:
+                    _log(root, "cleanup", detail=str(removed))
                 last_cleanup = current_time
+            catalog, catalog_mtime, catalog_error_detail = _reload_catalog(
+                root,
+                catalog_path,
+                catalog,
+                catalog_mtime,
+                catalog_error_detail,
+            )
             if once or stopping:
                 return 0
             time.sleep(WORKER_POLL_S)
     finally:
         signal.signal(signal.SIGINT, previous_int)
         signal.signal(signal.SIGTERM, previous_term)
+        if lock_handle is not None:
+            lock_handle.close()
