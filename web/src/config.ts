@@ -47,3 +47,37 @@ export const FAMILIES = [
   "夜光",
   "其他",
 ] as const;
+
+/** Production stack subdomain origin (no trailing slash). */
+export const STACK_SITE_ORIGIN = "https://stack.filament.ibaozi.com";
+
+/** Main catalog host; on this host the stack CTA opens the subdomain. */
+export const MAIN_SITE_HOST = "filament.ibaozi.com";
+
+/** In-app hash for the stack page (local / same-host fallback). */
+export const STACK_HASH = "#/stack";
+
+export function stackHostFromOrigin(origin: string = STACK_SITE_ORIGIN): string {
+  try {
+    return new URL(origin).hostname;
+  } catch {
+    return "";
+  }
+}
+
+export function isStackHost(hostname: string): boolean {
+  const stackHost = stackHostFromOrigin();
+  return stackHost !== "" && hostname === stackHost;
+}
+
+/**
+ * Where the homepage / nav "叠色" entry should go.
+ * - Main production host → stack subdomain `/#/stack`
+ * - Already on stack host, or local/preview → in-app `#/stack`
+ */
+export function stackEntryHref(hostname: string): string {
+  if (!STACK_SITE_ORIGIN) return STACK_HASH;
+  if (isStackHost(hostname)) return STACK_HASH;
+  if (hostname === MAIN_SITE_HOST) return `${STACK_SITE_ORIGIN}/${STACK_HASH}`;
+  return STACK_HASH;
+}

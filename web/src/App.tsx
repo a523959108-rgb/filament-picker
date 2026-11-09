@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
 import { loadCatalog } from "./catalog";
-import { FAMILIES } from "./config";
+import { FAMILIES, STACK_HASH, isStackHost, stackEntryHref } from "./config";
 import { Filters } from "./components/Filters";
 import { ColorDetail } from "./components/ColorDetail";
 import { CompareBar } from "./components/CompareBar";
@@ -9,6 +9,7 @@ import { SwatchGrid } from "./components/SwatchGrid";
 import { PlanPage } from "./components/PlanPage";
 import { CostPage } from "./components/CostPage";
 import { ModelPreview } from "./components/ModelPreview";
+import { StackPage } from "./components/StackPage";
 import { buildIndex, EMPTY_FILTER, query } from "./search";
 import type { FilterState } from "./search";
 import type { WebCatalog } from "./types";
@@ -18,6 +19,7 @@ function routeFromHash(): string {
 }
 
 function CatalogHeader(): JSX.Element {
+  const stackHref = stackEntryHref(window.location.hostname);
   return (
     <header className="topbar">
       <div className="topbar-title">
@@ -27,9 +29,30 @@ function CatalogHeader(): JSX.Element {
       <nav className="topbar-nav" aria-label="页面导航">
         <a href="#/plan" className="nav-link">图片配色</a>
         <a href="#/cost" className="nav-link">打印成本</a>
+        <a href={stackHref} className="nav-link">叠色</a>
         <a href="/models/login" className="nav-link">模型预览</a>
       </nav>
     </header>
+  );
+}
+
+function StackHomeCta(): JSX.Element {
+  const href = stackEntryHref(window.location.hostname);
+  const external = href.startsWith("http");
+  return (
+    <section className="stack-home-cta panel" aria-label="叠色入口">
+      <div className="stack-home-cta-copy">
+        <h2>四色叠色</h2>
+        <p>上传图片，本机引擎生成叠色模型，并用色卡库推荐可买颜色。</p>
+      </div>
+      <a
+        className="stack-home-cta-btn"
+        href={href}
+        {...(external ? { rel: "noopener noreferrer" } : {})}
+      >
+        打开叠色
+      </a>
+    </section>
   );
 }
 
@@ -57,7 +80,15 @@ function CatalogApp(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (route === "#/plan") return;
+    if (!isStackHost(window.location.hostname)) return;
+    const hash = routeFromHash();
+    if (hash === "" || hash === "#" || hash === "#/") {
+      window.location.hash = STACK_HASH;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (route === "#/plan" || route === "#/stack") return;
     let active = true;
     loadCatalog()
       .then((value) => {
@@ -85,6 +116,9 @@ function CatalogApp(): JSX.Element {
   }
   if (route === "#/cost") {
     return <main className="page"><CostPage /></main>;
+  }
+  if (route === "#/stack") {
+    return <main className="page"><StackPage /></main>;
   }
   if (loadError) {
     return (
@@ -118,6 +152,7 @@ function CatalogApp(): JSX.Element {
   return (
     <main className="page">
       <CatalogHeader />
+      <StackHomeCta />
       <div className="catalog-layout">
         <aside className="sidebar">
           <label className="search">
