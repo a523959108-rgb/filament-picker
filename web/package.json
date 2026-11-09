@@ -13,7 +13,8 @@
     "culori": "4.0.2",
     "minisearch": "7.2.0",
     "react": "19.3.1",
-    "react-dom": "19.3.1"
+    "react-dom": "19.3.1",
+    "three": "0.187.0"
   },
   "devDependencies": {
     "@testing-library/react": "16.3.3",

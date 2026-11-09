@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 from PIL import Image
 
 from .config import TZ
+from .mesh_glb import sample_glb_bytes
 
 
 def seed_samples(root: Path) -> int:
@@ -40,6 +41,7 @@ def seed_samples(root: Path) -> int:
             ).fetchall()
         if existing != records:
             raise ValueError("refusing to overwrite a non-sample manifest")
+        _ensure_sample_mesh(root)
         return len(records)
     (root / "thumbs").mkdir(parents=True, exist_ok=True)
     created_at = datetime.now(ZoneInfo(TZ)).isoformat(timespec="seconds")
@@ -57,4 +59,25 @@ def seed_samples(root: Path) -> int:
                 "INSERT INTO models VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (*record, created_at),
             )
+    _ensure_sample_mesh(root)
     return len(records)
+
+
+def _ensure_sample_mesh(root: Path) -> None:
+    """Add the synthetic cube for sample-01 when that file is absent.
+
+    A file that is already there is left untouched, including a replacement an
+    operator dropped in for the sample id. Non-sample manifests never reach
+    this helper. A ``meshes`` directory that resolves outside ``root`` is refused.
+    """
+    directory = root / "meshes"
+    destination = directory / "sample-01.glb"
+    if destination.exists():
+        return
+    resolved_root = root.resolve()
+    if directory.exists() and directory.resolve() != resolved_root / "meshes":
+        raise ValueError("sample mesh directory escapes the models root")
+    directory.mkdir(parents=True, exist_ok=True)
+    if destination.resolve().parent != directory.resolve():
+        raise ValueError("sample mesh directory escapes the models root")
+    destination.write_bytes(sample_glb_bytes())

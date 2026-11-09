@@ -33,6 +33,18 @@
 .model-card p { margin-top: 6px; color: var(--text-2); }
 .model-pagination { display: flex; gap: 20px; align-items: center; justify-content: center; margin-top: 28px; }
 .model-detail { display: grid; grid-template-columns: minmax(0, 3fr) minmax(240px, 2fr); gap: 32px; }
+.model-mesh { margin: 0 0 16px; }
+.model-mesh-stage {
+  width: 100%;
+  height: clamp(240px, 62vh, 560px);
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  touch-action: none;
+}
+.model-mesh-stage:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.model-mesh-canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.model-mesh figcaption { margin-top: 6px; color: var(--text-2); }
 .model-shots { display: grid; gap: 16px; }
 .model-shots figure { margin: 0; }
 .model-shots img,
