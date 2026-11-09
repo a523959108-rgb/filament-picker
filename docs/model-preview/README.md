@@ -1,6 +1,6 @@
 # 本地模型预览
 
-本任务只交付同站 `/models` 登录画廊、API、假样例和部署示例。样例均为程序生成的纯色 PNG，标题、作者、大小和 sha256 都是合成元数据，没有真实模型文件。没有执行部署、上传、原件扫描或 3D 转换。
+本目录说明同站 `/models` 登录画廊、API、假样例和部署示例。样例均为程序生成的纯色 PNG，标题、作者、大小和 sha256 都是合成元数据，没有真实模型文件。没有执行部署、上传或原件扫描。三维预览只读取私有目录里可选的 GLB，不转换 3MF。
 
 ## 本地启动
 
@@ -50,11 +50,31 @@ cd ..
 
 `POST /api/models/login` 接收 JSON `{username, password}`，成功返回 `{username}` 并设置 cookie；错误凭据 401、限流 429。`POST /api/models/logout` 撤销会话并清除 cookie；`GET /api/models/me` 返回 `{username}`。
 
-`GET /api/models?page=1&page_size=12&q=&series=&author=` 返回 `{items, total, page, page_size, series, authors}`。page 为 1–1000000，page_size 为 1–100；q 对标题作字面子串搜索（LIKE 通配字符会转义），系列/作者精确筛选，按 id 稳定排序。series/authors 是整个库的筛选选项；空清单返回空列表。`GET /api/models/{id}` 返回单条；`GET /api/models/{id}/thumb` 返回图片。
+`GET /api/models?page=1&page_size=12&q=&series=&author=` 返回 `{items, total, page, page_size, series, authors}`。page 为 1–1000000，page_size 为 1–100；q 对标题作字面子串搜索（LIKE 通配字符会转义），系列/作者精确筛选，按 id 稳定排序。series/authors 是整个库的筛选选项；空清单返回空列表。`GET /api/models/{id}` 返回单条；`GET /api/models/{id}/thumb` 返回图片；`GET /api/models/{id}/glb` 在私有网格存在时返回 GLB。
 
-列表和详情条目包含 `id, title, series, author, size_bytes, plate_count, colours, created_at, thumb_url`。不提供清单文件下载或原始文件 URL。
+列表和详情条目包含 `id, title, series, author, size_bytes, plate_count, colours, created_at, thumb_url`。详情另含 `mesh_url`（没有可读 GLB 时为 `null`）。不提供清单文件下载、原始 3MF 或磁盘路径。
 
 SQLite 清单表 `models` 包含任务书要求的 `id, sha256, title, series, author, source_relpath, size_bytes, plate_count, colours, thumb_path, created_at`；colours 为 JSON 数组，thumb_path 为相对路径。真实导入流程不在本地任务范围，后续应从 `filament_colour` 提取颜色并对整文件 sha256 去重；假数据不能作为真实去重数量或体积验收依据。
+
+## 三维预览
+
+详情页在 `mesh_url` 指向本站 `/api/models/{id}/glb` 时，才懒加载 `three`（0.187.0，MIT）和它自带的 OrbitControls。可以旋转、缩放、平移；窄屏用单指旋转、双指缩放或平移。没有网格、地址不是这条私有 API，或 WebGL/文件读取失败时，页面仍显示原来的封面、盘面和俯视图片。3MF 涂色不会在这一版里还原。
+
+网格只放在 `FILAMENT_PICKER_MODELS_ROOT`（默认 `data/models-private`）下，不复制到 `web/public`、`web/dist`，也不放到公开 CDN：
+
+```
+data/models-private/
+  manifest.sqlite
+  thumbs/
+  images/{id}/
+  meshes/{id}.glb
+```
+
+`{id}` 与清单主键相同，只允许字母、数字、`_` 和 `-`。`meshes/{id}.glb` 必须是普通文件；符号链接、目录穿越和清单里不存在的 id 都返回 404。要给某个模型打开预览，把 glTF 二进制写成这个文件名即可。`scripts/seed_model_preview_samples.py` 会在样例清单上补一个 `meshes/sample-01.glb`（程序生成的单位立方体）；已有同名文件不会被覆盖。其余样例没有网格，用来确认图片画廊仍然可用。
+
+`FILAMENT_PICKER_MODELS_DIRECT=1` 时，`GET /api/models/{id}/glb` 直接返回 `Content-Type: model/gltf-binary`。设为 0 时只返回 `X-Accel-Redirect: /internal-models/meshes/{id}.glb`，由下面的 internal location 发文件。匿名请求仍是 401，响应带 `Cache-Control: no-store` 和 `X-Robots-Tag: noindex, nofollow`。
+
+还没有 3MF→GLB 转换。真实模型要先在私有目录生成 `{id}.glb`，详情页才会出现可旋转的网格。
 
 ## Nginx 示例（未部署）
 
@@ -76,6 +96,6 @@ npm run build
 
 随后在本机交互启动 `serve`，验证登录前后页面、图片、登出及选色站共存。真实 Nginx 的 `internal` 直接访问检查和配置检查留给后续授权部署流程；本任务不修改服务器配置。
 
-外部任务书 §7.2 仍待决定：真实缩略图规格、首次上传方式与执行人、是否开展 3D，以及可选的原件私有冷备。均不阻塞本地假数据画廊；本任务未启动这些动作。
+外部任务书 §7.2 仍待决定：真实缩略图规格、首次上传方式与执行人，以及可选的原件私有冷备。可选 GLB 预览已经接上；3MF 转换和涂色还原还没有做。均不阻塞本地假数据画廊。
 
 本次沙箱验证：Ruff 检查与格式检查通过；前端 51 个测试、TypeScript lint 和生产 build 通过；8 条样例和纯色缩略图生成并验证通过。普通 `pytest -q` 在事件循环等待线程结果时超时。仅在临时测试进程中将 `selectors.EpollSelector.select` 的等待上限设为 10ms 后，全量为 **312 passed、1 skipped**（178.23 秒）；跳过项是已有校准测试所需 `extracted.json` 未生成。另行运行非 data 测试为 277 passed、36 deselected。工作树代码、测试断言及依赖未为此修改。这些结果不能替代协调者沙箱外的普通全量 `pytest -q` 验收。

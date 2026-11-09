@@ -1,6 +1,11 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import type { FormEvent, JSX } from "react";
 import "./model-preview.css";
+
+const MeshViewer = lazy(() =>
+  import("./MeshViewer").then((module) => ({ default: module.MeshViewer })),
+);
+const PRIVATE_MESH = /^\/api\/models\/[A-Za-z0-9_-]{1,128}\/glb$/;
 
 interface ModelImage {
   kind: "cover" | "plate" | "top";
@@ -37,6 +42,7 @@ interface Model {
   description?: string;
   images?: ModelImage[];
   colour_matches?: ColourMatch[];
+  mesh_url?: string | null;
 }
 
 interface ModelList {
@@ -200,9 +206,15 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
   if (model === null) return <p role="status">模型加载中…</p>;
   const shots = orderedShots(model);
   const matches = model.colour_matches ?? model.colours.map((hex) => ({ hex, picks: [] }));
+  const mesh = privateMeshUrl(model.mesh_url);
   return (
     <article className="panel model-detail">
       <div className="model-shots">
+        {mesh ? (
+          <Suspense fallback={<p role="status">三维预览加载中…</p>}>
+            <MeshViewer url={mesh} label={model.title} />
+          </Suspense>
+        ) : null}
         {shots.map((shot) => (
           <figure key={shot.url}>
             <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
@@ -237,6 +249,11 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
       </div>
     </article>
   );
+}
+
+function privateMeshUrl(url: string | null | undefined): string | null {
+  if (url == null || !PRIVATE_MESH.test(url)) return null;
+  return url;
 }
 
 function orderedShots(model: Model): ModelImage[] {

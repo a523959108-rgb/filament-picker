@@ -43,6 +43,8 @@ _IMAGE_TYPES = {
     ".jpg": "image/jpeg",
     ".jpeg": "image/jpeg",
 }
+_MESH_TYPE = "model/gltf-binary"
+_MODEL_ID = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
 _MEDIA_NAME = re.compile(r"^(?:cover\.png|(?:plate|top)_[1-9][0-9]{0,3}\.png)$")
 _COLOUR_PARAMS = Params(
     max_colors=DEFAULT_MAX_COLORS,
@@ -187,6 +189,25 @@ class ModelPreview:
         path = self._guarded_file(rel, {".png", ".webp", ".jpg", ".jpeg"}, ("thumbs",))
         return self._image_response(path, rel)
 
+    def mesh(self, model_id: str) -> Response:
+        self.record(model_id)
+        rel = self._mesh_rel(model_id)
+        path = self._guarded_file(rel, {".glb"}, ("meshes",), detail="网格不存在")
+        return self._binary_response(path, rel, _MESH_TYPE)
+
+    def mesh_url(self, model_id: str) -> str | None:
+        try:
+            rel = self._mesh_rel(model_id)
+            self._guarded_file(rel, {".glb"}, ("meshes",), detail="网格不存在")
+        except HTTPException:
+            return None
+        return f"/api/models/{quote(model_id, safe='')}/glb"
+
+    def _mesh_rel(self, model_id: str) -> PurePosixPath:
+        if _MODEL_ID.fullmatch(model_id) is None:
+            raise HTTPException(status_code=404, detail="网格不存在")
+        return PurePosixPath("meshes") / f"{model_id}.glb"
+
     def media(self, model_id: str, name: str) -> Response:
         if _MEDIA_NAME.fullmatch(name) is None:
             raise HTTPException(status_code=404, detail="图片不存在")
@@ -198,7 +219,12 @@ class ModelPreview:
         return self._image_response(path, rel)
 
     def _guarded_file(
-        self, rel: PurePosixPath, suffixes: set[str], parents: tuple[str, ...]
+        self,
+        rel: PurePosixPath,
+        suffixes: set[str],
+        parents: tuple[str, ...],
+        *,
+        detail: str = "图片不存在",
     ) -> Path:
         base = self.root.resolve()
         candidate = base.joinpath(*rel.parts)
@@ -215,11 +241,13 @@ class ModelPreview:
             or path.suffix.lower() not in suffixes
             or not path.is_file()
         ):
-            raise HTTPException(status_code=404, detail="图片不存在")
+            raise HTTPException(status_code=404, detail=detail)
         return path
 
     def _image_response(self, path: Path, rel: PurePosixPath) -> Response:
-        media_type = _IMAGE_TYPES[path.suffix.lower()]
+        return self._binary_response(path, rel, _IMAGE_TYPES[path.suffix.lower()])
+
+    def _binary_response(self, path: Path, rel: PurePosixPath, media_type: str) -> Response:
         if self.direct:
             return FileResponse(path, media_type=media_type)
         return Response(
@@ -371,6 +399,10 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
     def thumbnail(model_id: str) -> Response:
         return preview.thumbnail(model_id)
 
+    @router.get("/{model_id}/glb")
+    def mesh(model_id: str) -> Response:
+        return preview.mesh(model_id)
+
     @router.get("/{model_id}/media/{name}")
     def media(model_id: str, name: str) -> Response:
         return preview.media(model_id, name)
@@ -380,6 +412,7 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         row = preview.record(model_id)
         payload = _public_model(row, detail=True)
         payload["colour_matches"] = preview.match_colours(payload["colours"])
+        payload["mesh_url"] = preview.mesh_url(row["id"])
         return payload
 
     app.include_router(router)

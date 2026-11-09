@@ -11,6 +11,7 @@ from fastapi import FastAPI
 
 from filament_picker.auth import AuthStore
 from filament_picker.cli import main
+from filament_picker.mesh_glb import sample_glb_bytes
 from filament_picker.model_samples import seed_samples
 from filament_picker.server import build_server_app
 
@@ -187,6 +188,84 @@ def test_manifest_cannot_escape_thumbnail_directory(preview: tuple, thumb_path: 
     assert _request(app, "GET", "/api/models/sample-01/thumb", cookie).status_code == 404
 
 
+@pytest.mark.parametrize("direct", [True, False])
+def test_authenticated_glb_stays_inside_meshes(
+    preview: tuple, repo_root: Path, monkeypatch: pytest.MonkeyPatch, direct: bool
+) -> None:
+    _, password, models, _ = preview
+    monkeypatch.setenv("FILAMENT_PICKER_MODELS_DIRECT", "1" if direct else "0")
+    app = build_server_app(
+        models.parent / "dist",
+        repo_root / "docs/schemas/examples/filament-catalog.example.json",
+        models.parent,
+        None,
+    )
+    cookie = _login(app, password).headers["set-cookie"].split(";", 1)[0]
+    anonymous = _request(app, "GET", "/api/models/sample-01/glb")
+    assert anonymous.status_code == 401
+    assert anonymous.json() == {"detail": "需要登录"}
+    assert b"glTF" not in anonymous.content
+    payload = sample_glb_bytes()
+    assert (models / "meshes" / "sample-01.glb").read_bytes() == payload
+    response = _request(app, "GET", "/api/models/sample-01/glb", cookie)
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("model/gltf-binary")
+    assert response.headers["cache-control"] == "no-store"
+    assert response.headers["x-robots-tag"] == "noindex, nofollow"
+    assert str(models) not in str(response.headers)
+    assert str(models).encode() not in response.content
+    detail = _request(app, "GET", "/api/models/sample-01", cookie)
+    body = detail.json()
+    assert body["mesh_url"] == "/api/models/sample-01/glb"
+    assert "source_relpath" not in body and "thumb_path" not in body
+    assert "synthetic/" not in detail.text
+    assert str(models) not in detail.text
+    plain = _request(app, "GET", "/api/models/sample-02", cookie).json()
+    assert plain["mesh_url"] is None
+    missing = _request(app, "GET", "/api/models/sample-02/glb", cookie)
+    assert missing.status_code == 404
+    assert missing.json()["detail"] == "网格不存在"
+    assert b"glTF" not in missing.content
+    if direct:
+        assert response.content == payload
+        assert "x-accel-redirect" not in response.headers
+    else:
+        assert response.content == b""
+        assert response.headers["x-accel-redirect"] == "/internal-models/meshes/sample-01.glb"
+
+
+def test_mesh_rejects_symlink_directory_escape_and_unknown_ids(
+    preview: tuple, tmp_path: Path
+) -> None:
+    app, password, models, _ = preview
+    cookie = _login(app, password).headers["set-cookie"].split(";", 1)[0]
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    secret = outside / "sample-01.glb"
+    secret.write_bytes(b"glTFsecret-mesh")
+    mesh = models / "meshes" / "sample-01.glb"
+    mesh.unlink()
+    mesh.symlink_to(secret)
+    escaped = _request(app, "GET", "/api/models/sample-01/glb", cookie)
+    assert escaped.status_code == 404
+    assert b"secret-mesh" not in escaped.content
+    mesh.unlink()
+    mesh_dir = models / "meshes"
+    mesh_dir.rmdir()
+    mesh_dir.symlink_to(outside, target_is_directory=True)
+    via_dir = _request(app, "GET", "/api/models/sample-01/glb", cookie)
+    assert via_dir.status_code == 404
+    assert b"secret-mesh" not in via_dir.content
+    (models / "meshes").unlink()
+    (models / "meshes").mkdir()
+    (models / "meshes" / "missing.glb").write_bytes(sample_glb_bytes())
+    unknown = _request(app, "GET", "/api/models/missing/glb", cookie)
+    assert unknown.status_code == 404
+    assert unknown.json()["detail"] == "模型不存在"
+    assert unknown.headers["content-type"].startswith("application/json")
+    assert b"glTF" not in unknown.content
+
+
 def test_symlink_thumbnail_escape_is_blocked(preview: tuple, tmp_path: Path) -> None:
     app, password, models, _ = preview
     outside = tmp_path / "outside.png"
@@ -321,7 +400,11 @@ def test_create_user_refuses_getpass_fallback(
 def test_seed_is_synthetic_repeatable_and_does_not_overwrite_real_manifest(tmp_path: Path) -> None:
     models = tmp_path / "models-private"
     assert seed_samples(models) == 8
+    mesh = models / "meshes" / "sample-01.glb"
+    assert mesh.read_bytes()[:4] == b"glTF"
+    stamped = mesh.read_bytes()
     assert seed_samples(models) == 8
+    assert mesh.read_bytes() == stamped
     with sqlite3.connect(models / "manifest.sqlite") as conn:
         rows = conn.execute("SELECT * FROM models").fetchall()
         assert len(rows) == 8
@@ -330,3 +413,26 @@ def test_seed_is_synthetic_repeatable_and_does_not_overwrite_real_manifest(tmp_p
     assert not list(models.rglob("*.3mf"))
     with pytest.raises(ValueError, match="sample"):
         seed_samples(models)
+
+
+def test_seed_refuses_foreign_manifest_without_writing_a_mesh(tmp_path: Path) -> None:
+    root = tmp_path / "models"
+    root.mkdir()
+    with sqlite3.connect(root / "manifest.sqlite") as conn:
+        conn.execute(
+            "CREATE TABLE models (id TEXT PRIMARY KEY, sha256 TEXT NOT NULL, "
+            "title TEXT NOT NULL, series TEXT NOT NULL, author TEXT NOT NULL, "
+            "source_relpath TEXT NOT NULL, size_bytes INTEGER NOT NULL, "
+            "plate_count INTEGER NOT NULL, colours TEXT NOT NULL, thumb_path TEXT NOT NULL, "
+            "created_at TEXT NOT NULL)"
+        )
+        conn.execute(
+            "INSERT INTO models VALUES ("
+            "'real', 'abc', '真实模型', '', '', 'secret/path.3mf', 1, 1, '[]', "
+            "'thumbs/real.png', '2026-01-01T00:00:00+09:00')"
+        )
+    with pytest.raises(ValueError, match="sample"):
+        seed_samples(root)
+    assert not (root / "meshes").exists()
+    assert list(root.rglob("*.glb")) == []
+    assert list(root.rglob("*.3mf")) == []
