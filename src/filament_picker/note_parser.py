@@ -40,6 +40,27 @@ class NoteParse:
 
 
 @dataclass(frozen=True, slots=True)
+class SampleRegion:
+    """One sampling rectangle or click. Coordinates are original-image pixels or 0–1."""
+
+    x: float
+    y: float
+    space: str = "norm"
+    w: float | None = None
+    h: float | None = None
+    r: float | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {"space": self.space, "x": self.x, "y": self.y}
+        if self.w is not None and self.h is not None:
+            payload["w"] = self.w
+            payload["h"] = self.h
+        if self.r is not None:
+            payload["r"] = self.r
+        return payload
+
+
+@dataclass(frozen=True, slots=True)
 class Params:
     max_colors: int
     ams_slots: int
@@ -50,9 +71,10 @@ class Params:
     keep_small: bool
     per_color: int
     note_parsed: dict[str, Any]
+    regions: tuple[SampleRegion, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        payload: dict[str, Any] = {
             "max_colors": self.max_colors,
             "ams_slots": self.ams_slots,
             "n_colors": self.n_colors,
@@ -63,6 +85,9 @@ class Params:
             "per_color": self.per_color,
             "note_parsed": dict(self.note_parsed),
         }
+        if self.regions:
+            payload["regions"] = [region.to_dict() for region in self.regions]
+        return payload
 
 
 def _number(value: str) -> int:
@@ -123,6 +148,28 @@ def parse_note(text: str) -> NoteParse:
     return NoteParse(values=ordered_values, warnings=tuple(warnings))
 
 
+def _parse_regions(value: Any) -> tuple[SampleRegion, ...]:
+    if not value:
+        return ()
+    parsed: list[SampleRegion] = []
+    for item in value:
+        has_w = "w" in item
+        has_h = "h" in item
+        if has_w != has_h:
+            raise ValueError("region rectangle needs both w and h")
+        parsed.append(
+            SampleRegion(
+                x=float(item["x"]),
+                y=float(item["y"]),
+                space=str(item.get("space", "norm")),
+                w=float(item["w"]) if has_w else None,
+                h=float(item["h"]) if has_h else None,
+                r=float(item["r"]) if "r" in item else None,
+            )
+        )
+    return tuple(parsed)
+
+
 def resolve_params(constraints: dict[str, Any] | None, note: NoteParse) -> Params:
     explicit = constraints or {}
 
@@ -144,4 +191,5 @@ def resolve_params(constraints: dict[str, Any] | None, note: NoteParse) -> Param
         keep_small=bool(keep_small),
         per_color=int(per_color),
         note_parsed=dict(note.values),
+        regions=_parse_regions(explicit.get("regions")),
     )

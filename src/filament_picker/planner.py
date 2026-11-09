@@ -27,6 +27,16 @@ def _elapsed_ms(started: datetime, finished: datetime) -> int:
     return max(0, round((finished - started).total_seconds() * 1000))
 
 
+def _constraints_with_regions(request: dict[str, Any]) -> Any:
+    """Prefer constraints.regions; otherwise lift request.regions into constraints."""
+    constraints = request.get("constraints")
+    if not isinstance(constraints, dict):
+        return constraints
+    if "regions" not in constraints and isinstance(request.get("regions"), list):
+        return {**constraints, "regions": request["regions"]}
+    return constraints
+
+
 def error_result(
     request: dict[str, Any],
     code: str,
@@ -88,9 +98,11 @@ def run_plan(
             warnings.append(f"EXTRA_IMAGES_IGNORED:{len(image_paths) - 1}")
         note = parse_note(request.get("note", ""))
         warnings.extend(note.warnings)
-        params = resolve_params(request.get("constraints"), note)
+        params = resolve_params(_constraints_with_regions(request), note)
         params_dict = params.to_dict()
-        palette = plan_palette(Path(image_paths[0]), params.n_colors, params.keep_small)
+        palette = plan_palette(
+            Path(image_paths[0]), params.n_colors, params.keep_small, params.regions
+        )
         matched = match_palette(palette, catalog, params)
         warnings.extend(matched.warnings)
         card_path: Path | None = None

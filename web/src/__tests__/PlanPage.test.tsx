@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import result from "./fixtures/result.example.json";
 import errorResult from "./fixtures/result.error.example.json";
@@ -10,7 +10,15 @@ const fixture = result as PlanResult;
 const errorFixture = errorResult as PlanResult;
 
 describe("PlanPage", () => {
-  afterEach(() => cleanup());
+  beforeEach(() => {
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:preview");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
 
   it("submits an image and renders the complete plan", async () => {
     const post = vi.fn().mockResolvedValue(fixture);
@@ -121,6 +129,62 @@ describe("PlanPage", () => {
     fireEvent.change(screen.getByLabelText("图片"), { target: { files: [file] } });
     fireEvent.click(screen.getByRole("button", { name: "开始配色" }));
     expect(await screen.findByText("图片超过 10MB")).toBeTruthy();
+  });
+
+  it("sends a dragged box and recalculates when the box is cleared", async () => {
+    const rect = {
+      x: 0,
+      y: 0,
+      left: 0,
+      top: 0,
+      right: 300,
+      bottom: 200,
+      width: 300,
+      height: 200,
+      toJSON: () => ({}),
+    } as DOMRect;
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(rect);
+    const post = vi.fn().mockResolvedValue(fixture);
+    render(<PlanPage post={post} />);
+    const file = new File(["image"], "a.png", { type: "image/png" });
+    fireEvent.change(screen.getByLabelText("图片"), { target: { files: [file] } });
+    const stage = await screen.findByRole("application", { name: "取色区域" });
+    fireEvent.pointerDown(stage, { clientX: 30, clientY: 40, pointerId: 1 });
+    fireEvent.pointerUp(stage, { clientX: 150, clientY: 140, pointerId: 1 });
+
+    expect(post).toHaveBeenCalledTimes(1);
+    expect(post).toHaveBeenCalledWith(file, "", {
+      regions: [{ space: "norm", x: 0.1, y: 0.2, w: 0.4, h: 0.5 }],
+    });
+    expect(await screen.findByRole("button", { name: "按选区重算" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "清除选区" }));
+    expect(post).toHaveBeenCalledTimes(2);
+    expect(post).toHaveBeenLastCalledWith(file, "");
+  });
+
+  it("sends a click as a point region", async () => {
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+      x: 0,
+      y: 0,
+      left: 0,
+      top: 0,
+      right: 200,
+      bottom: 100,
+      width: 200,
+      height: 100,
+      toJSON: () => ({}),
+    } as DOMRect);
+    const post = vi.fn().mockResolvedValue(fixture);
+    render(<PlanPage post={post} />);
+    const file = new File(["image"], "a.png", { type: "image/png" });
+    fireEvent.change(screen.getByLabelText("图片"), { target: { files: [file] } });
+    const stage = await screen.findByRole("application", { name: "取色区域" });
+    fireEvent.pointerDown(stage, { clientX: 50, clientY: 40, pointerId: 1 });
+    fireEvent.pointerUp(stage, { clientX: 50, clientY: 40, pointerId: 1 });
+    expect(post).toHaveBeenCalledWith(file, "", {
+      regions: [{ space: "norm", x: 0.25, y: 0.4, r: 0.04 }],
+    });
   });
 
   it("omits the card image when card_path is null", async () => {

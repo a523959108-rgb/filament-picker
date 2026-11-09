@@ -15,6 +15,7 @@
       "description": "监听器 payload 里的 image_paths 原样复制；v1 只处理第 1 张"
     },
     "note": {"type": "string", "maxLength": 500, "default": "", "description": "用户随图文字（richText 的 text 部分，或上一条文字消息）"},
+    "regions": {"$ref": "#/$defs/sampleRegions"},
     "constraints": {
       "type": "object",
       "additionalProperties": false,
@@ -26,7 +27,8 @@
         "brands": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"}},
         "allow_approx": {"type": "boolean"},
         "keep_small": {"type": "boolean"},
-        "per_color": {"type": "integer", "minimum": 1, "maximum": 3}
+        "per_color": {"type": "integer", "minimum": 1, "maximum": 3},
+        "regions": {"$ref": "#/$defs/sampleRegions"}
       }
     },
     "context": {
@@ -34,6 +36,31 @@
       "maxProperties": 20,
       "description": "钉钉助手自用的上下文（如 conversationId、senderStaffId），worker 原样回写到 result.context。禁止放 sessionWebhook。",
       "not": {"anyOf": [{"required": ["sessionWebhook"]}, {"required": ["session_webhook"]}]}
+    }
+  },
+  "$defs": {
+    "sampleRegion": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "矩形给 x,y,w,h（左上角+宽高）；点击点只给 x,y，可选 r。space 缺省为 norm。",
+      "properties": {
+        "space": {"enum": ["norm", "px"], "description": "norm：相对原图宽高的 0–1；px：原图像素"},
+        "x": {"type": "number"},
+        "y": {"type": "number"},
+        "w": {"type": "number", "exclusiveMinimum": 0},
+        "h": {"type": "number", "exclusiveMinimum": 0},
+        "r": {"type": "number", "exclusiveMinimum": 0, "description": "点的取样半径。norm 时是短边的比例，px 时是像素。缺省为短边的 4%"}
+      },
+      "oneOf": [
+        {"required": ["x", "y", "w", "h"]},
+        {"required": ["x", "y"], "not": {"anyOf": [{"required": ["w"]}, {"required": ["h"]}]}}
+      ]
+    },
+    "sampleRegions": {
+      "type": "array",
+      "maxItems": 16,
+      "description": "只在这些区域的并集里取样（仍套用前景掩码）。constraints.regions 优先于顶层 regions。空数组表示整张图。",
+      "items": {"$ref": "#/$defs/sampleRegion"}
     }
   }
 }

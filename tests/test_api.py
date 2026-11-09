@@ -80,6 +80,46 @@ def test_upload_size_limits(example_catalog: Path, tmp_path: Path) -> None:
     assert validate_json("result", exact.json()) == []
 
 
+def test_constraints_regions_override_request_regions() -> None:
+    from filament_picker.planner import _constraints_with_regions
+
+    lifted = _constraints_with_regions(
+        {"constraints": {"materials": ["PLA"]}, "regions": [{"x": 0.1, "y": 0.2}]}
+    )
+    assert lifted["regions"] == [{"x": 0.1, "y": 0.2}]
+    assert lifted["materials"] == ["PLA"]
+    explicit = _constraints_with_regions(
+        {
+            "constraints": {"regions": [{"x": 0, "y": 0, "w": 1, "h": 1}]},
+            "regions": [{"x": 0.9, "y": 0.9}],
+        }
+    )
+    assert explicit["regions"] == [{"x": 0, "y": 0, "w": 1, "h": 1}]
+
+
+def test_plan_region_limits_sampling(example_catalog: Path, tmp_path: Path) -> None:
+    from PIL import Image, ImageDraw
+
+    image = Image.new("RGB", (200, 200), "#000000")
+    ImageDraw.Draw(image).rectangle((100, 0, 199, 199), fill="#C8102E")
+    payload = BytesIO()
+    image.save(payload, format="PNG")
+    client = TestClient(create_app(example_catalog, tmp_path))
+    response = client.post(
+        "/api/plan",
+        files={"file": ("half.png", payload.getvalue(), "image/png")},
+        data={"constraints": '{"materials":["PETG"],"regions":[{"x":0,"y":0,"w":0.5,"h":1}]}'},
+    )
+    assert response.status_code == 200
+    result = response.json()
+    assert result["status"] == "ok"
+    assert [item["hex"] for item in result["palette"]] == ["#000000"]
+    assert result["params"]["regions"] == [
+        {"space": "norm", "x": 0.0, "y": 0.0, "w": 0.5, "h": 1.0}
+    ]
+    assert validate_json("result", result) == []
+
+
 def test_invalid_constraints(example_catalog: Path, tmp_path: Path) -> None:
     client = TestClient(create_app(example_catalog, tmp_path))
     response = client.post(
