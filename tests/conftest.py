@@ -3,6 +3,15 @@ from pathlib import Path
 
 import pytest
 
+_SPOOLMAN_ENV = ("FP_SPOOLMAN_ENABLED", "FP_SPOOLMAN_BASE_URL", "FP_SPOOLMAN_TIMEOUT_S")
+
+
+@pytest.fixture(autouse=True)
+def _spoolman_disabled(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep the suite off Spoolman unless a test turns the flag on itself."""
+    for name in _SPOOLMAN_ENV:
+        monkeypatch.delenv(name, raising=False)
+
 
 @pytest.fixture(scope="session")
 def repo_root() -> Path:

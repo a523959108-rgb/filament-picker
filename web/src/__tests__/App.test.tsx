@@ -25,13 +25,56 @@ describe("App", () => {
     expect(link.className).toBe("nav-link");
   });
 
-  it("opens the cost page from the hash", async () => {
-    window.location.hash = "#/cost";
+  it("shows a homepage stack CTA that stays on in-app hash locally", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => sample }));
     const { findByRole } = render(<App />);
+    const cta = await findByRole("link", { name: "打开叠色" });
+    expect(cta.getAttribute("href")).toBe("#/stack");
+    const nav = await findByRole("link", { name: "叠色" });
+    expect(nav.getAttribute("href")).toBe("#/stack");
+  });
+
+  it("opens the stack page from the hash", async () => {
+    const tray = {
+      schema_version: 1,
+      updated_at: "2026-11-09T16:56:46+09:00",
+      brand_preference: "bambu-lab",
+      series_preference: "PLA Basic",
+      disclaimer: "test",
+      palettes: {
+        CMYW: { label: "cmyw", lut_hints: [], slots: [] },
+        RYBW: { label: "rybw", lut_hints: [], slots: [] },
+      },
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.includes("four-color-tray-map")) {
+          return { ok: true, json: async () => tray };
+        }
+        if (url.includes("web-catalog")) {
+          return { ok: true, json: async () => sample };
+        }
+        return { ok: true, json: async () => tray };
+      }),
+    );
+    window.location.hash = "#/stack";
+    const { findByRole } = render(<App />);
+    expect(await findByRole("heading", { level: 1, name: "叠色（本机引擎）" })).toBeTruthy();
+    expect(await findByRole("button", { name: "下载本机任务包" })).toBeTruthy();
+  });
+
+  it("opens the cost page from the hash", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => sample }));
+    window.location.hash = "#/cost";
+    const { findByRole, findByLabelText } = render(<App />);
     expect(await findByRole("heading", { level: 1, name: "打印成本" })).toBeTruthy();
     const grams = await findByRole("spinbutton", { name: "用料（克）" });
     fireEvent.change(grams, { target: { value: "1000" } });
     expect((await findByRole("region", { name: "打印成本" })).textContent).toContain("70.36 元");
+    expect(await findByLabelText("真链单价")).toBeTruthy();
+    expect(await findByRole("button", { name: "复制购买链接" })).toBeTruthy();
   });
 
   it("shows the plan and a catalog link after a hash change", async () => {

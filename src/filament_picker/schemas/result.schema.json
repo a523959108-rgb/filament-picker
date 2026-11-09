@@ -80,7 +80,17 @@
                     {"type": "string", "pattern": "^https?://"}
                   ]
                 },
-                "price_text": {"type": ["string", "null"]}
+                "price_text": {"type": ["string", "null"]},
+                "stock": {
+                  "description": "可选。仅当 FP_SPOOLMAN_ENABLED 开启且读到了 Spoolman 时出现。只有这两个布尔值，不含位置、剩余克数或 spool id。",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["in_stock", "nearby_in_stock"],
+                  "properties": {
+                    "in_stock": {"type": "boolean"},
+                    "nearby_in_stock": {"type": "boolean"}
+                  }
+                }
               }
             }
           }

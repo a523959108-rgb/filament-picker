@@ -21,6 +21,7 @@ interface ColourPick {
   hex: string;
   delta_e: number;
   label: string | null;
+  stock?: { in_stock?: boolean };
 }
 
 interface ColourMatch {
@@ -241,6 +242,7 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
                 <span className="model-colour-match">
                   {match.picks[0].brand_name} {match.picks[0].name}
                   {match.picks[0].label ? ` · ${match.picks[0].label}` : ""}
+                  {match.picks[0].stock?.in_stock === true ? " · 库存有" : ""}
                 </span>
               ) : null}
             </div>

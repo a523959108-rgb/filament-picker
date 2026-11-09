@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "kind": "lumina-stack-result",
+  "created_at": "2026-11-09T17:08:00+09:00",
+  "lut_mode": "RYBW",
+  "source_job_kind": "lumina-stack-job",
+  "preview_relpath": "stack-smoke/preview.png",
+  "model_3mf_relpath": "stack-smoke/smoke_rybw_sample_logo.3mf",
+  "preview_data_url": null,
+  "model_3mf_data_url": null,
+  "slots": [
+    {
+      "extruder": 1,
+      "slot": "W",
+      "name_zh": "白",
+      "name_en": "White",
+      "engine_hex": "#D7D2CF",
+      "recommended_id": "bambu-lab/pla-basic/light-gray-10104",
+      "recommended_hex": "#D1D3D5",
+      "recommended_name": "浅灰",
+      "delta_e": 3.83,
+      "purchase_url": "https://mobile.pinduoduo.com/goods.html?goods_id=646322960873",
+      "purchase_is_pdd": true,
+      "match_tier": "preferred_series",
+      "match_reason": "bambu-lab · PLA Basic · CIEDE2000 最近（ΔE 3.83）· 浅灰",
+      "alternates": []
+    },
+    {
+      "extruder": 2,
+      "slot": "R",
+      "name_zh": "红",
+      "name_en": "Red",
+      "engine_hex": "#E94A39",
+      "recommended_id": "bambu-lab/pla-matte/scarlet-red-11200",
+      "recommended_hex": "#DE4343",
+      "recommended_name": "猩红",
+      "delta_e": 5.06,
+      "purchase_url": "https://mobile.pinduoduo.com/goods.html?goods_id=981915000568",
+      "purchase_is_pdd": true,
+      "match_tier": "same_brand_fallback",
+      "match_reason": "PLA Basic ΔE 超阈（>8）；同品牌 PLA Matte 更近（ΔE 5.06）· 猩红",
+      "alternates": [
+        {
+          "recommended_id": "bambu-lab/pla-basic/red-10200",
+          "recommended_hex": "#C12E1F",
+          "recommended_name": "红色",
+          "delta_e": 11.26,
+          "purchase_url": "https://mobile.pinduoduo.com/goods.html?goods_id=995613337990",
+          "purchase_is_pdd": true,
+          "match_tier": "preferred_series",
+          "match_reason": "LUT 名义 PLA Basic（ΔE 11.26，超阈 8）· 红色"
+        },
+        {
+          "recommended_id": "esun/pla-basic/red",
+          "recommended_hex": "#DB4437",
+          "recommended_name": "Red",
+          "delta_e": 3.45,
+          "purchase_url": "https://mobile.pinduoduo.com/goods.html?goods_id=1008369918083",
+          "purchase_is_pdd": true,
+          "match_tier": "cross_brand_fallback",
+          "match_reason": "跨品牌备选（ΔE 3.45）· esun PLA-Basic · Red"
+        }
+      ]
+    },
+    {
+      "extruder": 3,
+      "slot": "Y",
+      "name_zh": "黄",
+      "name_en": "Yellow",
+      "engine_hex": "#ECEF35",
+      "recommended_id": "bambu-lab/pla-basic/yellow-10400",
+      "recommended_hex": "#F4EE2A",
+      "recommended_name": "黄色",
+      "delta_e": 2.14,
+      "purchase_url": "https://mobile.pinduoduo.com/goods.html?goods_id=973331464720",
+      "purchase_is_pdd": true,
+      "match_tier": "preferred_series",
+      "match_reason": "bambu-lab · PLA Basic · CIEDE2000 最近（ΔE 2.14）· 黄色",
+      "alternates": []
+    },
+    {
+      "extruder": 4,
+      "slot": "B",
+      "name_zh": "蓝",
+      "name_en": "Blue",
+      "engine_hex": "#3451B1",
+      "recommended_id": "bambu-lab/pla-basic/cobalt-blue-10604",
+      "recommended_hex": "#0056B8",
+      "recommended_name": "钴蓝色",
+      "delta_e": 4.48,
+      "purchase_url": "https://mobile.pinduoduo.com/goods.html?goods_id=961735796587",
+      "purchase_is_pdd": true,
+      "match_tier": "preferred_series",
+      "match_reason": "bambu-lab · PLA Basic · CIEDE2000 最近（ΔE 4.48）· 钴蓝色",
+      "alternates": [
+        {
+          "recommended_id": "anycubic/pla-high-speed/dazzling-blue",
+          "recommended_hex": "#3E55AB",
+          "recommended_name": "Dazzling Blue",
+          "delta_e": 1.8,
+          "purchase_url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E7%BA%B5%E7%BB%B4%20PLA%20High%20Speed%20Dazzling%20Blue",
+          "purchase_is_pdd": false,
+          "match_tier": "cross_brand_fallback",
+          "match_reason": "跨品牌备选（ΔE 1.80）· anycubic PLA High Speed · Dazzling Blue"
+        }
+      ]
+    }
+  ],
+  "note": "引擎槽位色按 CIEDE2000 在选色站目录内匹配；Preferred 系列 ΔE 超阈时回退同品牌/跨品牌并标清理由。GPL 叠色仍在本机 Lumina。"
+}

@@ -12,6 +12,7 @@ from .matcher import match_palette
 from .note_parser import parse_note, resolve_params
 from .palette import plan_palette
 from .reply import build_reply_markdown
+from .spoolman import annotate_picks, load_spools
 from .validate import validate_json
 
 
@@ -21,6 +22,16 @@ def _default_params() -> dict[str, Any]:
 
 def _iso(value: datetime) -> str:
     return value.isoformat(timespec="seconds")
+
+
+def _apply_stock(matches: list[dict[str, Any]], catalog: Catalog) -> bool:
+    """Reorder picks from Spoolman. False means the result is unchanged."""
+    spools = load_spools()
+    if not spools:
+        return False
+    for match in matches:
+        match["picks"] = annotate_picks(match["picks"], catalog.by_id, spools)
+    return True
 
 
 def _elapsed_ms(started: datetime, finished: datetime) -> int:
@@ -93,15 +104,19 @@ def run_plan(
         palette = plan_palette(Path(image_paths[0]), params.n_colors, params.keep_small)
         matched = match_palette(palette, catalog, params)
         warnings.extend(matched.warnings)
+        matches = matched.matches
+        slots_used = matched.slots_used
+        if _apply_stock(matches, catalog):
+            slots_used = len({match["picks"][0]["id"] for match in matches if match["picks"]})
         card_path: Path | None = None
         card_url: str | None = None
-        if any(match["picks"] for match in matched.matches):
+        if any(match["picks"] for match in matches):
             card_path = new_card_path(root)
             finished_for_card = started.date().isoformat()
             render_card(
                 Path(image_paths[0]),
                 palette,
-                matched.matches,
+                matches,
                 card_path,
                 finished_for_card,
             )
@@ -117,9 +132,9 @@ def run_plan(
             "error": None,
             "params": params_dict,
             "palette": [color.to_dict() for color in palette],
-            "matches": matched.matches,
+            "matches": matches,
             "single_series_option": matched.single_series_option,
-            "slots_used": matched.slots_used,
+            "slots_used": slots_used,
             "card_path": str(card_path) if card_path is not None else None,
             "card_url": card_url,
             "reply_markdown": "",

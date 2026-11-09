@@ -1,0 +1,29 @@
+# 示例，不是安装文件。
+# 负责人明确同意之前：不要复制到 /etc/systemd/system，不要 enable，不要 start。
+# 下面全是占位符。没有真实主机名，没有密钥。
+# 共享目录的内置默认值写在 docs/dingtalk-worker-runbook.md，不要把本文件直接拿去跑。
+
+[Unit]
+Description=Filament picker inbox/outbox worker
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=WORKER_USER
+Group=WORKER_GROUP
+WorkingDirectory=/path/to/filament-picker
+Environment=FP_ROOT=/path/to/shared/filament-picker
+Environment=FP_CATALOG=/path/to/filament-picker/data/build/filament-catalog.json
+Environment=FP_CARD_BASE_URL=https://cards.example.invalid/c
+Environment=FP_FONT_REGULAR=/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc
+Environment=FP_FONT_BOLD=/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc
+Environment=FP_FONT_INDEX=2
+ExecStart=/path/to/filament-picker/scripts/run_worker.sh
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=90
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

@@ -115,6 +115,30 @@ describe("model preview", () => {
     expect(getByText(/Bambu Lab/)).toBeTruthy();
   });
 
+  it("shows 库存有 on a model color that is in stock", async () => {
+    const detailed = {
+      ...model,
+      images: [],
+      colour_matches: [{
+        hex: "#000000",
+        picks: [{
+          id: "bambu-lab/petg-basic/black-30105",
+          name: "黑色 Black (30105)",
+          brand_name: "Bambu Lab",
+          series_name: "PETG Basic",
+          hex: "#000000",
+          delta_e: 0,
+          label: "几乎一样",
+          stock: { in_stock: true, nearby_in_stock: false },
+        }],
+      }],
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(detailed)));
+    const { findByText } = render(<ModelPreview path="/models/sample-01" />);
+    expect(await findByText(/库存有/)).toBeTruthy();
+    expect(await findByText(/Bambu Lab/)).toBeTruthy();
+  });
+
   it("uses the cover photo on the card and as the detail hero", async () => {
     const cover = "/api/models/sample-01/media/cover.png";
     const covered = {

@@ -52,5 +52,13 @@ assert smoke2["status"] == "error"
 assert smoke2["error"]["code"] == "IMAGE_MISSING"
 assert (root / "done/smoke1.request.json").is_file()
 assert (root / "failed/smoke2.request.json").is_file()
+assert not any((root / "processing").iterdir())
+events = [
+    json.loads(line)["event"]
+    for line in (root / "logs/worker.log").read_text(encoding="utf-8").splitlines()
+]
+assert "start" in events
+assert events.count("done") == 2
+assert "cleanup" in events
 PY
 echo "smoke ok"

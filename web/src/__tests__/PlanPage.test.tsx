@@ -99,6 +99,33 @@ describe("PlanPage", () => {
     ).toBe(true);
   });
 
+  it("shows 库存有 only for an exact in-stock pick and keeps its buy link", async () => {
+    const withStock: PlanResult = {
+      ...fixture,
+      matches: fixture.matches.map((match) => ({
+        ...match,
+        picks: match.picks.map((pick) => ({ ...pick })),
+      })),
+    };
+    withStock.matches[0].picks[0].stock = { in_stock: false, nearby_in_stock: true };
+    withStock.matches[0].picks[1].stock = { in_stock: true, nearby_in_stock: false };
+    render(<PlanPage post={vi.fn().mockResolvedValue(withStock)} />);
+    const file = new File(["image"], "a.png", { type: "image/png" });
+    fireEvent.change(screen.getByLabelText("图片"), { target: { files: [file] } });
+    fireEvent.click(screen.getByRole("button", { name: "开始配色" }));
+
+    expect(await screen.findByText("库存有")).toBeTruthy();
+    const stockRow = screen.getByText("库存有").closest("li");
+    expect(stockRow).not.toBeNull();
+    expect(within(stockRow!).getByRole("link", { name: "购买" }).getAttribute("href")).toBe(
+      "https://jp.store.bambulab.com/products/pla-aero",
+    );
+    const nearbyRow = screen.getByText("Bambu Lab PLA Tough · 黑色 Black (12101)").closest("li");
+    expect(nearbyRow).not.toBeNull();
+    expect(within(nearbyRow!).queryByText("库存有")).toBeNull();
+    expect(within(nearbyRow!).getByText("暂未上架")).toBeTruthy();
+  });
+
   it("requires an image before submitting", () => {
     const post = vi.fn();
     render(<PlanPage post={post} />);

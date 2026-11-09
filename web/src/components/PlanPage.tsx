@@ -48,6 +48,7 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
         <nav className="topbar-nav" aria-label="页面导航">
           <a href="#/" className="nav-link">色卡浏览</a>
           <a href="#/cost" className="nav-link">打印成本</a>
+          <a href="#/stack" className="nav-link">叠色</a>
         </nav>
       </header>
 
@@ -111,7 +112,10 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
                             </span>{" "}
                             <span className="pick-delta mono">ΔE {pick.delta_e.toFixed(1)}</span>{" "}
                             <span className="badge">{pick.label}</span>
-                            {pick.is_approx && <span className="badge badge-warn"> 近似色</span>}{" "}
+                            {pick.is_approx && <span className="badge badge-warn"> 近似色</span>}
+                            {pick.stock?.in_stock === true && (
+                              <span className="badge badge-stock"> 库存有</span>
+                            )}{" "}
                             <span className="pick-buy">
                               {href !== null ? (
                                 <a href={href}>购买</a>
