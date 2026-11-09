@@ -211,8 +211,8 @@ def test_catalog_entries_prefer_pdd(repo_root: Path) -> None:
             assert is_github_color_table_url(alt) is False
             assert is_pdd_goods_url(alt) is False
             assert any(offer["url"] == alt for offer in entry["offers"])
-    assert goods == 166
-    assert search == 3682
+    assert goods == 202
+    assert search == 3646
     assert goods + search == len(catalog["entries"]) == 3848
 
     bambu = next(
@@ -286,6 +286,126 @@ def test_bambu_pdd_batch1_goods_promote_to_primary(repo_root: Path) -> None:
             "url": store,
             "price_text": "¥2,400起 JPY",
         }
+        assert entry["offers"][1] == {"channel": "拼多多", "url": url, "price_text": ""}
+        primary, alt = purchase_links(entry)
+        assert primary == url
+        assert alt == store
+        web_entry = web_by_id[color_id]
+        assert web_entry["url"] == primary
+        assert web_entry["alt_url"] == alt
+        assert web_entry["price"] is None
+
+
+# Collected 2026-11-09. Shared goods_id values are multi-SKU listings, kept as-is.
+OTHER_PDD_BATCH2: dict[str, str] = {
+    "cailab/matte-pla/black-mt419": "1022763383907",
+    "cailab/matte-pla/army-green-mt2407": "979958260123",
+    "cailab/matte-pla/orange-mt4012": "1022763383907",
+    "cailab/matte-pla/beige-mt4030": "1022763383907",
+    "cailab/matte-pla/ivory-mt9003": "979958260123",
+    "cailab/matte-pla/lavender-mt2645": "988153320187",
+    "cailab/pla-plus/black-ac419": "1014245843334",
+    "cailab/pla-plus/white-ac9003": "988125819049",
+    "cailab/pla-plus/gray-ac11": "690492320303",
+    "cailab/pla-plus/light-gray-ac421": "988125819049",
+    "esun/pla-basic/black": "809320909551",
+    "esun/pla-basic/bone-white": "1021996966685",
+    "esun/pla-basic/white": "1021996966685",
+    "esun/pla-basic/grey": "992151643295",
+    "esun/pla-basic/light-grey": "809320909551",
+    "esun/pla-basic/red": "1008369918083",
+    "esun/pla-basic/blue": "992151480844",
+    "esun/pla-basic/dark-blue": "413409947777",
+    "polymaker/panchroma-basic-pla/black": "711862832098",
+    "polymaker/polylite-pla/black": "466104937652",
+    "polymaker/panchroma-basic-pla/white": "1025925048307",
+    "polymaker/polylite-pla/white": "979589316143",
+    "polymaker/panchroma-basic-pla/dark-grey": "987668775194",
+    "polymaker/panchroma-basic-pla/grey": "568967946166",
+    "anycubic/pla-basic/black": "892043402692",
+    "anycubic/pla-basic/white": "1006640350626",
+    "anycubic/pla-basic/grey": "997622109775",
+    "anycubic/pla-basic/light-grey": "1006640350626",
+    "anycubic/pla-basic/red": "892043402692",
+    "anycubic/pla-basic/blue": "997622109775",
+    "sunlu/matte-pla/black": "923179436917",
+    "sunlu/matte-pla/white": "923179436917",
+    "sunlu/matte-pla/grey": "923179436917",
+    "sunlu/matte-pla/red": "923179436917",
+    "sunlu/matte-pla/blue": "923179436917",
+    "sunlu/matte-pla/light-blue": "975593755299",
+}
+_CAILAB_MATTE = (
+    "CaiLab 海外官网",
+    "https://www.cailab3d.com/products/matte-pla-filament-1-75mm-1kg-spool",
+    "US$17.99",
+)
+_CAILAB_PLUS = (
+    "CaiLab 海外官网",
+    "https://www.cailab3d.com/products/pla-plus-filament-pla-bio-1-75mm-1kg-spool",
+    "US$17.99",
+)
+_ESUN_BASIC = (
+    "eSUN 官网商城（色块为店铺示意色）",
+    "https://www.esun3d.com/pla-basic-product",
+    "US$13.99",
+)
+_PANCHROMA = (
+    "Polymaker 美国官网",
+    "https://us.polymaker.com/products/panchroma-pla",
+    "US$17.99",
+)
+_POLYLITE = (
+    "Polymaker 美国官网",
+    "https://us.polymaker.com/products/polylite-pla",
+    "US$19.99",
+)
+_ANYCUBIC_BASIC = (
+    "Anycubic 官方商城",
+    "https://store.anycubic.com/products/pla-filament",
+    "US$17.99",
+)
+_SUNLU_MATTE = (
+    "SUNLU 官网商城",
+    "https://store.sunlu.com/products/over-6kg-bulk-sale-pla-matte-filament-neatly-wound-filament",
+    "US$10.99起",
+)
+
+
+def _other_batch2_store(color_id: str) -> tuple[str, str, str]:
+    if color_id.startswith("cailab/matte-pla/"):
+        return _CAILAB_MATTE
+    if color_id.startswith("cailab/pla-plus/"):
+        return _CAILAB_PLUS
+    if color_id.startswith("esun/pla-basic/"):
+        return _ESUN_BASIC
+    if color_id.startswith("polymaker/panchroma-basic-pla/"):
+        return _PANCHROMA
+    if color_id.startswith("polymaker/polylite-pla/"):
+        return _POLYLITE
+    if color_id.startswith("anycubic/pla-basic/"):
+        return _ANYCUBIC_BASIC
+    if color_id.startswith("sunlu/matte-pla/"):
+        return _SUNLU_MATTE
+    raise AssertionError(color_id)
+
+
+def test_other_pdd_batch2_goods_promote_to_primary(repo_root: Path) -> None:
+    catalog = json.loads(
+        (repo_root / "data/build/filament-catalog.json").read_text(encoding="utf-8")
+    )
+    web = json.loads((repo_root / "web/public/web-catalog.json").read_text(encoding="utf-8"))
+    by_id = {entry["id"]: entry for entry in catalog["entries"]}
+    web_by_id = {entry["id"]: entry for entry in web["entries"]}
+    assert len(OTHER_PDD_BATCH2) == 36
+    assert len(set(OTHER_PDD_BATCH2.values())) == 23
+    for color_id, goods_id in OTHER_PDD_BATCH2.items():
+        url = f"https://mobile.pinduoduo.com/goods.html?goods_id={goods_id}"
+        assert is_pdd_goods_url(url) is True
+        assert "search_result.html" not in url
+        channel, store, price = _other_batch2_store(color_id)
+        entry = by_id[color_id]
+        assert entry["offers"][0] == {"channel": channel, "url": store, "price_text": price}
         assert entry["offers"][1] == {"channel": "拼多多", "url": url, "price_text": ""}
         primary, alt = purchase_links(entry)
         assert primary == url
