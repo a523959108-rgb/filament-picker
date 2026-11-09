@@ -211,8 +211,8 @@ def test_catalog_entries_prefer_pdd(repo_root: Path) -> None:
             assert is_github_color_table_url(alt) is False
             assert is_pdd_goods_url(alt) is False
             assert any(offer["url"] == alt for offer in entry["offers"])
-    assert goods == 202
-    assert search == 3646
+    assert goods == 179
+    assert search == 3669
     assert goods + search == len(catalog["entries"]) == 3848
 
     bambu = next(
@@ -237,19 +237,12 @@ BAMBU_PDD_BATCH1: dict[str, str] = {
     "bambu-lab/pla-basic/gray-10103": "646322960873",
     "bambu-lab/pla-basic/light-gray-10104": "646322960873",
     "bambu-lab/pla-basic/dark-gray-10105": "1008327197594",
-    "bambu-lab/pla-basic/blue-gray-10602": "981078022134",
-    "bambu-lab/pla-basic/red-10200": "995613337990",
     "bambu-lab/pla-basic/maroon-red-10205": "1012953356814",
-    "bambu-lab/pla-basic/blue-10601": "981078022134",
     "bambu-lab/pla-basic/cobalt-blue-10604": "961735796587",
-    "bambu-lab/pla-basic/blueberry-bubblegum-10905": "955911205517",
-    "bambu-lab/pla-basic/bambu-green-10501": "955911205517",
     "bambu-lab/pla-basic/mistletoe-green-10502": "646322960873",
     "bambu-lab/pla-basic/bright-green-10503": "1012953356814",
     "bambu-lab/pla-basic/yellow-10400": "973331464720",
     "bambu-lab/pla-basic/sunflower-yellow-10402": "1024899541908",
-    "bambu-lab/pla-basic/orange-10300": "1014117624513",
-    "bambu-lab/pla-basic/pumpkin-orange-10301": "1010819723555",
     "bambu-lab/pla-basic/beige-10201": "711535009405",
     "bambu-lab/pla-basic/brown-10800": "954504553679",
     "bambu-lab/pla-matte/ivory-white-11100": "991922531824",
@@ -274,7 +267,7 @@ def test_bambu_pdd_batch1_goods_promote_to_primary(repo_root: Path) -> None:
     web = json.loads((repo_root / "web/public/web-catalog.json").read_text(encoding="utf-8"))
     by_id = {entry["id"]: entry for entry in catalog["entries"]}
     web_by_id = {entry["id"]: entry for entry in web["entries"]}
-    assert len(BAMBU_PDD_BATCH1) == 30
+    assert len(BAMBU_PDD_BATCH1) == 23
     for color_id, goods_id in BAMBU_PDD_BATCH1.items():
         url = f"https://mobile.pinduoduo.com/goods.html?goods_id={goods_id}"
         assert is_pdd_goods_url(url) is True
@@ -298,42 +291,26 @@ def test_bambu_pdd_batch1_goods_promote_to_primary(repo_root: Path) -> None:
 
 # Collected 2026-11-09. Shared goods_id values are multi-SKU listings, kept as-is.
 OTHER_PDD_BATCH2: dict[str, str] = {
-    "cailab/matte-pla/black-mt419": "1022763383907",
     "cailab/matte-pla/army-green-mt2407": "979958260123",
-    "cailab/matte-pla/orange-mt4012": "1022763383907",
-    "cailab/matte-pla/beige-mt4030": "1022763383907",
     "cailab/matte-pla/ivory-mt9003": "979958260123",
     "cailab/matte-pla/lavender-mt2645": "988153320187",
-    "cailab/pla-plus/black-ac419": "1014245843334",
     "cailab/pla-plus/white-ac9003": "988125819049",
     "cailab/pla-plus/gray-ac11": "690492320303",
     "cailab/pla-plus/light-gray-ac421": "988125819049",
-    "esun/pla-basic/black": "809320909551",
     "esun/pla-basic/bone-white": "1021996966685",
     "esun/pla-basic/white": "1021996966685",
-    "esun/pla-basic/grey": "992151643295",
-    "esun/pla-basic/light-grey": "809320909551",
     "esun/pla-basic/red": "1008369918083",
-    "esun/pla-basic/blue": "992151480844",
-    "esun/pla-basic/dark-blue": "413409947777",
-    "polymaker/panchroma-basic-pla/black": "711862832098",
-    "polymaker/polylite-pla/black": "466104937652",
-    "polymaker/panchroma-basic-pla/white": "1025925048307",
     "polymaker/polylite-pla/white": "979589316143",
     "polymaker/panchroma-basic-pla/dark-grey": "987668775194",
-    "polymaker/panchroma-basic-pla/grey": "568967946166",
     "anycubic/pla-basic/black": "892043402692",
     "anycubic/pla-basic/white": "1006640350626",
-    "anycubic/pla-basic/grey": "997622109775",
     "anycubic/pla-basic/light-grey": "1006640350626",
     "anycubic/pla-basic/red": "892043402692",
-    "anycubic/pla-basic/blue": "997622109775",
     "sunlu/matte-pla/black": "923179436917",
     "sunlu/matte-pla/white": "923179436917",
     "sunlu/matte-pla/grey": "923179436917",
     "sunlu/matte-pla/red": "923179436917",
     "sunlu/matte-pla/blue": "923179436917",
-    "sunlu/matte-pla/light-blue": "975593755299",
 }
 _CAILAB_MATTE = (
     "CaiLab 海外官网",
@@ -397,8 +374,8 @@ def test_other_pdd_batch2_goods_promote_to_primary(repo_root: Path) -> None:
     web = json.loads((repo_root / "web/public/web-catalog.json").read_text(encoding="utf-8"))
     by_id = {entry["id"]: entry for entry in catalog["entries"]}
     web_by_id = {entry["id"]: entry for entry in web["entries"]}
-    assert len(OTHER_PDD_BATCH2) == 36
-    assert len(set(OTHER_PDD_BATCH2.values())) == 23
+    assert len(OTHER_PDD_BATCH2) == 20
+    assert len(set(OTHER_PDD_BATCH2.values())) == 11
     for color_id, goods_id in OTHER_PDD_BATCH2.items():
         url = f"https://mobile.pinduoduo.com/goods.html?goods_id={goods_id}"
         assert is_pdd_goods_url(url) is True
@@ -414,3 +391,82 @@ def test_other_pdd_batch2_goods_promote_to_primary(repo_root: Path) -> None:
         assert web_entry["url"] == primary
         assert web_entry["alt_url"] == alt
         assert web_entry["price"] is None
+
+
+# Ingested 2026-11-09, then removed: title did not match the color or series.
+# goods_id 1014245843334 stays on cailab/matte-pla/ya-guang-bao-wu-fen (older card offer).
+BAMBU_PDD_STRIPPED: dict[str, str] = {
+    "bambu-lab/pla-basic/blue-gray-10602": "981078022134",
+    "bambu-lab/pla-basic/red-10200": "995613337990",
+    "bambu-lab/pla-basic/blue-10601": "981078022134",
+    "bambu-lab/pla-basic/blueberry-bubblegum-10905": "955911205517",
+    "bambu-lab/pla-basic/bambu-green-10501": "955911205517",
+    "bambu-lab/pla-basic/orange-10300": "1014117624513",
+    "bambu-lab/pla-basic/pumpkin-orange-10301": "1010819723555",
+}
+OTHER_PDD_STRIPPED: dict[str, str] = {
+    "cailab/matte-pla/black-mt419": "1022763383907",
+    "cailab/matte-pla/orange-mt4012": "1022763383907",
+    "cailab/matte-pla/beige-mt4030": "1022763383907",
+    "cailab/pla-plus/black-ac419": "1014245843334",
+    "esun/pla-basic/black": "809320909551",
+    "esun/pla-basic/grey": "992151643295",
+    "esun/pla-basic/light-grey": "809320909551",
+    "esun/pla-basic/blue": "992151480844",
+    "esun/pla-basic/dark-blue": "413409947777",
+    "polymaker/panchroma-basic-pla/black": "711862832098",
+    "polymaker/polylite-pla/black": "466104937652",
+    "polymaker/panchroma-basic-pla/white": "1025925048307",
+    "polymaker/panchroma-basic-pla/grey": "568967946166",
+    "anycubic/pla-basic/grey": "997622109775",
+    "anycubic/pla-basic/blue": "997622109775",
+    "sunlu/matte-pla/light-blue": "975593755299",
+}
+
+
+def test_stripped_weak_pdd_goods_fall_back_to_search(repo_root: Path) -> None:
+    catalog = json.loads(
+        (repo_root / "data/build/filament-catalog.json").read_text(encoding="utf-8")
+    )
+    web = json.loads((repo_root / "web/public/web-catalog.json").read_text(encoding="utf-8"))
+    by_id = {entry["id"]: entry for entry in catalog["entries"]}
+    web_by_id = {entry["id"]: entry for entry in web["entries"]}
+    stripped = {**BAMBU_PDD_STRIPPED, **OTHER_PDD_STRIPPED}
+    assert len(BAMBU_PDD_STRIPPED) == 7
+    assert len(OTHER_PDD_STRIPPED) == 16
+    assert len(stripped) == 23
+    assert set(BAMBU_PDD_BATCH1).isdisjoint(stripped)
+    assert set(OTHER_PDD_BATCH2).isdisjoint(stripped)
+    for color_id, goods_id in stripped.items():
+        removed = f"https://mobile.pinduoduo.com/goods.html?goods_id={goods_id}"
+        entry = by_id[color_id]
+        assert all(offer["url"] != removed for offer in entry["offers"])
+        assert all(is_pdd_goods_url(offer["url"]) is False for offer in entry["offers"])
+        if color_id in BAMBU_PDD_STRIPPED:
+            assert entry["offers"] == [
+                {
+                    "channel": "Bambu Lab 日本官方商城",
+                    "url": _PLA_BASIC_STORE,
+                    "price_text": "¥2,400起 JPY",
+                }
+            ]
+        else:
+            channel, store, price = _other_batch2_store(color_id)
+            assert entry["offers"] == [{"channel": channel, "url": store, "price_text": price}]
+        primary, alt = purchase_links(entry)
+        assert primary == pdd_search_url(search_query(entry))
+        assert "goods_id" not in primary
+        assert alt == entry["offers"][0]["url"]
+        web_entry = web_by_id[color_id]
+        assert web_entry["url"] == primary
+        assert web_entry["alt_url"] == alt
+        assert web_entry["price"] == entry["offers"][0]["price_text"]
+        assert price_text_for(entry, primary) == entry["offers"][0]["price_text"]
+    kept = by_id["cailab/matte-pla/ya-guang-bao-wu-fen"]
+    assert kept["offers"] == [
+        {
+            "channel": "拼多多评价规格（商品卡价，非单色价）",
+            "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1014245843334",
+            "price_text": "¥32 CNY（商品卡价，非单色价）",
+        }
+    ]

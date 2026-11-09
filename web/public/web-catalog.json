@@ -6530,9 +6530,9 @@
       ],
       "src": "store_swatch",
       "conf": 0.8,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=997622109775",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E7%BA%B5%E7%BB%B4%20PLA%20Basic%20Blue",
       "alt_url": "https://store.anycubic.com/products/pla-filament",
-      "price": null,
+      "price": "US$17.99",
       "img": "/sku/anycubic__pla-basic__blue.jpg",
       "print": {
         "nozzle_c": [
@@ -6812,9 +6812,9 @@
       ],
       "src": "store_swatch",
       "conf": 0.8,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=997622109775",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E7%BA%B5%E7%BB%B4%20PLA%20Basic%20Grey",
       "alt_url": "https://store.anycubic.com/products/pla-filament",
-      "price": null,
+      "price": "US$17.99",
       "img": "/sku/anycubic__pla-basic__grey.jpg",
       "print": {
         "nozzle_c": [
@@ -17242,9 +17242,9 @@
       ],
       "src": "official",
       "conf": 1.0,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=955911205517",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%8B%93%E7%AB%B9%20PLA%20Basic%20%E6%8B%93%E7%AB%B9%E7%BB%BF",
       "alt_url": "https://jp.store.bambulab.com/products/pla-basic-filament",
-      "price": null,
+      "price": "¥2,400起 JPY",
       "img": "/sku/bambu-lab__pla-basic__bambu-green-10501.jpg",
       "print": {
         "nozzle_c": [
@@ -17347,9 +17347,9 @@
       ],
       "src": "official",
       "conf": 1.0,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=981078022134",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%8B%93%E7%AB%B9%20PLA%20Basic%20%E8%93%9D%E8%89%B2",
       "alt_url": "https://jp.store.bambulab.com/products/pla-basic-filament",
-      "price": null,
+      "price": "¥2,400起 JPY",
       "img": "/sku/bambu-lab__pla-basic__blue-10601.jpg",
       "print": {
         "nozzle_c": [
@@ -17382,9 +17382,9 @@
       ],
       "src": "official",
       "conf": 1.0,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=981078022134",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%8B%93%E7%AB%B9%20PLA%20Basic%20%E8%93%9D%E7%81%B0",
       "alt_url": "https://jp.store.bambulab.com/products/pla-basic-filament",
-      "price": null,
+      "price": "¥2,400起 JPY",
       "img": "/sku/bambu-lab__pla-basic__blue-gray-10602.jpg",
       "print": {
         "nozzle_c": [
@@ -17420,9 +17420,9 @@
       ],
       "src": "official",
       "conf": 1.0,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=955911205517",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%8B%93%E7%AB%B9%20PLA%20Basic%20%E6%B3%A1%E6%B3%A1%E7%B4%AB",
       "alt_url": "https://jp.store.bambulab.com/products/pla-basic-filament",
-      "price": null,
+      "price": "¥2,400起 JPY",
       "img": "/sku/bambu-lab__pla-basic__blueberry-bubblegum-10905.jpg",
       "print": {
         "nozzle_c": [
@@ -18169,9 +18169,9 @@
       ],
       "src": "official",
       "conf": 1.0,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1014117624513",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%8B%93%E7%AB%B9%20PLA%20Basic%20%E6%A9%99%E8%89%B2",
       "alt_url": "https://jp.store.bambulab.com/products/pla-basic-filament",
-      "price": null,
+      "price": "¥2,400起 JPY",
       "img": "/sku/bambu-lab__pla-basic__orange-10300.jpg",
       "print": {
         "nozzle_c": [
@@ -18277,9 +18277,9 @@
       ],
       "src": "official",
       "conf": 1.0,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1010819723555",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%8B%93%E7%AB%B9%20PLA%20Basic%20%E5%8D%97%E7%93%9C%E6%A9%99",
       "alt_url": "https://jp.store.bambulab.com/products/pla-basic-filament",
-      "price": null,
+      "price": "¥2,400起 JPY",
       "img": "/sku/bambu-lab__pla-basic__pumpkin-orange-10301.jpg",
       "print": {
         "nozzle_c": [
@@ -18347,9 +18347,9 @@
       ],
       "src": "official",
       "conf": 1.0,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=995613337990",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%8B%93%E7%AB%B9%20PLA%20Basic%20%E7%BA%A2%E8%89%B2",
       "alt_url": "https://jp.store.bambulab.com/products/pla-basic-filament",
-      "price": null,
+      "price": "¥2,400起 JPY",
       "img": "/sku/bambu-lab__pla-basic__red-10200.jpg",
       "print": {
         "nozzle_c": [
@@ -24522,9 +24522,9 @@
       ],
       "src": "manual",
       "conf": 0.9,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1022763383907",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E5%BD%A9%E5%A4%9A%E5%B1%8B%20Matte%20PLA%20Beige",
       "alt_url": "https://www.cailab3d.com/products/matte-pla-filament-1-75mm-1kg-spool",
-      "price": null,
+      "price": "US$17.99",
       "img": "/sku/cailab__matte-pla__beige-mt4030.jpg"
     },
     {
@@ -24546,9 +24546,9 @@
       ],
       "src": "image_extracted",
       "conf": 0.468,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1022763383907",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E5%BD%A9%E5%A4%9A%E5%B1%8B%20Matte%20PLA%20Black",
       "alt_url": "https://www.cailab3d.com/products/matte-pla-filament-1-75mm-1kg-spool",
-      "price": null,
+      "price": "US$17.99",
       "img": "/sku/cailab__matte-pla__black-mt419.jpg"
     },
     {
@@ -24930,9 +24930,9 @@
       ],
       "src": "image_extracted",
       "conf": 0.439,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1022763383907",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E5%BD%A9%E5%A4%9A%E5%B1%8B%20Matte%20PLA%20Orange",
       "alt_url": "https://www.cailab3d.com/products/matte-pla-filament-1-75mm-1kg-spool",
-      "price": null,
+      "price": "US$17.99",
       "img": "/sku/cailab__matte-pla__orange-mt4012.jpg"
     },
     {
@@ -28310,9 +28310,9 @@
       ],
       "src": "image_extracted",
       "conf": 0.432,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1014245843334",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E5%BD%A9%E5%A4%9A%E5%B1%8B%20PLA%20Plus%20Black",
       "alt_url": "https://www.cailab3d.com/products/pla-plus-filament-pla-bio-1-75mm-1kg-spool",
-      "price": null,
+      "price": "US$17.99",
       "img": "/sku/cailab__pla-plus__black-ac419.jpg"
     },
     {
@@ -58405,9 +58405,9 @@
       ],
       "src": "ofd",
       "conf": 1.0,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=809320909551",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%98%93%E7%94%9F%20PLA-Basic%20Black",
       "alt_url": "https://www.esun3d.com/pla-basic-product",
-      "price": null,
+      "price": "US$13.99",
       "img": "/sku/esun__pla-basic__black.jpg",
       "print": {
         "nozzle_c": [
@@ -58440,9 +58440,9 @@
       ],
       "src": "ofd",
       "conf": 1.0,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=992151480844",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%98%93%E7%94%9F%20PLA-Basic%20Blue",
       "alt_url": "https://www.esun3d.com/pla-basic-product",
-      "price": null,
+      "price": "US$13.99",
       "img": "/sku/esun__pla-basic__blue.jpg",
       "print": {
         "nozzle_c": [
@@ -58615,9 +58615,9 @@
       ],
       "src": "ofd",
       "conf": 1.0,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=413409947777",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%98%93%E7%94%9F%20PLA-Basic%20Dark%20Blue",
       "alt_url": "https://www.esun3d.com/pla-basic-product",
-      "price": null,
+      "price": "US$13.99",
       "img": "/sku/esun__pla-basic__dark-blue.jpg",
       "print": {
         "nozzle_c": [
@@ -58790,9 +58790,9 @@
       ],
       "src": "ofd",
       "conf": 1.0,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=992151643295",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%98%93%E7%94%9F%20PLA-Basic%20Grey",
       "alt_url": "https://www.esun3d.com/pla-basic-product",
-      "price": null,
+      "price": "US$13.99",
       "img": "/sku/esun__pla-basic__grey.jpg",
       "print": {
         "nozzle_c": [
@@ -58895,9 +58895,9 @@
       ],
       "src": "ofd",
       "conf": 1.0,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=809320909551",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E6%98%93%E7%94%9F%20PLA-Basic%20Light%20Grey",
       "alt_url": "https://www.esun3d.com/pla-basic-product",
-      "price": null,
+      "price": "US$13.99",
       "img": "/sku/esun__pla-basic__light-grey.jpg",
       "print": {
         "nozzle_c": [
@@ -88334,9 +88334,9 @@
       "hex": [],
       "src": null,
       "conf": null,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=711862832098",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E5%AE%9D%E4%B8%BD%E7%8E%9B%20Panchroma%20Basic%20PLA%20Black",
       "alt_url": "https://us.polymaker.com/products/panchroma-pla",
-      "price": null,
+      "price": "US$17.99",
       "img": "/sku/polymaker__panchroma-basic-pla__black.jpg"
     },
     {
@@ -88498,9 +88498,9 @@
       "hex": [],
       "src": null,
       "conf": null,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=568967946166",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E5%AE%9D%E4%B8%BD%E7%8E%9B%20Panchroma%20Basic%20PLA%20Grey",
       "alt_url": "https://us.polymaker.com/products/panchroma-pla",
-      "price": null,
+      "price": "US$17.99",
       "img": "/sku/polymaker__panchroma-basic-pla__grey.jpg"
     },
     {
@@ -88788,9 +88788,9 @@
       "hex": [],
       "src": null,
       "conf": null,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=1025925048307",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E5%AE%9D%E4%B8%BD%E7%8E%9B%20Panchroma%20Basic%20PLA%20White",
       "alt_url": "https://us.polymaker.com/products/panchroma-pla",
-      "price": null,
+      "price": "US$17.99",
       "img": "/sku/polymaker__panchroma-basic-pla__white.jpg"
     },
     {
@@ -96673,9 +96673,9 @@
       ],
       "src": "manual",
       "conf": 0.9,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=466104937652",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E5%AE%9D%E4%B8%BD%E7%8E%9B%20PolyLite%20PLA%20Black",
       "alt_url": "https://us.polymaker.com/products/polylite-pla",
-      "price": null,
+      "price": "US$19.99",
       "img": "/sku/polymaker__polylite-pla__black.jpg",
       "print": {
         "nozzle_c": [
@@ -106648,9 +106648,9 @@
       ],
       "src": "manual",
       "conf": 0.9,
-      "url": "https://mobile.pinduoduo.com/goods.html?goods_id=975593755299",
+      "url": "https://mobile.pinduoduo.com/search_result.html?search_key=%E4%B8%89%E7%BB%BF%20Matte%20PLA%20Light%20Blue",
       "alt_url": "https://store.sunlu.com/products/over-6kg-bulk-sale-pla-matte-filament-neatly-wound-filament",
-      "price": null,
+      "price": "US$10.99起",
       "img": "/sku/sunlu__matte-pla__light-blue.jpg",
       "print": {
         "nozzle_c": [
