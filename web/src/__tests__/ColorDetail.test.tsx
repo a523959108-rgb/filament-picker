@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import sample from "../../../docs/fixtures/web-catalog.sample.json";
 import App from "../App";
 import { ColorDetail } from "../components/ColorDetail";
@@ -66,6 +66,39 @@ describe("color detail and compare", () => {
       "https://mobile.pinduoduo.com/goods.html?goods_id=931315367733",
     );
     expect(screen.queryByRole("link", { name: "原链接" })).toBeNull();
+  });
+
+  it("shows 库存有 when stock says this color id is in stock", async () => {
+    const entry = catalog.entries[0];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          ok: true,
+          hints: { [entry.id]: { in_stock: true, nearby_in_stock: false } },
+        }),
+      }),
+    );
+    render(<ColorDetail entry={entry} catalog={catalog} onClose={vi.fn()} onCompare={vi.fn()} />);
+    expect(await screen.findByText("库存有")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "购买链接" }).getAttribute("href")).toBe(entry.url);
+  });
+
+  it("does not badge a nearby color as in stock", async () => {
+    const entry = catalog.entries[0];
+    const fetcher = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ok: true,
+        hints: { [entry.id]: { in_stock: false, nearby_in_stock: true } },
+      }),
+    });
+    vi.stubGlobal("fetch", fetcher);
+    render(<ColorDetail entry={entry} catalog={catalog} onClose={vi.fn()} onCompare={vi.fn()} />);
+    await waitFor(() => expect(fetcher).toHaveBeenCalled());
+    expect(screen.queryByText("库存有")).toBeNull();
+    expect(screen.getByRole("link", { name: "购买链接" })).toBeTruthy();
   });
 
   it("shows print settings only when the entry has them", () => {

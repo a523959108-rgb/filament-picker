@@ -31,6 +31,7 @@ from .config import (
 )
 from .matcher import eligible, label_for, name_display
 from .note_parser import Params
+from .spoolman import annotate_picks, load_spools
 
 
 def models_root() -> Path:
@@ -264,6 +265,11 @@ class ModelPreview:
                     for distance, entry in ranked[: _COLOUR_PARAMS.per_color]
                 ]
             matches.append({"hex": colour, "picks": picks})
+        spools = load_spools()
+        if spools and self.catalog is not None:
+            entries = self.catalog.by_id
+            for match in matches:
+                match["picks"] = annotate_picks(match["picks"], entries, spools)
         return matches
 
     def _colour_candidates(self) -> list[dict[str, Any]]:

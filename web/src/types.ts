@@ -85,6 +85,10 @@ export interface PlanResult {
       url: string;
       alt_url?: string | null;
       price_text: string | null;
+      stock?: {
+        in_stock: boolean;
+        nearby_in_stock: boolean;
+      };
     }[];
   }[];
   single_series_option: {

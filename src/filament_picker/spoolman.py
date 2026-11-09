@@ -1,12 +1,15 @@
-"""Read-only Spoolman client stub for a future「我的耗材柜」.
+"""Read-only Spoolman client for optional stock ranking.
 
-Not imported by the server, CLI, or web app. See docs/spoolman-integration.md.
-Tests mock HTTP. This module has no default host and does not call a live Spoolman.
+Off unless FP_SPOOLMAN_ENABLED is set. Planner, the plan API, and model color
+matches call load_spools(); a failure returns no spools and leaves results as
+they were. See docs/spoolman-integration.md. Tests mock HTTP. This module has
+no default host and does not call a live Spoolman.
 """
 
 from __future__ import annotations
 
 import json
+import logging
 import math
 import os
 import re
@@ -24,6 +27,7 @@ from .config import MATCH_MAX_DE
 
 COLOR_ID_EXTRA_KEY = "filament_picker_color_id"
 SPOOLMAN_DEFAULT_TIMEOUT_S = 3.0
+logger = logging.getLogger(__name__)
 
 _COLOR_ID_RE = re.compile(
     r"^[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*$"
@@ -176,6 +180,66 @@ def stock_hint(entry: Mapping[str, Any], spools: Sequence[SpoolSnapshot]) -> Sto
             spool_id=nearby.spool_id,
         )
     return StockHint(color_id, False, False, "none", None, None, None)
+
+
+def load_spools(
+    settings: SpoolmanSettings | None = None,
+    opener: Callable[[str, float], bytes] | None = None,
+) -> tuple[SpoolSnapshot, ...]:
+    """Return spools, or () when Spoolman is off, unreachable, or misconfigured.
+
+    Callers keep today's recommendations in that case. The warning is for the
+    private host log; it is not copied into the plan response.
+    """
+    try:
+        resolved = spoolman_settings() if settings is None else settings
+        return SpoolmanClient(resolved, opener).list_spools()
+    except (SpoolmanError, ValueError, OSError) as exc:
+        logger.warning("Spoolman stock unavailable: %s", exc)
+        return ()
+
+
+def annotate_picks(
+    picks: Sequence[Mapping[str, Any]],
+    entries_by_id: Mapping[str, Mapping[str, Any]],
+    spools: Sequence[SpoolSnapshot],
+) -> list[dict[str, Any]]:
+    """Reorder picks when spools were read. Empty spools leave the rows unchanged.
+
+    The attached stock object is only the two public booleans. Remaining grams,
+    location, and spool id stay on the server.
+    """
+    if not spools:
+        return [dict(pick) for pick in picks]
+    annotated = annotate_recommendations(picks, entries_by_id, spools)
+    for item in annotated:
+        stock = item["stock"]
+        item["stock"] = {
+            "in_stock": bool(stock["in_stock"]),
+            "nearby_in_stock": bool(stock["nearby_in_stock"]),
+        }
+    return annotated
+
+
+def in_stock_hints(
+    color_ids: Sequence[str],
+    entries_by_id: Mapping[str, Mapping[str, Any]],
+    spools: Sequence[SpoolSnapshot],
+) -> dict[str, dict[str, bool]]:
+    """Map color ids that are actually in stock. Nearby colors are omitted."""
+    hints: dict[str, dict[str, bool]] = {}
+    if not spools:
+        return hints
+    for color_id in color_ids:
+        if color_id in hints:
+            continue
+        entry = entries_by_id.get(color_id)
+        if entry is None:
+            continue
+        hint = stock_hint(entry, spools)
+        if hint.in_stock and hint.match == "color_id":
+            hints[color_id] = {"in_stock": True, "nearby_in_stock": False}
+    return hints
 
 
 def annotate_recommendations(

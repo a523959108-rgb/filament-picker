@@ -33,7 +33,7 @@
 | --- | --- |
 | 颜色 ID | 与 `bambu-print-agent` 共用。本仓库如何锁定 ID 见 [`docs/SPEC.md`](SPEC.md) §5.7（`data/ids.lock.json`）。对方怎么引用这些 ID，在对方仓库改。 |
 | OFD / 目录 | 公开站用本仓库的耗材目录，加上离线导入的 Open Filament Database 结果（打印参数、补色）。 |
-| 库存与标签 | 以后可以接 Spoolman 库存和 OpenPrintTag NFC。现在没有实现，公开站不要表现成已经有。 |
+| 库存与标签 | Spoolman 只读库存可以参与配色排序，并在有货时显示「库存有」。默认关闭，公开站不要设置 `FP_SPOOLMAN_ENABLED`。位置和剩余克数不进公开响应。OpenPrintTag 仍未接。见 [`docs/spoolman-integration.md`](spoolman-integration.md)。 |
 
 ## 许可与嵌入
 
