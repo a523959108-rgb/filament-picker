@@ -1,0 +1,11 @@
+filament-picker 叠色工作区包含 Lumina-Layers 的前端代码。
+
+Lumina-Layers（Lumina Studio）
+https://github.com/lumina-layer-studio/Lumina-Layers
+上游 commit：b89af08226a88c9c9b3e2934ea1838c449923858
+许可证：AGPL-3.0-only
+
+许可证原文：third_party/lumina-layers/LICENSE
+复用文件清单和本地修改：third_party/lumina-layers/README.md
+
+本仓库对应源码由叠色页「源码」链接提供（构建变量 VITE_SOURCE_URL，默认 https://github.com/a523959108-rgb/filament-picker）。

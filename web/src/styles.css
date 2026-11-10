@@ -1332,3 +1332,196 @@ textarea:focus {
   font-size: 12px;
   color: var(--muted, #666);
 }
+
+/* Stack workspace shell. Visual tokens live in vendor/lumina/lumina-theme.css. */
+.lumina-stack {
+  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #e8e8ec;
+  color: #313135;
+}
+
+.lumina-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.86);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.lumina-top h1 {
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.lumina-top .topbar-sub {
+  margin-top: 2px;
+  font-size: 0.78rem;
+}
+
+.lumina-top-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.lumina-stack-main {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr) minmax(250px, 300px);
+  gap: 12px;
+  padding: 12px;
+}
+
+.lumina-stack-col,
+.lumina-stack-stage {
+  min-width: 0;
+  min-height: 0;
+}
+
+.lumina-stack-col {
+  overflow: auto;
+}
+
+.lumina-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+}
+
+.lumina-stack-stage {
+  display: flex;
+}
+
+.stack-stage-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.stack-bed-host {
+  position: relative;
+  flex: 1;
+  min-height: 420px;
+  background: #e8e8ec;
+}
+
+.stack-bed-display,
+.stack-bed-flat {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.stack-bed-gl {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stack-bed-flat {
+  object-fit: contain;
+}
+
+.stack-split {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+  align-items: center;
+}
+
+.stack-solo {
+  margin: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.stack-solo img {
+  width: 100%;
+  max-height: min(68vh, 640px);
+  object-fit: contain;
+  background: #fff;
+  border-radius: 12px;
+}
+
+.stack-solo figcaption,
+.stack-stage-actions {
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.stack-stage-actions {
+  padding: 0 16px 12px;
+}
+
+.stack-drag {
+  color: #94a3b8;
+  cursor: grab;
+  font-size: 0.9rem;
+}
+
+.stack-advanced-toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.stack-advanced {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (max-width: 960px) {
+  .lumina-stack {
+    height: auto;
+    overflow: visible;
+  }
+
+  .lumina-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .lumina-stack-main {
+    grid-template-columns: 1fr;
+  }
+
+  .lumina-stack-col {
+    overflow: visible;
+  }
+
+  .stack-bed-host {
+    min-height: 320px;
+  }
+
+  .stack-split {
+    grid-template-columns: 1fr;
+  }
+}

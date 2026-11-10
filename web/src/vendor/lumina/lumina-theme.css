@@ -1,0 +1,532 @@
+/* Adapted from Lumina-Layers frontend/src/index.css
+ * Upstream: https://github.com/lumina-layer-studio/Lumina-Layers
+ * Commit: b89af08226a88c9c9b3e2934ea1838c449923858
+ * License: AGPL-3.0-only (see third_party/lumina-layers/LICENSE)
+ *
+ * Changes from upstream index.css:
+ * - Dropped the Tailwind `@import` / `@theme` / MiSans `@font-face` prelude.
+ * - Scoped the design tokens onto `.lumina-stack` instead of `:root`.
+ * - Removed the global `body` rules and the global box-shadow kill-switch.
+ * - Omitted scrollbar rules that would restyle the rest of this site.
+ * - Tailwind utilities load without Preflight so catalog pages keep their styles.
+ */
+
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@source "../../";
+
+.lumina-stack {
+  --surface-panel: var(--color-slate-50);
+  --surface-panel-strong: var(--color-slate-50);
+  --surface-section: transparent;
+  --surface-section-muted: rgba(255, 255, 255, 0.46);
+  --surface-scrim: rgba(15, 23, 42, 0.56);
+  --surface-border: transparent;
+  --surface-outline: rgba(148, 163, 184, 0.22);
+  --surface-text-muted: rgb(100, 116, 139);
+  --surface-card: rgba(255, 255, 255, 0.92);
+  --surface-card-outline: rgba(148, 163, 184, 0.38);
+  --surface-well: rgba(100, 116, 139, 0.09);
+  --surface-divider: rgba(148, 163, 184, 0.32);
+  --nav-chip-active: rgba(255, 255, 255, 0.96);
+  --nav-chip-hover: rgba(100, 116, 139, 0.08);
+  --nav-tab-selected-bg: #529bff;
+  --nav-tab-selected-text: #ffffff;
+  --button-bg: #ffffff;
+  --button-hover: #f5f5f7;
+  --button-pressed: #e9e9ed;
+  --button-border: rgb(0 0 0 / 0.14);
+  --button-text: #313135;
+  --button-primary: #0071e3;
+  --button-primary-hover: #0068d1;
+  --button-primary-pressed: #005fbe;
+  --button-disabled-bg: #ececf0;
+  --button-disabled-text: #939398;
+  --button-danger: #c42b27;
+  --shadow-nav-chip:
+    0 1px 2px rgba(15, 23, 42, 0.1),
+    0 0 0 0.5px rgba(15, 23, 42, 0.05);
+  --shadow-card:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 20px 44px -32px rgba(15, 23, 42, 0.3);
+  --shadow-panel-soft: none;
+  --shadow-panel-elevated: none;
+  --shadow-panel-top: none;
+  --shadow-control: none;
+  --shadow-control-hover: none;
+  --focus-ring: rgba(59, 130, 246, 0.22);
+  --info-soft: rgba(59, 130, 246, 0.12);
+  --info-border: rgba(59, 130, 246, 0.28);
+  --success-soft: rgba(34, 197, 94, 0.12);
+  --success-border: rgba(34, 197, 94, 0.28);
+  --warning-soft: rgba(245, 158, 11, 0.12);
+  --warning-border: rgba(245, 158, 11, 0.28);
+  --error-soft: rgba(239, 68, 68, 0.12);
+  --error-border: rgba(239, 68, 68, 0.28);
+  --snap-guide-highlight-border: rgb(96 165 250 / 0.24);
+  --snap-guide-highlight-top-bg: linear-gradient(
+    to bottom,
+    rgb(96 165 250 / 0.16) 0%,
+    rgb(96 165 250 / 0.08) 20%,
+    rgb(96 165 250 / 0) 42%
+  );
+  --snap-guide-highlight-bottom-bg: linear-gradient(
+    to top,
+    rgb(96 165 250 / 0.16) 0%,
+    rgb(96 165 250 / 0.08) 20%,
+    rgb(96 165 250 / 0) 42%
+  );
+  --snap-guide-highlight-top-shadow:
+    inset 0 1px 0 rgb(191 219 254 / 0.6),
+    inset 0 12px 18px -16px rgb(59 130 246 / 0.9);
+  --snap-guide-highlight-bottom-shadow:
+    inset 0 -1px 0 rgb(191 219 254 / 0.6),
+    inset 0 -12px 18px -16px rgb(59 130 246 / 0.9);
+  --snap-guide-insert-line-bg: linear-gradient(
+    to right,
+    rgb(96 165 250 / 0.18),
+    rgb(96 165 250 / 0.42),
+    rgb(96 165 250 / 0.18)
+  );
+  --snap-guide-insert-line-shadow:
+    0 0 0 1px rgb(96 165 250 / 0.22), 0 0 14px rgb(59 130 246 / 0.18);
+  --snap-guide-edge-shadow: 0 0 8px rgb(59 130 246 / 0.5);
+  --palette-black: rgb(0 0 0);
+  --palette-white: rgb(255 255 255);
+  --palette-crimson: rgb(220 20 60);
+  --palette-yellow: rgb(255 230 0);
+  --palette-blue: rgb(0 100 240);
+  --palette-cyan: rgb(0 134 214);
+  --palette-magenta: rgb(236 0 140);
+  --palette-yellow-soft: rgb(244 238 42);
+  --palette-charcoal: rgb(20 20 20);
+  --palette-green: rgb(0 174 66);
+  --palette-brick: rgb(193 46 31);
+  --palette-indigo: rgb(10 41 137);
+}
+
+.dark {
+  --surface-panel: transparent;
+  --surface-panel-strong: rgba(2, 6, 23, 0.98);
+  --surface-section: transparent;
+  --surface-section-muted: rgba(15, 23, 42, 0.44);
+  --surface-scrim: rgba(2, 6, 23, 0.72);
+  --surface-border: transparent;
+  --surface-outline: rgba(71, 85, 105, 0.42);
+  --surface-text-muted: rgb(148, 163, 184);
+  --surface-card: rgba(15, 23, 42, 0.88);
+  --surface-card-outline: rgba(100, 116, 139, 0.5);
+  --surface-well: rgba(148, 163, 184, 0.1);
+  --surface-divider: rgba(100, 116, 139, 0.45);
+  --nav-chip-active: rgba(148, 163, 184, 0.18);
+  --nav-chip-hover: rgba(148, 163, 184, 0.08);
+  --nav-tab-selected-bg: #0a84ff;
+  --button-bg: #353538;
+  --button-hover: #414145;
+  --button-pressed: #29292c;
+  --button-border: rgb(255 255 255 / 0.14);
+  --button-text: #f0f0f2;
+  --button-primary: #0071e3;
+  --button-primary-hover: #087cf0;
+  --button-primary-pressed: #0068d1;
+  --button-disabled-bg: #29292d;
+  --button-disabled-text: #77777e;
+  --button-danger: #ff827b;
+  --shadow-nav-chip: none;
+  --shadow-card:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 20px 44px -32px rgba(0, 0, 0, 0.6);
+  --shadow-panel-soft: none;
+  --shadow-panel-elevated: none;
+  --shadow-panel-top: none;
+  --shadow-control: none;
+  --shadow-control-hover: none;
+  --focus-ring: rgba(96, 165, 250, 0.24);
+  --info-soft: rgba(59, 130, 246, 0.16);
+  --info-border: rgba(96, 165, 250, 0.32);
+  --success-soft: rgba(34, 197, 94, 0.14);
+  --success-border: rgba(74, 222, 128, 0.32);
+  --warning-soft: rgba(245, 158, 11, 0.16);
+  --warning-border: rgba(251, 191, 36, 0.32);
+  --error-soft: rgba(239, 68, 68, 0.14);
+  --error-border: rgba(248, 113, 113, 0.32);
+}
+
+.action-control {
+  border: 1px solid var(--button-border);
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.action-control svg { color: inherit; }
+
+.action-control:hover:not(:disabled):not([aria-disabled="true"]) {
+  background-color: var(--button-hover);
+}
+
+.action-control:active:not(:disabled):not([aria-disabled="true"]) {
+  background-color: var(--button-pressed);
+}
+
+.action-control-primary {
+  border-color: transparent;
+  background-color: var(--button-primary);
+  color: white;
+}
+
+.action-control-primary:hover:not(:disabled):not([aria-disabled="true"]) {
+  background-color: var(--button-primary-hover);
+}
+
+.action-control-primary:active:not(:disabled):not([aria-disabled="true"]) {
+  background-color: var(--button-primary-pressed);
+}
+
+.action-control[data-tone="danger"] { color: var(--button-danger); }
+
+.action-control:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.action-control:disabled,
+.action-control[aria-disabled="true"] {
+  border-color: transparent;
+  background-color: var(--button-disabled-bg);
+  color: var(--button-disabled-text);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* Ghost control: no boundary at rest, boundary appears on hover / focus.
+ * Used by ghost Buttons, toolbar icon buttons, dialog close buttons and
+ * collapse headers. 幽灵控件：静止时无边界，悬停或聚焦时才出现细边框与浅底。
+ * The 1px border is always present (transparent at rest) so nothing reflows.
+ * 1px 边框始终存在（静止时透明），悬停不会引起尺寸跳动。 */
+.ghost-control {
+  border: 1px solid transparent;
+  background-color: transparent;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    outline-color 150ms ease;
+}
+
+.ghost-control:hover:not(:disabled):not([aria-disabled="true"]) {
+  border-color: var(--surface-card-outline);
+  background-color: var(--nav-chip-hover);
+  color: rgb(15 23 42);
+}
+
+.dark .ghost-control:hover:not(:disabled):not([aria-disabled="true"]) {
+  color: rgb(241 245 249);
+}
+
+.ghost-control:focus-visible {
+  border-color: var(--surface-card-outline);
+  background-color: var(--nav-chip-hover);
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.ghost-control:active:not(:disabled):not([aria-disabled="true"]) {
+  border-color: var(--surface-card-outline);
+  background-color: var(--surface-well);
+}
+
+/* Toggled-on ghost control (e.g. the active selection tool). Boundary stays
+ * hidden; the fill carries the state. 开启态：不画边框，用淡蓝底表达选中。 */
+.ghost-control[aria-pressed="true"],
+.ghost-control[data-active="true"] {
+  border-color: transparent;
+  background-color: var(--nav-chip-active);
+  color: rgb(29 78 216);
+}
+
+.dark .ghost-control[aria-pressed="true"],
+.dark .ghost-control[data-active="true"] {
+  color: rgb(147 197 253);
+}
+
+.ghost-control[aria-pressed="true"]:hover:not(:disabled):not([aria-disabled="true"]),
+.ghost-control[data-active="true"]:hover:not(:disabled):not([aria-disabled="true"]) {
+  background-color: var(--surface-well);
+}
+
+.ghost-control:disabled,
+.ghost-control[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* Destructive ghost control: red text, border and fill on hover. */
+.ghost-control[data-tone="danger"] {
+  color: var(--surface-text-muted);
+}
+
+.ghost-control[data-tone="danger"]:hover:not(:disabled):not([aria-disabled="true"]) {
+  border-color: var(--error-border);
+  background-color: var(--error-soft);
+  color: rgb(185 28 28);
+}
+
+.dark .ghost-control[data-tone="danger"]:hover:not(:disabled):not([aria-disabled="true"]) {
+  color: rgb(252 165 165);
+}
+
+.ghost-control[data-tone="danger"]:active:not(:disabled):not([aria-disabled="true"]) {
+  background-color: var(--error-soft);
+}
+
+/* Touch devices have no hover, so a boundary-less control reads as plain
+ * text. Show a faint resting border there. 触屏没有悬停，静止时给一圈极淡边框。 */
+@media (hover: none) {
+  .ghost-control:not([aria-pressed="true"]):not([data-active="true"]) {
+    border-color: var(--surface-outline);
+  }
+}
+
+@keyframes material-picker-card-select {
+  0% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  55% {
+    filter: drop-shadow(0 0 6px var(--focus-ring));
+  }
+  100% {
+    filter: drop-shadow(0 1px 2px var(--focus-ring));
+  }
+}
+
+.material-picker-card-select-effect {
+  animation: material-picker-card-select 180ms ease-out;
+}
+
+.panel-surface {
+  background: var(--surface-panel);
+  border: 0;
+  box-shadow: var(--shadow-panel-elevated);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.panel-section {
+  background: var(--surface-section-muted);
+  border: 1px solid var(--surface-outline);
+  box-shadow: none;
+}
+
+.panel-section-muted {
+  background: var(--surface-section-muted);
+  border: 1px solid var(--surface-outline);
+  box-shadow: none;
+}
+
+/* Hierarchy v2: exactly one bordered "card" level. Everything inside a card
+ * is either a well (tinted, borderless inset) or divided by hairlines.
+ * 层级 v2：全页只有一层带边框的“卡片”；卡片内部只允许“凹槽”（有底色无边框）
+ * 和分割线，禁止再嵌套带边框的圆角矩形。 */
+.panel-card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-card-outline);
+  box-shadow: var(--shadow-card);
+}
+
+/* Page-sized panels retain card geometry without using a white card fill. */
+.panel-card.panel-default-surface {
+  background: var(--surface-panel-strong);
+}
+
+.dark .panel-card.panel-default-surface {
+  background: var(--surface-card);
+}
+
+.panel-well {
+  background: var(--surface-well);
+  border: 1px solid transparent;
+}
+
+/* A light field stays distinct from the continuous settings-group surface. */
+.settings-group .slider-value-field {
+  background: var(--surface-card);
+}
+
+.settings-choice-group > fieldset > div:first-child > span:first-child {
+  font-weight: 600;
+  color: var(--color-slate-800);
+}
+
+.dark .settings-choice-group > fieldset > div:first-child > span:first-child {
+  color: var(--color-slate-100);
+}
+
+.panel-divider {
+  border-color: var(--surface-divider);
+}
+
+/* Settings use a continuous split view; only individual controls have shells. */
+.settings-workspace {
+  background: var(--surface-panel);
+}
+
+.settings-sidebar {
+  background: var(--color-slate-200);
+}
+
+.dark .settings-sidebar {
+  background: var(--surface-section-muted);
+}
+
+.settings-content .panel-card {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Material browsing uses tonal separation instead of elevated white cards. */
+.material-library-workspace,
+.lut-library-workspace {
+  background: var(--color-slate-50);
+  box-shadow: none;
+}
+
+.dark .material-library-workspace,
+.dark .lut-library-workspace {
+  background: var(--color-slate-950);
+}
+
+.material-library-workspace .panel-card,
+.lut-library-workspace .panel-card {
+  background: var(--color-slate-100);
+  border-color: var(--color-slate-200);
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.dark .material-library-workspace .panel-card,
+.dark .lut-library-workspace .panel-card {
+  background: var(--color-slate-800);
+  border-color: var(--color-slate-700);
+}
+
+.material-library-group:hover,
+.material-library-card:hover {
+  background: var(--color-slate-200);
+}
+
+.dark .material-library-group:hover,
+.dark .material-library-workspace .material-library-card:hover,
+.dark .lut-library-workspace .material-library-card:hover {
+  background: var(--color-slate-700);
+}
+
+.material-library-card-name {
+  color: var(--color-slate-900);
+}
+
+.material-library-card-meta {
+  color: var(--color-slate-600);
+}
+
+.dark .material-library-card-name {
+  color: var(--color-slate-50);
+}
+
+.dark .material-library-card-meta {
+  color: var(--color-slate-400);
+}
+
+.material-library-workspace .material-library-card:is([aria-expanded="true"], [aria-pressed="true"]),
+.lut-library-workspace .material-library-card[aria-expanded="true"] {
+  background: var(--color-slate-200);
+  border-color: var(--color-slate-300);
+}
+
+.dark .material-library-workspace .material-library-card:is([aria-expanded="true"], [aria-pressed="true"]),
+.dark .lut-library-workspace .material-library-card[aria-expanded="true"] {
+  background: var(--color-slate-700);
+  border-color: var(--color-slate-500);
+}
+
+.material-library-card:focus-visible,
+.material-library-group:focus-visible {
+  outline: 2px solid var(--color-blue-500);
+  outline-offset: 3px;
+}
+
+/* The color editor is a continuous workstation divided into columns and rows. */
+.panel-card.color-tools-panel {
+  background: var(--color-slate-50);
+}
+
+.dark .panel-card.color-tools-panel {
+  background: var(--color-slate-950);
+}
+
+.color-adjustment-workspace .panel-card {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.ghost-control.selection-tool-control {
+  background-color: var(--color-slate-100);
+  color: var(--color-slate-900);
+}
+
+.ghost-control.selection-tool-control[aria-pressed="true"],
+.ghost-control.selection-tool-control:hover:not(:disabled):not([aria-disabled="true"]) {
+  border-color: var(--color-slate-300);
+  background-color: var(--color-slate-200);
+  color: var(--color-slate-900);
+}
+
+.dark .ghost-control.selection-tool-control {
+  background-color: var(--color-slate-800);
+  color: var(--color-slate-100);
+}
+
+.dark .ghost-control.selection-tool-control[aria-pressed="true"],
+.dark .ghost-control.selection-tool-control:hover:not(:disabled):not([aria-disabled="true"]) {
+  border-color: var(--color-slate-600);
+  background-color: var(--color-slate-700);
+  color: var(--color-slate-100);
+}
+
+.surface-divider {
+  background: var(--surface-outline);
+}
+
+/* Status banners: left accent bar instead of a fully bordered rounded box,
+ * so hints stop reading as yet another nested card.
+ * 状态提示：左侧色条 + 淡底，不再是一圈完整边框的圆角盒子。 */
+.status-banner {
+  border-radius: 6px;
+  border: 0;
+  border-left: 3px solid transparent;
+  padding: 0.625rem 0.875rem;
+}
+
+.status-banner[data-tone="info"] {
+  background: var(--info-soft);
+  border-left-color: rgb(59, 130, 246);
+}
+
+.status-banner[data-tone="success"] {
+  background: var(--success-soft);
+  border-left-color: rgb(34, 197, 94);
+}
+
+.status-banner[data-tone="warning"] {
+  background: var(--warning-soft);
+  border-left-color: rgb(245, 158, 11);
+}
+
+.status-banner[data-tone="error"] {
+  background: var(--error-soft);
+  border-left-color: rgb(239, 68, 68);
+}

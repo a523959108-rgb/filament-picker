@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
 import { loadCatalog } from "./catalog";
-import { FAMILIES, STACK_HASH, isStackHost, stackEntryHref } from "./config";
+import { FAMILIES, defaultStackHash, stackEntryHref } from "./config";
 import { Filters } from "./components/Filters";
 import { ColorDetail } from "./components/ColorDetail";
 import { CompareBar } from "./components/CompareBar";
@@ -64,7 +64,9 @@ export default function App(): JSX.Element {
 }
 
 function CatalogApp(): JSX.Element {
-  const [route, setRoute] = useState(routeFromHash);
+  const [route, setRoute] = useState(
+    () => defaultStackHash(window.location.hostname, routeFromHash()) ?? routeFromHash(),
+  );
   const [catalog, setCatalog] = useState<WebCatalog | null>(null);
   const [loadError, setLoadError] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -80,10 +82,9 @@ function CatalogApp(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (!isStackHost(window.location.hostname)) return;
-    const hash = routeFromHash();
-    if (hash === "" || hash === "#" || hash === "#/") {
-      window.location.hash = STACK_HASH;
+    const next = defaultStackHash(window.location.hostname, routeFromHash());
+    if (next !== null && routeFromHash() !== next) {
+      window.location.hash = next;
     }
   }, []);
 
@@ -118,7 +119,7 @@ function CatalogApp(): JSX.Element {
     return <main className="page"><CostPage /></main>;
   }
   if (route === "#/stack") {
-    return <main className="page"><StackPage /></main>;
+    return <StackPage />;
   }
   if (loadError) {
     return (

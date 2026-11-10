@@ -29,7 +29,9 @@ describe("StackPage", () => {
 
     expect(await findByRole("heading", { level: 1, name: "叠色（本机引擎）" })).toBeTruthy();
     expect(await findByLabelText("烟测模型与推荐色")).toBeTruthy();
-    expect(await findByLabelText("回传导入")).toBeTruthy();
+    expect(await findByRole("button", { name: "预览" })).toBeTruthy();
+    expect(await findByRole("link", { name: "源码" })).toBeTruthy();
+    fireEvent.click(await findByRole("button", { name: "预览" }));
     expect(await findByRole("img", { name: "叠色预览图" })).toBeTruthy();
     expect(await findByRole("link", { name: "下载 3MF 模型" })).toBeTruthy();
     expect((await findAllByText(/bambu-lab\/pla-basic\/light-gray-10104/)).length).toBeGreaterThan(0);
@@ -43,13 +45,17 @@ describe("StackPage", () => {
     expect((await findAllByText(/bambu-lab\/pla-matte\/scarlet-red-11200/)).length).toBeGreaterThan(0);
     fireEvent.change(await findByLabelText("LUT 色模式"), { target: { value: "CMYW" } });
     expect(await findByText(/bambu-lab\/pla-basic\/cyan-10603/)).toBeTruthy();
-    expect(await findByRole("button", { name: "下载本机任务包" })).toBeTruthy();
+    expect(await findByRole("button", { name: "生成 3MF" })).toBeTruthy();
+    expect(document.querySelector("#stack-advanced")).toBeNull();
+    fireEvent.click(await findByRole("button", { name: "高级" }));
+    expect(await findByLabelText("回传导入")).toBeTruthy();
     expect((await findAllByText(/本站不跑 GPL/)).length).toBeGreaterThan(0);
   });
 
   it("imports pasted result JSON and refreshes recommendations", async () => {
     const { findByLabelText, findByRole, findAllByText, findByText } = render(<StackPage />);
     await findByLabelText("四槽推荐色卡");
+    fireEvent.click(await findByRole("button", { name: "高级" }));
 
     const payload = {
       schema_version: 1,
@@ -92,7 +98,7 @@ describe("StackPage", () => {
     });
 
     const { findByRole, findByText } = render(<StackPage />);
-    fireEvent.click(await findByRole("button", { name: "下载本机任务包" }));
+    fireEvent.click(await findByRole("button", { name: "生成 3MF" }));
     await waitFor(() => expect(click).toHaveBeenCalled());
     expect(await findByText(/已下载任务包/)).toBeTruthy();
   });
