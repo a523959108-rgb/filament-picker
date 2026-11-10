@@ -308,3 +308,82 @@ def test_tray_map_accepts_lumina_colour_word_labels(repo_root: Path) -> None:
     )
     assert _best_ids(body)[1] == "bambu-lab/pla-matte/scarlet-red-11200"
     assert body["slots"][1]["label"] == "Red"
+
+
+# Real Lumina bambulab_pla_basic_{rybw,cmyw}.npy LUT info palettes (channel
+# order W,R,Y,B / W,C,M,Y; material reported as "PLA Basic").
+LUMINA_RYBW = [
+    {"label": "White", "hex": "#F5F5F5", "name": "PLA Basic White"},
+    {"label": "Red", "hex": "#E53935", "name": "PLA Basic Red"},
+    {"label": "Yellow", "hex": "#FFD400", "name": "PLA Basic Yellow"},
+    {"label": "Blue", "hex": "#1E88E5", "name": "PLA Basic Blue"},
+]
+LUMINA_CMYW = [
+    {"label": "White", "hex": "#F5F5F5", "name": "PLA Basic White"},
+    {"label": "Cyan", "hex": "#00B7EB", "name": "PLA Basic Cyan"},
+    {"label": "Magenta", "hex": "#E6007E", "name": "PLA Basic Magenta"},
+    {"label": "Yellow", "hex": "#FFD400", "name": "PLA Basic Yellow"},
+]
+
+
+@pytest.mark.parametrize(
+    ("palette", "channels", "expected"),
+    [
+        (
+            "RYBW",
+            LUMINA_RYBW,
+            [
+                "bambu-lab/pla-basic/light-gray-10104",
+                "bambu-lab/pla-matte/scarlet-red-11200",
+                "bambu-lab/pla-basic/yellow-10400",
+                "bambu-lab/pla-basic/cobalt-blue-10604",
+            ],
+        ),
+        (
+            "CMYW",
+            LUMINA_CMYW,
+            [
+                "bambu-lab/pla-basic/jade-white-10100",
+                "bambu-lab/pla-basic/cyan-10603",
+                "bambu-lab/pla-basic/magenta-10202",
+                "bambu-lab/pla-basic/yellow-10400",
+            ],
+        ),
+    ],
+)
+@pytest.mark.parametrize("brand", [None, "bambu-lab", "bambulab", "Bambu Lab"])
+def test_lumina_series_material_and_brand_variants_still_match(
+    client: TestClient,
+    palette: str,
+    channels: list[dict[str, str]],
+    expected: list[str],
+    brand: str | None,
+) -> None:
+    payload: dict[str, object] = {"channels": channels, "palette": palette, "material": "PLA Basic"}
+    if brand is not None:
+        payload["brand"] = brand
+    response = client.post("/api/lumina/match", json=payload)
+    assert response.status_code == 200
+    slots = response.json()["slots"]
+    assert [slot["best"]["catalog_id"] for slot in slots] == expected
+    assert all(slot["best"]["source"] == "tray_map" for slot in slots)
+    assert all("回退" not in (slot["note"] or "") for slot in slots)
+
+
+def test_unknown_material_filter_is_ignored_instead_of_empty(client: TestClient) -> None:
+    response = client.post(
+        "/api/lumina/match",
+        json={"channels": [{"hex": "#000000"}], "material": "Unobtainium"},
+    )
+    assert response.status_code == 200
+    assert response.json()["slots"][0]["best"] is not None
+
+
+def test_disallowed_origin_still_gets_vary_origin(client: TestClient) -> None:
+    response = client.post(
+        "/api/lumina/match",
+        headers={"Origin": "https://evil.example"},
+        json={"channels": [{"hex": "#000000"}]},
+    )
+    assert "access-control-allow-origin" not in response.headers
+    assert "origin" in response.headers.get("vary", "").casefold()

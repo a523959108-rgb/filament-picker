@@ -214,6 +214,30 @@ def _candidate(entry: dict[str, Any]) -> _Candidate | None:
     return _Candidate(entry, color_hex, hex_to_lab(color_hex))
 
 
+_MATERIAL_FAMILY_RE = re.compile(r"[A-Za-z]+")
+
+
+def _material_family(value: str) -> str:
+    match = _MATERIAL_FAMILY_RE.search(nfkc(value))
+    return match.group(0).casefold() if match else ""
+
+
+def _material_matches(requested: str, entry_material: Any) -> bool:
+    if not isinstance(entry_material, str) or not entry_material.strip():
+        return False
+    if requested.casefold() == entry_material.strip().casefold():
+        return True
+    family = _material_family(requested)
+    return bool(family) and family == _material_family(entry_material)
+
+
+def _brand_key(value: Any) -> str:
+    """Normalise brand slugs/names: "bambu-lab", "bambulab", "Bambu Lab" are equal."""
+    if not isinstance(value, str):
+        return ""
+    return re.sub(r"[^0-9a-z\u3400-\u9fff]+", "", nfkc(value).casefold())
+
+
 def _usable_candidates(
     request: LuminaRequest, entries: tuple[dict[str, Any], ...]
 ) -> tuple[list[_Candidate], bool]:
@@ -221,17 +245,27 @@ def _usable_candidates(
         candidate for entry in entries if (candidate := _candidate(entry)) is not None
     ]
     if request.material is not None:
-        all_candidates = [
+        # Lumina reports series-level materials such as "PLA Basic"; the
+        # catalog stores the material family ("PLA"). Match on the family and
+        # ignore the filter rather than returning nothing.
+        filtered = [
             candidate
             for candidate in all_candidates
-            if str(candidate.entry.get("material") or "").casefold() == request.material.casefold()
+            if _material_matches(request.material, candidate.entry.get("material"))
         ]
+        if filtered:
+            all_candidates = filtered
     if request.brand is None:
         return all_candidates, False
+    wanted_brand = _brand_key(request.brand)
     branded = [
         candidate
         for candidate in all_candidates
-        if str(candidate.entry.get("brand_slug") or "").casefold() == request.brand
+        if wanted_brand
+        in (
+            _brand_key(candidate.entry.get("brand_slug")),
+            _brand_key(candidate.entry.get("brand_name")),
+        )
     ]
     if branded:
         return branded, False
@@ -469,13 +503,13 @@ def _ranking_key(
     if ranked.distance is None:
         name_score: tuple[Any, ...] = ranked.name_score or (9, 0, 0, 10_000, "")
         return (*name_score, str(entry.get("id") or ""))
-    brand_slug = str(entry.get("brand_slug") or "").casefold()
+    brand_slug = _brand_key(entry.get("brand_slug"))
     series_name = str(entry.get("series_name") or "")
     return (
         round(ranked.distance, 2),
         0 if _has_pdd_goods(entry) else 1,
         1 if _is_special_material(entry) else 0,
-        0 if preferred_brand is not None and brand_slug == preferred_brand else 1,
+        0 if preferred_brand is not None and brand_slug == _brand_key(preferred_brand) else 1,
         0
         if preferred_series is not None and series_name.casefold() == preferred_series.casefold()
         else 1,
@@ -633,14 +667,14 @@ def _slot(
                 *[
                     item
                     for item in ranked[1:]
-                    if str(item.candidate.entry.get("brand_slug") or "").casefold()
-                    == preferred_brand
+                    if _brand_key(item.candidate.entry.get("brand_slug"))
+                    == _brand_key(preferred_brand)
                 ],
                 *[
                     item
                     for item in ranked[1:]
-                    if str(item.candidate.entry.get("brand_slug") or "").casefold()
-                    != preferred_brand
+                    if _brand_key(item.candidate.entry.get("brand_slug"))
+                    != _brand_key(preferred_brand)
                 ],
             ]
     else:
@@ -674,8 +708,10 @@ def match_request(payload: Any, catalog: Catalog | Mapping[str, Any]) -> dict[st
 
 
 def cors_headers(origin: str | None, *, preflight: bool = False) -> dict[str, str]:
+    # Always send Vary: Origin so shared caches never reuse an allowed-origin
+    # response for another origin (or vice versa).
     if origin != ALLOWED_ORIGIN:
-        return {}
+        return {"Vary": "Origin"}
     headers = {"Access-Control-Allow-Origin": ALLOWED_ORIGIN, "Vary": "Origin"}
     if preflight:
         headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"

@@ -27,8 +27,8 @@ Lumina 预览完成后，可把各通道的颜色或耗材名称提交到选色�
 | `channels[].hex` | string/null | 可选，`#RRGGBB` 或 `RRGGBB`，大小写均可。输出统一为大写并带 `#`。 |
 | `channels[].name` | string/null | 可选，最多 80 个字符，原样回显。 |
 | `palette` | string/null | 可选，`RYBW` 或 `CMYW`，大小写不敏感；输出大写。 |
-| `material` | string/null | 可选，按目录中的材质系列过滤，大小写不敏感。 |
-| `brand` | string/null | 可选，品牌 slug；优先该品牌，无结果时回退全部品牌。 |
+| `material` | string/null | 可选，按材质大类过滤（取首个字母串，如 Lumina 的 `PLA Basic` → `PLA`），大小写不敏感；过滤后为空则忽略该条件。 |
+| `brand` | string/null | 可选，品牌 slug 或名称（`bambu-lab`/`bambulab`/`Bambu Lab` 视为相同）；优先该品牌，无结果时回退全部品牌。 |
 | `max_alternatives` | integer | 可选，0–5，默认 3。 |
 
 ## 成功响应
@@ -87,7 +87,7 @@ HTTP 200：
 
 ## CORS
 
-仅允许精确的 Origin `https://stack.filament.ibaozi.com`。允许 `POST` 和 `OPTIONS`，允许请求头 `Content-Type`，不携带 credentials。允许 Origin 的预检和实际 `/api/lumina/match` 响应带 `Access-Control-Allow-Origin`；其他 Origin 不带该响应头。CORS 处理只作用于 `/api/lumina/` 路径，其他 API 路由不改变响应头。
+仅允许精确的 Origin `https://stack.filament.ibaozi.com`。允许 `POST` 和 `OPTIONS`，允许请求头 `Content-Type`，不携带 credentials。允许 Origin 的预检和实际 `/api/lumina/match` 响应带 `Access-Control-Allow-Origin`；其他 Origin 不带该响应头（但都带 `Vary: Origin`，防止共享缓存串用）。CORS 处理只作用于 `/api/lumina/` 路径，其他 API 路由不改变响应头。
 
 ## 匹配规则与限制
 
