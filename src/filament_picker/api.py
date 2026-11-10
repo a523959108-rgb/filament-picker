@@ -9,13 +9,14 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse, JSONResponse
 
 from .auth import warn_if_preview_user_unconfigured
 from .card import CARD_NAME_RE
 from .catalog import load_catalog
 from .config import TZ
+from .lumina_bridge import LuminaValidationError, cors_headers, match_request
 from .models import mount_model_preview
 from .planner import run_plan
 from .spoolman import in_stock_hints, load_spools
@@ -78,6 +79,36 @@ def create_app(
     @app.get("/api/health")
     async def health() -> dict[str, Any]:
         return {"ok": True, "catalog_generated_at": catalog.generated_at}
+
+    @app.options("/api/lumina/match")
+    async def lumina_match_options(request: Request) -> JSONResponse:
+        return JSONResponse({}, headers=cors_headers(request.headers.get("origin"), preflight=True))
+
+    @app.post("/api/lumina/match")
+    async def lumina_match(request: Request) -> JSONResponse:
+        headers = cors_headers(request.headers.get("origin"))
+        try:
+            payload = await request.json()
+        except (ValueError, UnicodeError):
+            detail = {
+                "detail": [
+                    {
+                        "loc": ["body"],
+                        "msg": "request body must be valid JSON",
+                        "type": "value_error",
+                    }
+                ]
+            }
+            return JSONResponse(
+                detail,
+                status_code=422,
+                headers=headers,
+            )
+        try:
+            result = match_request(payload, catalog)
+        except LuminaValidationError as exc:
+            return JSONResponse({"detail": exc.errors}, status_code=422, headers=headers)
+        return JSONResponse(result, headers=headers)
 
     @app.get("/api/stock")
     async def stock(ids: str = "") -> dict[str, Any]:
