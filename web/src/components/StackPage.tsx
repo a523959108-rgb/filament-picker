@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, JSX } from "react";
 import { loadCatalog } from "../catalog";
+import { SOURCE_URL } from "../config";
 import { copyText } from "../marketPrice";
+import { moveSlot } from "../stackSlots";
 import {
   applyStackResult,
   parseStackResultText,
@@ -14,6 +16,7 @@ import {
   triggerBlobDownload,
   type FourColorTrayMap,
   type StackLutMode,
+  type TraySlot,
 } from "../stackJob";
 import {
   SMOKE_INPUT_URL,
@@ -25,8 +28,26 @@ import {
   type SlotRecommendation,
 } from "../stackRecommend";
 import type { WebCatalog } from "../types";
+import { StackBed } from "./StackBed";
+import Button from "../vendor/lumina/components/ui/Button";
+import DisclosureChevron from "../vendor/lumina/components/ui/DisclosureChevron";
+import ImageUpload from "../vendor/lumina/components/ui/ImageUpload";
+import {
+  cardClass,
+  settingsGroupHeadingClass,
+  workstationInputClass,
+} from "../vendor/lumina/components/ui/panelPrimitives";
+import "../vendor/lumina/lumina-theme.css";
 
 const DEFAULT_SIZE_MM = 100;
+
+const BED_PRESETS = [
+  { id: "256", label: "256 × 256 mm", width: 256, height: 256 },
+  { id: "350", label: "350 × 320 mm", width: 350, height: 320 },
+  { id: "180", label: "180 × 180 mm", width: 180, height: 180 },
+] as const;
+
+type PreviewView = "bed" | "original" | "stacked" | "split";
 
 function formatDelta(delta: number): string {
   return delta.toFixed(2);
@@ -53,6 +74,8 @@ export function StackPage(): JSX.Element {
   const [mode, setMode] = useState<StackLutMode>("RYBW");
   const [widthMm, setWidthMm] = useState(DEFAULT_SIZE_MM);
   const [heightMm, setHeightMm] = useState(DEFAULT_SIZE_MM);
+  const [layerHeightMm, setLayerHeightMm] = useState(0.08);
+  const [bedId, setBedId] = useState<(typeof BED_PRESETS)[number]["id"]>("256");
   const [image, setImage] = useState<File | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [copyStatus, setCopyStatus] = useState<string | null>(null);
@@ -61,6 +84,11 @@ export function StackPage(): JSX.Element {
   const [importStatus, setImportStatus] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [imported, setImported] = useState<ImportedStackView | null>(null);
+  const [slotOrder, setSlotOrder] = useState<string[] | null>(null);
+  const [view, setView] = useState<PreviewView>("bed");
+  const [previewOn, setPreviewOn] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const dragFrom = useRef<number | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -85,6 +113,18 @@ export function StackPage(): JSX.Element {
 
   const palette = trayMap?.palettes[mode] ?? null;
   const previewUrl = useMemo(() => (image === null ? null : URL.createObjectURL(image)), [image]);
+  const bed = BED_PRESETS.find((item) => item.id === bedId) ?? BED_PRESETS[0];
+
+  const orderedSlots: TraySlot[] = useMemo(() => {
+    const slots = palette?.slots ?? [];
+    if (slotOrder === null) return slots;
+    const byLetter = new Map(slots.map((slot) => [slot.slot, slot]));
+    const ordered = slotOrder
+      .map((letter) => byLetter.get(letter))
+      .filter((slot): slot is TraySlot => slot !== undefined);
+    const rest = slots.filter((slot) => !slotOrder.includes(slot.slot));
+    return [...ordered, ...rest];
+  }, [palette, slotOrder]);
 
   const smokeRecs: SlotRecommendation[] = useMemo(() => {
     if (catalog === null) return [];
@@ -96,10 +136,15 @@ export function StackPage(): JSX.Element {
   }, [catalog]);
 
   const activeRecs = imported?.slots ?? smokeRecs;
-  const activePreview = imported?.previewUrl ?? SMOKE_PREVIEW_URL;
-  const activeModelUrl = imported?.modelUrl ?? SMOKE_MODEL_3MF_URL;
+  const activeLut = imported?.lutMode ?? mode;
+  const usingFixture = previewOn && image === null && imported === null;
+  const originalSrc = previewOn ? (previewUrl ?? (imported === null ? SMOKE_INPUT_URL : null)) : null;
+  const stackedSrc = previewOn
+    ? (imported?.previewUrl ?? (image === null && imported === null ? SMOKE_PREVIEW_URL : null))
+    : null;
+  const activeModelUrl = previewOn || imported !== null ? (imported?.modelUrl ?? SMOKE_MODEL_3MF_URL) : null;
   const activeModelName = imported?.modelDownloadName ?? "smoke_rybw_sample_logo.3mf";
-  const activeLut = imported?.lutMode ?? "RYBW";
+  const bedArtwork = view === "bed" ? (stackedSrc ?? originalSrc) : null;
 
   useEffect(() => {
     return () => {
@@ -118,20 +163,18 @@ export function StackPage(): JSX.Element {
         setImportStatus(parsed.message);
         return;
       }
-      const view = applyStackResult(parsed.result, catalog.entries ?? [], sourceLabel);
-      setImported(view);
-      setMode(view.lutMode);
+      const next = applyStackResult(parsed.result, catalog.entries ?? [], sourceLabel);
+      setImported(next);
+      setMode(next.lutMode);
+      setSlotOrder(null);
+      setPreviewOn(true);
+      setView(next.previewUrl ? "split" : "stacked");
       setImportStatus(
-        `已导入并刷新：${sourceLabel} · ${view.lutMode} · ${view.slots.length} 槽（推荐按当前目录重算）`,
+        `已导入并刷新：${sourceLabel} · ${next.lutMode} · ${next.slots.length} 槽（推荐按当前目录重算）`,
       );
     },
     [catalog],
   );
-
-  const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setImage(event.target.files?.[0] ?? null);
-    setStatus(null);
-  };
 
   const onImportFile = async (file: File) => {
     try {
@@ -163,6 +206,15 @@ export function StackPage(): JSX.Element {
     }
   };
 
+  const onPreview = () => {
+    setPreviewOn(true);
+    const hasOriginal = image !== null || imported === null;
+    const hasStacked = imported?.previewUrl != null || (image === null && imported === null);
+    if (hasOriginal && hasStacked) setView("split");
+    else if (hasStacked) setView("stacked");
+    else setView("original");
+  };
+
   const onDownload = async () => {
     if (palette === null) {
       setStatus("托盘映射未加载");
@@ -177,7 +229,7 @@ export function StackPage(): JSX.Element {
     try {
       const job = buildStackJob({
         mode,
-        palette,
+        palette: { ...palette, slots: orderedSlots },
         widthMm,
         heightMm,
         imageFilename: image?.name ?? null,
@@ -231,227 +283,259 @@ export function StackPage(): JSX.Element {
 
   const onResetImport = () => {
     setImported(null);
+    setSlotOrder(null);
+    setPreviewOn(true);
+    setView("split");
     setImportStatus("已恢复烟测静态结果");
   };
 
+  const onSlotDrop = (index: number) => {
+    const from = dragFrom.current;
+    dragFrom.current = null;
+    if (from === null) return;
+    setSlotOrder(moveSlot(orderedSlots.map((slot) => slot.slot), from, index));
+  };
+
   return (
-    <section className="stack-page">
-      <header className="topbar">
+    <section className="lumina-stack">
+      <header className="lumina-top">
         <div className="topbar-title">
           <h1>叠色（本机引擎）</h1>
-          <p className="topbar-sub">
-            上传图 → 本机 Lumina 生成模型 → 回站导入 JSON 刷新预览/3MF，并用色卡库推荐购买色；本站不跑 GPL 叠色引擎
-          </p>
+          <p className="topbar-sub">上传图后在本机生成模型再回传。本站不跑 GPL 叠色引擎</p>
         </div>
-        <nav className="topbar-nav" aria-label="页面导航">
-          <a href="#/" className="nav-link">
-            色卡浏览
-          </a>
-          <a href="#/plan" className="nav-link">
-            图片配色
-          </a>
-          <a href="#/cost" className="nav-link">
-            打印成本
-          </a>
+        <nav className="lumina-top-nav" aria-label="页面导航">
+          <a href="#/" className="nav-link">色卡浏览</a>
+          <a href="#/plan" className="nav-link">图片配色</a>
+          <a href="#/cost" className="nav-link">打印成本</a>
+          <a className="nav-link" href={SOURCE_URL} target="_blank" rel="noreferrer">源码</a>
         </nav>
       </header>
 
-      <div className="panel stack-panel">
-        <h2>流程</h2>
-        <ol className="stack-steps">
-          <li>在本页选 LUT（CMYW / RYBW）与期望尺寸，可选上传原图。</li>
-          <li>下载本机任务包（zip：job.json + 原图）。</li>
-          <li>在 Mac 打开 Lumina（`python api_server.py`），或跑 `scripts/run_lumina_stack_job.py` 骨架。</li>
-          <li>
-            把 <code>lumina-stack-result</code> JSON（可含 preview/3MF 的 relpath 或 base64）拖入/粘贴到下方；本页立刻重算推荐色与购买链。
-          </li>
-        </ol>
-        <p className="stack-note" role="note">
-          与「图片配色」不同：配色是表面主色 ΔE；叠色是四根基础料层叠逼近整图。Preferred 系列 ΔE &gt; 8
-          时自动回退同品牌其他系列，并保留 LUT 名义色为备选。
-        </p>
-      </div>
+      <div className="lumina-stack-main">
+        <aside className="lumina-stack-col" aria-label="图像导入和基础设置">
+          <div className={`${cardClass} lumina-panel`}>
+            <h2 className={settingsGroupHeadingClass}>导入</h2>
+            <ImageUpload
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              preview={previewUrl ?? undefined}
+              onFileSelect={(file) => {
+                setImage(file);
+                setStatus(null);
+              }}
+            />
 
-      <div
-        className={`panel stack-panel stack-import${dragOver ? " stack-import-drag" : ""}`}
-        aria-label="回传导入"
-        onDragEnter={(event) => {
-          event.preventDefault();
-          setDragOver(true);
-        }}
-        onDragOver={(event) => {
-          event.preventDefault();
-          setDragOver(true);
-        }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={onDrop}
-      >
-        <h2>回传自动刷新</h2>
-        <p className="stack-disclaimer">
-          拖入 / 选择 / 粘贴 <code>lumina-stack-result</code> JSON。预览支持{" "}
-          <code>preview_relpath</code>、<code>preview_data_url</code>、<code>preview_base64</code>；3MF
-          同理。槽位 <code>engine_hex</code> 会按<strong>当前色卡目录</strong>重算推荐（不盲信 JSON 里旧的
-          recommended_*）。
-        </p>
-        <label className="field">
-          <span className="field-label">导入 JSON 文件</span>
-          <input
-            type="file"
-            accept="application/json,.json,text/plain"
-            aria-label="导入回传 JSON 文件"
-            onChange={onImportInputChange}
-          />
-        </label>
-        <label className="field">
-          <span className="field-label">或粘贴 JSON</span>
-          <textarea
-            aria-label="粘贴回传 JSON"
-            className="stack-import-textarea"
-            rows={6}
-            value={importText}
-            onChange={(event) => setImportText(event.target.value)}
-            placeholder='{"kind":"lumina-stack-result","lut_mode":"RYBW","slots":[...]}'
-          />
-        </label>
-        <div className="stack-actions">
-          <button
-            type="button"
-            className="btn"
-            onClick={() => applyImportText(importText, "粘贴")}
-            disabled={catalog === null || importText.trim() === ""}
-          >
-            应用粘贴内容
-          </button>
-          <button type="button" className="btn btn-ghost" onClick={onResetImport} disabled={imported === null}>
-            恢复烟测
-          </button>
-        </div>
-        {importStatus && (
-          <p className="toast" role="status">
-            {importStatus}
-          </p>
-        )}
-      </div>
-
-      <div className="panel stack-panel" aria-label="烟测模型与推荐色">
-        <h2>{imported ? `回传结果 · ${activeLut}` : "烟测模型 · RYBW"}</h2>
-        <p className="stack-disclaimer">
-          {imported
-            ? `来源：${imported.sourceLabel} · ${imported.createdAt}。推荐已按当前目录级联匹配（Basic → 同品牌 → 跨品牌备选）。`
-            : "静态嵌入 2026-11-09 本机烟测产物（preview + 3MF）。红槽若 Basic ΔE 超阈，自动回退同品牌更近色并标清理由。"}
-        </p>
-        <div className="stack-smoke-grid">
-          <figure className="stack-smoke-figure">
-            {activePreview ? (
-              <img src={activePreview} alt="叠色预览图" className="stack-smoke-img" />
-            ) : (
-              <p className="empty-state">回传未含预览图</p>
-            )}
-            <figcaption>Lumina 预览（层叠结果，非原图）</figcaption>
-          </figure>
-          {!imported && (
-            <figure className="stack-smoke-figure">
-              <img src={SMOKE_INPUT_URL} alt="烟测原图" className="stack-smoke-img stack-smoke-img-small" />
-              <figcaption>原图对照</figcaption>
-            </figure>
-          )}
-        </div>
-        <div className="stack-actions">
-          {activeModelUrl ? (
-            <a className="btn" href={activeModelUrl} download={activeModelName}>
-              下载 3MF 模型
-            </a>
-          ) : (
-            <span className="stack-slot-meta">回传未含 3MF</span>
-          )}
-          <button type="button" className="btn btn-ghost" onClick={() => void onCopyResultJson()}>
-            复制回传 JSON 样例
-          </button>
-        </div>
-
-        {catalogError && <p className="empty-state">目录加载失败，无法推荐色卡</p>}
-        {!catalogError && catalog === null && <p className="empty-state">正在读取色卡目录并匹配槽位…</p>}
-        {!catalogError && catalog !== null && activeRecs.length > 0 && (
-          <>
-            <h3 className="stack-slots-title">四槽推荐色卡（引用选色站数据库）</h3>
-            <ul className="stack-rec-list" aria-label="四槽推荐色卡">
-              {activeRecs.map((rec) => {
-                const name = rec.entry.zh || rec.entry.en || rec.entry.id;
-                return (
-                  <li key={`rec-${rec.slot}-${rec.entry.id}`} className="stack-rec-row">
-                    <span className="stack-swatch-pair" aria-hidden="true">
-                      <span className="stack-swatch" style={{ background: rec.engine_hex }} title="引擎槽位" />
-                      <span className="stack-swatch" style={{ background: rec.catalog_hex }} title="推荐色卡" />
-                    </span>
-                    <div className="stack-rec-main">
-                      <strong>
-                        E{rec.extruder} · {rec.slot} {rec.name_zh}
-                      </strong>
-                      <span className="stack-slot-meta">
-                        引擎 {rec.engine_hex} → 推荐 {name}（{rec.entry.id}）· 色卡 {rec.catalog_hex} · ΔE{" "}
-                        {formatDelta(rec.delta_e)}
-                        {rec.purchase_is_pdd ? " · PDD 真链" : ""} · {tierLabel(rec.match_tier)}
-                      </span>
-                      <span className="stack-match-reason">{rec.match_reason}</span>
-                      {rec.alternates.length > 0 && (
-                        <ul className="stack-alt-list" aria-label={`${rec.slot} 备选`}>
-                          {rec.alternates.map((alt) => (
-                            <li key={`${rec.slot}-alt-${alt.entry.id}`}>
-                              备选：{alt.entry.zh || alt.entry.en || alt.entry.id}（{alt.entry.id}）· ΔE{" "}
-                              {formatDelta(alt.delta_e)} · {tierLabel(alt.match_tier)}
-                              {alt.purchase_is_pdd ? " · PDD" : ""}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                    <div className="stack-rec-actions">
-                      <button type="button" className="btn btn-ghost" onClick={() => void onCopyBuy(rec)}>
-                        复制购买链接
-                      </button>
-                      {rec.purchase_url !== null ? (
-                        <a className="nav-link" href={rec.purchase_url} target="_blank" rel="noreferrer">
-                          打开购买
-                        </a>
-                      ) : (
-                        <span className="stack-slot-meta">无购买链</span>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        )}
-        {copyStatus && (
-          <p className="toast" role="status">
-            {copyStatus}
-          </p>
-        )}
-      </div>
-
-      <div className="panel stack-panel" aria-label="任务参数">
-        <h2>下一单任务参数</h2>
-        {loadError && <p className="empty-state">托盘映射加载失败</p>}
-        {!loadError && trayMap === null && <p className="empty-state">正在读取四色托盘映射…</p>}
-        {!loadError && trayMap !== null && palette !== null && (
-          <>
-            <p className="stack-disclaimer">{trayMap.disclaimer}</p>
             <label className="field">
-              <span className="field-label">LUT 色模式</span>
+              <span className="field-label">LUT / 耗材</span>
               <select
                 aria-label="LUT 色模式"
+                className={workstationInputClass}
                 value={mode}
-                onChange={(event) => setMode(event.target.value as StackLutMode)}
+                disabled={trayMap === null}
+                onChange={(event) => {
+                  setMode(event.target.value as StackLutMode);
+                  setSlotOrder(null);
+                }}
               >
-                <option value="CMYW">CMYW（{trayMap.palettes.CMYW.label}）</option>
-                <option value="RYBW">RYBW（{trayMap.palettes.RYBW.label}）</option>
+                <option value="RYBW">RYBW 耗材档案{trayMap ? `（${trayMap.palettes.RYBW.label}）` : ""}</option>
+                <option value="CMYW">CMYW 耗材档案{trayMap ? `（${trayMap.palettes.CMYW.label}）` : ""}</option>
+              </select>
+            </label>
+            {loadError && <p className="empty-state">托盘映射加载失败</p>}
+
+            <div className="stack-size-row">
+              <label className="field">
+                <span className="field-label">层高（mm）</span>
+                <input
+                  className={workstationInputClass}
+                  type="number"
+                  min={0.04}
+                  step={0.04}
+                  aria-label="层高（mm）"
+                  value={layerHeightMm}
+                  onChange={(event) => setLayerHeightMm(Number(event.target.value))}
+                />
+              </label>
+              <label className="field">
+                <span className="field-label">底板</span>
+                <select
+                  className={workstationInputClass}
+                  aria-label="底板尺寸"
+                  value={bedId}
+                  onChange={(event) => setBedId(event.target.value as (typeof BED_PRESETS)[number]["id"])}
+                >
+                  {BED_PRESETS.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div aria-label="烟测模型与推荐色">
+              <h2 className={settingsGroupHeadingClass}>四色槽</h2>
+              <p className="stack-disclaimer">拖动色块排序。推荐色和购买链来自当前色卡目录。</p>
+              {catalogError && <p className="empty-state">目录加载失败，无法推荐色卡</p>}
+              {!catalogError && catalog === null && <p className="empty-state">正在读取色卡目录并匹配槽位…</p>}
+              <div aria-label="四槽推荐色卡">
+                <ul className="stack-slot-list" aria-label="四色槽">
+                  {orderedSlots.map((slot, index) => {
+                    const rec = activeRecs.find((item) => item.slot === slot.slot);
+                    const name = rec ? rec.entry.zh || rec.entry.en || rec.entry.id : slot.name_zh;
+                    return (
+                      <li
+                        key={`${mode}-${slot.slot}`}
+                        className="stack-slot-row"
+                        draggable
+                        data-slot={slot.slot}
+                        onDragStart={() => {
+                          dragFrom.current = index;
+                        }}
+                        onDragOver={(event) => event.preventDefault()}
+                        onDrop={(event) => {
+                          event.preventDefault();
+                          onSlotDrop(index);
+                        }}
+                      >
+                        <span className="stack-drag" aria-hidden="true">↕</span>
+                        <span className="stack-swatch" style={{ background: rec?.engine_hex ?? slot.hex }} title="槽位色" />
+                        {rec && (
+                          <span className="stack-swatch" style={{ background: rec.catalog_hex }} title="推荐色卡" />
+                        )}
+                        <div className="stack-rec-main">
+                          <strong>
+                            {slot.slot} {slot.name_zh}
+                            {rec ? ` · ${name}` : ""}
+                          </strong>
+                          <span className="stack-slot-meta">
+                            {slot.catalog_id}
+                            {rec ? ` · ${rec.entry.id}` : ""}
+                            {rec ? ` · ΔE ${formatDelta(rec.delta_e)}` : ""}
+                            {rec?.purchase_is_pdd ? " · PDD 真链" : ""}
+                            {rec ? ` · ${tierLabel(rec.match_tier)}` : ""}
+                          </span>
+                          {rec && <span className="stack-match-reason">{rec.match_reason}</span>}
+                          {rec && rec.alternates.length > 0 && (
+                            <ul className="stack-alt-list" aria-label={`${slot.slot} 备选`}>
+                              {rec.alternates.map((alt) => (
+                                <li key={`${slot.slot}-alt-${alt.entry.id}`}>
+                                  备选：{alt.entry.zh || alt.entry.en || alt.entry.id}（{alt.entry.id}）· ΔE{" "}
+                                  {formatDelta(alt.delta_e)} · {tierLabel(alt.match_tier)}
+                                  {alt.purchase_is_pdd ? " · PDD" : ""}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          {rec && (
+                            <div className="stack-rec-actions">
+                              <button type="button" className="btn btn-ghost" onClick={() => void onCopyBuy(rec)}>
+                                复制购买链接
+                              </button>
+                              {rec.purchase_url !== null ? (
+                                <a className="nav-link" href={rec.purchase_url} target="_blank" rel="noreferrer">
+                                  打开购买
+                                </a>
+                              ) : (
+                                <span className="stack-slot-meta">无购买链</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+              {copyStatus && (
+                <p className="toast" role="status">
+                  {copyStatus}
+                </p>
+              )}
+            </div>
+          </div>
+        </aside>
+
+        <div className="lumina-stack-stage" aria-label="叠色预览">
+          <div className={`${cardClass} stack-stage-card`}>
+            {view === "bed" && (
+              <StackBed
+                bedWidthMm={bed.width}
+                bedHeightMm={bed.height}
+                artworkUrl={bedArtwork}
+                artworkWidthMm={widthMm}
+                artworkHeightMm={heightMm}
+              />
+            )}
+            {view === "original" &&
+              (originalSrc ? (
+                <figure className="stack-solo">
+                  <img src={originalSrc} alt="原图" />
+                  <figcaption>{usingFixture ? "烟测原图" : "原图"}</figcaption>
+                </figure>
+              ) : (
+                <p className="empty-state">还没有原图</p>
+              ))}
+            {view === "stacked" &&
+              (stackedSrc ? (
+                <figure className="stack-solo">
+                  <img src={stackedSrc} alt="叠色预览图" />
+                  <figcaption>叠色结果</figcaption>
+                </figure>
+              ) : (
+                <p className="empty-state">还没有叠色结果。回传 JSON 后会显示在这里。</p>
+              ))}
+            {view === "split" && (
+              <div className="stack-split">
+                <figure className="stack-solo">
+                  {originalSrc ? (
+                    <img src={originalSrc} alt={usingFixture ? "烟测原图" : "原图"} />
+                  ) : (
+                    <p className="empty-state">无原图</p>
+                  )}
+                  <figcaption>原图</figcaption>
+                </figure>
+                <figure className="stack-solo">
+                  {stackedSrc ? (
+                    <img src={stackedSrc} alt="叠色预览图" />
+                  ) : (
+                    <p className="empty-state">无叠色结果</p>
+                  )}
+                  <figcaption>叠色结果</figcaption>
+                </figure>
+              </div>
+            )}
+            {activeModelUrl && (
+              <div className="stack-stage-actions">
+                <a className="nav-link" href={activeModelUrl} download={activeModelName}>
+                  下载 3MF 模型
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <aside className="lumina-stack-col" aria-label="任务参数">
+          <div className={`${cardClass} lumina-panel`}>
+            <h2 className={settingsGroupHeadingClass}>预览参数</h2>
+            <label className="field">
+              <span className="field-label">预览方式</span>
+              <select
+                aria-label="预览方式"
+                className={workstationInputClass}
+                value={view}
+                onChange={(event) => setView(event.target.value as PreviewView)}
+              >
+                <option value="bed">热床</option>
+                <option value="original">原图</option>
+                <option value="stacked">叠色结果</option>
+                <option value="split">并排</option>
               </select>
             </label>
             <div className="stack-size-row">
               <label className="field">
                 <span className="field-label">宽（mm）</span>
                 <input
+                  className={workstationInputClass}
                   type="number"
                   min={1}
                   step={1}
@@ -463,6 +547,7 @@ export function StackPage(): JSX.Element {
               <label className="field">
                 <span className="field-label">高（mm）</span>
                 <input
+                  className={workstationInputClass}
                   type="number"
                   min={1}
                   step={1}
@@ -472,44 +557,111 @@ export function StackPage(): JSX.Element {
                 />
               </label>
             </div>
-            <label className="field">
-              <span className="field-label">原图（可选）</span>
-              <input type="file" accept="image/*" aria-label="原图" onChange={onFileChange} />
-            </label>
-            <h3 className="stack-slots-title">期望槽位 · {mode}</h3>
-            <ul className="stack-slot-list">
-              {palette.slots.map((slot) => (
-                <li key={`${mode}-${slot.slot}`} className="stack-slot-row">
-                  <span className="stack-swatch" style={{ background: slot.hex }} aria-hidden="true" />
-                  <span>
-                    <strong>{slot.slot}</strong> {slot.name_zh}（{slot.name_en}）
-                    <span className="stack-slot-meta">
-                      {" "}
-                      · {slot.catalog_id} · {slot.hex} · {slot.status}
-                      {slot.match_reason ? ` · ${slot.match_reason}` : ""}
-                    </span>
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <p className="stack-disclaimer">
+              层高 {layerHeightMm.toFixed(2)} mm · 底板 {bed.label}。这两项留在本页；任务包仍只写尺寸和槽位。
+            </p>
             <div className="stack-actions">
-              <button type="button" className="btn" onClick={onDownload} disabled={busy}>
-                下载本机任务包
-              </button>
+              <Button label="预览" onClick={onPreview} />
+              <Button label="生成 3MF" variant="primary" onClick={() => void onDownload()} disabled={busy} loading={busy} />
             </div>
             {status && (
               <p className="toast" role="status">
                 {status}
               </p>
             )}
-            {previewUrl !== null && (
-              <figure className="stack-smoke-figure">
-                <img src={previewUrl} alt="已选原图预览（非叠色结果）" className="stack-smoke-img" />
-                <figcaption>仅原图预览，不是叠色输出</figcaption>
-              </figure>
+
+            <button
+              type="button"
+              className="stack-advanced-toggle ghost-control"
+              aria-expanded={advancedOpen}
+              aria-controls="stack-advanced"
+              onClick={() => setAdvancedOpen((open) => !open)}
+            >
+              <span>高级</span>
+              <DisclosureChevron expanded={advancedOpen} />
+            </button>
+            {advancedOpen && (
+              <div id="stack-advanced" className="stack-advanced">
+                <h3 className={settingsGroupHeadingClass}>流程</h3>
+                <ol className="stack-steps">
+                  <li>在本页选 LUT（CMYW / RYBW）与期望尺寸，可选上传原图。</li>
+                  <li>下载本机任务包（zip：job.json + 原图）。</li>
+                  <li>在 Mac 打开 Lumina（`python api_server.py`），或跑 `scripts/run_lumina_stack_job.py` 骨架。</li>
+                  <li>把 lumina-stack-result JSON（可含 preview/3MF 的 relpath 或 base64）拖入或粘贴到下方；本页立刻重算推荐色与购买链。</li>
+                </ol>
+                <p className="stack-note" role="note">
+                  与「图片配色」不同：配色是表面主色 ΔE；叠色是四根基础料层叠逼近整图。Preferred 系列 ΔE &gt; 8
+                  时自动回退同品牌其他系列，并保留 LUT 名义色为备选。
+                </p>
+                <div
+                  className={`stack-import${dragOver ? " stack-import-drag" : ""}`}
+                  aria-label="回传导入"
+                  onDragEnter={(event) => {
+                    event.preventDefault();
+                    setDragOver(true);
+                  }}
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                    setDragOver(true);
+                  }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={onDrop}
+                >
+                  <h3 className={settingsGroupHeadingClass}>回传自动刷新</h3>
+                  <p className="stack-disclaimer">
+                    拖入 / 选择 / 粘贴 lumina-stack-result JSON。预览支持 preview_relpath、preview_data_url、preview_base64；3MF
+                    同理。槽位 engine_hex 会按当前色卡目录重算推荐。
+                  </p>
+                  <label className="field">
+                    <span className="field-label">导入 JSON 文件</span>
+                    <input
+                      type="file"
+                      accept="application/json,.json,text/plain"
+                      aria-label="导入回传 JSON 文件"
+                      onChange={onImportInputChange}
+                    />
+                  </label>
+                  <label className="field">
+                    <span className="field-label">或粘贴 JSON</span>
+                    <textarea
+                      aria-label="粘贴回传 JSON"
+                      className="stack-import-textarea"
+                      rows={6}
+                      value={importText}
+                      onChange={(event) => setImportText(event.target.value)}
+                      placeholder='{"kind":"lumina-stack-result","lut_mode":"RYBW","slots":[...]}'
+                    />
+                  </label>
+                  <div className="stack-actions">
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => applyImportText(importText, "粘贴")}
+                      disabled={catalog === null || importText.trim() === ""}
+                    >
+                      应用粘贴内容
+                    </button>
+                    <button type="button" className="btn btn-ghost" onClick={onResetImport} disabled={imported === null}>
+                      恢复烟测
+                    </button>
+                    <button type="button" className="btn btn-ghost" onClick={() => void onCopyResultJson()}>
+                      复制回传 JSON 样例
+                    </button>
+                  </div>
+                  {importStatus && (
+                    <p className="toast" role="status">
+                      {importStatus}
+                    </p>
+                  )}
+                </div>
+                <p className="stack-disclaimer">
+                  热床几何、纹理和面板样式来自 Lumina-Layers（Lumina Studio），AGPL-3.0-only：
+                  https://github.com/lumina-layer-studio/Lumina-Layers
+                </p>
+              </div>
             )}
-          </>
-        )}
+          </div>
+        </aside>
       </div>
     </section>
   );

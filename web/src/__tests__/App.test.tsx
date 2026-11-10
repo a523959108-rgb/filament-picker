@@ -62,7 +62,7 @@ describe("App", () => {
     window.location.hash = "#/stack";
     const { findByRole } = render(<App />);
     expect(await findByRole("heading", { level: 1, name: "叠色（本机引擎）" })).toBeTruthy();
-    expect(await findByRole("button", { name: "下载本机任务包" })).toBeTruthy();
+    expect(await findByRole("button", { name: "生成 3MF" })).toBeTruthy();
   });
 
   it("opens the cost page from the hash", async () => {

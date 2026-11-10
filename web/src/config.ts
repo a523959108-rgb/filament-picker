@@ -57,6 +57,26 @@ export const MAIN_SITE_HOST = "filament.ibaozi.com";
 /** In-app hash for the stack page (local / same-host fallback). */
 export const STACK_HASH = "#/stack";
 
+/**
+ * Corresponding-source link shown on the stack page.
+ * Override at build time with VITE_SOURCE_URL. The repository is still private;
+ * this default does not change visibility.
+ */
+export const SOURCE_URL =
+  (import.meta.env.VITE_SOURCE_URL ?? "").trim() ||
+  "https://github.com/a523959108-rgb/filament-picker";
+
+/**
+ * stack.* hosts with an empty hash open the stack workspace.
+ * Any other hash (including `#/`, `#/plan`, `#/cost`) is left alone, and
+ * hosts that do not start with `stack.` are never redirected.
+ */
+export function defaultStackHash(hostname: string, hash: string): string | null {
+  if (!hostname.toLowerCase().startsWith("stack.")) return null;
+  if (hash !== "" && hash !== "#") return null;
+  return STACK_HASH;
+}
+
 export function stackHostFromOrigin(origin: string = STACK_SITE_ORIGIN): string {
   try {
     return new URL(origin).hostname;

@@ -3,6 +3,7 @@ import {
   MAIN_SITE_HOST,
   STACK_HASH,
   STACK_SITE_ORIGIN,
+  defaultStackHash,
   isStackHost,
   stackEntryHref,
   stackHostFromOrigin,
@@ -22,5 +23,16 @@ describe("stack subdomain entry", () => {
     expect(stackEntryHref(stackHostFromOrigin())).toBe(STACK_HASH);
     expect(isStackHost("stack.filament.ibaozi.com")).toBe(true);
     expect(isStackHost(MAIN_SITE_HOST)).toBe(false);
+  });
+
+  it("defaults an empty hash on stack.* hosts to #/stack", () => {
+    expect(defaultStackHash("stack.filament.ibaozi.com", "")).toBe("#/stack");
+    expect(defaultStackHash("STACK.preview.internal", "#")).toBe("#/stack");
+    expect(defaultStackHash("stack.filament.ibaozi.com", "#/plan")).toBeNull();
+    expect(defaultStackHash("stack.filament.ibaozi.com", "#/cost")).toBeNull();
+    expect(defaultStackHash("stack.filament.ibaozi.com", "#/")).toBeNull();
+    expect(defaultStackHash("filament.ibaozi.com", "")).toBeNull();
+    expect(defaultStackHash("localhost", "")).toBeNull();
+    expect(defaultStackHash("notstack.example.com", "")).toBeNull();
   });
 });
