@@ -22,10 +22,17 @@ def validate_archive(path: Path) -> None:
             if parts.parts and parts.parts[0] in {".venv", "output", "materials", "logs"}:
                 raise ValueError("发布包混入运行时目录")
             names.add(str(parts))
-    required = {"api_server.py", "config.py", "requirements.txt", "LICENSE",
-                "frontend/dist/index.html", "BUILD-INFO"}
+    required = {
+        "api_server.py",
+        "config.py",
+        "requirements.txt",
+        "LICENSE",
+        "frontend/dist/index.html",
+        "BUILD-INFO",
+        "LUMINA_COMMIT",
+    }
     if not required <= names:
-        raise ValueError("发布包缺少入口、前端、许可证或 BUILD-INFO")
+        raise ValueError("发布包缺少入口、前端、许可证、BUILD-INFO 或 LUMINA_COMMIT")
 
 
 def split_requirements(path: Path) -> tuple[str, list[str]]:

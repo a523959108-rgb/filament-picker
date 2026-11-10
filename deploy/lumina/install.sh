@@ -3,22 +3,26 @@ set -euo pipefail
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "$script_dir/common.sh"
 usage() {
-    echo '用法：sudo bash install.sh [--dry-run] --profile c|primary [--env-template 文件] 发布包.tar.gz'
-    echo 'env 存在时保留；primary 首次安装必须先复制并填写 env.primary.example 的资源额度。'
+    echo '用法：sudo bash install.sh [--dry-run] --profile c|primary --expected-commit 40位SHA [--env-template 文件] 发布包.tar.gz'
+    echo '也可用调用环境 LUMINA_COMMIT 指定预期SHA；primary 的 systemd 为备选，默认请用 docker。'
 }
 profile= template= archive= dry_run=0
+expected_commit=${LUMINA_COMMIT:-}
 while (($#)); do
     case $1 in
         --help|-h) usage; exit 0 ;;
         --dry-run) dry_run=1; shift ;;
         --profile) profile=${2:?缺少 profile}; shift 2 ;;
         --env-template) template=${2:?缺少模板}; shift 2 ;;
+        --expected-commit) expected_commit=${2-}; shift 2 ;;
         -*) fail "未知参数：$1" ;;
         *) [[ -z $archive ]] || fail '只能传一个发布包'; archive=$1; shift ;;
     esac
 done
 [[ $profile == primary || $profile == c ]] || { usage >&2; exit 2; }
 [[ -f $archive ]] || fail '发布包不存在'
+# 版本不符时，在 root 检查、apt、用户/目录创建之前拒绝；dry-run 也校验。
+bash "$script_dir/check-commit.sh" "$expected_commit" --archive "$archive"
 template=${template:-$script_dir/env.$profile.example}
 [[ -f $template ]] || fail 'env 模板不存在'
 cpu_count=$(nproc)
@@ -30,6 +34,7 @@ if ((dry_run)); then
 创建 lumina 系统用户、/opt/lumina/{releases,shared}、/var/lib/lumina/{materials,cache,output}、/var/log/lumina
 apt-get install -y python3.12-venv python3-pip curl libgl1 libglib2.0-0
 校验 SHA256、拒绝包内路径逃逸/链接；解包到 releases/<东京时间戳>
+校验包内 LUMINA_COMMIT 与显式预期 commit 一致，拒绝缺失、短SHA或不一致版本
 python3.12 -m venv；CPU torch 单独安装，绝不安装 CUDA 包
 pip 首选 http://mirrors.tencentyun.com/pypi/simple --trusted-host mirrors.tencentyun.com
 失败自动改用 https://mirrors.cloud.tencent.com/pypi/simple --trusted-host mirrors.cloud.tencent.com
@@ -135,6 +140,7 @@ release="/opt/lumina/releases/$(TZ=Asia/Tokyo date +%Y%m%dT%H%M%S)"
 [[ ! -e $release ]] || fail '同一秒的 release 已存在，请稍后重试'
 mkdir -m 0755 "$release"
 tar --no-same-owner --no-same-permissions -xzf "$archive" -C "$release"
+bash "$script_dir/check-commit.sh" "$expected_commit" "$release/LUMINA_COMMIT"
 python3.12 "$script_dir/deploy_support.py" requirements "$release/requirements.txt" "$work"
 python3.12 -m venv "$release/.venv"
 pip_cmd=("$release/.venv/bin/python" -m pip --isolated --disable-pip-version-check)

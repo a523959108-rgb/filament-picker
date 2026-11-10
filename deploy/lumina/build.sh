@@ -36,6 +36,7 @@ output_dir=$(realpath "$output_dir")
 work=$(mktemp -d)
 trap 'rm -rf -- "$work"' EXIT
 commit=$(git -C "$source_dir" rev-parse HEAD)
+[[ $commit =~ ^[0-9a-f]{40}$ ]] || { echo '无法取得完整40位 commit' >&2; exit 1; }
 # 只读 Git 快照，避免夹带 .env.local、日志、个人数据及工作树未跟踪文件。
 git -C "$source_dir" archive "$commit" | tar -x -C "$work"
 cp -a --reflink=auto "$frontend_deps" "$work/frontend/node_modules"
@@ -53,6 +54,7 @@ archive="lumina-${build_stamp}-${commit:0:12}.tar.gz"
     echo 'source=https://github.com/a523959108-rgb/filament-lumina'
     echo 'frontend_build=tsc -b && vite build (existing dependencies, temporary copy)'
 } > "$work/BUILD-INFO"
+printf '%s\n' "$commit" > "$work/LUMINA_COMMIT"
 # 运行所需 api/core/utils/assets/lut-preset 及全部后端模块保留。
 tar -czf "$output_dir/$archive" -C "$work" \
     --exclude='./.git*' --exclude='./.env*' --exclude='node_modules' \
@@ -62,6 +64,7 @@ tar -czf "$output_dir/$archive" -C "$work" \
     --exclude='./feedback' --exclude='./electron' --exclude='./.venv' \
     --exclude='./venv' --exclude='./user_settings.json' --exclude='./.github' .
 cp "$work/BUILD-INFO" "$output_dir/BUILD-INFO"
+cp "$work/LUMINA_COMMIT" "$output_dir/LUMINA_COMMIT"
 (cd "$output_dir" && sha256sum "$archive" > "$archive.sha256")
 echo "发布包：$output_dir/$archive"
 echo "SHA256：$output_dir/$archive.sha256"
