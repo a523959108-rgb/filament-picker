@@ -12,7 +12,9 @@ export FILAMENT_PICKER_SESSION_SECURE=0
 export FILAMENT_PICKER_MODELS_DIRECT=1
 # 仅在当前进程环境生成密钥；命令不打印密钥，也不写入仓库。
 export FILAMENT_PICKER_SESSION_SECRET="$(.venv/bin/python -c 'import secrets; print(secrets.token_urlsafe(48))')"
-.venv/bin/filament-picker auth create-user --username yulanmoxing
+# 只在当前进程环境设置账号名，不要把真名写进仓库。
+export FILAMENT_PICKER_PREVIEW_USER="<本机预览账号>"
+.venv/bin/filament-picker auth create-user --username "$FILAMENT_PICKER_PREVIEW_USER"
 cd web
 npm run build
 cd ..
@@ -21,7 +23,7 @@ cd ..
 
 浏览 `http://127.0.0.1:8787/`，点击「模型预览」，或直接打开 `/models/login`。`serve` 同时提供现有选色 API 与前端；后端挂载受保护的 pathname 回退，不需要增加 npm 路由依赖。生产使用构建后的 SPA；Vite 单独运行时只代理 API，页面保护应通过 `serve` 验收。
 
-建号需要交互式终端，两次 `getpass` 输入一致且非空才写入数据库。无法隐藏输入时直接失败；没有密码命令行参数。仅支持首次创建 `yulanmoxing`，不支持密码重置或第二账号。`auth list-users` 仅输出用户名。实际用户凭据不得放入脚本、聊天、日志或 fixtures。
+建号需要交互式终端，两次 `getpass` 输入一致且非空才写入数据库。无法隐藏输入时直接失败；没有密码命令行参数。仅支持首次创建 `FILAMENT_PICKER_PREVIEW_USER` 指定的单账号，不支持密码重置或第二账号。变量未设置、为空白或仍是占位 `change-me-preview-user` 时，建号直接失败，登录返回 503。`auth list-users` 仅输出用户名。实际用户凭据不得放入脚本、聊天、日志或 fixtures。
 
 样例脚本默认创建 `data/models-private/manifest.sqlite` 和 `thumbs/sample-01.png` 至 `sample-08.png`。可用 `--root` 指向单独的测试目录。重复运行只接受完全匹配的合成清单，拒绝覆盖非样例记录。认证测试 fixture 在临时目录用内存随机密码创建用户，仅哈希落盘；没有测试明文密码文件。
 
@@ -29,6 +31,7 @@ cd ..
 
 | 名称 | 默认 / 说明 |
 | --- | --- |
+| `FILAMENT_PICKER_PREVIEW_USER` | 必须设置成该环境的预览账号名。缺失、空白或 `change-me-preview-user` 时启动日志提示，并且拒绝所有模型登录（503）。没有默认用户名。 |
 | `FILAMENT_PICKER_SESSION_SECRET` | 必须设置；缺失或 `change-me` 时登录返回 503，其他模型资源仍拒绝匿名访问，选色站可用。 |
 | `FILAMENT_PICKER_AUTH_DB` | 仓库下 `data/auth/users.sqlite`；新建目录 0700，库文件 0600。 |
 | `FILAMENT_PICKER_MODELS_ROOT` | 仓库下 `data/models-private`，不是公开 static 目录。 |

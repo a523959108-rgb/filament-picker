@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import json
 import uuid
-from collections.abc import Callable
+from collections.abc import AsyncIterator, Callable
+from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,7 @@ from zoneinfo import ZoneInfo
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
+from .auth import warn_if_preview_user_unconfigured
 from .card import CARD_NAME_RE
 from .catalog import load_catalog
 from .config import TZ
@@ -56,6 +58,12 @@ def _parse_constraints(value: str | None) -> Any:
         return value
 
 
+@asynccontextmanager
+async def _app_lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    warn_if_preview_user_unconfigured()
+    yield
+
+
 def create_app(
     catalog_path: Path,
     root: Path,
@@ -64,7 +72,7 @@ def create_app(
 ) -> FastAPI:
     catalog = load_catalog(catalog_path)
     now_fn = now or (lambda: datetime.now(ZoneInfo(TZ)))
-    app = FastAPI()
+    app = FastAPI(lifespan=_app_lifespan)
     mount_model_preview(app, catalog)
 
     @app.get("/api/health")

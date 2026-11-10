@@ -9,11 +9,13 @@ import httpx
 import pytest
 from fastapi import FastAPI
 
-from filament_picker.auth import AuthStore
+from filament_picker.auth import PREVIEW_USER_ENV, AuthStore
 from filament_picker.cli import main
 from filament_picker.mesh_glb import sample_glb_bytes
 from filament_picker.model_samples import seed_samples
 from filament_picker.server import build_server_app
+
+PREVIEW_TEST_USER = "preview-tester"
 
 
 def _request(app: FastAPI, method: str, path: str, cookie: str = "", **kwargs) -> httpx.Response:
@@ -35,8 +37,9 @@ def preview(tmp_path: Path, repo_root: Path, monkeypatch: pytest.MonkeyPatch) ->
     monkeypatch.setenv("FILAMENT_PICKER_SESSION_SECRET", secrets.token_urlsafe(48))
     monkeypatch.setenv("FILAMENT_PICKER_SESSION_SECURE", "0")
     monkeypatch.setenv("FILAMENT_PICKER_MODELS_DIRECT", "1")
+    monkeypatch.setenv(PREVIEW_USER_ENV, PREVIEW_TEST_USER)
     password = secrets.token_urlsafe(24)
-    AuthStore(db).create_user("yulanmoxing", password)
+    AuthStore(db).create_user(PREVIEW_TEST_USER, password)
     seed_samples(models)
     dist = tmp_path / "dist"
     dist.mkdir()
@@ -50,7 +53,7 @@ def preview(tmp_path: Path, repo_root: Path, monkeypatch: pytest.MonkeyPatch) ->
 
 def _login(app: FastAPI, password: str) -> httpx.Response:
     return _request(
-        app, "POST", "/api/models/login", json={"username": "yulanmoxing", "password": password}
+        app, "POST", "/api/models/login", json={"username": PREVIEW_TEST_USER, "password": password}
     )
 
 
@@ -118,7 +121,7 @@ def test_login_browse_filter_logout_and_cookie_replay(preview: tuple) -> None:
     assert "HttpOnly" in cookie and "SameSite=lax" in cookie and "Path=/" in cookie
     assert "Max-Age=604800" in cookie
     cookie = cookie.split(";", 1)[0]
-    assert _request(app, "GET", "/api/models/me", cookie).json() == {"username": "yulanmoxing"}
+    assert _request(app, "GET", "/api/models/me", cookie).json() == {"username": PREVIEW_TEST_USER}
     listing = _request(app, "GET", "/api/models?page_size=2", cookie)
     assert listing.status_code == 200
     result = listing.json()
@@ -345,6 +348,7 @@ def test_create_user_cli_hash_permissions_and_single_account(
 ) -> None:
     db = tmp_path / "auth" / "users.sqlite"
     monkeypatch.setenv("FILAMENT_PICKER_AUTH_DB", str(db))
+    monkeypatch.setenv(PREVIEW_USER_ENV, PREVIEW_TEST_USER)
     password = secrets.token_urlsafe(24)
     prompts = []
 
@@ -353,11 +357,11 @@ def test_create_user_cli_hash_permissions_and_single_account(
         return password
 
     monkeypatch.setattr("filament_picker.cli.getpass.getpass", enter)
-    assert main(["auth", "create-user", "--username", "yulanmoxing"]) == 0
+    assert main(["auth", "create-user", "--username", PREVIEW_TEST_USER]) == 0
     assert len(prompts) == 2
     with sqlite3.connect(db) as conn:
         username, hashed = conn.execute("SELECT username, password_hash FROM users").fetchone()
-    assert username == "yulanmoxing" and hashed.startswith("$argon2id$")
+    assert username == PREVIEW_TEST_USER and hashed.startswith("$argon2id$")
     assert password not in hashed
     assert db.stat().st_mode & 0o777 == 0o600
     assert main(["auth", "list-users"]) == 0
@@ -365,7 +369,7 @@ def test_create_user_cli_hash_permissions_and_single_account(
     output = capsys.readouterr().out
     assert password not in output and "$argon2" not in output
     with pytest.raises(SystemExit):
-        main(["auth", "create-user", "--username", "yulanmoxing", "--password"])
+        main(["auth", "create-user", "--username", PREVIEW_TEST_USER, "--password"])
 
 
 def test_create_user_rejects_mismatch_without_writing(
@@ -373,9 +377,10 @@ def test_create_user_rejects_mismatch_without_writing(
 ) -> None:
     db = tmp_path / "users.sqlite"
     monkeypatch.setenv("FILAMENT_PICKER_AUTH_DB", str(db))
+    monkeypatch.setenv(PREVIEW_USER_ENV, PREVIEW_TEST_USER)
     passwords = iter([secrets.token_urlsafe(24), secrets.token_urlsafe(24)])
     monkeypatch.setattr("filament_picker.cli.getpass.getpass", lambda _: next(passwords))
-    assert main(["auth", "create-user", "--username", "yulanmoxing"]) == 1
+    assert main(["auth", "create-user", "--username", PREVIEW_TEST_USER]) == 1
     assert not db.exists()
 
 
@@ -387,14 +392,60 @@ def test_create_user_refuses_getpass_fallback(
 
     db = tmp_path / "users.sqlite"
     monkeypatch.setenv("FILAMENT_PICKER_AUTH_DB", str(db))
+    monkeypatch.setenv(PREVIEW_USER_ENV, PREVIEW_TEST_USER)
 
     def no_tty(prompt: str) -> str:
         warnings.warn("cannot hide input", getpass.GetPassWarning, stacklevel=2)
         raise AssertionError("getpass fallback must stop before reading")
 
     monkeypatch.setattr("filament_picker.cli.getpass.getpass", no_tty)
-    assert main(["auth", "create-user", "--username", "yulanmoxing"]) == 1
+    assert main(["auth", "create-user", "--username", PREVIEW_TEST_USER]) == 1
     assert not db.exists()
+
+
+def test_unconfigured_preview_user_rejects_login_and_logs(
+    tmp_path: Path,
+    repo_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    import logging
+
+    from fastapi.testclient import TestClient
+
+    monkeypatch.delenv(PREVIEW_USER_ENV, raising=False)
+    db = tmp_path / "auth" / "users.sqlite"
+    with pytest.raises(ValueError, match=PREVIEW_USER_ENV):
+        AuthStore(db).create_user(PREVIEW_TEST_USER, "not-used")
+    monkeypatch.setenv(PREVIEW_USER_ENV, "change-me-preview-user")
+    with pytest.raises(ValueError, match=PREVIEW_USER_ENV):
+        AuthStore(db).create_user(PREVIEW_TEST_USER, "not-used")
+    monkeypatch.delenv(PREVIEW_USER_ENV, raising=False)
+    assert main(["auth", "create-user", "--username", PREVIEW_TEST_USER]) == 1
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    (dist / "index.html").write_text('<div id="root"></div>\n', encoding="utf-8")
+    monkeypatch.setenv("FILAMENT_PICKER_AUTH_DB", str(db))
+    monkeypatch.setenv("FILAMENT_PICKER_SESSION_SECRET", secrets.token_urlsafe(48))
+    with (
+        caplog.at_level(logging.WARNING, logger="filament_picker.auth"),
+        TestClient(
+            build_server_app(
+                dist,
+                repo_root / "docs/schemas/examples/filament-catalog.example.json",
+                tmp_path,
+                None,
+            )
+        ) as client,
+    ):
+        response = client.post(
+            "/api/models/login",
+            json={"username": PREVIEW_TEST_USER, "password": "nope"},
+        )
+    assert response.status_code == 503
+    assert PREVIEW_USER_ENV in response.text
+    assert PREVIEW_TEST_USER not in response.text
+    assert "拒绝所有登录" in caplog.text
 
 
 def test_seed_is_synthetic_repeatable_and_does_not_overwrite_real_manifest(tmp_path: Path) -> None:
