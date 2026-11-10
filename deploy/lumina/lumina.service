@@ -1,0 +1,35 @@
+[Unit]
+Description=Lumina Studio CPU backend and frontend dist
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=lumina
+Group=lumina
+WorkingDirectory=/opt/lumina/current
+EnvironmentFile=/etc/lumina/lumina.env
+ExecStart=/opt/lumina/current/.venv/bin/python api_server.py
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=45s
+KillMode=control-group
+Nice=5
+UMask=0027
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/lumina /var/log/lumina /opt/lumina/shared
+# 旧版提色/修色会将 temp_5c/8c_page_*.json 写入相对 assets/，没有 env 重定向。
+ReadWritePaths=/opt/lumina/current/assets
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+# MemoryMax/MemorySwapMax/CPUQuota 由安装器根据各机 env 生成 drop-in。
+
+[Install]
+WantedBy=multi-user.target

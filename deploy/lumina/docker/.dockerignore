@@ -1,0 +1,13 @@
+# 只接受 build-image.sh 准备的 release 上下文；保留 frontend/dist、LUMINA_COMMIT。
+.git
+.env*
+**/node_modules
+**/__pycache__
+**/*.pyc
+.venv
+tests
+frontend/src
+output
+materials
+logs
+electron

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "lumina_root_relative_to": "Lumina-Layers repository root",
+  "runtime": {
+    "preset_directory": "lut-preset/",
+    "discovery": "utils.lut_manager.LUTManager scans lut-preset/ recursively at runtime",
+    "git_tracking_checked": true,
+    "deployment_handling": "The selected files are already tracked in the Lumina source tree; a source checkout or release package must retain lut-preset/. No separate copy step is needed when that directory is included."
+  },
+  "luts": [
+    {
+      "path": "lut-preset/bambulab/bambulab_pla_basic_rybw.npy",
+      "name": "Bambu Lab PLA Basic RYBW",
+      "channels": ["R", "Y", "B", "W"],
+      "source": "Lumina lut-preset/bambulab/; Bambu Lab PLA Basic filename and bundled preset",
+      "recommended": true,
+      "reason": "Canonical four-channel RYBW preset for the selected Bambu PLA Basic palette; its 32×32×3 array matches Lumina's four-color LUT shape."
+    },
+    {
+      "path": "lut-preset/bambulab/bambulab_pla_basic_cmyw.npy",
+      "name": "Bambu Lab PLA Basic CMYW",
+      "channels": ["C", "M", "Y", "W"],
+      "source": "Lumina lut-preset/bambulab/; Bambu Lab PLA Basic filename and bundled preset",
+      "recommended": true,
+      "reason": "Canonical four-channel CMYW preset for the CMYW tray; it is the stable non-suffixed companion to the RYBW preset."
+    },
+    {
+      "path": "lut-preset/bambulab/bambulab_pla_basic_cmyw_new.npy",
+      "name": "Bambu Lab PLA Basic CMYW (new revision)",
+      "channels": ["C", "M", "Y", "W"],
+      "source": "Lumina lut-preset/bambulab/; bundled file with the _new suffix",
+      "recommended": false,
+      "reason": "Keep available for comparison or manual selection, but do not make two CMYW defaults compete in a fresh deployment until the revision's measurement provenance is confirmed."
+    },
+    {
+      "path": "lut-preset/Custom/Bambulab&PLA&RYBW&红-黄-蓝-白.npy",
+      "name": "Custom Bambulab PLA RYBW",
+      "channels": ["R", "Y", "B", "W"],
+      "source": "Lumina lut-preset/Custom/; custom-named Bambulab PLA preset",
+      "recommended": false,
+      "reason": "Useful fallback, but Custom does not establish the same official baseline or measurement conditions as the canonical bambulab/ preset."
+    },
+    {
+      "path": "lut-preset/Custom/Bambulab&PLA&CMYW&青-品红-黄-绿-白-黑.npy",
+      "name": "Custom Bambulab PLA CMYW six-color",
+      "channels": ["C", "M", "Y", "G", "W", "K"],
+      "source": "Lumina lut-preset/Custom/; custom-named Bambulab PLA preset",
+      "recommended": false,
+      "reason": "This is a six-color CMYW-family LUT, while the selected tray is four-color CMYW; preinstalling it as a default would make channel count and slot mapping easy to confuse."
+    },
+    {
+      "path": "lut-preset/Custom/Bambulab&PLA&8色&红-品红-青-蓝-黄-白-绿-黑.npy",
+      "name": "Custom Bambulab PLA eight-color",
+      "channels": ["W", "C", "M", "Y", "K", "R", "B", "G"],
+      "source": "Lumina lut-preset/Custom/; custom-named Bambulab PLA preset",
+      "recommended": false,
+      "reason": "Eight-color mode uses Lumina's unified W/C/M/Y/K/R/B/G slots and requires a different tray; retain for deliberate eight-color workflows rather than the four-color seed."
+    },
+    {
+      "path": "lut-preset/Custom/Bambulab&PLA&BW&白-黑.npy",
+      "name": "Custom Bambulab PLA BW",
+      "channels": ["W", "K"],
+      "source": "Lumina lut-preset/Custom/; custom-named Bambulab PLA preset",
+      "recommended": false,
+      "reason": "A two-color fallback is useful for monochrome jobs but is outside the RYBW/CMYW tray scope."
+    }
+  ]
+}

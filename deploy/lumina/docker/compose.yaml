@@ -1,0 +1,37 @@
+# 主力默认部署；先 build-image.sh，.env 中填写同一完整40位 LUMINA_COMMIT。
+# cpus/mem_limit 是普通 docker compose 的容器额度，无需 Swarm。
+services:
+  lumina:
+    image: filament-lumina:${LUMINA_COMMIT:?请填写同一发布包的完整40位SHA}
+    container_name: filament-lumina
+    ports: ["100.90.12.104:7860:8790"]
+    cpus: 6
+    mem_limit: 8G
+    # Docker memswap_limit 为内存+swap总量；8G 表示不再占用主力的 swap。
+    memswap_limit: 8G
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 45s
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    environment:
+      LUMINA_MAX_WORKERS: 4
+      LUMINA_API_HOST: 0.0.0.0
+      LUMINA_API_PORT: 8790
+    volumes:
+      - materials:/var/lib/lumina/materials
+      - cache:/var/lib/lumina/cache
+      - output:/var/lib/lumina/output
+      - logs:/var/log/lumina
+      - shared:/opt/lumina/shared
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+volumes:
+  materials:
+  cache:
+  output:
+  logs:
+  shared:
