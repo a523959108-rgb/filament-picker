@@ -10,7 +10,7 @@ import httpx
 import pytest
 from PIL import Image
 
-from filament_picker.auth import AuthStore
+from filament_picker.auth import PREVIEW_USER_ENV, AuthStore
 from filament_picker.cli import main
 from filament_picker.model_import import import_previews, plain_text
 from filament_picker.server import build_server_app
@@ -403,7 +403,8 @@ def test_detail_uses_thumb_plate_top_and_catalog_match(
     monkeypatch.setenv("FILAMENT_PICKER_SESSION_SECURE", "0")
     monkeypatch.setenv("FILAMENT_PICKER_MODELS_DIRECT", "1")
     password = secrets.token_urlsafe(24)
-    AuthStore(db).create_user("yulanmoxing", password)
+    monkeypatch.setenv(PREVIEW_USER_ENV, "preview-tester")
+    AuthStore(db).create_user("preview-tester", password)
     dist = tmp_path / "dist"
     dist.mkdir()
     (dist / "index.html").write_text('<div id="root"></div>\n', encoding="utf-8")
@@ -411,7 +412,7 @@ def test_detail_uses_thumb_plate_top_and_catalog_match(
         dist, repo_root / "docs/schemas/examples/filament-catalog.example.json", tmp_path, None
     )
     login = _request(
-        app, "POST", "/api/models/login", json={"username": "yulanmoxing", "password": password}
+        app, "POST", "/api/models/login", json={"username": "preview-tester", "password": password}
     )
     cookie = login.headers["set-cookie"].split(";", 1)[0]
     listing = _request(app, "GET", "/api/models?page_size=100", cookie).json()
@@ -627,7 +628,8 @@ def test_list_and_detail_prefer_cover_through_the_media_route(
     monkeypatch.setenv("FILAMENT_PICKER_SESSION_SECURE", "0")
     monkeypatch.setenv("FILAMENT_PICKER_MODELS_DIRECT", "1")
     password = secrets.token_urlsafe(24)
-    AuthStore(db).create_user("yulanmoxing", password)
+    monkeypatch.setenv(PREVIEW_USER_ENV, "preview-tester")
+    AuthStore(db).create_user("preview-tester", password)
     dist = tmp_path / "dist"
     dist.mkdir()
     (dist / "index.html").write_text('<div id="root"></div>\n', encoding="utf-8")
@@ -635,7 +637,7 @@ def test_list_and_detail_prefer_cover_through_the_media_route(
         dist, repo_root / "docs/schemas/examples/filament-catalog.example.json", tmp_path, None
     )
     login = _request(
-        app, "POST", "/api/models/login", json={"username": "yulanmoxing", "password": password}
+        app, "POST", "/api/models/login", json={"username": "preview-tester", "password": password}
     )
     cookie = login.headers["set-cookie"].split(";", 1)[0]
     listing = _request(app, "GET", "/api/models?page_size=100", cookie).json()

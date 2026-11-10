@@ -37,11 +37,11 @@ describe("model preview", () => {
   });
 
   it("submits login and navigates to the gallery", async () => {
-    const fetcher = vi.fn().mockResolvedValue(response({ username: "yulanmoxing" }));
+    const fetcher = vi.fn().mockResolvedValue(response({ username: "preview-tester" }));
     vi.stubGlobal("fetch", fetcher);
     const navigate = vi.fn();
     const { getByLabelText, getByRole } = render(<ModelPreview path="/models/login" navigate={navigate} />);
-    fireEvent.change(getByLabelText("用户名"), { target: { value: "yulanmoxing" } });
+    fireEvent.change(getByLabelText("用户名"), { target: { value: "preview-tester" } });
     // The mocked request tests form behavior without a stored password fixture.
     fireEvent.change(getByLabelText("密码"), { target: { value: crypto.randomUUID() } });
     fireEvent.click(getByRole("button", { name: "登录" }));
@@ -53,7 +53,7 @@ describe("model preview", () => {
   it("shows failed login and rate limit messages", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({}, 429)));
     const { getByLabelText, getByRole, findByRole } = render(<ModelPreview path="/models/login" />);
-    fireEvent.change(getByLabelText("用户名"), { target: { value: "yulanmoxing" } });
+    fireEvent.change(getByLabelText("用户名"), { target: { value: "preview-tester" } });
     fireEvent.change(getByLabelText("密码"), { target: { value: crypto.randomUUID() } });
     fireEvent.click(getByRole("button", { name: "登录" }));
     expect((await findByRole("alert")).textContent).toContain("稍后重试");

@@ -8,7 +8,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from . import __version__
-from .auth import AuthStore, auth_db_path
+from .auth import PREVIEW_USER_ENV, AuthStore, auth_db_path, configured_preview_user
 from .calibrate import (
     CALIBRATION_PATH,
     EXTRACTED_PATH,
@@ -435,8 +435,13 @@ def _add_auth(sub: argparse._SubParsersAction) -> None:
 def _cmd_create_user(args: argparse.Namespace) -> int:
     store = AuthStore(auth_db_path())
     try:
-        if args.username != "yulanmoxing" or store.list_users():
-            raise ValueError("仅允许首次创建单账号 yulanmoxing；不重置密码或追加账号")
+        expected = configured_preview_user()
+        if expected is None:
+            raise ValueError(f"未配置 {PREVIEW_USER_ENV}，拒绝创建账号")
+        if args.username != expected or store.list_users():
+            raise ValueError(
+                f"仅允许首次创建 {PREVIEW_USER_ENV} 指定的单账号；不重置密码或追加账号"
+            )
         import warnings
 
         with warnings.catch_warnings():
@@ -446,8 +451,11 @@ def _cmd_create_user(args: argparse.Namespace) -> int:
         if not password or password != confirmation:
             raise ValueError("密码为空或两次输入不一致")
         store.create_user(args.username, password)
-    except (OSError, ValueError, sqlite3.Error, EOFError, getpass.GetPassWarning):
-        print("建号失败：请检查交互终端、账号状态及两次密码输入")
+    except (OSError, ValueError, sqlite3.Error, EOFError, getpass.GetPassWarning) as exc:
+        if isinstance(exc, ValueError) and PREVIEW_USER_ENV in str(exc):
+            print(str(exc))
+        else:
+            print("建号失败：请检查交互终端、账号状态及两次密码输入")
         return 1
     print(f"created user: {args.username}")
     return 0

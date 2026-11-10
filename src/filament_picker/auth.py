@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import math
 import os
 import secrets
@@ -22,6 +23,31 @@ COOKIE_NAME = "fp_session"
 SESSION_TTL = 7 * 24 * 60 * 60
 LOGIN_FAILURE_LIMIT = 5
 LOGIN_LOCK_SECONDS = 60
+PREVIEW_USER_ENV = "FILAMENT_PICKER_PREVIEW_USER"
+PREVIEW_USER_PLACEHOLDER = "change-me-preview-user"
+
+logger = logging.getLogger(__name__)
+
+
+def configured_preview_user() -> str | None:
+    """Return the single preview account name, or None when login must be refused.
+
+    Unset, blank, and the example placeholder are all unconfigured. There is
+    no built-in default name.
+    """
+    raw = os.environ.get(PREVIEW_USER_ENV)
+    if raw is None:
+        return None
+    value = raw.strip()
+    if not value or value == PREVIEW_USER_PLACEHOLDER:
+        return None
+    return value
+
+
+def warn_if_preview_user_unconfigured() -> None:
+    if configured_preview_user() is not None:
+        return
+    logger.warning("%s 未配置，模型预览拒绝所有登录", PREVIEW_USER_ENV)
 
 
 def auth_db_path() -> Path:
@@ -34,8 +60,11 @@ class AuthStore:
         self.hasher = PasswordHasher(type=Type.ID)
 
     def create_user(self, username: str, password: str) -> None:
-        if username != "yulanmoxing" or not password:
-            raise ValueError("仅支持单账号 yulanmoxing，密码不能为空")
+        expected = configured_preview_user()
+        if expected is None:
+            raise ValueError(f"未配置 {PREVIEW_USER_ENV}，拒绝创建账号")
+        if username != expected or not password:
+            raise ValueError(f"仅支持 {PREVIEW_USER_ENV} 指定的单账号，密码不能为空")
         self.path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
         fd = os.open(self.path, os.O_CREAT | os.O_WRONLY, 0o600)
         os.close(fd)
@@ -127,6 +156,9 @@ class ModelAuth:
         return URLSafeTimedSerializer(self.secret, salt="filament-picker-models")
 
     def login(self, ip: str, username: str, password: str) -> str:
+        expected = configured_preview_user()
+        if expected is None:
+            raise HTTPException(status_code=503, detail=f"未配置 {PREVIEW_USER_ENV}")
         serializer = self._serializer()
         with self._lock:
             now = monotonic()
@@ -138,7 +170,7 @@ class ModelAuth:
                     detail="登录尝试过多，请稍后重试",
                     headers={"Retry-After": str(max(1, math.ceil(until - now)))},
                 )
-            if not self.store.verify(username, password):
+            if username != expected or not self.store.verify(username, password):
                 self._failures[ip] = (failures + 1, now + LOGIN_LOCK_SECONDS)
                 raise HTTPException(status_code=401, detail="用户名或密码错误")
             self._failures.pop(ip, None)
@@ -147,7 +179,8 @@ class ModelAuth:
         return token
 
     def username(self, token: str | None) -> str | None:
-        if not token or self.secret is None:
+        expected = configured_preview_user()
+        if expected is None or not token or self.secret is None:
             return None
         try:
             payload = self._serializer().loads(token, max_age=self.ttl)
@@ -156,4 +189,6 @@ class ModelAuth:
         if not isinstance(payload, dict) or not isinstance(payload.get("username"), str):
             return None
         username = payload["username"]
-        return username if self.store.session_active(token, username) else None
+        if username != expected or not self.store.session_active(token, username):
+            return None
+        return username
