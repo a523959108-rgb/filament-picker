@@ -1,0 +1,20 @@
+[Unit]
+Description=Clean expired Lumina outputs and preview artifacts
+After=lumina.service
+ConditionPathIsDirectory=/var/lib/lumina/output/temp
+
+[Service]
+Type=oneshot
+User=lumina
+Group=lumina
+EnvironmentFile=-/etc/lumina/lumina.env
+EnvironmentFile=-/etc/lumina/cleanup.env
+ExecStart=/bin/bash /opt/lumina/shared/deploy/cleanup-output.sh
+Nice=10
+IOSchedulingClass=idle
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/lumina/output
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true

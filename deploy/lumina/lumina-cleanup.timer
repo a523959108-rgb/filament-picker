@@ -1,0 +1,10 @@
+[Unit]
+Description=Hourly Lumina output cleanup
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+Unit=lumina-cleanup.service
+
+[Install]
+WantedBy=timers.target
