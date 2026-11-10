@@ -5,6 +5,7 @@ import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from functools import lru_cache
+from itertools import permutations
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +20,34 @@ LUMINA_DISCLAIMER = "颜色为屏幕近似，ΔE 为 CIEDE2000，购买前请以
 ALLOWED_PALETTES = frozenset(("RYBW", "CMYW"))
 TRAY_MAP_PATH = REPO_ROOT / "data" / "four-color-tray-map.json"
 ALLOWED_ORIGIN = "https://stack.filament.ibaozi.com"
+
+# These markers identify special-effect/translucent products in the catalog.
+# They are deliberately based on catalog text/effects because those fields are
+# available without inspecting product images or making network requests.
+SPECIAL_MATERIAL_MARKERS = (
+    "translucent",
+    "transparent",
+    "semi-transparent",
+    "semi transparent",
+    "clear",
+    "透明",
+    "半透",
+    "dynamic",
+    "color-changing",
+    "color changing",
+    "变色",
+    "silk dual",
+    "dual-color",
+    "dual color",
+    "gradient",
+    "渐变",
+    "rainbow",
+    "multicolor",
+    "multi-color",
+    "multi color",
+    "彩虹",
+)
+SPECIAL_EFFECTS = frozenset(("translucent", "gradient", "color_change", "multi"))
 
 _HEX_INPUT_RE = re.compile(r"^#?[0-9A-Fa-f]{6}$")
 _TOKEN_RE = re.compile(r"[a-z0-9]+|[\u3400-\u9fff]", re.IGNORECASE)
@@ -218,7 +247,76 @@ def load_tray_map(path: Path = TRAY_MAP_PATH) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
 
 
-def _mapped_id(request: LuminaRequest, index: int) -> str | None:
+TRAY_ASSIGN_MAX_DELTA_E = 30.0
+
+
+# Lumina LUT palette entries name channels "Red"/"White"/...; map common colour
+# words to tray slot letters so labels like "Red" match slot "R".
+LABEL_SLOT_ALIASES = {
+    "red": "R",
+    "红": "R",
+    "yellow": "Y",
+    "黄": "Y",
+    "blue": "B",
+    "蓝": "B",
+    "white": "W",
+    "白": "W",
+    "cyan": "C",
+    "青": "C",
+    "magenta": "M",
+    "品红": "M",
+}
+
+
+def _slot_matches_label(label: str, slot: dict[str, Any]) -> bool:
+    wanted = label.strip().casefold()
+    if LABEL_SLOT_ALIASES.get(wanted) == slot.get("slot"):
+        return True
+    names = (slot.get("slot"), slot.get("name_zh"), slot.get("name_en"))
+    return any(isinstance(name, str) and name.strip().casefold() == wanted for name in names)
+
+
+@lru_cache(maxsize=256)
+def _hex_assignment(palette_name: str, hexes: tuple[str, ...]) -> tuple[int, ...] | None:
+    """Assign input channels to tray slots by minimum total CIEDE2000.
+
+    Lumina LUT channel order differs from the tray map order (e.g. W,R,Y,B vs
+    R,Y,B,W), so positional mapping is wrong. Returns slot index per channel.
+    """
+    palette = load_tray_map().get("palettes", {}).get(palette_name)
+    slots = palette.get("slots") if isinstance(palette, dict) else None
+    if not isinstance(slots, list) or len(slots) != len(hexes):
+        return None
+    slot_labs = []
+    for slot in slots:
+        slot_hex = slot.get("hex") if isinstance(slot, dict) else None
+        if not isinstance(slot_hex, str):
+            return None
+        slot_labs.append(hex_to_lab(slot_hex))
+    input_labs = [hex_to_lab(value) for value in hexes]
+    cost = [[float(delta_e_2000(a, b)) for b in slot_labs] for a in input_labs]
+    best: tuple[float, tuple[int, ...]] | None = None
+    for perm in permutations(range(len(slots))):
+        total = sum(cost[i][j] for i, j in enumerate(perm))
+        if best is None or total < best[0]:
+            best = (total, perm)
+    if best is None:
+        return None
+    perm = best[1]
+    if max(cost[i][j] for i, j in enumerate(perm)) > TRAY_ASSIGN_MAX_DELTA_E:
+        return None
+    return perm
+
+
+def _mapped_slot(request: LuminaRequest, index: int) -> dict[str, Any] | None:
+    """Return the tray-map slot for a channel.
+
+    Mapping order: all channels labelled and every label matches a slot -> by
+    label (slot letter / name / colour alias); otherwise all channels have hex
+    -> minimum-ΔE assignment (rejected when any
+    channel is further than TRAY_ASSIGN_MAX_DELTA_E from its slot);
+    otherwise (names only, no labels) -> positional order of the tray map.
+    """
     if request.palette is None or len(request.channels) != 4:
         return None
     palette = load_tray_map().get("palettes", {}).get(request.palette)
@@ -227,15 +325,39 @@ def _mapped_id(request: LuminaRequest, index: int) -> str | None:
     slots = palette.get("slots")
     if not isinstance(slots, list) or len(slots) != 4:
         return None
-    for channel, slot in zip(request.channels, slots, strict=True):
-        if not isinstance(slot, dict) or not isinstance(slot.get("catalog_id"), str):
-            return None
-        if channel.label is not None and channel.label.upper() != slot.get("slot"):
-            return None
-    slot = slots[index]
-    if not isinstance(slot, dict):
+    if not all(
+        isinstance(slot, dict) and isinstance(slot.get("catalog_id"), str) for slot in slots
+    ):
         return None
-    return slot["catalog_id"]
+    channels = request.channels
+    if all(channel.label is not None for channel in channels):
+        assigned: list[int] = []
+        for channel in channels:
+            match = next(
+                (
+                    pos
+                    for pos, slot in enumerate(slots)
+                    if _slot_matches_label(channel.label or "", slot)
+                ),
+                None,
+            )
+            if match is None or match in assigned:
+                break
+            assigned.append(match)
+        else:
+            return slots[assigned[index]]
+    if all(channel.hex is not None for channel in channels):
+        perm = _hex_assignment(request.palette, tuple(channel.hex or "" for channel in channels))
+        return slots[perm[index]] if perm is not None else None
+    if any(channel.hex is not None or channel.label is not None for channel in channels):
+        return None
+    return slots[index]
+
+
+def _mapped_id(request: LuminaRequest, index: int) -> str | None:
+    slot = _mapped_slot(request, index)
+    catalog_id = slot.get("catalog_id") if slot is not None else None
+    return catalog_id if isinstance(catalog_id, str) else None
 
 
 def _tokens(value: str) -> set[str]:
@@ -297,6 +419,98 @@ def _distance(input_hex: str | None, candidate: _Candidate) -> float | None:
     return float(delta_e_2000(hex_to_lab(input_hex), candidate.lab))
 
 
+def _has_pdd_goods(entry: dict[str, Any]) -> bool:
+    offers = entry.get("offers")
+    if not isinstance(offers, list):
+        return False
+    return any(
+        isinstance(offer, dict)
+        and isinstance(offer.get("url"), str)
+        and is_pdd_goods_url(offer["url"])
+        for offer in offers
+    )
+
+
+def _is_special_material(entry: dict[str, Any]) -> bool:
+    text_values = [
+        entry.get("series_name"),
+        entry.get("name_raw"),
+        entry.get("name_en"),
+        entry.get("name_zh"),
+    ]
+    text = " ".join(value.casefold() for value in text_values if isinstance(value, str))
+    if any(marker in text for marker in SPECIAL_MATERIAL_MARKERS):
+        return True
+    effects = entry.get("effects")
+    return isinstance(effects, list) and any(effect in SPECIAL_EFFECTS for effect in effects)
+
+
+def _tray_preferences(
+    request: LuminaRequest,
+    mapped_slot: dict[str, Any] | None,
+    brand_fallback: bool,
+) -> tuple[str | None, str | None]:
+    if mapped_slot is None:
+        return None if brand_fallback else request.brand, None
+    tray_map = load_tray_map()
+    preferred_brand = None if brand_fallback else request.brand
+    if preferred_brand is None and isinstance(tray_map.get("brand_preference"), str):
+        preferred_brand = tray_map["brand_preference"].casefold()
+    preferred_series = tray_map.get("series_preference")
+    return preferred_brand, preferred_series if isinstance(preferred_series, str) else None
+
+
+def _ranking_key(
+    ranked: _Ranked,
+    preferred_brand: str | None,
+    preferred_series: str | None,
+) -> tuple[Any, ...]:
+    entry = ranked.candidate.entry
+    if ranked.distance is None:
+        name_score: tuple[Any, ...] = ranked.name_score or (9, 0, 0, 10_000, "")
+        return (*name_score, str(entry.get("id") or ""))
+    brand_slug = str(entry.get("brand_slug") or "").casefold()
+    series_name = str(entry.get("series_name") or "")
+    return (
+        round(ranked.distance, 2),
+        0 if _has_pdd_goods(entry) else 1,
+        1 if _is_special_material(entry) else 0,
+        0 if preferred_brand is not None and brand_slug == preferred_brand else 1,
+        0
+        if preferred_series is not None and series_name.casefold() == preferred_series.casefold()
+        else 1,
+        str(entry.get("id") or ""),
+    )
+
+
+def _deduplicate_ranked(ranked: list[_Ranked]) -> list[_Ranked]:
+    kept: list[_Ranked] = []
+    seen_hex: set[str] = set()
+    seen_names: set[tuple[str, str, str]] = set()
+    for item in ranked:
+        entry = item.candidate.entry
+        name_key = (
+            str(entry.get("brand_slug") or "").casefold(),
+            str(entry.get("series_name") or "").casefold(),
+            nfkc(_name_for(entry)).casefold(),
+        )
+        if item.candidate.hex in seen_hex or name_key in seen_names:
+            continue
+        seen_hex.add(item.candidate.hex)
+        seen_names.add(name_key)
+        kept.append(item)
+    return kept
+
+
+def _tray_note(mapped_slot: dict[str, Any]) -> str | None:
+    status = mapped_slot.get("status")
+    if status == "pending_manual_confirm":
+        return "该映射待人工确认"
+    if status == "same_brand_fallback":
+        return "LUT 名义色 ΔE 超阈，已换同品牌近色"
+    return None
+
+
 def _name_for(entry: dict[str, Any]) -> str:
     for key in ("name_zh", "name_en", "name_raw"):
         value = entry.get(key)
@@ -344,18 +558,22 @@ def _slot(
 ) -> dict[str, Any]:
     channel = request.channels[index]
     input_hex = channel.hex
-    mapped = _mapped_id(request, index)
+    mapped_slot = _mapped_slot(request, index)
+    mapped = (
+        mapped_slot.get("catalog_id")
+        if mapped_slot is not None and isinstance(mapped_slot.get("catalog_id"), str)
+        else None
+    )
     notes: list[str] = []
     if brand_fallback and request.brand is not None:
         notes.append(f"brand {request.brand} 无可用结果，已回退全部品牌")
 
+    preferred_brand, preferred_series = _tray_preferences(request, mapped_slot, brand_fallback)
+
     if input_hex is not None:
         ranked = sorted(
             (_Ranked(candidate, _distance(input_hex, candidate)) for candidate in candidates),
-            key=lambda item: (
-                round(item.distance or 0.0, 8),
-                str(item.candidate.entry.get("id") or ""),
-            ),
+            key=lambda item: _ranking_key(item, preferred_brand, preferred_series),
         )
         source = "nearest"
     else:
@@ -364,9 +582,13 @@ def _slot(
             score = _name_score(channel.name or "", candidate)
             if score is not None:
                 name_ranked.append(_Ranked(candidate, None, score))
-        ranked = sorted(name_ranked, key=lambda item: item.name_score or (9, 0, 0, 10_000, ""))
+        ranked = sorted(
+            name_ranked,
+            key=lambda item: _ranking_key(item, preferred_brand, preferred_series),
+        )
         source = "name"
 
+    mapped_ranked: _Ranked | None = None
     if mapped is not None:
         mapped_candidate = next(
             (candidate for candidate in candidates if candidate.entry.get("id") == mapped),
@@ -384,7 +606,11 @@ def _slot(
                 *[item for item in ranked if item.candidate.entry.get("id") != mapped],
             ]
             source = "tray_map"
+            tray_note = _tray_note(mapped_slot) if mapped_slot is not None else None
+            if tray_note is not None:
+                notes.append(tray_note)
 
+    ranked = _deduplicate_ranked(ranked)
     if not ranked:
         notes.append("没有找到可购买的匹配耗材")
         note = "；".join(notes)
@@ -401,6 +627,22 @@ def _slot(
     best = _result_item(ranked[0], source)
     if source == "tray_map":
         alternative_source = "nearest" if input_hex is not None else "name"
+        if preferred_brand is not None:
+            ranked = [
+                ranked[0],
+                *[
+                    item
+                    for item in ranked[1:]
+                    if str(item.candidate.entry.get("brand_slug") or "").casefold()
+                    == preferred_brand
+                ],
+                *[
+                    item
+                    for item in ranked[1:]
+                    if str(item.candidate.entry.get("brand_slug") or "").casefold()
+                    != preferred_brand
+                ],
+            ]
     else:
         alternative_source = source
     alternatives = [

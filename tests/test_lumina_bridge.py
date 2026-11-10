@@ -160,3 +160,151 @@ def test_match_request_is_pure_and_accepts_catalog_json(repo_root: Path) -> None
     result = match_request({"channels": [{"hex": "#000000"}]}, catalog)
     assert result["schema_version"] == 1
     assert result["slots"][0]["best"]
+
+
+def test_white_nearest_prefers_buyable_ordinary_material_and_deduplicates(
+    client: TestClient,
+) -> None:
+    response = client.post(
+        "/api/lumina/match",
+        json={"channels": [{"hex": "#FFFFFF"}], "max_alternatives": 5},
+    )
+    assert response.status_code == 200
+    slot = response.json()["slots"][0]
+    assert slot["best"]["catalog_id"] == "bambu-lab/pla-basic/jade-white-10100"
+    items = [slot["best"], *slot["alternatives"]]
+    assert slot["best"]["catalog_id"] not in {item["catalog_id"] for item in slot["alternatives"]}
+    assert len({item["hex"] for item in items}) == len(items)
+    assert all("translucent" not in item["series"].casefold() for item in items)
+
+
+def test_palette_alternatives_prefer_tray_brand(client: TestClient) -> None:
+    response = client.post(
+        "/api/lumina/match",
+        json={
+            "channels": [
+                {"label": "C", "hex": "#0086D6"},
+                {"label": "M", "hex": "#EC008C"},
+                {"label": "Y", "hex": "#F4EE2A"},
+                {"label": "W", "hex": "#FFFFFF"},
+            ],
+            "palette": "CMYW",
+            "max_alternatives": 3,
+        },
+    )
+    assert response.status_code == 200
+    for slot in response.json()["slots"]:
+        assert all(item["brand_slug"] == "bambu-lab" for item in slot["alternatives"])
+
+
+def test_tray_map_statuses_are_explained_in_notes(client: TestClient) -> None:
+    rybw = client.post(
+        "/api/lumina/match",
+        json={
+            "channels": [
+                {"label": "R", "hex": "#E94A39"},
+                {"label": "Y", "hex": "#ECEF35"},
+                {"label": "B", "hex": "#3451B1"},
+                {"label": "W", "hex": "#D7D2CF"},
+            ],
+            "palette": "RYBW",
+        },
+    )
+    assert rybw.status_code == 200
+    assert "LUT 名义色 ΔE 超阈" in rybw.json()["slots"][0]["note"]
+    assert "同品牌近色" in rybw.json()["slots"][0]["note"]
+
+    cmyw = client.post(
+        "/api/lumina/match",
+        json={
+            "channels": [
+                {"label": "C", "hex": "#0086D6"},
+                {"label": "M", "hex": "#EC008C"},
+                {"label": "Y", "hex": "#F4EE2A"},
+                {"label": "W", "hex": "#FFFFFF"},
+            ],
+            "palette": "CMYW",
+        },
+    )
+    assert cmyw.status_code == 200
+    assert all(slot["note"] == "该映射待人工确认" for slot in cmyw.json()["slots"])
+
+
+def _best_ids(body: dict[str, object]) -> list[str]:
+    return [slot["best"]["catalog_id"] for slot in body["slots"]]  # type: ignore[index]
+
+
+def test_tray_map_assigns_lumina_channel_order_by_hex(repo_root: Path) -> None:
+    catalog = json.loads((repo_root / "data/build/filament-catalog.json").read_text("utf-8"))
+    body = match_request(
+        {
+            "channels": [
+                {"hex": "#FFFFFF"},
+                {"hex": "#E94A39"},
+                {"hex": "#ECEF35"},
+                {"hex": "#1F4EA3"},
+            ],
+            "palette": "RYBW",
+        },
+        catalog,
+    )
+    assert _best_ids(body) == [
+        "bambu-lab/pla-basic/light-gray-10104",
+        "bambu-lab/pla-matte/scarlet-red-11200",
+        "bambu-lab/pla-basic/yellow-10400",
+        "bambu-lab/pla-basic/cobalt-blue-10604",
+    ]
+    assert all(slot["best"]["source"] == "tray_map" for slot in body["slots"])
+
+
+def test_tray_map_assigns_by_label_when_all_labelled(repo_root: Path) -> None:
+    catalog = json.loads((repo_root / "data/build/filament-catalog.json").read_text("utf-8"))
+    body = match_request(
+        {
+            "channels": [
+                {"label": "W", "hex": "#FFFFFF"},
+                {"label": "R", "hex": "#E94A39"},
+                {"label": "Y", "hex": "#ECEF35"},
+                {"label": "B", "hex": "#1F4EA3"},
+            ],
+            "palette": "RYBW",
+        },
+        catalog,
+    )
+    assert _best_ids(body)[0] == "bambu-lab/pla-basic/light-gray-10104"
+    assert _best_ids(body)[1] == "bambu-lab/pla-matte/scarlet-red-11200"
+
+
+def test_tray_map_rejected_when_colours_do_not_fit_palette(repo_root: Path) -> None:
+    catalog = json.loads((repo_root / "data/build/filament-catalog.json").read_text("utf-8"))
+    body = match_request(
+        {
+            "channels": [
+                {"hex": "#00FF00"},
+                {"hex": "#00FF00"},
+                {"hex": "#00FF00"},
+                {"hex": "#00FF00"},
+            ],
+            "palette": "RYBW",
+        },
+        catalog,
+    )
+    assert all(slot["best"]["source"] == "nearest" for slot in body["slots"])
+
+
+def test_tray_map_accepts_lumina_colour_word_labels(repo_root: Path) -> None:
+    catalog = json.loads((repo_root / "data/build/filament-catalog.json").read_text("utf-8"))
+    body = match_request(
+        {
+            "channels": [
+                {"label": "White", "hex": "#FFFFFF"},
+                {"label": "Red", "hex": "#E94A39"},
+                {"label": "Yellow", "hex": "#ECEF35"},
+                {"label": "Blue", "hex": "#1F4EA3"},
+            ],
+            "palette": "RYBW",
+        },
+        catalog,
+    )
+    assert _best_ids(body)[1] == "bambu-lab/pla-matte/scarlet-red-11200"
+    assert body["slots"][1]["label"] == "Red"
