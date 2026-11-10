@@ -21,6 +21,9 @@ case ${#positional[@]} in
     *) usage >&2; exit 2 ;;
 esac
 source_dir=$(realpath "$source_dir")
+[[ ${VITE_FP_BUY_MOCK-} != 1 ]] || {
+    echo 'VITE_FP_BUY_MOCK=1 只用于本地演示，拒绝打发布包。' >&2; exit 1;
+}
 frontend_deps=${frontend_deps:-$source_dir/frontend/node_modules}
 [[ -x $frontend_deps/.bin/tsc && -x $frontend_deps/.bin/vite ]] || {
     echo '缺少已装的前端依赖；可传 --frontend-deps，不会自动安装。' >&2; exit 1;
@@ -53,6 +56,11 @@ archive="lumina-${build_stamp}-${commit:0:12}.tar.gz"
     echo "built_at=$(TZ=Asia/Tokyo date --iso-8601=seconds)"
     echo 'source=https://github.com/a523959108-rgb/filament-lumina'
     echo 'frontend_build=tsc -b && vite build (existing dependencies, temporary copy)'
+    # 记录构建时的选色站集成开关（只含公开 URL/开关，不含任何密钥）。
+    for var in VITE_FP_INTEGRATION VITE_FP_BUY_PANEL VITE_FP_BUY_MOCK VITE_FP_BUY_API_URL \
+        VITE_FP_SITE_URL VITE_FP_SOURCE_URL VITE_FP_HIDE_LOCAL_ONLY; do
+        echo "$var=${!var-}"
+    done
 } > "$work/BUILD-INFO"
 printf '%s\n' "$commit" > "$work/LUMINA_COMMIT"
 # 运行所需 api/core/utils/assets/lut-preset 及全部后端模块保留。
