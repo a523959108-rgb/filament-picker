@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, JSX } from "react";
 import { loadCatalog } from "../catalog";
 import { SOURCE_URL } from "../config";
+import { colorsFromHash, modeFromHash } from "../stackPrefill";
 import { copyText } from "../marketPrice";
 import { moveSlot } from "../stackSlots";
 import {
@@ -71,7 +72,8 @@ export function StackPage(): JSX.Element {
   const [catalog, setCatalog] = useState<WebCatalog | null>(null);
   const [loadError, setLoadError] = useState(false);
   const [catalogError, setCatalogError] = useState(false);
-  const [mode, setMode] = useState<StackLutMode>("RYBW");
+  const [mode, setMode] = useState<StackLutMode>(() => modeFromHash(window.location.hash) ?? "RYBW");
+  const [prefillColors, setPrefillColors] = useState<string[]>(() => colorsFromHash(window.location.hash));
   const [widthMm, setWidthMm] = useState(DEFAULT_SIZE_MM);
   const [heightMm, setHeightMm] = useState(DEFAULT_SIZE_MM);
   const [layerHeightMm, setLayerHeightMm] = useState(0.08);
@@ -89,6 +91,12 @@ export function StackPage(): JSX.Element {
   const [previewOn, setPreviewOn] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const dragFrom = useRef<number | null>(null);
+
+  useEffect(() => {
+    const syncPrefill = () => setPrefillColors(colorsFromHash(window.location.hash));
+    window.addEventListener("hashchange", syncPrefill);
+    return () => window.removeEventListener("hashchange", syncPrefill);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -305,11 +313,29 @@ export function StackPage(): JSX.Element {
         </div>
         <nav className="lumina-top-nav" aria-label="页面导航">
           <a href="#/" className="nav-link">色卡浏览</a>
+          <a href="#/photo" className="nav-link">拍照找耗材</a>
           <a href="#/plan" className="nav-link">图片配色</a>
           <a href="#/cost" className="nav-link">打印成本</a>
           <a className="nav-link" href={SOURCE_URL} target="_blank" rel="noreferrer">源码</a>
         </nav>
       </header>
+
+      {prefillColors.length > 0 && (
+        <section className="panel stack-prefill" aria-label="带入的目标色">
+          <h2>拍照找耗材带入的目标色</h2>
+          <p>
+            这些颜色已填入。下面的四色槽仍是当前 LUT 的基础料；把同一张照片在左侧上传，下载任务包后在本机叠色引擎里生成。照片不会经过服务器。
+          </p>
+          <ul className="stack-prefill-list">
+            {prefillColors.map((hex) => (
+              <li key={hex}>
+                <span className="stack-prefill-swatch" style={{ backgroundColor: hex }} aria-hidden="true" />
+                <span className="mono">{hex}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <div className="lumina-stack-main">
         <aside className="lumina-stack-col" aria-label="图像导入和基础设置">
