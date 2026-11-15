@@ -1,17 +1,31 @@
 # Lumina 主备部署包（任务 A）
 
-本目录仅提供脚本和配置，未部署服务器。本轮落实 `TASK-A.md`「追加约束 3、4」及 TASK-A2：主力 `zhou-mini-gtx` 默认 Docker，备用 C 使用 venv + systemd。两台只用 CPU，由同一 commit 的 Python 后端托管前端 dist。
+本目录仅提供脚本和配置，未部署服务器。本轮落实 `TASK-A.md`「追加约束 3、4」及 TASK-A2：主力机默认 Docker，备用 C 使用 venv + systemd。两台只用 CPU，由同一 commit 的 Python 后端托管前端 dist。主机名和 Tailscale 地址不写入本仓库。
 
 ```mermaid
 flowchart LR
     U[用户] -->|HTTPS stack.filament.ibaozi.com| B[B nginx：TLS / 限流 / 50m / 300s]
-    B -->|Tailscale 优先| P[zhou-mini-gtx Docker 100.90.12.104:7860]
-    B -->|Tailscale backup| C[C 100.121.76.35:8790]
+    B -->|Tailscale 优先| P["主力机 LUMINA_UPSTREAM_HOST:LUMINA_UPSTREAM_PORT"]
+    B -->|Tailscale backup| C["备用机 LUMINA_UPSTREAM_BACKUP_HOST:LUMINA_UPSTREAM_BACKUP_PORT"]
     P --> PD[本地材料 / 缓存 / 输出 / dist]
     C --> CD[本地材料 / 缓存 / 输出 / dist]
 ```
 
-B 的 Tailscale IP 为 `100.70.57.112`。主力只发布 `100.90.12.104:7860` → 容器 `0.0.0.0:8790`；C 绑定 `0.0.0.0:8790`。主力在 tailscale0 放行来自 B 的 7860，C 放行 8790；Docker 转发链还需核对下文。TLS、nginx、按 IP 限流只在 B；C 不依赖 Docker、nginx、certbot。
+边缘机 B 的地址是 `LUMINA_EDGE_HOST`。主力只把 `LUMINA_UPSTREAM_HOST:LUMINA_UPSTREAM_PORT` 发布到容器 `0.0.0.0:8790`；C 绑定 `0.0.0.0:8790`。主力在 tailscale0 放行来自 B 的发布端口，C 放行 8790；Docker 转发链还需核对下文。TLS、nginx、按 IP 限流只在 B；C 不依赖 Docker、nginx、certbot。
+
+## 地址（不进 git）
+
+复制 `upstream.env.example` 为同目录的 `upstream.env`，或放到 `/etc/lumina/upstream.env`。`ufw.sh` 和 `render-nginx.sh` 只填充尚未导出的变量；已经导出的环境变量优先。若设置了 `LUMINA_UPSTREAM_ENV`（包括空字符串），则只读这一个路径。
+
+Docker Compose 不读 `upstream.env`。主力的 `docker/.env` 要再写上同一个 `LUMINA_UPSTREAM_HOST`，模板是 `docker/.env.example`。下次 `docker compose up` 前必须有这个值，否则 Compose 拒绝启动，不会改成监听 `0.0.0.0`。
+
+| 变量 | 谁用 | 含义 |
+| --- | --- | --- |
+| `LUMINA_EDGE_HOST` | `ufw.sh`、DOCKER-USER 示例 | 边缘机 B 的地址，唯一允许访问后端端口的来源 |
+| `LUMINA_UPSTREAM_HOST` | Compose 发布地址、nginx 主力 upstream | 主力机地址 |
+| `LUMINA_UPSTREAM_PORT` | 同上 | 主力对外端口，默认 7860 |
+| `LUMINA_UPSTREAM_BACKUP_HOST` | nginx 备用 upstream | 备用机 C 的地址 |
+| `LUMINA_UPSTREAM_BACKUP_PORT` | 同上 | 备用端口，默认 8790 |
 
 ## 文件
 
@@ -25,7 +39,10 @@ B 的 Tailscale IP 为 `100.70.57.112`。主力只发布 `100.90.12.104:7860` �
 | `rollback.sh` | 回到 previous，失败恢复回滚前版本 |
 | `lumina.service` | 统一服务入口和写权限加固，资源额度由 drop-in 注入 |
 | `env.primary.example`、`env.c.example` | 前者是主力 systemd 备选，资源须填；后者为 C 的限制 |
-| `nginx-b-stack.conf` | B 子域完整替换配置：主力 upstream + C backup |
+| `upstream.env.example` | 边缘与主备地址模板；复制为未跟踪的 `upstream.env` |
+| `render-nginx.sh` | 把上述地址代入 `nginx-b-stack.conf` |
+| `docker/.env.example` | Compose 的 commit 与主力发布地址；复制为 `docker/.env` |
+| `nginx-b-stack.conf` | B 子域完整替换配置的模板：主力 upstream + C backup |
 | `nginx-b-limit-req-zone.conf` | B 的 http 级按 IP 限流 zone |
 | `cleanup-output.sh`、`lumina-cleanup.service`、`lumina-cleanup.timer` | 每小时清理超过保留期的输出和预览工件 |
 | `ufw.sh` | 两台共用，默认打印，`--apply` 仅添加 B 来源规则 |
@@ -72,9 +89,13 @@ sudo bash /path/to/lumina/install.sh --profile c \
 
 # 再在主力：需有 Python 3.12、Docker；pypi 可达，不依赖腾讯镜像
 bash /path/to/lumina/docker/build-image.sh "$LUMINA_COMMIT" /path/to/lumina-release.tar.gz
-# 运维确认旧容器/端口清理完毕后，从固定项目名启动本部署
+# 运维确认旧容器/端口清理完毕后，从固定项目名启动本部署。
+# docker/.env 不提交。LUMINA_UPSTREAM_HOST 必须已导出，并与 upstream.env 的主力地址相同。
+# 缺少该值时 compose 拒绝启动。模板见 docker/.env.example。
 cd /path/to/lumina/docker
-printf 'LUMINA_COMMIT=%s\n' "$LUMINA_COMMIT" > .env
+umask 077
+printf 'LUMINA_COMMIT=%s\nLUMINA_UPSTREAM_HOST=%s\nLUMINA_UPSTREAM_PORT=%s\n' \
+  "$LUMINA_COMMIT" "$LUMINA_UPSTREAM_HOST" "${LUMINA_UPSTREAM_PORT:-7860}" > .env
 docker compose -p filament-lumina config
 docker compose -p filament-lumina up -d lumina
 ```
@@ -94,24 +115,25 @@ Docker 使用独立 named volumes：`materials`、`cache`、`output`、`logs`、
 脚本默认只打印；`--apply` 只添加对应 B 来源规则，不启用 UFW、不修改 SSH 或默认策略。先保留 SSH 管理入口、确认带外控制台，再由运维设置默认拒绝入站并检查既有宽泛放行：
 
 ```bash
+# 先在对应主机准备 upstream.env，或导出其中的变量。见 upstream.env.example。
 # C
 bash /path/to/lumina/ufw.sh --port 8790
 # 主力
 bash /path/to/lumina/ufw.sh --port 7860
-# 评审后在对应主机显式 --apply；核心规则分别为
-ufw allow in on tailscale0 from 100.70.57.112 to any port 8790 proto tcp
-ufw allow in on tailscale0 from 100.70.57.112 to any port 7860 proto tcp
+# 评审后在对应主机显式 --apply。核心规则使用 LUMINA_EDGE_HOST：
+# ufw allow in on tailscale0 from "$LUMINA_EDGE_HOST" to any port 8790 proto tcp
+# ufw allow in on tailscale0 from "$LUMINA_EDGE_HOST" to any port 7860 proto tcp
 ```
 
-Docker 发布端口经过 DNAT/FORWARD，可能绕过 UFW INPUT。**只绑定100.90.12.104是主要隔离手段**，不发布0.0.0.0；但它不自动限制其他 Tailscale 节点访问，仍需 Tailscale ACL 或 DOCKER-USER 收紧到 B。已有 netfilter 链可能优先放行，必须实测。
+Docker 发布端口经过 DNAT/FORWARD，可能绕过 UFW INPUT。**只绑定 `LUMINA_UPSTREAM_HOST` 是主要隔离手段**，不发布 0.0.0.0；但它不自动限制其他 Tailscale 节点访问，仍需 Tailscale ACL 或 DOCKER-USER 收紧到 B。已有 netfilter 链可能优先放行，必须实测。
 
-以下仅为运维核对 Docker 使用 iptables 后端且存在 DOCKER-USER 时的手工规则示例；脚本不自动执行，禁止 flush 链以免影响 HA。DOCKER-USER 看到的是 DNAT 后地址，必须用 conntrack 原目的匹配，不应匹配转发后的容器 IP/端口。先记录现有规则、核对插入顺序/持久化方法：
+以下仅为运维核对 Docker 使用 iptables 后端且存在 DOCKER-USER 时的手工规则示例；脚本不自动执行，禁止 flush 链以免影响 HA。DOCKER-USER 看到的是 DNAT 后地址，必须用 conntrack 原目的匹配，不应匹配转发后的容器 IP/端口。先记录现有规则、核对插入顺序/持久化方法。在当前 shell 中导出 `upstream.env` 里的变量后再执行（该文件不进 git）：
 
 ```bash
-sudo iptables -I DOCKER-USER 1 -i tailscale0 -s 100.70.57.112 -p tcp \
-  -m conntrack --ctdir ORIGINAL --ctorigdst 100.90.12.104 --ctorigdstport 7860 -j RETURN
+sudo iptables -I DOCKER-USER 1 -i tailscale0 -s "$LUMINA_EDGE_HOST" -p tcp \
+  -m conntrack --ctdir ORIGINAL --ctorigdst "$LUMINA_UPSTREAM_HOST" --ctorigdstport "$LUMINA_UPSTREAM_PORT" -j RETURN
 sudo iptables -I DOCKER-USER 2 -p tcp \
-  -m conntrack --ctdir ORIGINAL --ctorigdst 100.90.12.104 --ctorigdstport 7860 -j DROP
+  -m conntrack --ctdir ORIGINAL --ctorigdst "$LUMINA_UPSTREAM_HOST" --ctorigdstport "$LUMINA_UPSTREAM_PORT" -j DROP
 ```
 
 规则仅针对本服务原目的地址/端口的入站方向；回复包及其他家庭服务不在匹配范围。native nftables 后端没有此链时按实际 Docker 防火墙后端配置等价策略，不照抄。用 B、另一个 Tailscale 节点、普通网卡分别验证：仅 B 可访问主力7860/C8790，服务重启后规则仍有效；若需回滚，按记录精确删除刚加的两条，不清空整个链。
@@ -120,7 +142,13 @@ sudo iptables -I DOCKER-USER 2 -p tcp \
 
 先备份原 302 server 块所在文件到 nginx include 目录外。核对真实 TLS 证书路径：仓库旧示例只有 `/path/to/fullchain.pem`、`/path/to/privkey.pem`，本包沿用占位写法，未假定 B 的证书目录。
 
-将 `nginx-b-limit-req-zone.conf` 放入 B 的 `/etc/nginx/conf.d/lumina-limit-req-zone.conf`，确保在 `http {}` 层 include。核对 `nginx-b-stack.conf` 中固定的主力 `100.90.12.104:7860`、C `100.121.76.35:8790` 及证书后，用其中两个 server 块**替换**旧子域块，并将 upstream 放入 http 层；不要与旧 302 块并存。其他站点不改。
+将 `nginx-b-limit-req-zone.conf` 放入 B 的 `/etc/nginx/conf.d/lumina-limit-req-zone.conf`，确保在 `http {}` 层 include。`nginx-b-stack.conf` 是模板，nginx 不会展开其中的变量。在 B 上准备好 `upstream.env` 后生成配置，再核对证书：
+
+```bash
+bash /path/to/lumina/render-nginx.sh --out /tmp/nginx-b-stack.local.conf
+```
+
+用生成文件里的两个 server 块**替换**旧子域块，并将 upstream 放入 http 层；不要与旧 302 块并存。其他站点不改。未替换的模板不能通过 `nginx -t`。
 
 执行 `nginx -t` 成功后才 `systemctl reload nginx`。HTTP 跳 HTTPS，443 整站反代主备 upstream；50m 上传、3s 连接超时、300s 读写超时、每 IP 普通 10r/s、计算接口 2r/m（burst=2）均在 B 生效。没有前置 CDN 的假设下使用 `$binary_remote_addr`；如 B 前另有代理，应由运维核对可信 real_ip 配置，不能信任任意来访 X-Forwarded-For。
 
@@ -136,7 +164,7 @@ B 回滚：恢复备份的原 302 配置，移除新增 upstream/新 server 和 
 
 切换后安装器 `daemon-reload`、restart，再 curl 本机 `/api/health`，同时检查 `status=ok` 和 `worker_pool.healthy=true`。失败恢复旧 current 和旧服务/drop-in，重启并检查旧版；首次部署无旧版则停止失败服务。失败命令保持非零退出。只有成功健康的发布才更新 `/opt/lumina/previous`。失败 release 保留用于排查。
 
-升级顺序：先在维护窗口将 B 的主力 server 临时标记 down 并 reload，避免两机版本不同的窗口承接新会话；C 用新包、`--profile c --expected-commit <新SHA>` 安装并验健康；再在主力构建 `filament-lumina:<新SHA>`，保留旧镜像，将 Docker `.env` 更新为新SHA，由运维用固定项目名 compose up 更新本服务；验证两端后移除 B 的 down 并 reload。已有 C env 不覆盖，升级会使原内存会话失效，用户须重新预览。调整资源额度时先编辑各机 env，再重新运行安装器生成 `/etc/systemd/system/lumina.service.d/10-resources.conf`；单独 restart 不会重生成 drop-in。
+升级顺序：先在维护窗口将 B 的主力 server 临时标记 down 并 reload，避免两机版本不同的窗口承接新会话；C 用新包、`--profile c --expected-commit <新SHA>` 安装并验健康；再在主力构建 `filament-lumina:<新SHA>`，保留旧镜像，将 Docker `.env` 的 LUMINA_COMMIT 更新为新 SHA，并保留其中的 LUMINA_UPSTREAM_HOST，由运维用固定项目名 compose up 更新本服务；验证两端后移除 B 的 down 并 reload。已有 C env 不覆盖，升级会使原内存会话失效，用户须重新预览。调整资源额度时先编辑各机 env，再重新运行安装器生成 `/etc/systemd/system/lumina.service.d/10-resources.conf`；单独 restart 不会重生成 drop-in。
 
 ```bash
 # C（或主力systemd备选）执行；不更改共享材料/设置

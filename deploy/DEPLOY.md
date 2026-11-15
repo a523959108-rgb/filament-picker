@@ -14,9 +14,24 @@ FILAMENT_PICKER_PREVIEW_USER=<当前预览账号名>
 
 ## 包里有什么
 
-- `dist.tgz`：前端生产构建（`web/dist`）。里面已经包含更新后的 `web-catalog.json`、打印参数和色值。
+- `dist.tgz`：前端生产构建（`web/dist`）。里面已经包含更新后的 `web-catalog.json`、打印参数和色值。这个包不进 git，按下一节在本地构建。
 - `bundle.tgz`：后端运行所需的源码、`data/build/filament-catalog.json`、`data/ofd/enrichment.json`（Open Filament Database 的离线结果）和 `data/manual_overrides.json`。
 - 网站运行时只读这些静态文件，**不会访问** Open Filament Database 或任何外网。OrcaSlicer 预设是详情页上的下载链接，由用户自己点击，页面加载时不请求。
+
+## 怎么构建 dist.tgz
+
+`deploy/release/dist.tgz` 是构建产物，仓库不保存它（根目录 `.gitignore` 已忽略）。没有构建或部署脚本依赖已经提交的那份包。在要发布的检出上重新构建：
+
+```bash
+cd web
+npm ci
+npm run build
+mkdir -p ../deploy/release
+tar -czf ../deploy/release/dist.tgz -C dist .
+sha256sum ../deploy/release/dist.tgz
+```
+
+校验和留在本地，不要把 `dist.tgz` 提交回去。`deploy/release/SHA256SUMS` 只记录仍在树里的 `bundle.tgz` 和 `DEPLOY.md`。
 
 ## 怎么换上
 
@@ -38,7 +53,7 @@ filament-picker import-ofd \
 filament-picker export-web
 ```
 
-然后重新构建前端并再打一次 `dist.tgz`。快照来自 Open Filament Database（MIT，见 `data/ofd/LICENSE`），不要把导入改成网站在线拉取。
+然后按上文「怎么构建 dist.tgz」重新构建前端并再打一次包。快照来自 Open Filament Database（MIT，见 `data/ofd/LICENSE`），不要把导入改成网站在线拉取。
 
 ## 校验
 

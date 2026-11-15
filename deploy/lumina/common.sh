@@ -55,3 +55,46 @@ health_check() {
     echo '健康检查失败；请查 journalctl -u lumina 和 /var/log/lumina。' >&2
     return 1
 }
+# 只填尚未导出的上游地址。不 source 文件，不覆盖已有环境变量。
+# LUMINA_UPSTREAM_ENV 若已设置（包括空字符串），只读这一个路径，不再找默认位置。
+load_upstream_env() {
+    local file line key value
+    local -a candidates=()
+    if [[ -v LUMINA_UPSTREAM_ENV ]]; then
+        [[ -n $LUMINA_UPSTREAM_ENV ]] && candidates+=("$LUMINA_UPSTREAM_ENV")
+    else
+        candidates+=("$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/upstream.env" /etc/lumina/upstream.env)
+    fi
+    [[ ${#candidates[@]} -gt 0 ]] || return 0
+    for file in "${candidates[@]}"; do
+        [[ -f $file ]] || continue
+        while IFS= read -r line || [[ -n $line ]]; do
+            [[ -z $line || $line == \#* ]] && continue
+            [[ $line =~ ^([A-Z][A-Z0-9_]*)=([A-Za-z0-9.:-]*)$ ]] ||
+                fail 'upstream env 格式不支持：请用不带引号、空格或 shell 展开的 KEY=VALUE'
+            key=${BASH_REMATCH[1]} value=${BASH_REMATCH[2]}
+            case $key in
+                LUMINA_EDGE_HOST|LUMINA_UPSTREAM_HOST|LUMINA_UPSTREAM_PORT|LUMINA_UPSTREAM_BACKUP_HOST|LUMINA_UPSTREAM_BACKUP_PORT)
+                    if [[ -z ${!key:-} && -n $value ]]; then
+                        export "$key=$value"
+                    fi
+                    ;;
+                *) fail 'upstream env 含不支持的变量名' ;;
+            esac
+        done < "$file"
+        return 0
+    done
+}
+upstream_host_ok() {
+    local host=$1 octet
+    if [[ $host =~ ^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$ ]]; then
+        for octet in "${BASH_REMATCH[@]:1:4}"; do
+            ((10#$octet <= 255)) || return 1
+        done
+        return 0
+    fi
+    [[ $host =~ ^[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$ ]]
+}
+upstream_port_ok() {
+    [[ $1 =~ ^[0-9]+$ ]] && ((10#$1 >= 1 && 10#$1 <= 65535))
+}
