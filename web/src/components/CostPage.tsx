@@ -73,6 +73,7 @@ export function CostPage(): JSX.Element {
         </div>
         <nav className="topbar-nav" aria-label="页面导航">
           <a href="#/" className="nav-link">色卡浏览</a>
+          <a href="#/photo" className="nav-link">拍照找耗材</a>
           <a href="#/plan" className="nav-link">图片配色</a>
           <a href="#/stack" className="nav-link">叠色</a>
         </nav>

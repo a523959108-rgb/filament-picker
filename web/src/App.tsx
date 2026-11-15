@@ -9,6 +9,7 @@ import { SwatchGrid } from "./components/SwatchGrid";
 import { PlanPage } from "./components/PlanPage";
 import { CostPage } from "./components/CostPage";
 import { ModelPreview } from "./components/ModelPreview";
+import { PhotoPage } from "./components/PhotoPage";
 import { StackPage } from "./components/StackPage";
 import { buildIndex, EMPTY_FILTER, query } from "./search";
 import type { FilterState } from "./search";
@@ -16,6 +17,16 @@ import type { WebCatalog } from "./types";
 
 function routeFromHash(): string {
   return window.location.hash;
+}
+
+function pageFromHash(hash: string): "plan" | "cost" | "stack" | "photo" | "catalog" {
+  const body = (hash.startsWith("#") ? hash.slice(1) : hash).split("?")[0] ?? "";
+  const path = body.replace(/\/+$/, "") || "/";
+  if (path === "/plan") return "plan";
+  if (path === "/cost") return "cost";
+  if (path === "/stack") return "stack";
+  if (path === "/photo") return "photo";
+  return "catalog";
 }
 
 function CatalogHeader(): JSX.Element {
@@ -27,12 +38,27 @@ function CatalogHeader(): JSX.Element {
         <p className="topbar-sub">按品牌、材料与色系浏览 3D 打印耗材颜色</p>
       </div>
       <nav className="topbar-nav" aria-label="页面导航">
+        <a href="#/photo" className="nav-link">拍照找耗材</a>
         <a href="#/plan" className="nav-link">图片配色</a>
         <a href="#/cost" className="nav-link">打印成本</a>
         <a href={stackHref} className="nav-link">叠色</a>
         <a href="/models/login" className="nav-link">模型预览</a>
       </nav>
     </header>
+  );
+}
+
+function PhotoHomeCta(): JSX.Element {
+  return (
+    <section className="stack-home-cta panel" aria-label="拍照找耗材入口">
+      <div className="stack-home-cta-copy">
+        <h2>拍照找耗材</h2>
+        <p>上传实物或模型照片，提取主色，匹配最接近的可买耗材。照片不上传。</p>
+      </div>
+      <a className="stack-home-cta-btn" href="#/photo">
+        开始找色
+      </a>
+    </section>
   );
 }
 
@@ -67,6 +93,7 @@ function CatalogApp(): JSX.Element {
   const [route, setRoute] = useState(
     () => defaultStackHash(window.location.hostname, routeFromHash()) ?? routeFromHash(),
   );
+  const page = pageFromHash(route);
   const [catalog, setCatalog] = useState<WebCatalog | null>(null);
   const [loadError, setLoadError] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -89,7 +116,7 @@ function CatalogApp(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (route === "#/plan" || route === "#/stack") return;
+    if (page === "plan" || page === "stack" || page === "photo") return;
     let active = true;
     loadCatalog()
       .then((value) => {
@@ -101,7 +128,7 @@ function CatalogApp(): JSX.Element {
     return () => {
       active = false;
     };
-  }, [route]);
+  }, [page]);
 
   const index = useMemo(() => (catalog === null ? null : buildIndex(catalog.entries)), [catalog]);
   const entries = useMemo(
@@ -112,14 +139,17 @@ function CatalogApp(): JSX.Element {
     [index, catalog, searchText, filters],
   );
 
-  if (route === "#/plan") {
+  if (page === "plan") {
     return <main className="page"><PlanPage /></main>;
   }
-  if (route === "#/cost") {
+  if (page === "cost") {
     return <main className="page"><CostPage /></main>;
   }
-  if (route === "#/stack") {
+  if (page === "stack") {
     return <StackPage />;
+  }
+  if (page === "photo") {
+    return <main className="page"><PhotoPage /></main>;
   }
   if (loadError) {
     return (
@@ -153,7 +183,10 @@ function CatalogApp(): JSX.Element {
   return (
     <main className="page">
       <CatalogHeader />
-      <StackHomeCta />
+      <div className="home-cta-row">
+        <PhotoHomeCta />
+        <StackHomeCta />
+      </div>
       <div className="catalog-layout">
         <aside className="sidebar">
           <label className="search">

@@ -45,3 +45,16 @@ filament-picker export-web
 ```bash
 sha256sum -c SHA256SUMS
 ```
+
+## 拍照找耗材
+
+纯静态前端，没有新接口。照片在浏览器里取色和匹配，不上传、不落盘。不新增环境变量，不改数据库，不跑迁移，不改 nginx。
+
+主站和叠色子域用的是同一份 `web/dist`。两边都要换上这一份，否则子域上的「拍照找耗材」会缺页面，主站上「用这个颜色打开叠色」带去的 `#/stack?colors=...` 也看不到预填色。
+
+1. 在构建机的 `web/` 目录执行 `npm ci && npm run build`。
+2. 用新的 `web/dist` 覆盖 nginx 静态目录（或按现有流程打 `dist.tgz` 再替换）。`web-catalog.json` 仍走现有短缓存。
+3. 不必重启 `filament-picker serve`。静态文件由 nginx 提供时，后端进程不用动。
+4. 打开 `https://filament.ibaozi.com/#/photo`，以及从主站点进 `https://stack.filament.ibaozi.com/#/stack?colors=...`，确认目标色已填入。
+
+没有新的 `deploy/filament-picker.env` 项。`FILAMENT_PICKER_PREVIEW_USER` 仍只用于模型预览登录，和这个功能无关。

@@ -52,6 +52,16 @@ describe("StackPage", () => {
     expect((await findAllByText(/本站不跑 GPL/)).length).toBeGreaterThan(0);
   });
 
+  it("shows photo colors prefilled from the hash", async () => {
+    window.location.hash = "#/stack?colors=DE4343,00AE42&mode=CMYW";
+    const { findByRole, findByText, findByLabelText } = render(<StackPage />);
+    expect(await findByRole("heading", { name: "拍照找耗材带入的目标色" })).toBeTruthy();
+    expect(await findByText("#DE4343")).toBeTruthy();
+    expect(await findByText("#00AE42")).toBeTruthy();
+    const mode = (await findByLabelText("LUT 色模式")) as HTMLSelectElement;
+    expect(mode.value).toBe("CMYW");
+  });
+
   it("imports pasted result JSON and refreshes recommendations", async () => {
     const { findByLabelText, findByRole, findAllByText, findByText } = render(<StackPage />);
     await findByLabelText("四槽推荐色卡");

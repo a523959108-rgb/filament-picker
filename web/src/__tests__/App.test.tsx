@@ -34,6 +34,17 @@ describe("App", () => {
     expect(nav.getAttribute("href")).toBe("#/stack");
   });
 
+  it("opens photo match from the homepage and the hash", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => sample }));
+    const { findByRole } = render(<App />);
+    expect((await findByRole("link", { name: "拍照找耗材" })).getAttribute("href")).toBe("#/photo");
+    expect((await findByRole("link", { name: "开始找色" })).getAttribute("href")).toBe("#/photo");
+    window.location.hash = "#/photo";
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+    expect(await findByRole("heading", { level: 1, name: "拍照找耗材" })).toBeTruthy();
+    expect(await findByRole("button", { name: "用示例照片试试" })).toBeTruthy();
+  });
+
   it("opens the stack page from the hash", async () => {
     const tray = {
       schema_version: 1,
