@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# 发件箱命令入口。只用系统 python3，不碰网站的 .venv。
+set -euo pipefail
+
+TOOL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export PYTHONPATH="${TOOL_DIR}${PYTHONPATH:+:${PYTHONPATH}}"
+
+if [ -x /usr/bin/python3 ]; then
+  PYTHON=/usr/bin/python3
+else
+  PYTHON="$(command -v python3)"
+fi
+
+exec "$PYTHON" -m dtimg_outbox "$@"
