@@ -789,7 +789,7 @@ def _fail_settled(
     return item_id
 
 
-def _process_once_unlocked(settings: Settings, *, now: datetime | None) -> ProcessReport:
+def _process_once_unlocked(settings: Settings, *, now: datetime | None = None) -> ProcessReport:
     ensure_dirs(settings)
     moment = now if now is not None else datetime.now(TOKYO)
     now_ts = moment.timestamp()
@@ -1002,7 +1002,7 @@ def watch(settings: Settings, *, once: bool, force_poll: bool) -> ProcessReport 
             LOG.info("watcher inotify root=%s", settings.root)
         try:
             while not stop():
-                report = _process_once_unlocked(settings)
+                report = _process_once_unlocked(settings, now=None)
                 if report.ready or report.failed:
                     LOG.info(
                         "scan ready=%s failed=%s",

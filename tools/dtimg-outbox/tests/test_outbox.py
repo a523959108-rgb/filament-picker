@@ -26,6 +26,7 @@ from dtimg_outbox.outbox import (  # noqa: E402
     list_ready,
     open_inotify,
     process_once,
+    watch,
 )
 
 TOKYO = ZoneInfo("Asia/Tokyo")
@@ -501,3 +502,21 @@ def test_inotify_opens_on_linux(tmp_path: Path) -> None:
     if fd is None:
         pytest.skip("内核不提供 inotify")
     os.close(fd)
+
+
+def test_watch_one_iteration_uploads(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    put = write_fake_put(tmp_path / "bin")
+    root = tmp_path / "outbox"
+    settings = make_settings(root, put, poll_interval=30)
+    write_image(root / "inbox", "once.png", b"once")
+    seen = {"n": 0}
+
+    def stop() -> bool:
+        seen["n"] += 1
+        return seen["n"] > 1
+
+    monkeypatch.setattr("dtimg_outbox.outbox._install_stop", lambda: stop)
+    assert watch(settings, once=False, force_poll=True) is None
+    assert seen["n"] == 2
+    assert [Path(line).name for line in calls(put)] == ["once.png"]
+    assert ready_record(root, "once")["photoURL"] == URL
