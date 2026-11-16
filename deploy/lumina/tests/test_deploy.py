@@ -41,6 +41,13 @@ def run_script(name: str, *args: str, **kwargs: object) -> subprocess.CompletedP
     )
 
 
+def clean_env(**extra: str) -> dict[str, str]:
+    env = {key: value for key, value in os.environ.items() if not key.startswith("LUMINA_")}
+    env["LUMINA_UPSTREAM_ENV"] = ""
+    env.update(extra)
+    return env
+
+
 def test_deliverables_and_shell_syntax() -> None:
     names = [
         "README.md",
@@ -57,6 +64,9 @@ def test_deliverables_and_shell_syntax() -> None:
         "lumina-cleanup.service",
         "lumina-cleanup.timer",
         "ufw.sh",
+        "render-nginx.sh",
+        "upstream.env.example",
+        "docker/.env.example",
         "smoke.sh",
         "smoke.py",
         "smoke-box.sh",
@@ -116,18 +126,25 @@ def test_cleanup_refuses_unsafe_roots_and_preserves_links(tmp_path: Path) -> Non
 
 
 def test_ufw_default_only_prints() -> None:
-    result = run_script("ufw.sh")
-    assert result.returncode == 0
-    assert "allow in on tailscale0 from 100.70.57.112 to any port 8790 proto tcp" in result.stdout
+    result = run_script("ufw.sh", env=clean_env())
+    assert result.returncode == 0, result.stderr
+    rule = "allow in on tailscale0 from ${LUMINA_EDGE_HOST} to any port 8790 proto tcp"
+    assert rule in result.stdout
+    assert "${LUMINA_UPSTREAM_HOST}" in result.stdout
     assert "default deny incoming" in result.stdout
     assert "ssh" in result.stdout.lower()
     assert "ufw enable" not in result.stdout
+    assert "100." not in result.stdout
+    missing = run_script("ufw.sh", "--apply", env=clean_env())
+    assert missing.returncode != 0
+    assert "LUMINA_EDGE_HOST" in missing.stderr
 
 
 def test_primary_docker_contract() -> None:
     compose = (ROOT / "docker/compose.yaml").read_text()
     for required in (
-        '"100.90.12.104:7860:8790"',
+        '"${LUMINA_UPSTREAM_HOST:?请在 docker/.env 设置 LUMINA_UPSTREAM_HOST}:'
+        '${LUMINA_UPSTREAM_PORT:-7860}:8790"',
         "container_name: filament-lumina",
         "image: filament-lumina:${LUMINA_COMMIT:?",
         "cpus: 6",
@@ -155,8 +172,9 @@ def test_no_retired_port_in_deliverables() -> None:
 def test_nginx_primary_and_failover_contract() -> None:
     config = (ROOT / "nginx-b-stack.conf").read_text()
     for required in (
-        "100.90.12.104:7860 max_fails=2 fail_timeout=30s;",
-        "100.121.76.35:8790 max_fails=2 fail_timeout=30s backup;",
+        "${LUMINA_UPSTREAM_HOST}:${LUMINA_UPSTREAM_PORT} max_fails=2 fail_timeout=30s;",
+        "${LUMINA_UPSTREAM_BACKUP_HOST}:${LUMINA_UPSTREAM_BACKUP_PORT} "
+        "max_fails=2 fail_timeout=30s backup;",
         "proxy_connect_timeout 3s;",
         "proxy_read_timeout 300s;",
         "proxy_send_timeout 300s;",
@@ -167,9 +185,67 @@ def test_nginx_primary_and_failover_contract() -> None:
         assert required in config
     directives = "\n".join(line.split("#", 1)[0] for line in config.splitlines())
     assert "non_idempotent" not in directives and "ip_hash" not in directives
-    primary = run_script("ufw.sh", "--port", "7860")
+    primary = run_script("ufw.sh", "--port", "7860", env=clean_env())
     assert primary.returncode == 0 and "port 7860 proto tcp" in primary.stdout
     assert "DOCKER-USER" in primary.stdout
+
+
+def test_ufw_reads_upstream_env_without_executing_it(tmp_path: Path) -> None:
+    env_file = tmp_path / "upstream.env"
+    env_file.write_text("LUMINA_EDGE_HOST=203.0.113.10\nLUMINA_UPSTREAM_HOST=203.0.113.11\n")
+    result = run_script("ufw.sh", env=clean_env(LUMINA_UPSTREAM_ENV=str(env_file)))
+    assert result.returncode == 0, result.stderr
+    assert "from 203.0.113.10 to any port 8790" in result.stdout
+    assert "203.0.113.11" in result.stdout
+    marker = tmp_path / "must-not-exist"
+    bad = tmp_path / "bad.env"
+    bad.write_text(f"LUMINA_EDGE_HOST=$(touch {marker})\n")
+    denied = run_script("ufw.sh", env=clean_env(LUMINA_UPSTREAM_ENV=str(bad)))
+    assert denied.returncode != 0
+    assert not marker.exists()
+    if os.geteuid() != 0:
+        applied = run_script("ufw.sh", "--apply", env=clean_env(LUMINA_EDGE_HOST="203.0.113.10"))
+        assert applied.returncode != 0
+        assert "root" in applied.stderr
+
+
+def test_render_nginx_substitutes_upstream(tmp_path: Path) -> None:
+    out = tmp_path / "nginx.conf"
+    result = run_script(
+        "render-nginx.sh",
+        "--out",
+        str(out),
+        env=clean_env(
+            LUMINA_UPSTREAM_HOST="203.0.113.10",
+            LUMINA_UPSTREAM_PORT="7860",
+            LUMINA_UPSTREAM_BACKUP_HOST="203.0.113.11",
+            LUMINA_UPSTREAM_BACKUP_PORT="8790",
+        ),
+    )
+    assert result.returncode == 0, result.stderr
+    text = out.read_text()
+    assert "203.0.113.10:7860 max_fails=2 fail_timeout=30s;" in text
+    assert "203.0.113.11:8790 max_fails=2 fail_timeout=30s backup;" in text
+    assert "${" not in text
+    missing = run_script("render-nginx.sh", env=clean_env())
+    assert missing.returncode != 0
+    assert "LUMINA_UPSTREAM_HOST" in missing.stderr
+
+
+def test_no_private_infrastructure_literals() -> None:
+    banned = (
+        "100.90.12." + "104",
+        "100.121.76." + "35",
+        "100.70.57." + "112",
+        "zhou-mini-" + "gtx",
+        ".ts." + "net",
+    )
+    for path in ROOT.rglob("*"):
+        if not path.is_file() or "__pycache__" in path.parts or ".pytest_cache" in path.parts:
+            continue
+        text = path.read_text(encoding="utf-8")
+        for item in banned:
+            assert item not in text, f"{item} in {path}"
 
 
 def test_commit_mismatch_rejected_before_install(tmp_path: Path) -> None:

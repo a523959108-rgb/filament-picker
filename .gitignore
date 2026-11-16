@@ -17,3 +17,8 @@ data/models-private/
 .env.*
 !.env.example
 deploy/*.env
+# Tailscale / upstream addresses stay on the server. See deploy/lumina/upstream.env.example.
+upstream.env
+deploy/lumina/nginx-b-stack.local.conf
+# Frontend production tarball is built at release time. See deploy/DEPLOY.md.
+deploy/release/dist.tgz

@@ -28,8 +28,10 @@ Spoolman 用它自己的官方镜像，单独跑。默认端口是它自己的 `
 
 ```text
 FP_SPOOLMAN_ENABLED=1
-FP_SPOOLMAN_BASE_URL=http://spoolman.tailnet.ts.net:7912
+FP_SPOOLMAN_BASE_URL=http://spoolman.example:7912
 ```
+
+把 `spoolman.example` 换成这台私有主机上的实际地址。Tailscale 域名和 100.x 地址只放在该主机的环境里，不要写进仓库。
 
 以后如果 Spoolman 本身要求鉴权，token 只放在这台私有主机的环境变量里。这一版不读取、不保存任何 token。
 
