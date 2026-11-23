@@ -9,7 +9,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 from urllib.parse import quote
 
-from fastapi import APIRouter, FastAPI, HTTPException, Query, Request
+from fastapi import APIRouter, FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.responses import (
     FileResponse,
     JSONResponse,
@@ -30,6 +30,14 @@ from .config import (
     SOURCE_RANK,
 )
 from .matcher import eligible, label_for, name_display
+from .model_import import (
+    ORIGINAL_MAX_BYTES,
+    ORIGINAL_TYPES,
+    ensure_schema,
+    install_original,
+    original_suffix,
+    parse_plate_layout,
+)
 from .note_parser import Params
 from .spoolman import annotate_picks, load_spools
 
@@ -166,7 +174,11 @@ class ModelPreview:
                 "SELECT * FROM models" + where + " ORDER BY id LIMIT ? OFFSET ?",
                 [*params, page_size, (page - 1) * page_size],
             )
-            result["items"] = [_public_model(row) for row in rows]
+            result["items"] = []
+            for row in rows:
+                item = _public_model(row)
+                item["original"] = self.original_descriptor(row)
+                result["items"].append(item)
             for column, key in (("series", "series"), ("author", "authors")):
                 result[key] = [
                     row[0]
@@ -209,6 +221,117 @@ class ModelPreview:
             raise HTTPException(status_code=404, detail="网格不存在")
         return PurePosixPath("meshes") / f"{model_id}.glb"
 
+    def original_descriptor(self, row: sqlite3.Row) -> dict[str, Any]:
+        model_id = str(row["id"])
+        stored_name = str(_column(row, "original_name", "") or "")
+        digest = str(_column(row, "original_sha256", "") or "")
+        size = _column(row, "original_size", 0)
+        rel_text = str(_column(row, "original_relpath", "") or "")
+        if isinstance(size, bool) or not isinstance(size, int):
+            size = 0
+        recorded = stored_name or _recorded_basename(row)
+        suffix = PurePosixPath(rel_text).suffix.lower() if rel_text else ""
+        media_type = ORIGINAL_TYPES.get(suffix)
+        ready = False
+        if stored_name and digest and rel_text and media_type is not None and size > 0:
+            try:
+                path = self._guarded_file(
+                    PurePosixPath(rel_text),
+                    {suffix},
+                    ("originals",),
+                    detail="原件未保存，无法下载",
+                )
+                ready = path.stat().st_size == size
+            except (HTTPException, OSError):
+                ready = False
+        if ready:
+            return {
+                "available": True,
+                "reason": None,
+                "filename": stored_name,
+                "size_bytes": size,
+                "sha256": digest,
+                "media_type": media_type,
+                "url": f"/api/models/{quote(model_id, safe='')}/original",
+            }
+        reason = "missing_file" if stored_name and digest and rel_text else "not_stored"
+        return {
+            "available": False,
+            "reason": reason,
+            "filename": recorded or None,
+            "size_bytes": None,
+            "sha256": None,
+            "media_type": None,
+            "url": None,
+        }
+
+    def download_original(self, model_id: str) -> Response:
+        if _MODEL_ID.fullmatch(model_id) is None:
+            raise HTTPException(status_code=404, detail="模型不存在")
+        row = self.record(model_id)
+        info = self.original_descriptor(row)
+        if not info["available"]:
+            raise HTTPException(status_code=404, detail="原件未保存，无法下载")
+        rel = PurePosixPath(str(_column(row, "original_relpath", "")))
+        path = self._guarded_file(
+            rel, {rel.suffix.lower()}, ("originals",), detail="原件未保存，无法下载"
+        )
+        return self._binary_response(
+            path,
+            rel,
+            str(info["media_type"]),
+            filename=str(info["filename"]),
+            checksum=str(info["sha256"]),
+        )
+
+    async def save_original(self, model_id: str, upload: UploadFile) -> dict[str, Any]:
+        if _MODEL_ID.fullmatch(model_id) is None:
+            raise HTTPException(status_code=404, detail="模型不存在")
+        self.record(model_id)
+        suffix = original_suffix(upload.filename or "")
+        if suffix is None:
+            raise HTTPException(status_code=415, detail="只接受 3MF 或 STL 原件")
+        base = self.root.resolve()
+        directory = base / "originals"
+        if directory.exists() and (
+            directory.is_symlink() or directory.resolve() != base / "originals"
+        ):
+            raise HTTPException(status_code=400, detail="无法保存原件")
+        directory.mkdir(parents=True, exist_ok=True)
+        temporary = directory / f".{model_id}.upload.tmp"
+        written = 0
+        try:
+            with temporary.open("wb") as handle:
+                while True:
+                    chunk = await upload.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    written += len(chunk)
+                    if written > ORIGINAL_MAX_BYTES:
+                        raise HTTPException(status_code=413, detail="原件超过大小限制")
+                    handle.write(chunk)
+            try:
+                stored = install_original(self.root, model_id, upload.filename or "", temporary)
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail=str(exc)) from None
+        finally:
+            if temporary.is_file() and not temporary.is_symlink():
+                temporary.unlink()
+        self._remember_original(model_id, stored)
+        return self.original_descriptor(self.record(model_id))
+
+    def _remember_original(self, model_id: str, stored: tuple[str, str, int, str]) -> None:
+        database = self.root / "manifest.sqlite"
+        with closing(sqlite3.connect(database)) as conn, conn:
+            ensure_schema(conn)
+            updated = conn.execute(
+                "UPDATE models SET original_name = ?, original_sha256 = ?, original_size = ?, "
+                "original_relpath = ? WHERE id = ?",
+                (*stored, model_id),
+            )
+            if updated.rowcount != 1:
+                raise HTTPException(status_code=404, detail="模型不存在")
+
     def media(self, model_id: str, name: str) -> Response:
         if _MEDIA_NAME.fullmatch(name) is None:
             raise HTTPException(status_code=404, detail="图片不存在")
@@ -248,13 +371,23 @@ class ModelPreview:
     def _image_response(self, path: Path, rel: PurePosixPath) -> Response:
         return self._binary_response(path, rel, _IMAGE_TYPES[path.suffix.lower()])
 
-    def _binary_response(self, path: Path, rel: PurePosixPath, media_type: str) -> Response:
+    def _binary_response(
+        self,
+        path: Path,
+        rel: PurePosixPath,
+        media_type: str,
+        filename: str | None = None,
+        checksum: str | None = None,
+    ) -> Response:
+        headers: dict[str, str] = {}
+        if checksum:
+            headers["X-Content-SHA256"] = checksum
         if self.direct:
-            return FileResponse(path, media_type=media_type)
-        return Response(
-            media_type=media_type,
-            headers={"X-Accel-Redirect": "/internal-models/" + quote(rel.as_posix(), safe="/")},
-        )
+            return FileResponse(path, media_type=media_type, filename=filename, headers=headers)
+        if filename:
+            headers["Content-Disposition"] = _content_disposition(filename)
+        headers["X-Accel-Redirect"] = "/internal-models/" + quote(rel.as_posix(), safe="/")
+        return Response(media_type=media_type, headers=headers)
 
     def match_colours(self, colours: list[str]) -> list[dict[str, Any]]:
         candidates = self._colour_candidates()
@@ -309,6 +442,23 @@ class ModelPreview:
             return self._candidates
         self._candidates = [entry for entry in catalog.entries if eligible(entry, _COLOUR_PARAMS)]
         return self._candidates
+
+
+def _recorded_basename(row: sqlite3.Row) -> str:
+    # sqlite3.Row is a sequence of values, so `in row` does not test column names.
+    if "source_relpath" not in set(row.keys()):
+        return ""
+    name = PurePosixPath(str(row["source_relpath"]).replace("\\", "/")).name
+    if not name or name in {".", ".."}:
+        return ""
+    return name
+
+
+def _content_disposition(filename: str) -> str:
+    quoted = quote(filename)
+    if quoted != filename:
+        return f"attachment; filename*=utf-8''{quoted}"
+    return f'attachment; filename="{filename}"'
 
 
 def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
@@ -413,12 +563,40 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
     def media(model_id: str, name: str) -> Response:
         return preview.media(model_id, name)
 
+    @router.get("/{model_id}/original")
+    def download_original(model_id: str) -> Response:
+        return preview.download_original(model_id)
+
+    @router.post("/{model_id}/original")
+    async def upload_original(
+        model_id: str,
+        file: UploadFile = File(...),  # noqa: B008
+    ) -> dict[str, Any]:
+        return await preview.save_original(model_id, file)
+
     @router.get("/{model_id}")
     def detail(model_id: str) -> dict[str, Any]:
         row = preview.record(model_id)
         payload = _public_model(row, detail=True)
         payload["colour_matches"] = preview.match_colours(payload["colours"])
+        plates = parse_plate_layout(_column(row, "plate_layout", ""))
+        if plates is not None:
+            by_hex = {item["hex"]: item["picks"] for item in payload["colour_matches"]}
+            extra = [
+                filament["hex"]
+                for plate in plates
+                for filament in plate["filaments"]
+                if isinstance(filament.get("hex"), str) and filament["hex"] not in by_hex
+            ]
+            for item in preview.match_colours(list(dict.fromkeys(extra))):
+                by_hex[item["hex"]] = item["picks"]
+            for plate in plates:
+                for filament in plate["filaments"]:
+                    colour = filament.get("hex")
+                    filament["picks"] = by_hex.get(colour, []) if isinstance(colour, str) else []
+        payload["plates"] = plates
         payload["mesh_url"] = preview.mesh_url(row["id"])
+        payload["original"] = preview.original_descriptor(row)
         return payload
 
     app.include_router(router)

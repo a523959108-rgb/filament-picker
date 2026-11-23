@@ -406,6 +406,12 @@ def _add_models(sub: argparse._SubParsersAction) -> None:
     )
     importer.add_argument("directory", type=Path)
     importer.add_argument("--dry-run", action="store_true", help="print stats without writing")
+    importer.add_argument(
+        "--library",
+        type=Path,
+        default=None,
+        help="read-only root of original 3MF/STL files; the library is not modified",
+    )
     importer.set_defaults(handler=_cmd_import_previews)
 
 
@@ -414,7 +420,9 @@ def _cmd_import_previews(args: argparse.Namespace) -> int:
     from .models import models_root
 
     try:
-        stats = import_previews(args.directory, models_root(), dry_run=args.dry_run)
+        stats = import_previews(
+            args.directory, models_root(), dry_run=args.dry_run, library=args.library
+        )
     except (OSError, ValueError) as exc:
         print(str(exc))
         return 1

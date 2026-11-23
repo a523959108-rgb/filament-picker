@@ -8,6 +8,8 @@ import os
 import re
 import shutil
 import sqlite3
+import struct
+import zipfile
 from collections import defaultdict
 from contextlib import closing
 from dataclasses import dataclass
@@ -29,6 +31,10 @@ _BLOCK_RE = re.compile(r"(?i)</(?:p|div|h[1-6]|li|tr|blockquote)\s*>")
 _BREAK_RE = re.compile(r"(?i)<br\s*/?>")
 _SCRIPT_RE = re.compile(r"(?is)<(script|style|iframe|object)\b[^>]*>.*?</\1>")
 
+# Private originals only. Preview PNG/GLB files are not originals and are never copied here.
+ORIGINAL_TYPES = {".3mf": "model/3mf", ".stl": "model/stl"}
+ORIGINAL_MAX_BYTES = 512 * 1024 * 1024
+
 _CREATE_MODELS = """
 CREATE TABLE IF NOT EXISTS models (
     id TEXT PRIMARY KEY,
@@ -45,7 +51,12 @@ CREATE TABLE IF NOT EXISTS models (
     description TEXT NOT NULL DEFAULT '',
     dedupe_key TEXT NOT NULL DEFAULT '',
     images TEXT NOT NULL DEFAULT '[]',
-    updated_at TEXT NOT NULL DEFAULT ''
+    updated_at TEXT NOT NULL DEFAULT '',
+    plate_layout TEXT NOT NULL DEFAULT '',
+    original_name TEXT NOT NULL DEFAULT '',
+    original_sha256 TEXT NOT NULL DEFAULT '',
+    original_size INTEGER NOT NULL DEFAULT 0,
+    original_relpath TEXT NOT NULL DEFAULT ''
 )
 """
 _EXTRA_COLUMNS = (
@@ -53,6 +64,11 @@ _EXTRA_COLUMNS = (
     ("dedupe_key", "ALTER TABLE models ADD COLUMN dedupe_key TEXT NOT NULL DEFAULT ''"),
     ("images", "ALTER TABLE models ADD COLUMN images TEXT NOT NULL DEFAULT '[]'"),
     ("updated_at", "ALTER TABLE models ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''"),
+    ("plate_layout", "ALTER TABLE models ADD COLUMN plate_layout TEXT NOT NULL DEFAULT ''"),
+    ("original_name", "ALTER TABLE models ADD COLUMN original_name TEXT NOT NULL DEFAULT ''"),
+    ("original_sha256", "ALTER TABLE models ADD COLUMN original_sha256 TEXT NOT NULL DEFAULT ''"),
+    ("original_size", "ALTER TABLE models ADD COLUMN original_size INTEGER NOT NULL DEFAULT 0"),
+    ("original_relpath", "ALTER TABLE models ADD COLUMN original_relpath TEXT NOT NULL DEFAULT ''"),
 )
 _CREATE_ALIASES = """
 CREATE TABLE IF NOT EXISTS model_aliases (
@@ -79,6 +95,8 @@ class ImportStats:
     updated: int
     unchanged: int
     images: int
+    originals: int
+    originals_skipped: int
     dry_run: bool
 
     def format(self) -> str:
@@ -89,6 +107,7 @@ class ImportStats:
             f"skipped_failed={self.skipped_failed} skipped_invalid={self.skipped_invalid} "
             f"skipped_duplicate_id={self.skipped_duplicate_id} inserted={self.inserted} "
             f"updated={self.updated} unchanged={self.unchanged} images={self.images} "
+            f"originals={self.originals} originals_skipped={self.originals_skipped} "
             f"dry_run={int(self.dry_run)}"
         )
 
@@ -108,6 +127,18 @@ class _Preview:
     created_at: str
     model_dir: Path
     has_meta: bool
+    plate_layout: str
+
+
+@dataclass(frozen=True, slots=True)
+class _OriginalDecision:
+    status: str
+    name: str = ""
+    sha256: str = ""
+    size: int = 0
+    suffix: str = ""
+    source: Path | None = None
+    reason: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -137,14 +168,35 @@ def plain_text(value: object) -> str:
     return "\n".join(line for line in lines if line)
 
 
-def import_previews(directory: Path, root: Path, dry_run: bool = False) -> ImportStats:
-    """Copy preview images into ``root`` and upsert one manifest row per model."""
+def import_previews(
+    directory: Path, root: Path, dry_run: bool = False, library: Path | None = None
+) -> ImportStats:
+    """Copy preview images into ``root`` and upsert one manifest row per model.
+
+    ``library`` is an optional read-only root of the operator's original files.
+    A file is copied only when ``rel_path`` stays inside that root, the recorded
+    size matches, and the bytes are a 3MF or STL that can be opened again.
+    Preview images and GLB meshes are never treated as originals. The library
+    itself is not modified or deleted.
+    """
     directory = directory.resolve()
     root = root.resolve()
     if not directory.is_dir():
         raise ValueError(f"导入目录不存在：{directory}")
     if root == directory or root.is_relative_to(directory) or directory.is_relative_to(root):
         raise ValueError("导入目录与模型媒体目录不能相同或互相包含")
+    if library is not None:
+        library = library.resolve()
+        if not library.is_dir():
+            raise ValueError(f"原件库目录不存在：{library}")
+        if library == root or library.is_relative_to(root) or root.is_relative_to(library):
+            raise ValueError("原件库目录与模型媒体目录不能相同或互相包含")
+        if (
+            library == directory
+            or library.is_relative_to(directory)
+            or directory.is_relative_to(library)
+        ):
+            raise ValueError("原件库目录与导入目录不能相同或互相包含")
     index_path = directory / "index.jsonl"
     if index_path.is_symlink() or not index_path.is_file():
         raise ValueError("导入目录缺少 index.jsonl")
@@ -175,9 +227,21 @@ def import_previews(directory: Path, root: Path, dry_run: bool = False) -> Impor
         image_count += _count_images(canonical.model_dir, cover)
 
     existing = _load_existing(root / "manifest.sqlite")
+    decisions = {
+        canonical.id: _decide_original(library, canonical)
+        for canonical, _aliases, _cover in canonical_rows
+    }
     inserted = updated = unchanged = 0
+    originals = originals_skipped = 0
     for canonical, _aliases, cover in canonical_rows:
-        payload = _payload(canonical, cover)
+        decision = decisions[canonical.id]
+        if decision.status == "take":
+            originals += 1
+        elif decision.status == "skip":
+            originals_skipped += 1
+            logger.info("original skipped id=%s reason=%s", canonical.id, decision.reason)
+        original = _resulting_original(canonical.id, existing.get(canonical.id), decision)
+        payload = _payload(canonical, cover, original)
         current = existing.get(canonical.id)
         if current is None:
             inserted += 1
@@ -201,6 +265,8 @@ def import_previews(directory: Path, root: Path, dry_run: bool = False) -> Impor
         updated=updated,
         unchanged=unchanged,
         images=image_count,
+        originals=originals,
+        originals_skipped=originals_skipped,
         dry_run=dry_run,
     )
     if dry_run:
@@ -214,8 +280,12 @@ def import_previews(directory: Path, root: Path, dry_run: bool = False) -> Impor
     with closing(sqlite3.connect(root / "manifest.sqlite")) as conn, conn:
         _ensure_schema(conn)
         for canonical, _aliases, cover in canonical_rows:
+            decision = decisions[canonical.id]
+            if decision.status == "take":
+                _materialize_original(root, canonical.id, decision)
+            original = _resulting_original(canonical.id, existing.get(canonical.id), decision)
             _write_images(root, canonical, cover)
-            _upsert(conn, canonical, existing.get(canonical.id), cover)
+            _upsert(conn, canonical, existing.get(canonical.id), cover, original)
         for canonical, aliases, _cover in canonical_rows:
             demoted.extend(_delete_demoted(conn, canonical, aliases))
         for canonical, aliases, _cover in canonical_rows:
@@ -286,6 +356,7 @@ def _preview_from(directory: Path, model_id: str, obj: dict[str, Any]) -> _Previ
         created_at=_created_at(meta, obj.get("mtime")),
         model_dir=model_dir,
         has_meta=meta is not None,
+        plate_layout=plate_layout_json(meta),
     )
 
 
@@ -482,7 +553,289 @@ def _count_images(model_dir: Path, cover: Path | None = None) -> int:
     return (1 if thumb is not None else 0) + len(shots) + (0 if cover is None else 1)
 
 
-def _payload(preview: _Preview, cover: Path | None = None) -> tuple[Any, ...]:
+def plate_layout_json(meta: dict[str, Any] | None) -> str:
+    """Return canonical plate JSON, or ``""`` when the extract has no plate list.
+
+    An empty list means the extract explicitly recorded no plates. Missing or
+    invalid metadata stays ``""`` so the API can say the mapping is unknown
+    instead of inventing one. Object names are not paired with filament slots;
+    the source data only records filaments per print plate.
+    """
+    if meta is None or "plates" not in meta or not isinstance(meta.get("plates"), list):
+        return ""
+    plates: list[dict[str, Any]] = []
+    for plate in meta["plates"]:
+        if not isinstance(plate, dict):
+            continue
+        index = plate.get("index")
+        index_value = index if isinstance(index, int) and not isinstance(index, bool) else None
+        name = plain_text(plate.get("name")) or None
+        objects: list[str] = []
+        raw_objects = plate.get("objects")
+        if isinstance(raw_objects, list):
+            for item in raw_objects:
+                text = plain_text(item)
+                if text:
+                    objects.append(text)
+        filaments: list[dict[str, Any]] = []
+        raw_filaments = plate.get("filaments")
+        if isinstance(raw_filaments, list):
+            for item in raw_filaments:
+                if isinstance(item, dict):
+                    filaments.append(_filament_record(item))
+        plates.append(
+            {"index": index_value, "name": name, "objects": objects, "filaments": filaments}
+        )
+    return json.dumps(plates, ensure_ascii=False, separators=(",", ":"))
+
+
+def parse_plate_layout(raw: object) -> list[dict[str, Any]] | None:
+    """Parse stored plate JSON. ``None`` means the mapping was never stored."""
+    if not isinstance(raw, str) or raw == "":
+        return None
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(parsed, list):
+        return None
+    plates: list[dict[str, Any]] = []
+    for plate in parsed:
+        if not isinstance(plate, dict):
+            continue
+        index = plate.get("index")
+        index_value = index if isinstance(index, int) and not isinstance(index, bool) else None
+        name = plate.get("name")
+        name_value = name if isinstance(name, str) and name else None
+        objects = [item for item in plate.get("objects", []) if isinstance(item, str) and item]
+        filaments: list[dict[str, Any]] = []
+        raw_filaments = plate.get("filaments")
+        if isinstance(raw_filaments, list):
+            for item in raw_filaments:
+                if isinstance(item, dict):
+                    filaments.append(_public_filament(item))
+        plates.append(
+            {
+                "index": index_value,
+                "name": name_value,
+                "objects": objects,
+                "filaments": filaments,
+            }
+        )
+    return plates
+
+
+def _filament_record(item: dict[str, Any]) -> dict[str, Any]:
+    slot = item.get("slot")
+    slot_value = slot if isinstance(slot, int) and not isinstance(slot, bool) else None
+    colors = _normalize_colors([item.get("hex")] if isinstance(item.get("hex"), str) else [])
+    used = item.get("used_g")
+    used_value = None if isinstance(used, bool) or not isinstance(used, (int, float)) else used
+    return {
+        "slot": slot_value,
+        "hex": colors[0] if colors else None,
+        "type": plain_text(item.get("type")),
+        "vendor": plain_text(item.get("vendor")),
+        "settings_id": plain_text(item.get("settings_id")),
+        "used_g": used_value,
+    }
+
+
+def _public_filament(item: dict[str, Any]) -> dict[str, Any]:
+    slot = item.get("slot")
+    hex_value = item.get("hex")
+    used = item.get("used_g")
+    return {
+        "slot": slot if isinstance(slot, int) and not isinstance(slot, bool) else None,
+        "hex": hex_value if isinstance(hex_value, str) and _HEX_RE.fullmatch(hex_value) else None,
+        "type": item.get("type") if isinstance(item.get("type"), str) else "",
+        "vendor": item.get("vendor") if isinstance(item.get("vendor"), str) else "",
+        "settings_id": item.get("settings_id") if isinstance(item.get("settings_id"), str) else "",
+        "used_g": used if not isinstance(used, bool) and isinstance(used, (int, float)) else None,
+    }
+
+
+def ensure_schema(conn: sqlite3.Connection) -> None:
+    _ensure_schema(conn)
+
+
+def original_suffix(filename: str) -> str | None:
+    suffix = PurePosixPath(filename.replace("\\", "/")).suffix.lower()
+    if suffix in ORIGINAL_TYPES:
+        return suffix
+    return None
+
+
+def safe_original_name(filename: str, suffix: str) -> str:
+    name = PurePosixPath(filename.replace("\\", "/")).name
+    name = name.replace("\x00", "").replace("\r", "").replace("\n", "").replace('"', "")
+    if not name or name in {".", ".."} or not name.lower().endswith(suffix):
+        return f"model{suffix}"
+    return name
+
+
+def original_is_valid(path: Path, suffix: str) -> bool:
+    try:
+        if path.is_symlink() or not path.is_file():
+            return False
+        size = path.stat().st_size
+    except OSError:
+        return False
+    if size <= 0 or size > ORIGINAL_MAX_BYTES or suffix not in ORIGINAL_TYPES:
+        return False
+    if suffix == ".3mf":
+        return _zip_has_model(path)
+    if suffix == ".stl":
+        return _stl_ok(path, size)
+    return False
+
+
+def install_original(
+    root: Path, model_id: str, filename: str, source: Path
+) -> tuple[str, str, int, str]:
+    """Copy a validated original into ``root/originals``. Never moves ``source``."""
+    if _ID_RE.fullmatch(model_id) is None:
+        raise ValueError("模型编号无效")
+    suffix = original_suffix(filename)
+    if suffix is None:
+        raise ValueError("只接受 3MF 或 STL 原件")
+    if not original_is_valid(source, suffix):
+        raise ValueError("文件不是可重新打开的 3MF 或 STL")
+    name = safe_original_name(filename, suffix)
+    digest = _sha256(source).hex()
+    size = source.stat().st_size
+    destination = root / "originals" / f"{model_id}{suffix}"
+    _copy_file(source, destination)
+    _remove_other_originals(root, model_id, suffix)
+    return name, digest, size, f"originals/{model_id}{suffix}"
+
+
+def _decide_original(library: Path | None, preview: _Preview) -> _OriginalDecision:
+    if library is None:
+        return _OriginalDecision("absent")
+    rel_text = preview.rel_path.replace("\\", "/").strip()
+    rel = PurePosixPath(rel_text)
+    suffix = rel.suffix.lower()
+    if suffix not in ORIGINAL_TYPES:
+        return _OriginalDecision("absent")
+    if not rel_text or rel.is_absolute() or ".." in rel.parts or rel.name in {".", ".."}:
+        return _OriginalDecision("skip", suffix=suffix, reason="path")
+    root = library.resolve()
+    candidate = root.joinpath(*rel.parts)
+    try:
+        if candidate.is_symlink():
+            return _OriginalDecision("skip", suffix=suffix, reason="symlink")
+        if not candidate.is_file():
+            return _OriginalDecision("skip", suffix=suffix, reason="missing")
+        resolved = candidate.resolve()
+        size = candidate.stat().st_size
+    except OSError:
+        return _OriginalDecision("skip", suffix=suffix, reason="unreadable")
+    if not resolved.is_relative_to(root) or resolved.parent != candidate.parent.resolve():
+        return _OriginalDecision("skip", suffix=suffix, reason="escape")
+    if size <= 0 or size > ORIGINAL_MAX_BYTES:
+        return _OriginalDecision("skip", suffix=suffix, reason="size")
+    if preview.size_bytes and preview.size_bytes != size:
+        return _OriginalDecision("skip", suffix=suffix, reason="size-mismatch")
+    if not original_is_valid(candidate, suffix):
+        return _OriginalDecision("skip", suffix=suffix, reason="invalid")
+    return _OriginalDecision(
+        "take",
+        name=safe_original_name(candidate.name, suffix),
+        sha256=_sha256(candidate).hex(),
+        size=size,
+        suffix=suffix,
+        source=candidate,
+    )
+
+
+def _resulting_original(
+    model_id: str, current: tuple[Any, ...] | None, decision: _OriginalDecision
+) -> tuple[str, str, int, str]:
+    if decision.status == "take":
+        return (
+            decision.name,
+            decision.sha256,
+            decision.size,
+            f"originals/{model_id}{decision.suffix}",
+        )
+    return _stored_original(current)
+
+
+def _stored_original(current: tuple[Any, ...] | None) -> tuple[str, str, int, str]:
+    if current is None or len(current) < 13:
+        return ("", "", 0, "")
+    value = current[12]
+    if (
+        isinstance(value, tuple)
+        and len(value) == 4
+        and isinstance(value[0], str)
+        and isinstance(value[1], str)
+        and isinstance(value[2], int)
+        and not isinstance(value[2], bool)
+        and isinstance(value[3], str)
+    ):
+        return value
+    return ("", "", 0, "")
+
+
+def _materialize_original(root: Path, model_id: str, decision: _OriginalDecision) -> None:
+    if decision.source is None or decision.status != "take":
+        return
+    install_original(root, model_id, decision.name, decision.source)
+
+
+def _remove_other_originals(root: Path, model_id: str, suffix: str) -> None:
+    directory = root / "originals"
+    if directory.is_symlink() or not directory.is_dir():
+        return
+    if directory.resolve() != root.resolve() / "originals":
+        return
+    for other in ORIGINAL_TYPES:
+        if other == suffix:
+            continue
+        stale = directory / f"{model_id}{other}"
+        if (
+            stale.is_file()
+            and not stale.is_symlink()
+            and stale.parent.resolve() == directory.resolve()
+        ):
+            stale.unlink()
+
+
+def _zip_has_model(path: Path) -> bool:
+    if not zipfile.is_zipfile(path):
+        return False
+    try:
+        with zipfile.ZipFile(path) as archive:
+            names = {name.replace("\\", "/") for name in archive.namelist()}
+    except (OSError, zipfile.BadZipFile):
+        return False
+    return "3D/3dmodel.model" in names
+
+
+def _stl_ok(path: Path, size: int) -> bool:
+    try:
+        with path.open("rb") as handle:
+            header = handle.read(84)
+    except OSError:
+        return False
+    if len(header) >= 84:
+        count = struct.unpack_from("<I", header, 80)[0]
+        if count >= 0 and size == 84 + count * 50:
+            return True
+    if size > 5_000_000:
+        return False
+    try:
+        text = path.read_bytes().lower()
+    except OSError:
+        return False
+    return text.startswith(b"solid") and b"facet" in text and b"endsolid" in text
+
+
+def _payload(
+    preview: _Preview, cover: Path | None, original: tuple[str, str, int, str]
+) -> tuple[Any, ...]:
     thumb, shots = _iter_shots(preview.model_dir)
     if cover is not None:
         shots = [_Shot("cover", 0, "cover.png", cover), *shots]
@@ -500,6 +853,8 @@ def _payload(preview: _Preview, cover: Path | None = None) -> tuple[Any, ...]:
         preview.description,
         preview.dedupe_key,
         tuple((shot.kind, shot.plate, shot.name) for shot in shots),
+        preview.plate_layout,
+        original,
     )
 
 
@@ -537,6 +892,20 @@ def _stored_payload(row: sqlite3.Row, columns: set[str]) -> tuple[Any, ...]:
         cell("description", ""),
         cell("dedupe_key", ""),
         _stored_shots(cell("images", "[]")),
+        str(cell("plate_layout", "")),
+        _original_cell(cell),
+    )
+
+
+def _original_cell(cell: Any) -> tuple[str, str, int, str]:
+    size = cell("original_size", 0)
+    if isinstance(size, bool) or not isinstance(size, int):
+        size = 0
+    return (
+        str(cell("original_name", "") or ""),
+        str(cell("original_sha256", "") or ""),
+        size,
+        str(cell("original_relpath", "") or ""),
     )
 
 
@@ -630,8 +999,9 @@ def _upsert(
     preview: _Preview,
     current: tuple[Any, ...] | None,
     cover: Path | None,
+    original: tuple[str, str, int, str],
 ) -> None:
-    payload = _payload(preview, cover)
+    payload = _payload(preview, cover, original)
     thumb_path = payload[7]
     shot_tuples = payload[10]
     images = [{"kind": kind, "plate": plate, "name": name} for kind, plate, name in shot_tuples]
@@ -640,11 +1010,14 @@ def _upsert(
     digest = hashlib.sha256(preview.id.encode()).hexdigest()
     now = datetime.now(ZoneInfo(TZ)).isoformat(timespec="seconds")
     conn.execute("DELETE FROM model_aliases WHERE alias_id = ?", (preview.id,))
+    original_name, original_sha256, original_size, original_relpath = original
     if current is None:
         conn.execute(
             "INSERT INTO models (id, sha256, title, series, author, source_relpath, "
             "size_bytes, plate_count, colours, thumb_path, created_at, description, "
-            "dedupe_key, images, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "dedupe_key, images, updated_at, plate_layout, original_name, "
+            "original_sha256, original_size, original_relpath) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 preview.id,
                 digest,
@@ -661,13 +1034,19 @@ def _upsert(
                 preview.dedupe_key,
                 image_json,
                 now,
+                preview.plate_layout,
+                original_name,
+                original_sha256,
+                original_size,
+                original_relpath,
             ),
         )
         return
     conn.execute(
         "UPDATE models SET sha256 = ?, title = ?, series = ?, author = ?, source_relpath = ?, "
         "size_bytes = ?, plate_count = ?, colours = ?, thumb_path = ?, description = ?, "
-        "dedupe_key = ?, images = ?, updated_at = ? WHERE id = ?",
+        "dedupe_key = ?, images = ?, updated_at = ?, plate_layout = ?, original_name = ?, "
+        "original_sha256 = ?, original_size = ?, original_relpath = ? WHERE id = ?",
         (
             digest,
             preview.title,
@@ -682,6 +1061,11 @@ def _upsert(
             preview.dedupe_key,
             image_json,
             now,
+            preview.plate_layout,
+            original_name,
+            original_sha256,
+            original_size,
+            original_relpath,
             preview.id,
         ),
     )

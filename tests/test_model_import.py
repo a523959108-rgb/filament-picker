@@ -245,6 +245,8 @@ def test_dry_run_reports_duplicates_without_writing(tmp_path: Path) -> None:
         "updated": 0,
         "unchanged": 0,
         "images": 20,
+        "originals": 0,
+        "originals_skipped": 0,
         "dry_run": 1,
     }
     assert not root.exists()
@@ -657,3 +659,95 @@ def test_list_and_detail_prefer_cover_through_the_media_route(
     plain_detail = _request(app, "GET", f"/api/models/{plain}", cookie).json()
     assert plain_detail["cover_url"] is None
     assert plain_detail["images"][0]["kind"] == "plate"
+
+
+def test_detail_plates_are_print_plates_and_originals_stay_absent(
+    tmp_path: Path, repo_root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    directory = _library(tmp_path)
+    root = tmp_path / "models-private"
+    stats = _parse_stats(import_previews(directory, root).format())
+    assert stats["originals"] == 0
+    assert stats["originals_skipped"] == 0
+    assert list(root.rglob("*.3mf")) == []
+    db = tmp_path / "auth" / "users.sqlite"
+    monkeypatch.setenv("FILAMENT_PICKER_AUTH_DB", str(db))
+    monkeypatch.setenv("FILAMENT_PICKER_MODELS_ROOT", str(root))
+    monkeypatch.setenv("FILAMENT_PICKER_SESSION_SECRET", secrets.token_urlsafe(48))
+    monkeypatch.setenv("FILAMENT_PICKER_SESSION_SECURE", "0")
+    monkeypatch.setenv("FILAMENT_PICKER_MODELS_DIRECT", "1")
+    password = secrets.token_urlsafe(24)
+    monkeypatch.setenv(PREVIEW_USER_ENV, "preview-tester")
+    AuthStore(db).create_user("preview-tester", password)
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    (dist / "index.html").write_text('<div id="root"></div>\n', encoding="utf-8")
+    app = build_server_app(
+        dist, repo_root / "docs/schemas/examples/filament-catalog.example.json", tmp_path, None
+    )
+    cookie = (
+        _request(
+            app,
+            "POST",
+            "/api/models/login",
+            json={"username": "preview-tester", "password": password},
+        )
+        .headers["set-cookie"]
+        .split(";", 1)[0]
+    )
+
+    def load(model_id: str) -> dict:
+        response = _request(app, "GET", f"/api/models/{model_id}", cookie)
+        assert response.status_code == 200
+        return response.json()
+
+    body = load(META_0020)
+    assert body["plates"][0]["index"] == 1
+    assert body["plates"][0]["name"] == "改良支持牙齿"
+    assert body["plates"][0]["objects"] == ["眼睛嘴.stl_2"]
+    assert [(item["slot"], item["hex"]) for item in body["plates"][0]["filaments"]] == [
+        (3, "#FFFFFF")
+    ]
+    assert body["plates"][0]["filaments"][0]["type"] == "PLA"
+    assert body["plates"][0]["filaments"][0]["vendor"] == "Bambu Lab"
+    assert body["colours"] == ["#FFFFFF"]
+    assert body["original"] == {
+        "available": False,
+        "reason": "not_stored",
+        "filename": "zimomo+134mm+牙齿支撑改良.3mf",
+        "size_bytes": None,
+        "sha256": None,
+        "media_type": None,
+        "url": None,
+    }
+    encoded = json.dumps(body, ensure_ascii=False)
+    assert "1-系列分类" not in encoded
+    for hidden in ("source_relpath", "original_relpath", "plate_layout", "thumb_path"):
+        assert hidden not in body
+    multi = load(META_0059)
+    assert [plate["index"] for plate in multi["plates"]] == [1, 2, 3, 4]
+    assert multi["plates"][1]["name"] is None
+    assert "头套(2).stl" in multi["plates"][1]["objects"]
+    assert multi["plates"][1]["filaments"][0]["slot"] == 1
+    assert multi["plates"][1]["filaments"][0]["hex"] == "#F73CA0"
+    assert multi["plates"][3]["filaments"][0]["slot"] == 2
+    assert multi["plates"][3]["filaments"][0]["hex"] == "#0086D6"
+    used = {item["hex"] for plate in multi["plates"] for item in plate["filaments"]}
+    assert used == {"#F7E6DE", "#F73CA0", "#FFFFFF", "#0086D6"}
+    assert "#86FF00" not in used
+    quad = load(META_004A)
+    assert quad["plates"][0]["name"] == "大天使眼白"
+    assert [item["slot"] for item in quad["plates"][0]["filaments"]] == [1, 2, 3, 4]
+    assert [item["hex"] for item in quad["plates"][0]["filaments"]] == [
+        "#161616",
+        "#FFFFFF",
+        "#F95D73",
+        "#FCECD6",
+    ]
+    assert load(XSS_ID)["plates"] == []
+    missing = _request(app, "GET", f"/api/models/{META_0020}/original", cookie)
+    assert missing.status_code == 404
+    assert missing.json()["detail"] == "原件未保存，无法下载"
+    assert missing.content != (root / "images" / META_0020 / "plate_1.png").read_bytes()
+    assert b"glTF" not in missing.content
+    assert _request(app, "GET", f"/api/models/{META_0020}/original").status_code == 401
