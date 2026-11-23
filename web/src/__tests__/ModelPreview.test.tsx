@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import App from "../App";
 import { ModelPreview } from "../components/ModelPreview";
 
@@ -372,38 +372,16 @@ describe("model preview", () => {
     expect(layout?.contains(view.getByText("extra_8.stl"))).toBe(true);
     const fullText = "很长的说明。".repeat(40);
     fireEvent.click(view.getByRole("button", { name: "展开说明" }));
-    const dialog = screen.getByRole("dialog", { name: "模型说明" });
-    expect(dialog.textContent).toContain(fullText);
-    expect(view.container.querySelector(".model-screen")?.contains(dialog)).toBe(false);
-    const preview = view.container.querySelector(".model-head .model-description");
-    expect(preview?.className).toContain("is-clamped");
-    expect(preview?.className).not.toContain("is-open");
-    fireEvent.click(screen.getByRole("button", { name: "收起说明" }));
-    expect(screen.queryByRole("dialog")).toBeNull();
-    expect(view.container.querySelector(".is-detail .model-screen")).toBeTruthy();
+    const shown = view.container.querySelector(".model-head .model-description");
+    expect(shown?.textContent).toBe(fullText);
+    expect(shown?.className).not.toContain("is-clamped");
+    expect(view.container.querySelector(".model-head")?.contains(shown ?? null)).toBe(true);
+    expect(view.queryByRole("dialog")).toBeNull();
+    expect(view.container.querySelector("main")?.className).toContain("is-desc-open");
+    fireEvent.click(view.getByRole("button", { name: "收起说明" }));
+    expect(view.container.querySelector(".model-head .model-description")?.className).toContain("is-clamped");
+    expect(view.container.querySelector("main")?.className).not.toContain("is-desc-open");
     expect(view.container.querySelector(".model-plate-picker")).toBeTruthy();
-  });
-
-  it("reads a long description in a dialog without leaving it in the header flow", async () => {
-    const fullText = `开头。${"说明正文。".repeat(40)}结尾标记。`;
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({ ...model, description: fullText })));
-    const view = render(<ModelPreview path="/models/sample-01" />);
-    const opener = await view.findByRole("button", { name: "展开说明" });
-    fireEvent.click(opener);
-    const dialog = await screen.findByRole("dialog", { name: "模型说明" });
-    expect(dialog.textContent).toContain("结尾标记。");
-    expect(view.container.querySelector(".model-head .model-description.is-clamped")).toBeTruthy();
-    const close = screen.getByRole("button", { name: "收起说明" });
-    const body = dialog.querySelector(".model-description-dialog-body");
-    await waitFor(() => expect(document.activeElement).toBe(close));
-    if (body instanceof HTMLElement) body.focus();
-    fireEvent.keyDown(document, { key: "Tab" });
-    expect(document.activeElement).toBe(close);
-    fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
-    expect(document.activeElement).toBe(body);
-    fireEvent.keyDown(document, { key: "Escape" });
-    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-    expect(document.activeElement).toBe(opener);
   });
 
   it("downloads a stored original and leaves the color-only API disabled", async () => {
