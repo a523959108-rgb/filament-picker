@@ -205,11 +205,16 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
   const [model, setModel] = useState<Model | null>(null);
   const [error, setError] = useState("");
   const [activePlate, setActivePlate] = useState("");
+  const [shotKind, setShotKind] = useState<"plate" | "top">("plate");
+  const [descOpen, setDescOpen] = useState(false);
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
     setModel(null);
     setError("");
+    setActivePlate("");
+    setShotKind("plate");
+    setDescOpen(false);
     fetch(`/api/models/${encodeURIComponent(id)}`, { credentials: "same-origin", signal: controller.signal })
       .then(async (response) => {
         if (!active) return;
@@ -217,169 +222,214 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
         if (response.status === 404) { setError("模型不存在"); return; }
         if (!response.ok) throw new Error();
         const result = await response.json() as Model;
-        if (!active) return;
-        setModel(result);
-        const first = result.plates?.[0];
-        setActivePlate(first ? plateKey(first, 0) : "");
+        if (active) setModel(result);
       })
       .catch(() => { if (active) setError("模型加载失败，请重试"); });
     return () => { active = false; controller.abort(); };
   }, [id, navigate]);
   if (error) return <p className="panel" role="alert">{error}</p>;
   if (model === null) return <p role="status">模型加载中…</p>;
-  const shots = orderedShots(model);
-  const covers = shots.filter((shot) => shot.kind === "cover");
-  const thumbs = shots.filter((shot) => shot.kind !== "cover");
+  const covers = coverShots(model);
+  const cards = plateCards(model);
   const mesh = privateMeshUrl(model.mesh_url);
-  function selectPlate(key: string, plateNumber: number | null) {
+  const description = model.description ?? "";
+  const longDescription = description.length > 160 || description.split("\n").length > 4;
+  function selectPlate(key: string) {
     setActivePlate((current) => current === key ? "" : key);
-    if (plateNumber != null) {
-      queueMicrotask(() => document.getElementById("model-plate-detail")?.scrollIntoView?.({ block: "nearest" }));
-    }
+    setShotKind("plate");
   }
+  const open = cards.find((card) => card.key === activePlate) ?? null;
   return (
     <article className="panel model-detail">
-      <div className="model-shots">
-        {covers.map((shot) => (
-          <figure className="model-hero" key={shot.url}>
-            <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
-            <figcaption><span>{shotCaption(shot.kind, shot.plate)}</span></figcaption>
-          </figure>
-        ))}
-        {mesh ? (
-          <Suspense fallback={<p role="status">三维预览加载中…</p>}>
-            <MeshViewer url={mesh} label={model.title} />
-          </Suspense>
-        ) : null}
-        {thumbs.length > 0 ? (
-          <div className="model-thumb-grid" role="list" aria-label="打印盘缩略图">
-            {thumbs.map((shot) => {
-              const key = shot.plate > 0 ? `plate-${shot.plate}` : shot.url;
-              const active = shot.plate > 0 && activePlate === key;
-              return (
-                <button type="button" role="listitem" key={shot.url}
-                  className={active ? "model-thumb is-active" : "model-thumb"}
-                  aria-pressed={shot.plate > 0 ? active : undefined}
-                  onClick={() => { if (shot.plate > 0) selectPlate(key, shot.plate); }}>
-                  <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
-                  <span>{shotCaption(shot.kind, shot.plate)}</span>
-                </button>
-              );
-            })}
+      <div className={covers.length > 0 ? "model-summary" : "model-summary no-cover"}>
+        {covers.length > 0 ? (
+          <div className="model-shots">
+            {covers.map((shot) => (
+              <figure className="model-hero" key={shot.url}>
+                <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
+                <figcaption><span>{shotCaption(shot.kind, shot.plate)}</span></figcaption>
+              </figure>
+            ))}
           </div>
         ) : null}
+        <div className="model-summary-copy">
+          <h2>{model.title}</h2>
+          <p className="model-meta">
+            <span>系列 {model.series || "—"}</span>
+            <span>作者 {model.author || "—"}</span>
+            <span>{model.plate_count} 盘</span>
+            <span>{fileSize(model.size_bytes)}</span>
+          </p>
+          {description ? (
+            <>
+              <p className={longDescription && !descOpen ? "model-description is-clamped" : "model-description"}>{description}</p>
+              {longDescription ? (
+                <button type="button" className="model-text-button" aria-expanded={descOpen}
+                  onClick={() => setDescOpen((current) => !current)}>
+                  {descOpen ? "收起说明" : "展开说明"}
+                </button>
+              ) : null}
+            </>
+          ) : null}
+          {mesh ? (
+            <Suspense fallback={<p role="status">三维预览加载中…</p>}>
+              <MeshViewer url={mesh} label={model.title} />
+            </Suspense>
+          ) : null}
+        </div>
       </div>
-      <div>
-        <h2>{model.title}</h2>
-        {model.description ? <p className="model-description">{model.description}</p> : null}
-        <dl>
-          <dt>系列</dt><dd>{model.series || "—"}</dd>
-          <dt>作者</dt><dd>{model.author || "—"}</dd>
-          <dt>盘数</dt><dd>{model.plate_count} 盘</dd>
-          <dt>大小</dt><dd>{fileSize(model.size_bytes)}</dd>
-        </dl>
-        <PlateColours model={model} activePlate={activePlate} onSelect={selectPlate} />
-      </div>
+      <PlateBoard cards={cards} model={model} active={open} shotKind={shotKind}
+        onSelect={selectPlate} onShotKind={setShotKind} />
     </article>
   );
 }
 
-function PlateColours({ model, activePlate, onSelect }: {
+const PART_PREVIEW = 8;
+
+interface PlateCard {
+  key: string;
+  index: number | null;
+  name: string | null;
+  plate?: PlateInfo;
+  face?: ModelImage;
+  top?: ModelImage;
+}
+
+function PlateBoard({ cards, model, active, shotKind, onSelect, onShotKind }: {
+  cards: PlateCard[];
   model: Model;
-  activePlate: string;
-  onSelect: (key: string, plateNumber: number | null) => void;
+  active: PlateCard | null;
+  shotKind: "plate" | "top";
+  onSelect: (key: string) => void;
+  onShotKind: (kind: "plate" | "top") => void;
 }): JSX.Element {
   const plates = model.plates;
   const matches = model.colour_matches ?? model.colours.map((hex) => ({ hex, picks: [] as ColourPick[] }));
-  if (!Array.isArray(plates) || plates.length === 0) {
-    const unknown = !Array.isArray(plates);
-    return (
-      <section aria-label="打印盘配色">
-        <h3>打印盘配色</h3>
-        <p>{unknown
-          ? "这份预览没有保存盘和耗材的对应，不能判断哪一盘用什么颜色。"
-          : "没有打印盘记录。"}
-        </p>
-        {matches.length > 0 ? (
-          <>
-            <h3>{unknown ? "原配色" : "未对应到盘的颜色"}</h3>
-            <ColourList matches={matches} />
-          </>
-        ) : <p>没有配色数据。</p>}
-      </section>
-    );
-  }
+  const known = Array.isArray(plates) && plates.length > 0;
   return (
     <section aria-label="打印盘配色">
-      <h3>打印盘配色</h3>
-      <p className="model-plate-note">
-        这里的盘是打印盘，槽位是耗材位置。编号用文字标出，不单靠颜色区分。部件没有单独的槽位记录，颜色属于这一整盘。
-      </p>
-      <div className="model-plate-grid">
-        {plates.map((plate, ordinal) => {
-          const key = plateKey(plate, ordinal);
-          const active = activePlate === key;
-          return (
-            <button type="button" key={key} className={active ? "model-plate-select is-active" : "model-plate-select"}
-              aria-pressed={active} aria-expanded={active}
-              onClick={() => onSelect(key, plate.index)}>
-              <span className="model-plate-index">{plate.index == null ? "盘号未知" : `盘 ${plate.index}`}</span>
-              <span>{plate.name || "未命名"}</span>
-              <span className="model-plate-chips">
-                {plate.filaments.length === 0 ? <span>未记录耗材</span> : plate.filaments.map((filament, index) => (
-                  <span className="model-slot-badge" key={`${filament.slot ?? "x"}-${index}`}
-                    aria-label={filament.slot == null ? "槽位未知" : `槽位 ${filament.slot}`}>
-                    {filament.slot == null ? "?" : filament.slot}
-                  </span>
-                ))}
-              </span>
-            </button>
-          );
-        })}
+      <div className={cards.length > 0 ? "model-plate-layout" : undefined}>
+        <div>
+          <h3>打印盘</h3>
+          <p className="model-plate-note">
+            {known
+              ? "点一盘查看部件和耗材。盘是打印盘，槽位是耗材位置。颜色属于这一整盘，没有逐个部件的分色。"
+              : plates === undefined || plates === null
+                ? "这份预览没有保存盘和耗材的对应，不能判断哪一盘用什么颜色。"
+                : "没有打印盘记录。"}
+          </p>
+          {cards.length > 0 ? (
+            <div className="model-plate-picker">
+              {cards.map((card) => {
+                const selected = active?.key === card.key;
+                const thumb = card.face ?? card.top;
+                const label = card.index == null ? "盘号未知" : `盘 ${card.index}`;
+                return (
+                  <button type="button" key={card.key}
+                    className={selected ? "model-plate-card is-active" : "model-plate-card"}
+                    aria-pressed={selected}
+                    onClick={() => onSelect(card.key)}>
+                    {thumb ? <img src={thumb.url} alt={shotLabel(model.title, thumb.kind, thumb.plate)} /> : <span className="model-plate-card-empty">无盘面图</span>}
+                    <span className="model-plate-card-name">{label}{card.name ? ` ${card.name}` : ""}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
+        {cards.length > 0 ? (
+          <div className="model-plate-detail-slot">
+            {active ? <PlateDetail model={model} card={active} shotKind={shotKind} onShotKind={onShotKind} /> : <p>尚未展开打印盘。</p>}
+          </div>
+        ) : null}
       </div>
-      {(() => {
-        const open = plates.find((plate, ordinal) => plateKey(plate, ordinal) === activePlate);
-        if (!open) return <p>点一盘查看部件和耗材。颜色属于这一整盘，没有逐个部件的分色。</p>;
-        return (
-          <article className="model-plate is-active" id="model-plate-detail">
-            <p className="model-plate-current">当前盘 {open.index == null ? "盘号未知" : open.index} {open.name || "未命名"}</p>
-            <h4>部件</h4>
-            {open.objects.length > 0 ? (
-              <ul className="model-objects">
-                {open.objects.map((object, index) => <li key={`${object}-${index}`}>{object}</li>)}
-              </ul>
-            ) : <p>未记录部件</p>}
-            <h4>本盘耗材</h4>
-            {open.filaments.length > 0 ? (
-              <ul className="model-filaments">
-                {open.filaments.map((filament, index) => (
-                  <li key={`${filament.slot ?? "x"}-${filament.hex ?? "none"}-${index}`}>
-                    <span className="model-slot-badge">耗材 {index + 1}</span>
-                    <span className={filament.hex ? "model-colour" : "model-colour is-unknown"} role="img"
-                      aria-label={filament.hex ? `槽位 ${filament.slot ?? "未知"} 颜色 ${filament.hex}` : "槽位未知 颜色未知"}
-                      title={filament.hex ?? "颜色未知"}
-                      style={filament.hex ? { backgroundColor: filament.hex } : undefined} />
-                    <span>{filament.slot == null ? "槽位未知" : `槽位 ${filament.slot}`}</span>
-                    <span>{filament.hex ?? "颜色未知"}</span>
-                    {filament.type ? <span>{filament.type}</span> : null}
-                    {filament.vendor ? <span>{filament.vendor}</span> : null}
-                    {filament.used_g != null ? <span>{`${filament.used_g} g`}</span> : null}
-                    {filament.settings_id ? <span className="model-colour-match">{filament.settings_id}</span> : null}
-                    {filament.picks?.[0] ? (
-                      <span className="model-colour-match">
-                        {filament.picks[0].brand_name} {filament.picks[0].name}
-                        {filament.picks[0].label ? ` · ${filament.picks[0].label}` : ""}
-                        {filament.picks[0].stock?.in_stock === true ? " · 库存有" : ""}
-                      </span>
-                    ) : null}
-                  </li>
+      {!known && matches.length > 0 ? (
+        <>
+          <h3>{plates === undefined || plates === null ? "原配色" : "未对应到盘的颜色"}</h3>
+          <ColourList matches={matches} />
+        </>
+      ) : null}
+      {!known && matches.length === 0 && cards.length === 0 ? <p>没有配色数据。</p> : null}
+    </section>
+  );
+}
+
+function PlateDetail({ model, card, shotKind, onShotKind }: {
+  model: Model;
+  card: PlateCard;
+  shotKind: "plate" | "top";
+  onShotKind: (kind: "plate" | "top") => void;
+}): JSX.Element {
+  const [showAllParts, setShowAllParts] = useState(false);
+  const shot = shotKind === "top" && card.top ? card.top : (card.face ?? card.top);
+  const plate = card.plate;
+  const grouped = groupObjects(plate?.objects ?? []);
+  const visible = showAllParts ? grouped : grouped.slice(0, PART_PREVIEW);
+  const title = `${card.index == null ? "盘号未知" : `盘 ${card.index}`}${card.name ? ` ${card.name}` : " 未命名"}`;
+  return (
+    <div className="model-plate-detail" id="model-plate-detail">
+      <div className="model-plate-detail-head">
+        <p className="model-plate-current">{title}</p>
+        {card.face && card.top ? (
+          <div className="model-view-toggle" role="group" aria-label="盘面视图">
+            <button type="button" aria-pressed={shotKind !== "top"} onClick={() => onShotKind("plate")}>盘面</button>
+            <button type="button" aria-pressed={shotKind === "top"} onClick={() => onShotKind("top")}>俯视</button>
+          </div>
+        ) : null}
+      </div>
+      {shot ? (
+        <figure className="model-plate-preview">
+          <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
+          <figcaption><span>{shotCaption(shot.kind, shot.plate)}</span></figcaption>
+        </figure>
+      ) : null}
+      {plate ? (
+        <>
+          <h4>部件</h4>
+          {grouped.length > 0 ? (
+            <>
+              <ul className={showAllParts ? "model-objects is-open" : "model-objects"}>
+                {visible.map((item) => (
+                  <li key={item.name}>{item.count > 1 ? `${item.name} ×${item.count}` : item.name}</li>
                 ))}
               </ul>
-            ) : <p>未记录耗材</p>}
-          </article>
-        );
-      })()}
-    </section>
+              {grouped.length > PART_PREVIEW ? (
+                <button type="button" className="model-text-button" aria-expanded={showAllParts}
+                  onClick={() => setShowAllParts((current) => !current)}>
+                  {showAllParts ? "收起部件" : `查看全部 ${grouped.length} 种`}
+                </button>
+              ) : null}
+            </>
+          ) : <p>未记录部件</p>}
+          <h4>本盘耗材</h4>
+          {plate.filaments.length > 0 ? (
+            <ul className="model-filaments">
+              {plate.filaments.map((filament, index) => (
+                <li key={`${filament.slot ?? "x"}-${filament.hex ?? "none"}-${index}`}>
+                  <span className={filament.hex ? "model-colour" : "model-colour is-unknown"} role="img"
+                    aria-label={filament.hex ? `槽位 ${filament.slot ?? "未知"} 颜色 ${filament.hex}` : "槽位未知 颜色未知"}
+                    title={filament.hex ?? "颜色未知"}
+                    style={filament.hex ? { ["--swatch" as string]: filament.hex } : undefined} />
+                  <span>{filament.slot == null ? "槽位未知" : `槽位 ${filament.slot}`}</span>
+                  <span>{filament.hex ?? "颜色未知"}</span>
+                  {filament.type ? <span>{filament.type}</span> : null}
+                  {filament.vendor ? <span>{filament.vendor}</span> : null}
+                  {filament.used_g != null ? <span>{`${filament.used_g} g`}</span> : null}
+                  {filament.settings_id ? <span className="model-colour-match">{filament.settings_id}</span> : null}
+                  {filament.picks?.[0] ? (
+                    <span className="model-colour-match">
+                      {filament.picks[0].brand_name} {filament.picks[0].name}
+                      {filament.picks[0].label ? ` · ${filament.picks[0].label}` : ""}
+                      {filament.picks[0].stock?.in_stock === true ? " · 库存有" : ""}
+                    </span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : <p>未记录耗材</p>}
+        </>
+      ) : <p>这一盘没有耗材映射。</p>}
+    </div>
   );
 }
 
@@ -390,7 +440,7 @@ function ColourList({ matches }: { matches: ColourMatch[] }): JSX.Element {
         <div className="model-colour-row" key={`${match.hex}-${index}`}>
           <span className="model-slot-badge">颜色 {index + 1}</span>
           <span className="model-colour" role="img" aria-label={match.hex} title={match.hex}
-            style={{ backgroundColor: match.hex }} />
+            style={{ ["--swatch" as string]: match.hex }} />
           <span>{match.hex}</span>
           {match.picks[0] ? (
             <span className="model-colour-match">
@@ -409,18 +459,48 @@ function plateKey(plate: PlateInfo, ordinal: number): string {
   return plate.index == null ? `unknown-${ordinal}` : `plate-${plate.index}`;
 }
 
+function coverShots(model: Model): ModelImage[] {
+  const images = model.images ?? [];
+  const covers = images.filter((image) => image.kind === "cover");
+  if (covers.length > 0) return covers;
+  if (model.cover_url) return [{ kind: "cover", plate: 0, url: model.cover_url }];
+  return [];
+}
+
+function plateCards(model: Model): PlateCard[] {
+  const images = model.images ?? [];
+  const faceOf = (plate: number) => images.find((image) => image.kind === "plate" && image.plate === plate);
+  const topOf = (plate: number) => images.find((image) => image.kind === "top" && image.plate === plate);
+  if (Array.isArray(model.plates) && model.plates.length > 0) {
+    return model.plates.map((plate, ordinal) => ({
+      key: plateKey(plate, ordinal),
+      index: plate.index,
+      name: plate.name,
+      plate,
+      face: plate.index == null ? undefined : faceOf(plate.index),
+      top: plate.index == null ? undefined : topOf(plate.index),
+    }));
+  }
+  const numbers = [...new Set(images.filter((image) => image.plate > 0).map((image) => image.plate))]
+    .sort((left, right) => left - right);
+  return numbers.map((plate) => ({
+    key: `plate-${plate}`,
+    index: plate,
+    name: null,
+    face: faceOf(plate),
+    top: topOf(plate),
+  }));
+}
+
+function groupObjects(names: string[]): { name: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const name of names) counts.set(name, (counts.get(name) ?? 0) + 1);
+  return [...counts.entries()].map(([name, count]) => ({ name, count }));
+}
+
 function privateMeshUrl(url: string | null | undefined): string | null {
   if (url == null || !PRIVATE_MESH.test(url)) return null;
   return url;
-}
-
-function orderedShots(model: Model): ModelImage[] {
-  const images = model.images ?? [];
-  const cover = images.filter((image) => image.kind === "cover");
-  const rest = images.filter((image) => image.kind !== "cover");
-  if (cover.length + rest.length > 0) return [...cover, ...rest];
-  if (model.cover_url) return [{ kind: "cover", plate: 0, url: model.cover_url }];
-  return [{ kind: "plate", plate: 1, url: model.thumb_url }];
 }
 
 function shotCaption(kind: ModelImage["kind"], plate: number): string {

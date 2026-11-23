@@ -32,11 +32,18 @@
 .model-card h2 { margin-top: 12px; font-size: 1.1rem; overflow-wrap: anywhere; }
 .model-card p { margin-top: 6px; color: var(--text-2); }
 .model-pagination { display: flex; gap: 20px; align-items: center; justify-content: center; margin-top: 28px; }
-.model-detail { display: grid; grid-template-columns: minmax(0, 3fr) minmax(240px, 2fr); gap: 32px; }
-.model-mesh { margin: 0 0 16px; }
+.model-detail { display: grid; gap: 20px; }
+.model-summary { display: grid; grid-template-columns: minmax(280px, 560px) minmax(0, 1fr); gap: 24px; align-items: start; }
+.model-summary.no-cover { grid-template-columns: minmax(0, 1fr); }
+.model-summary-copy { min-width: 0; }
+.model-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 8px 0 12px; color: var(--text-2); }
+.model-preview .model-text-button {
+  min-height: 36px; padding: 6px 10px; border: 0; background: transparent; color: var(--accent);
+}
+.model-mesh { margin: 12px 0 0; }
 .model-detail .model-mesh-stage {
   width: 100%;
-  height: clamp(160px, 28vh, 280px);
+  height: clamp(140px, 24vh, 220px);
   background: var(--surface-2);
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -48,26 +55,52 @@
 .model-shots { display: grid; gap: 16px; }
 .model-shots figure { margin: 0; }
 .model-hero img,
-.model-large-image { width: 100%; max-height: 650px; object-fit: contain; background: var(--surface-2); border-radius: var(--radius-sm); }
-.model-shots figcaption { margin-top: 6px; color: var(--text-2); }
-.model-thumb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; align-items: start; }
-.model-thumb {
-  display: grid; gap: 4px; align-content: start; padding: 6px; min-height: 44px; text-align: left; background: var(--surface-2);
+.model-large-image { width: 100%; max-height: 560px; object-fit: contain; background: var(--surface-2); border-radius: var(--radius-sm); }
+.model-shots figcaption, .model-plate-preview figcaption { margin-top: 6px; color: var(--text-2); }
+.model-description { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0 0 8px; }
+.model-description.is-clamped {
+  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
 }
-.model-thumb img { width: 100%; height: 72px; object-fit: contain; border-radius: var(--radius-sm); background: var(--surface); }
-.model-thumb.is-active { outline: 2px solid var(--accent); outline-offset: 2px; }
-.model-plate-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 12px; }
-.model-plate-chips { display: flex; flex-wrap: wrap; gap: 4px; color: var(--text-2); font-size: 0.85rem; }
-.model-description { white-space: pre-wrap; overflow-wrap: anywhere; margin: 16px 0; }
+.model-plate-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.model-preview .model-plate-card {
+  display: grid; grid-template-rows: 72px 24px; align-content: start; gap: 4px;
+  width: 112px; height: 112px; padding: 6px; text-align: left; background: var(--surface);
+}
+.model-plate-card img, .model-plate-card-empty {
+  width: 100%; height: 72px; object-fit: contain; border-radius: 4px; background: var(--surface-2);
+}
+.model-plate-card-empty { display: grid; place-items: center; color: var(--text-3); font-size: 0.75rem; }
+.model-plate-card-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.85rem; }
+.model-plate-card.is-active { border-color: var(--accent); background: var(--accent-soft); }
+.model-plate-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 380px); gap: 20px; align-items: start; }
+.model-plate-detail-slot {
+  position: sticky; top: 12px; min-height: 120px; padding: 12px 14px;
+  border-radius: var(--radius-sm); background: var(--surface-2);
+}
+.model-plate-detail { margin: 0; padding: 0; border: 0; }
+.model-plate-detail-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.model-view-toggle { display: inline-flex; gap: 4px; }
+.model-view-toggle button { min-height: 36px; }
+.model-view-toggle button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.model-plate-preview { margin: 12px 0; max-width: 100%; }
+.model-plate-preview img { width: 100%; max-height: 240px; object-fit: contain; background: var(--surface-2); border-radius: var(--radius-sm); }
 .model-colour-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
 .model-colour-match { color: var(--text-2); }
 .model-detail dl { display: grid; grid-template-columns: auto 1fr; gap: 12px 20px; margin: 24px 0; }
 .model-detail dt { color: var(--text-2); }
 .model-detail dd { margin: 0; }
 .model-colours { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-.model-colour { display: inline-block; width: 44px; height: 44px; border: 1px solid var(--border); border-radius: var(--radius-sm); flex: none; }
+.model-colour {
+  display: inline-block; width: 28px; height: 28px; border-radius: 4px; flex: none;
+  background:
+    linear-gradient(var(--swatch, transparent), var(--swatch, transparent)),
+    repeating-conic-gradient(#9aa3b2 0 25%, #fff 0 50%);
+  background-size: auto, 8px 8px;
+  box-shadow: inset 0 0 0 2px #1f2937;
+}
 .model-colour.is-unknown {
   background: repeating-linear-gradient(45deg, var(--surface-2), var(--surface-2) 4px, var(--border) 4px, var(--border) 8px);
+  box-shadow: inset 0 0 0 1px #4b5563;
 }
 .model-plate-note { color: var(--text-2); }
 .model-plates { display: grid; gap: 12px; margin-top: 12px; }
@@ -84,11 +117,17 @@
 }
 .model-plate h4 { margin: 12px 0 6px; font-size: 0.95rem; }
 .model-objects, .model-filaments { margin: 0; padding-left: 1.2rem; }
-.model-filaments li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+.model-objects { max-height: 168px; overflow: auto; }
+.model-objects.is-open { max-height: 280px; }
+.model-filaments { display: grid; gap: 10px; }
+.model-filaments li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.model-filaments .model-colour-match { flex-basis: 100%; padding-left: 36px; }
 .model-shots figcaption { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-@media (max-width: 640px) {
-  .model-detail { grid-template-columns: 1fr; }
+@media (max-width: 800px) {
+  .model-summary { grid-template-columns: minmax(0, 1fr); }
+  .model-plate-layout { grid-template-columns: minmax(0, 1fr); }
+  .model-plate-detail-slot { position: static; }
   .model-preview .topbar { flex-wrap: wrap; }
   .model-filters label { width: 100%; }
-  .model-plate-select { width: 100%; }
+  .model-view-toggle button, .model-plate-card { min-height: 44px; }
 }
