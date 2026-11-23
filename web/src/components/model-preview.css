@@ -83,7 +83,21 @@
 .model-description.is-clamped {
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
-.model-description.is-open { max-height: 72px; overflow: auto; }
+.model-description-layer {
+  position: fixed; inset: 0; z-index: 60; display: grid; place-items: center;
+  padding: 24px; background: rgb(17 24 39 / 35%);
+}
+.model-description-dialog {
+  width: min(640px, calc(100vw - 32px)); max-height: min(70vh, 560px);
+  display: flex; flex-direction: column; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg);
+}
+.model-description-dialog-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+}
+.model-description-dialog-bar h3 { font-size: 1rem; }
+.model-description-dialog-body { overflow: auto; padding: 14px; min-height: 0; }
 .model-plate-picker { max-height: 132px; overflow: auto; display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; }
 .model-preview .model-plate-card {
   display: grid; grid-template-rows: 52px 16px; align-content: start; gap: 2px;

@@ -1,5 +1,6 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import type { FormEvent, JSX } from "react";
+import { createPortal } from "react-dom";
 import "./model-preview.css";
 
 const MeshViewer = lazy(() =>
@@ -206,6 +207,73 @@ function Gallery({ navigate }: { navigate: Navigate }): JSX.Element {
   );
 }
 
+function DescriptionBlock({ text, long, open, onOpenChange }: {
+  text: string;
+  long: boolean;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}): JSX.Element {
+  const openButton = useRef<HTMLButtonElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
+  const dialog = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    closeButton.current?.focus();
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onOpenChange(false);
+        return;
+      }
+      if (event.key !== "Tab" || !dialog.current) return;
+      const items = [...dialog.current.querySelectorAll<HTMLElement>("button, [href], [tabindex]:not([tabindex='-1'])")];
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      openButton.current?.focus();
+    };
+  }, [open, onOpenChange]);
+  return (
+    <div className="model-description-block">
+      <p className={long ? "model-description is-clamped" : "model-description"}>{text}</p>
+      {long ? (
+        <button ref={openButton} type="button" className="model-text-button" aria-expanded={open}
+          aria-controls="model-description-dialog" onClick={() => onOpenChange(!open)}>
+          展开说明
+        </button>
+      ) : null}
+      {open ? createPortal(
+        <div className="model-description-layer" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) onOpenChange(false);
+        }}>
+          <div ref={dialog} id="model-description-dialog" className="model-description-dialog" role="dialog"
+            aria-modal="true" aria-labelledby="model-description-title">
+            <div className="model-description-dialog-bar">
+              <h3 id="model-description-title">模型说明</h3>
+              <button ref={closeButton} type="button" className="model-text-button" onClick={() => onOpenChange(false)}>收起说明</button>
+            </div>
+            <div className="model-description-dialog-body" tabIndex={0}>
+              <p className="model-description">{text}</p>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      ) : null}
+    </div>
+  );
+}
+
 function fileSize(bytes: number): string {
   if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -262,15 +330,7 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
         </p>
         <DownloadControl model={model} navigate={navigate} />
         {description ? (
-          <div className="model-description-block">
-            <p className={longDescription && !descOpen ? "model-description is-clamped" : "model-description is-open"}>{description}</p>
-            {longDescription ? (
-              <button type="button" className="model-text-button" aria-expanded={descOpen}
-                onClick={() => setDescOpen((current) => !current)}>
-                {descOpen ? "收起说明" : "展开说明"}
-              </button>
-            ) : null}
-          </div>
+          <DescriptionBlock text={description} long={longDescription} open={descOpen} onOpenChange={setDescOpen} />
         ) : null}
       </header>
       <div className="model-hero-pane">
