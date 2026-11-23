@@ -255,12 +255,48 @@ describe("model preview", () => {
     expect(view.getByText("槽位 3")).toBeTruthy();
     expect(view.getByText("槽位 7")).toBeTruthy();
     expect(view.getByText("PETG")).toBeTruthy();
-    expect(view.getByText("未记录部件")).toBeTruthy();
-    expect(view.getByText("颜色未知")).toBeTruthy();
+    expect(view.queryByText("未记录部件")).toBeNull();
+    expect(view.queryByText("颜色未知")).toBeNull();
     expect(view.getByText(/这里的盘是打印盘/)).toBeTruthy();
     expect(view.queryByRole("button", { name: /下载/ })).toBeNull();
-    fireEvent.click(view.getByRole("button", { name: "对应盘 2" }));
+    expect(view.container.querySelector(".model-hero")).toBeNull();
+    fireEvent.click(view.getByRole("button", { name: /盘 2/ }));
+    expect(view.getByText("未记录部件")).toBeTruthy();
+    expect(view.getByText("颜色未知")).toBeTruthy();
+    expect(view.queryByText("body.stl")).toBeNull();
     expect(view.container.querySelector(".model-plate.is-active")?.textContent).toContain("盘 2");
+    fireEvent.click(view.getByRole("button", { name: /盘 2/ }));
+    expect(view.queryByText("未记录部件")).toBeNull();
+    expect(view.getByText("点一盘查看部件和耗材。颜色属于这一整盘，没有逐个部件的分色。")).toBeTruthy();
+  });
+
+  it("keeps a real cover large and leaves other plates collapsed", async () => {
+    const cover = "/api/models/sample-01/media/cover.png";
+    const detailed = {
+      ...model,
+      cover_url: cover,
+      images: [
+        { kind: "cover" as const, plate: 0, url: cover },
+        { kind: "plate" as const, plate: 1, url: "/api/models/sample-01/media/plate_1.png" },
+        { kind: "plate" as const, plate: 2, url: "/api/models/sample-01/media/plate_2.png" },
+      ],
+      plates: [
+        { index: 1, name: "第一盘", objects: ["a.stl"], filaments: [
+          { slot: 1, hex: "#112233", type: "PLA", vendor: "", settings_id: "", used_g: null, picks: [] },
+        ] },
+        { index: 2, name: null, objects: ["b.stl"], filaments: [
+          { slot: 2, hex: "#FFFFFF", type: "PLA", vendor: "", settings_id: "", used_g: null, picks: [] },
+        ] },
+      ],
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(detailed)));
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    const hero = await view.findByRole("img", { name: "示例方块 01 封面" });
+    expect(hero.getAttribute("src")).toBe(cover);
+    expect(hero.closest(".model-hero")).toBeTruthy();
+    expect(view.getByRole("img", { name: "示例方块 01 盘面 1" }).closest(".model-thumb")).toBeTruthy();
+    expect(view.getByText("a.stl")).toBeTruthy();
+    expect(view.queryByText("b.stl")).toBeNull();
   });
 
   it("says plate mapping is unknown when the record has no layout", async () => {
