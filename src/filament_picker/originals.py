@@ -135,6 +135,16 @@ def media_type_for(key: str) -> str:
     return _SUFFIXES.get(PurePosixPath(key).suffix.lower(), "application/octet-stream")
 
 
+def cos_paths(prefix: str, key: str) -> tuple[str, str]:
+    """Return the encoded request path and the raw path used for COS signing.
+
+    The request line must be percent-encoded. Tencent COS compares the signature
+    against the unencoded object path, so Chinese characters and spaces are signed raw.
+    """
+    raw = "/" + f"{prefix.strip('/')}/{key.strip('/')}".strip("/")
+    return quote(raw, safe="/"), raw
+
+
 def sign_request(
     method: str,
     pathname: str,
@@ -178,13 +188,13 @@ class HttpObjectSource:
         safe = safe_object_key(key)
         if safe is None:
             raise UpstreamFailure()
-        pathname = "/" + quote(f"{self.settings.prefix}/{safe}".strip("/"), safe="/")
+        request_path, signature_path = cos_paths(self.settings.prefix, safe)
         now = int(datetime.now(UTC).timestamp())
         headers = {
             "Host": self.settings.host,
             "Authorization": sign_request(
                 method,
-                pathname,
+                signature_path,
                 self.settings.host,
                 self.settings.secret_id,
                 self.settings.secret_key,
@@ -199,7 +209,7 @@ class HttpObjectSource:
             headers["Range"] = range_header
         connection = self._connect()
         try:
-            connection.request(method, pathname, headers=headers)
+            connection.request(method, request_path, headers=headers)
             response = connection.getresponse()
         except (OSError, HTTPException, TimeoutError) as exc:
             connection.close()

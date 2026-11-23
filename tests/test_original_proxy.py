@@ -242,6 +242,54 @@ def test_download_failures_stay_on_our_origin(
     httpd.shutdown()
 
 
+def test_unicode_object_streams_and_catalog_hash_is_not_the_file_hash(
+    preview: tuple, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    app, password, models, _db = preview
+    httpd = _server()
+    _configure(monkeypatch, httpd)
+    chinese = "系列/拉布布 01.3mf"
+    special = "特殊/a+b #c.3mf"
+    httpd.files[_PREFIX + "/" + chinese] = b"unicode-body"
+    httpd.files[_PREFIX + "/Rayan-Universal1211.3mf"] = b"ascii-body"
+    httpd.files[_PREFIX + "/" + special] = b"special-body"
+    _write_map(
+        tmp_path,
+        {
+            "sample-01": chinese,
+            "sample-02": "Rayan-Universal1211.3mf",
+            "sample-03": special,
+        },
+        monkeypatch,
+    )
+    import sqlite3
+
+    wrong = "c6f39338" + "ab" * 28
+    with sqlite3.connect(models / "manifest.sqlite") as conn:
+        conn.execute("UPDATE models SET sha256 = ? WHERE id = 'sample-01'", (wrong,))
+    cookie = _cookie(_login(app, password))
+    detail = _request(app, "GET", "/api/models/sample-01", cookie).json()["original"]
+    assert detail["sha256"] is None
+    chinese_download = _request(app, "GET", "/api/models/sample-01/original", cookie)
+    assert chinese_download.status_code == 200
+    assert chinese_download.content == b"unicode-body"
+    assert "x-content-sha256" not in {key.lower() for key in chinese_download.headers}
+    assert any("%E6%8B%89%E5%B8%83%E5%B8%83%2001.3mf" in path for path in httpd.seen)
+    assert all("拉布布" not in path for path in httpd.seen)
+    ascii_download = _request(app, "GET", "/api/models/sample-02/original", cookie)
+    assert ascii_download.status_code == 200
+    assert ascii_download.content == b"ascii-body"
+    assert any(path.endswith("/Rayan-Universal1211.3mf") for path in httpd.seen)
+    special_download = _request(app, "GET", "/api/models/sample-03/original", cookie)
+    assert special_download.status_code == 200
+    assert special_download.content == b"special-body"
+    assert any("a%2Bb%20%23c.3mf" in path for path in httpd.seen)
+    assert all("a+b" not in path and "#" not in path for path in httpd.seen)
+    _quiet(chinese_download.text)
+    _quiet(special_download.text)
+    httpd.shutdown()
+
+
 def test_alias_and_local_file_do_not_use_object_storage(
     preview: tuple, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -275,6 +323,50 @@ def test_alias_and_local_file_do_not_use_object_storage(
         app, "GET", "/api/models/sample-01/original", cookie, headers={"range": "bytes=9-1"}
     )
     assert bad.status_code == 416
+
+
+def test_chinese_key_is_requested_encoded_and_signed_raw() -> None:
+    from filament_picker.originals import cos_paths, sign_request
+
+    prefix = "filament-picker/3mf-originals/20261107"
+    raw_key = "系列/拉布布 01.3mf"
+    request_path, signature_path = cos_paths(prefix, raw_key)
+    assert signature_path == f"/{prefix}/{raw_key}"
+    assert request_path == (
+        "/filament-picker/3mf-originals/20261107/"
+        "%E7%B3%BB%E5%88%97/%E6%8B%89%E5%B8%83%E5%B8%83%2001.3mf"
+    )
+    assert "拉布布" not in request_path
+    assert " " not in request_path
+    ascii_request, ascii_signature = cos_paths(prefix, "Rayan-Universal1211.3mf")
+    assert ascii_request == ascii_signature
+    assert ascii_request.endswith("/Rayan-Universal1211.3mf")
+    host = "filament-backup-1385670520.cos.ap-shanghai.myqcloud.com"
+    signed = sign_request("GET", signature_path, host, "AKIDexample", "secret-one", 1700000000, 120)
+    assert signed == (
+        "q-sign-algorithm=sha1&q-ak=AKIDexample&q-sign-time=1700000000;1700000120"
+        "&q-key-time=1700000000;1700000120&q-header-list=host&q-url-param-list="
+        "&q-signature=3e5646f43f4f8b337f479a0d0b7b35274b57e3a4"
+    )
+    encoded_signed = sign_request(
+        "GET", request_path, host, "AKIDexample", "secret-one", 1700000000, 120
+    )
+    assert encoded_signed != signed
+    special_key = "特殊/a+b #c.3mf"
+    special_request, special_signature = cos_paths(prefix, special_key)
+    assert special_signature == f"/{prefix}/{special_key}"
+    assert special_request.endswith("/%E7%89%B9%E6%AE%8A/a%2Bb%20%23c.3mf")
+    assert "+" not in special_request and "#" not in special_request
+    special_signed = sign_request(
+        "GET",
+        special_signature,
+        "example.cos.ap-shanghai.myqcloud.com",
+        "AKIDexample",
+        "secret-one",
+        1700000000,
+        120,
+    )
+    assert special_signed.endswith("q-signature=6f0c16ec225b0b3d424e8540846cc8668c036dbd")
 
 
 def test_object_key_uses_stored_path_or_map_and_rejects_escape() -> None:
