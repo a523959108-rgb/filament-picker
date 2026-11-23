@@ -4,6 +4,7 @@ import json
 import os
 import re
 import sqlite3
+from collections.abc import Iterator
 from contextlib import closing
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -16,6 +17,7 @@ from fastapi.responses import (
     PlainTextResponse,
     RedirectResponse,
     Response,
+    StreamingResponse,
 )
 
 from .auth import COOKIE_NAME, ModelAuth
@@ -32,6 +34,23 @@ from .config import (
 from .matcher import eligible, label_for, name_display
 from .model_import import parse_plate_layout
 from .note_parser import Params
+from .originals import (
+    HttpObjectSource,
+    RangeNotSatisfiable,
+    UpstreamFailure,
+    content_disposition,
+    filename_for,
+    iter_file,
+    load_cos_settings,
+    load_key_overrides,
+    local_original,
+    lookup_download,
+    media_type_for,
+    original_descriptor,
+    parse_range,
+    read_map_sha,
+    resolve_object_key,
+)
 from .spoolman import annotate_picks, load_spools
 
 
@@ -209,6 +228,120 @@ class ModelPreview:
         if _MODEL_ID.fullmatch(model_id) is None:
             raise HTTPException(status_code=404, detail="网格不存在")
         return PurePosixPath("meshes") / f"{model_id}.glb"
+
+    def original_payload(self, model_id: str) -> dict[str, Any]:
+        target = self._download_target(model_id)
+        if target is None:
+            return original_descriptor(False, model_id, None, None, None)
+        row, requested, _stored, local, key = target
+        chosen = local.name if local is not None else key
+        if chosen is None:
+            return original_descriptor(False, requested, None, None, None)
+        size = local.stat().st_size if local is not None else None
+        payload = original_descriptor(
+            True,
+            requested,
+            filename_for(str(row["title"]), chosen),
+            size,
+            media_type_for(chosen),
+        )
+        payload["sha256"] = read_map_sha(None, requested) or read_map_sha(None, str(row["id"]))
+        return payload
+
+    def original_response(self, model_id: str, request: Request) -> Response:
+        target = self._download_target(model_id)
+        if target is None:
+            raise HTTPException(status_code=404, detail="模型不存在")
+        row, requested, _stored, local, key = target
+        if local is None and key is None:
+            raise HTTPException(status_code=404, detail="没有原件映射")
+        filename = filename_for(str(row["title"]), local.name if local is not None else str(key))
+        headers = {
+            "Content-Disposition": content_disposition(filename),
+            "Accept-Ranges": "bytes",
+            "Cache-Control": "no-store",
+            "X-Robots-Tag": "noindex, nofollow",
+        }
+        digest = read_map_sha(None, requested) or read_map_sha(None, str(row["id"]))
+        if digest:
+            headers["X-Content-SHA256"] = digest
+        if local is not None:
+            return self._local_original(local, request, headers)
+        return self._remote_original(str(key), request, headers)
+
+    def _download_target(
+        self, model_id: str
+    ) -> tuple[sqlite3.Row, str, str, Path | None, str | None] | None:
+        with closing(self._connect()) as conn:
+            found = lookup_download(conn, model_id)
+        if found is None:
+            return None
+        row, requested, stored = found
+        local = local_original(self.root, requested) or local_original(self.root, str(row["id"]))
+        try:
+            overrides = load_key_overrides()
+        except (OSError, ValueError, json.JSONDecodeError):
+            overrides = {}
+        key = resolve_object_key(requested, str(row["id"]), stored, overrides)
+        if local is None and (key is None or load_cos_settings() is None):
+            key = None
+        return row, requested, stored, local, key
+
+    def _local_original(self, path: Path, request: Request, headers: dict[str, str]) -> Response:
+        size = path.stat().st_size
+        try:
+            bounds = parse_range(request.headers.get("range"), size)
+        except RangeNotSatisfiable:
+            raise HTTPException(status_code=416, detail="范围无效") from None
+        start, end = (0, size - 1) if bounds is None else bounds
+        if bounds is not None:
+            headers["Content-Range"] = f"bytes {start}-{end}/{size}"
+        headers["Content-Length"] = str(end - start + 1)
+        media_type = media_type_for(path.name)
+        status = 200 if bounds is None else 206
+        if request.method == "HEAD":
+            return Response(status_code=status, headers=headers, media_type=media_type)
+        return StreamingResponse(
+            iter_file(path, start, end),
+            status_code=200 if bounds is None else 206,
+            media_type=media_type,
+            headers=headers,
+        )
+
+    def _remote_original(self, key: str, request: Request, headers: dict[str, str]) -> Response:
+        settings = load_cos_settings()
+        if settings is None:
+            raise HTTPException(status_code=404, detail="没有原件映射")
+        range_header = request.headers.get("range")
+        if range_header is not None and not re.fullmatch(r"bytes=\d+-\d*", range_header.strip()):
+            raise HTTPException(status_code=416, detail="范围无效")
+        method = "HEAD" if request.method == "HEAD" else "GET"
+        try:
+            opened = HttpObjectSource(settings).open(
+                key, range_header.strip() if range_header else None, method
+            )
+        except UpstreamFailure:
+            raise HTTPException(status_code=502, detail="原件暂时无法下载") from None
+        if opened.size is not None:
+            headers["Content-Length"] = str(opened.size)
+        if opened.content_range:
+            headers["Content-Range"] = opened.content_range
+        media_type = media_type_for(key)
+        if method == "HEAD":
+            if callable(opened.close):
+                opened.close()
+            return Response(status_code=opened.status, headers=headers, media_type=media_type)
+
+        def generate() -> Iterator[bytes]:
+            try:
+                yield from opened.chunks
+            finally:
+                if callable(opened.close):
+                    opened.close()
+
+        return StreamingResponse(
+            generate(), status_code=opened.status, media_type=media_type, headers=headers
+        )
 
     def media(self, model_id: str, name: str) -> Response:
         if _MEDIA_NAME.fullmatch(name) is None:
@@ -436,6 +569,11 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
                     filament["picks"] = by_hex.get(colour, []) if isinstance(colour, str) else []
         payload["plates"] = plates
         payload["mesh_url"] = preview.mesh_url(row["id"])
+        payload["original"] = preview.original_payload(row["id"])
         return payload
+
+    @router.api_route("/{model_id}/original", methods=["GET", "HEAD"])
+    def original(model_id: str, request: Request) -> Response:
+        return preview.original_response(model_id, request)
 
     app.include_router(router)

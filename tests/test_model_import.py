@@ -732,7 +732,8 @@ def test_detail_groups_colors_by_print_plate_without_copying_models(
     assert [(item["slot"], item["hex"]) for item in body["plates"][0]["filaments"]] == [
         (3, "#FFFFFF")
     ]
-    assert "original" not in body
+    assert body["original"]["available"] is False
+    assert body["original"]["url"] is None
     assert "source_relpath" not in body
     assert "1-系列分类" not in json.dumps(body, ensure_ascii=False)
     multi = _request(app, "GET", f"/api/models/{META_0059}", cookie).json()
