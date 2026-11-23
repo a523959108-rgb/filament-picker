@@ -466,6 +466,28 @@ def test_seed_is_synthetic_repeatable_and_does_not_overwrite_real_manifest(tmp_p
         seed_samples(models)
 
 
+def test_sample_mesh_is_not_served_as_an_original(preview: tuple) -> None:
+    app, password, *_ = preview
+    cookie = _login(app, password).headers["set-cookie"].split(";", 1)[0]
+    detail = _request(app, "GET", "/api/models/sample-01", cookie)
+    body = detail.json()
+    assert body["mesh_url"] == "/api/models/sample-01/glb"
+    assert body["plates"] is None
+    assert body["original"]["available"] is False
+    assert body["original"]["reason"] == "not_stored"
+    assert body["original"]["url"] is None
+    assert "synthetic/" not in detail.text
+    assert "source_relpath" not in body
+    missing = _request(app, "GET", "/api/models/sample-01/original", cookie)
+    assert missing.status_code == 404
+    assert missing.json()["detail"] == "原件未保存，无法下载"
+    assert b"glTF" not in missing.content
+    mesh = _request(app, "GET", "/api/models/sample-01/glb", cookie)
+    assert mesh.status_code == 200
+    assert mesh.content[:4] == b"glTF"
+    assert _request(app, "POST", "/api/models/sample-01/original").status_code == 401
+
+
 def test_seed_refuses_foreign_manifest_without_writing_a_mesh(tmp_path: Path) -> None:
     root = tmp_path / "models"
     root.mkdir()

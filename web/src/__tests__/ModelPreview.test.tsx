@@ -216,6 +216,168 @@ describe("model preview", () => {
     expect(queryByRole("img", { name: /三维预览/ })).toBeNull();
   });
 
+  it("maps each print plate to its slots, including duplicate and unknown colors", async () => {
+    const detailed = {
+      ...model,
+      plates: [
+        {
+          index: 1,
+          name: "眼白",
+          objects: ["body.stl", "eye.stl"],
+          filaments: [
+            {
+              slot: 3, hex: "#FFFFFF", type: "PLA", vendor: "Bambu Lab",
+              settings_id: "PLA Basic", used_g: null,
+              picks: [{
+                id: "white", name: "白色", brand_name: "Bambu Lab", series_name: "PLA Basic",
+                hex: "#FFFFFF", delta_e: 0.2, label: "几乎一样",
+              }],
+            },
+            {
+              slot: 7, hex: "#FFFFFF", type: "PETG", vendor: "Bambu Lab",
+              settings_id: "PETG Basic", used_g: 12.5, picks: [],
+            },
+          ],
+        },
+        {
+          index: 2,
+          name: null,
+          objects: [],
+          filaments: [{
+            slot: null, hex: null, type: "", vendor: "", settings_id: "", used_g: null, picks: [],
+          }],
+        },
+      ],
+      images: [
+        { kind: "plate" as const, plate: 1, url: "/api/models/sample-01/media/plate_1.png" },
+        { kind: "plate" as const, plate: 2, url: "/api/models/sample-01/media/plate_2.png" },
+      ],
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(detailed)));
+    const { findByText, getByText, getByRole, container } = render(
+      <ModelPreview path="/models/sample-01" />,
+    );
+    expect(await findByText("眼白")).toBeTruthy();
+    expect(getByText("body.stl")).toBeTruthy();
+    expect(getByText("eye.stl")).toBeTruthy();
+    expect(getByText("槽位 3")).toBeTruthy();
+    expect(getByText("槽位 7")).toBeTruthy();
+    expect(getByText("PLA Basic")).toBeTruthy();
+    expect(getByText("PETG")).toBeTruthy();
+    expect(getByText(/12\.5 g/)).toBeTruthy();
+    expect(getByText("未命名")).toBeTruthy();
+    expect(getByText("未记录部件")).toBeTruthy();
+    expect(getByText("槽位未知")).toBeTruthy();
+    expect(getByText("颜色未知")).toBeTruthy();
+    expect(getByText(/部件没有单独的槽位记录/)).toBeTruthy();
+    expect(container.querySelectorAll(".model-plate")).toHaveLength(2);
+    expect(container.querySelector(".model-plate.is-active")?.textContent).toContain("盘 1");
+    fireEvent.click(getByRole("button", { name: "对应盘 2" }));
+    expect(container.querySelector(".model-plate.is-active")?.textContent).toContain("盘 2");
+    expect(container.querySelector(".model-plate.is-active")?.textContent).toContain("当前盘");
+  });
+
+  it("says the plate mapping is unknown when it was not stored", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({ ...model, plates: null })));
+    const { findByText, getByLabelText } = render(<ModelPreview path="/models/sample-01" />);
+    expect(await findByText(/不能判断哪一盘用什么颜色/)).toBeTruthy();
+    expect(getByLabelText("#112233")).toBeTruthy();
+  });
+
+  it("shows an empty plate record without inventing colors", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({
+      ...model, colours: [], colour_matches: [], plates: [],
+    })));
+    const { findByText } = render(<ModelPreview path="/models/sample-01" />);
+    expect(await findByText("没有打印盘记录。")).toBeTruthy();
+    expect(await findByText("没有配色数据。")).toBeTruthy();
+  });
+
+  it("keeps the original unavailable and does not download the mesh", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({
+      ...model,
+      mesh_url: "/api/models/sample-01/glb",
+      original: {
+        available: false, reason: "not_stored", filename: "示例.3mf",
+        size_bytes: null, sha256: null, media_type: null, url: null,
+      },
+    })));
+    const { findByRole, getByRole, findByText } = render(<ModelPreview path="/models/sample-01" />);
+    expect(await findByText(/记录的文件名：示例\.3mf/)).toBeTruthy();
+    expect(await findByText(/不能代替原始模型/)).toBeTruthy();
+    fireEvent.click(getByRole("button", { name: /原件未入库/ }));
+    expect((await findByRole("alert")).textContent).toContain("请先保留本地备份");
+  });
+
+  it("downloads the original only after the byte count and checksum match", async () => {
+    const bytes = Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8]);
+    const sha = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes.buffer))].map(
+      (part) => part.toString(16).padStart(2, "0"),
+    ).join("");
+    const original = {
+      available: true, reason: null, filename: "多盘示例.3mf", size_bytes: bytes.byteLength,
+      sha256: sha, media_type: "model/3mf", url: "/api/models/sample-01/original",
+    };
+    const fetcher = vi.fn().mockImplementation((url: string) => {
+      if (url === original.url) {
+        return Promise.resolve({
+          ok: true, status: 200,
+          headers: new Headers({ "X-Content-SHA256": sha }),
+          arrayBuffer: async () => bytes.buffer,
+          json: async () => ({}),
+        });
+      }
+      return Promise.resolve(response({ ...model, original }));
+    });
+    vi.stubGlobal("fetch", fetcher);
+    URL.createObjectURL = vi.fn(() => "blob:model");
+    URL.revokeObjectURL = vi.fn();
+    const clicks: string[] = [];
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+      clicks.push(this.download);
+    });
+    const { findByRole } = render(<ModelPreview path="/models/sample-01" />);
+    fireEvent.click(await findByRole("button", { name: /下载 示例方块 01 的原件/ }));
+    await waitFor(() => expect(clicks).toEqual(["多盘示例.3mf"]));
+    expect(fetcher.mock.calls.at(-1)?.[0]).toBe(original.url);
+    expect(fetcher.mock.calls.at(-1)?.[1].credentials).toBe("same-origin");
+  });
+
+  it("cancels a download whose size does not match and surfaces server errors", async () => {
+    const original = {
+      available: true, reason: null, filename: "多盘示例.3mf", size_bytes: 99,
+      sha256: "abc", media_type: "model/3mf", url: "/api/models/sample-01/original",
+    };
+    const fetcher = vi.fn()
+      .mockResolvedValueOnce(response({ ...model, original }))
+      .mockResolvedValueOnce({
+        ok: true, status: 200, headers: new Headers(),
+        arrayBuffer: async () => Uint8Array.from([1, 2, 3]).buffer,
+        json: async () => ({}),
+      });
+    vi.stubGlobal("fetch", fetcher);
+    const { findByRole, findByText } = render(<ModelPreview path="/models/sample-01" />);
+    fireEvent.click(await findByRole("button", { name: /下载 示例方块 01 的原件/ }));
+    expect(await findByText(/字节数和记录不一致/)).toBeTruthy();
+  });
+
+  it("reports a failed original upload", async () => {
+    const fetcher = vi.fn()
+      .mockResolvedValueOnce(response(model))
+      .mockResolvedValueOnce({
+        ok: false, status: 400, headers: new Headers(),
+        json: async () => ({ detail: "文件不是可重新打开的 3MF 或 STL" }),
+      });
+    vi.stubGlobal("fetch", fetcher);
+    const { findByLabelText, findByRole } = render(<ModelPreview path="/models/sample-01" />);
+    const input = await findByLabelText("补存原件");
+    const file = new File([Uint8Array.from([1])], "broken.3mf", { type: "application/octet-stream" });
+    fireEvent.change(input, { target: { files: [file] } });
+    expect((await findByRole("alert")).textContent).toContain("可重新打开");
+    expect(fetcher.mock.calls.at(-1)?.[0]).toBe("/api/models/sample-01/original");
+    expect(fetcher.mock.calls.at(-1)?.[1].method).toBe("POST");
+  });
+
   it("redirects expired sessions and logs out", async () => {
     const navigate = vi.fn();
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({}, 401)));
