@@ -22,6 +22,7 @@ function response(data: unknown, status = 200) {
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  sessionStorage.clear();
   window.history.replaceState({}, "", "/");
 });
 
@@ -74,7 +75,7 @@ describe("model preview", () => {
     fireEvent.change(getByLabelText("搜索模型"), { target: { value: "方块" } });
     fireEvent.click(getByRole("button", { name: "搜索" }));
     await waitFor(() => {
-      const url = new URL(fetcher.mock.calls.at(-1)?.[0], "http://localhost");
+      const url = new URL(String(fetcher.mock.calls.at(-1)?.[0] ?? ""), "http://localhost");
       expect(url.searchParams.get("q")).toBe("方块");
       expect(url.searchParams.get("series")).toBe("几何");
       expect(url.searchParams.get("author")).toBe("样例作者");
@@ -105,7 +106,7 @@ describe("model preview", () => {
     };
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(detailed)));
     const { findByRole, getByText, container } = render(<ModelPreview path="/models/sample-01" />);
-    expect((await findByRole("img", { name: "示例方块 01 盘面 1" })).getAttribute("src"))
+    expect((await findByRole("img", { name: "示例方块 01 斜视 1" })).getAttribute("src"))
       .toBe(detailed.images[0].url);
     expect(container.querySelectorAll(".model-plate-card")).toHaveLength(1);
     fireEvent.click(getByText("盘 1"));
@@ -186,7 +187,7 @@ describe("model preview", () => {
     const viewer = await findByRole("img", { name: "示例方块 01 三维预览" });
     expect(viewer.getAttribute("data-url")).toBe("/api/models/sample-01/glb");
     expect(await findByText("盘 1")).toBeTruthy();
-    expect((await findByRole("img", { name: "示例方块 01 盘面 1" })).getAttribute("src"))
+    expect((await findByRole("img", { name: "示例方块 01 斜视 1" })).getAttribute("src"))
       .toBe(detailed.images[0].url);
   });
 
@@ -215,7 +216,7 @@ describe("model preview", () => {
     };
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(detailed)));
     const { findByRole, queryByRole } = render(<ModelPreview path="/models/sample-01" />);
-    expect(await findByRole("img", { name: "示例方块 01 盘面 1" })).toBeTruthy();
+    expect(await findByRole("img", { name: "示例方块 01 斜视 1" })).toBeTruthy();
     expect(queryByRole("img", { name: /三维预览/ })).toBeNull();
   });
 
@@ -254,13 +255,13 @@ describe("model preview", () => {
     };
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(detailed)));
     const view = render(<ModelPreview path="/models/sample-01" />);
-    expect(await view.findByText("尚未展开打印盘。")).toBeTruthy();
+    expect(await view.findByText("点选上面的打印盘，查看盘面、部件和耗材。")).toBeTruthy();
     expect(view.queryByText("槽位 3")).toBeNull();
     expect(view.container.querySelectorAll(".model-plate-card")).toHaveLength(2);
     expect(view.queryByRole("img", { name: /俯视/ })).toBeNull();
     const download = view.getByRole("button", { name: "下载3MF" });
     expect((download as HTMLButtonElement).disabled).toBe(true);
-    expect(view.getByText("未接通：原件在对象存储，这一版不能下载。")).toBeTruthy();
+    expect(view.getByText("未接通，暂不能下载")).toBeTruthy();
     fireEvent.click(download);
     expect(fetch).toHaveBeenCalledTimes(1);
     fireEvent.click(view.getByRole("button", { name: /盘 1 眼白/ }));
@@ -271,15 +272,15 @@ describe("model preview", () => {
     expect(view.getByLabelText("槽位 3 颜色 #FFFFFF").className).toContain("model-colour");
     fireEvent.click(view.getByRole("tab", { name: /部件/ }));
     expect(view.getByText("body.stl")).toBeTruthy();
-    fireEvent.click(view.getByRole("button", { name: /盘面 2/ }));
+    fireEvent.click(view.getByRole("button", { name: /斜视 2/ }));
     fireEvent.click(view.getByRole("tab", { name: /部件/ }));
     expect(view.getByText("未记录部件")).toBeTruthy();
     fireEvent.click(view.getByRole("tab", { name: /耗材/ }));
     expect(view.getByText("颜色未知")).toBeTruthy();
     expect(view.queryByText("body.stl")).toBeNull();
-    fireEvent.click(view.getByRole("button", { name: /盘面 2/ }));
+    fireEvent.click(view.getByRole("button", { name: /斜视 2/ }));
     expect(view.queryByText("未记录部件")).toBeNull();
-    expect(view.getByText("尚未展开打印盘。")).toBeTruthy();
+    expect(view.getByText("点选上面的打印盘，查看盘面、部件和耗材。")).toBeTruthy();
     fireEvent.click(view.getByRole("button", { name: "收起盘列表" }));
     expect(view.container.querySelector(".model-plate-picker")).toBeNull();
     fireEvent.click(view.getByRole("button", { name: "展开 2 盘" }));
@@ -310,7 +311,7 @@ describe("model preview", () => {
     const hero = await view.findByRole("img", { name: "示例方块 01 封面" });
     expect(hero.getAttribute("src")).toBe(cover);
     expect(hero.closest(".model-hero")).toBeTruthy();
-    expect(view.getByRole("img", { name: "示例方块 01 盘面 1" }).closest(".model-plate-card")).toBeTruthy();
+    expect(view.getByRole("img", { name: "示例方块 01 斜视 1" }).closest(".model-plate-card")).toBeTruthy();
     expect(view.queryByText("a.stl")).toBeNull();
     fireEvent.click(view.getByRole("button", { name: /盘 1 第一盘/ }));
     fireEvent.click(view.getByRole("tab", { name: /部件/ }));
@@ -423,6 +424,37 @@ describe("model preview", () => {
     const { findByText, getByLabelText } = render(<ModelPreview path="/models/sample-01" />);
     expect(await findByText(/不能判断哪一盘用什么颜色/)).toBeTruthy();
     expect(getByLabelText("#112233")).toBeTruthy();
+  });
+
+  it("restores the gallery page and filters, and falls back when opened directly", async () => {
+    window.history.replaceState({}, "", "/models?page=2&q=%E5%B8%83&series=%E5%87%A0%E4%BD%95&author=%E7%8E%8B%E9%93%81%E9%94%A4");
+    const fetcher = vi.fn((url: string) => Promise.resolve(
+      String(url).startsWith("/api/models?") ? response(listing) : response(model),
+    ));
+    vi.stubGlobal("fetch", fetcher);
+    const gallery = render(<ModelPreview path="/models" />);
+    await gallery.findByText(model.title);
+    await waitFor(() => {
+      const url = new URL(String(fetcher.mock.calls.at(-1)?.[0] ?? ""), "http://localhost");
+      expect(url.searchParams.get("page")).toBe("2");
+      expect(url.searchParams.get("q")).toBe("布");
+      expect(url.searchParams.get("series")).toBe("几何");
+      expect(url.searchParams.get("author")).toBe("王铁锤");
+    });
+    expect(gallery.getByText("2 盘 · 2.0 KB")).toBeTruthy();
+    const stored = sessionStorage.getItem("fp.galleryHref");
+    gallery.unmount();
+    const detail = render(<ModelPreview path="/models/sample-01" />);
+    await detail.findByRole("heading", { name: model.title });
+    expect(detail.getByRole("link", { name: "返回画廊" }).getAttribute("href")).toBe(stored);
+    expect(detail.getByRole("link", { name: "模型画廊" }).getAttribute("href")).toBe(stored);
+    expect(stored).toContain("page=2");
+    detail.unmount();
+    sessionStorage.clear();
+    const direct = render(<ModelPreview path="/models/sample-01" />);
+    await direct.findByRole("heading", { name: model.title });
+    expect(direct.getByRole("link", { name: "返回画廊" }).getAttribute("href")).toBe("/models");
+    expect(direct.getByRole("link", { name: "模型画廊" }).getAttribute("href")).toBe("/models");
   });
 
   it("redirects expired sessions and logs out", async () => {

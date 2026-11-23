@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent, JSX } from "react";
 import "./model-preview.css";
 
@@ -130,11 +130,53 @@ function Login({ navigate }: { navigate: Navigate }): JSX.Element {
   );
 }
 
-function Gallery({ navigate }: { navigate: Navigate }): JSX.Element {
+const GALLERY_HREF_KEY = "fp.galleryHref";
+
+interface GalleryParams { q: string; series: string; author: string; page: number }
+
+function galleryParamsFromLocation(): GalleryParams {
+  const params = new URLSearchParams(window.location.search);
+  const page = Number(params.get("page") || "1");
+  return {
+    q: params.get("q") ?? "",
+    series: params.get("series") ?? "",
+    author: params.get("author") ?? "",
+    page: Number.isInteger(page) && page >= 1 ? page : 1,
+  };
+}
+
+function toGalleryHref(params: GalleryParams): string {
+  const search = new URLSearchParams();
+  if (params.q) search.set("q", params.q);
+  if (params.series) search.set("series", params.series);
+  if (params.author) search.set("author", params.author);
+  if (params.page > 1) search.set("page", String(params.page));
+  const query = search.toString();
+  return query ? `/models?${query}` : "/models";
+}
+
+function readStoredGalleryHref(): string {
+  try {
+    const value = sessionStorage.getItem(GALLERY_HREF_KEY);
+    if (typeof value === "string" && (value === "/models" || value.startsWith("/models?"))) return value;
+  } catch { /* sessionStorage can be blocked */ }
+  return "/models";
+}
+
+function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: string) => void }): JSX.Element {
+  const initial = galleryParamsFromLocation();
   const [data, setData] = useState<ModelList | null>(null);
   const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
-  const [params, setParams] = useState({ q: "", series: "", author: "", page: 1 });
+  const [search, setSearch] = useState(initial.q);
+  const [params, setParams] = useState(initial);
+  const href = toGalleryHref(params);
+  useEffect(() => {
+    onHref(href);
+    try { sessionStorage.setItem(GALLERY_HREF_KEY, href); } catch { /* ignore */ }
+    if (window.location.pathname === "/models" && `${window.location.pathname}${window.location.search}` !== href) {
+      window.history.replaceState(null, "", href);
+    }
+  }, [href, onHref]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -188,7 +230,8 @@ function Gallery({ navigate }: { navigate: Navigate }): JSX.Element {
                 <img src={model.cover_url || model.thumb_url} alt={model.title} loading="lazy" />
                 <h2 id={`model-title-${model.id}`}>{model.title}</h2>
               </a>
-              <p>{model.series || "—"} / {model.author || "—"}</p>
+              <p className="model-card-by">{model.series || "—"} / {model.author || "—"}</p>
+              <p className="model-card-meta">{model.plate_count} 盘 · {fileSize(model.size_bytes)}</p>
             </article>
           ))}
         </div>
@@ -371,7 +414,8 @@ function PlateBoard({ cards, model, active, shotKind, onSelect, onShotKind }: {
                   onSelect(card.key);
                 }}>
                 {thumb ? <img src={thumb.url} alt={shotLabel(model.title, thumb.kind, thumb.plate)} /> : <span className="model-plate-card-empty">无盘面图</span>}
-                <span className="model-plate-card-name">{label}{card.name ? ` ${card.name}` : ""}</span>
+                <span className="model-plate-card-index">{label}</span>
+                {card.name ? <>{" "}<span className="model-plate-card-name" title={card.name}>{card.name}</span></> : null}
               </button>
             );
           })}
@@ -381,7 +425,7 @@ function PlateBoard({ cards, model, active, shotKind, onSelect, onShotKind }: {
         <div className="model-plate-stage">
           {active ? (
             <PlateDetail model={model} card={active} shotKind={shotKind} onShotKind={onShotKind} />
-          ) : <p className="model-plate-empty">尚未展开打印盘。</p>}
+          ) : <p className="model-plate-empty">点选上面的打印盘，查看盘面、部件和耗材。</p>}
         </div>
       ) : (
         <div className="model-tab-panel">
@@ -436,12 +480,7 @@ function PlateDetail({ model, card, shotKind, onShotKind }: {
       <div className="model-tab-panel" role="tabpanel">
         {tab === "shot" ? (
           <>
-            {card.face && card.top ? (
-              <div className="model-view-toggle" role="group" aria-label="盘面视图">
-                <button type="button" aria-pressed={shotKind !== "top"} onClick={() => onShotKind("plate")}>盘面</button>
-                <button type="button" aria-pressed={shotKind === "top"} onClick={() => onShotKind("top")}>俯视</button>
-              </div>
-            ) : null}
+            {card.face && card.top ? <ViewToggle shotKind={shotKind} onShotKind={onShotKind} /> : null}
             {shot ? (
               <figure className="model-plate-preview">
                 <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
@@ -459,6 +498,7 @@ function PlateDetail({ model, card, shotKind, onShotKind }: {
         {tab === "parts" ? (
           grouped.length > 0 ? (
             <>
+              <CompactShot model={model} card={card} shotKind={shotKind} />
               <ul className="model-objects">
                 {visible.map((item) => (
                   <li key={item.name}>{item.count > 1 ? `${item.name} ×${item.count}` : item.name}</li>
@@ -473,9 +513,41 @@ function PlateDetail({ model, card, shotKind, onShotKind }: {
             </>
           ) : <p>未记录部件</p>
         ) : null}
-        {tab === "filaments" ? <FilamentList plate={plate} /> : null}
+        {tab === "filaments" ? (
+          <>
+            <CompactShot model={model} card={card} shotKind={shotKind} />
+            <FilamentList plate={plate} />
+          </>
+        ) : null}
       </div>
     </div>
+  );
+}
+
+function ViewToggle({ shotKind, onShotKind }: {
+  shotKind: "plate" | "top";
+  onShotKind: (kind: "plate" | "top") => void;
+}): JSX.Element {
+  return (
+    <div className="model-view-toggle" role="group" aria-label="视角">
+      <button type="button" aria-pressed={shotKind !== "top"} onClick={() => onShotKind("plate")}>斜视</button>
+      <button type="button" aria-pressed={shotKind === "top"} onClick={() => onShotKind("top")}>俯视</button>
+    </div>
+  );
+}
+
+function CompactShot({ model, card, shotKind }: {
+  model: Model;
+  card: PlateCard;
+  shotKind: "plate" | "top";
+}): JSX.Element | null {
+  const shot = shotKind === "top" && card.top ? card.top : (card.face ?? card.top);
+  if (!shot) return null;
+  return (
+    <figure className="model-plate-mini">
+      <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
+      <figcaption>{shotCaption(shot.kind, shot.plate)}</figcaption>
+    </figure>
   );
 }
 
@@ -581,14 +653,14 @@ function privateMeshUrl(url: string | null | undefined): string | null {
 
 function shotCaption(kind: ModelImage["kind"], plate: number): string {
   if (kind === "cover") return "封面";
-  return kind === "top" ? `俯视 ${plate}` : `盘面 ${plate}`;
+  return kind === "top" ? `俯视 ${plate}` : `斜视 ${plate}`;
 }
 
 function shotLabel(title: string, kind: ModelImage["kind"], plate: number): string {
   return `${title} ${shotCaption(kind, plate)}`;
 }
 
-const DOWNLOAD_IDLE = "未接通：原件在对象存储，这一版不能下载。";
+const DOWNLOAD_IDLE = "未接通，暂不能下载";
 
 function canDownload(model: Model): OriginalFile | null {
   const original = model.original;
@@ -626,7 +698,8 @@ function DownloadControl({ model, navigate }: { model: Model; navigate: Navigate
   return (
     <div className="model-download-block">
       <button type="button" className="model-download" disabled={original == null || busy}
-        aria-describedby="model-download-status" onClick={() => { void click(); }}>
+        aria-disabled={original == null || busy} aria-describedby="model-download-status"
+        onClick={() => { void click(); }}>
         {busy ? "正在核对…" : "下载3MF"}
       </button>
       <p id="model-download-status" className="model-download-status">
@@ -700,6 +773,8 @@ export function ModelPreview({ path = window.location.pathname, navigate = goTo 
   const login = normalized === "/models/login";
   const detailView = !login && normalized !== "/models";
   const [error, setError] = useState("");
+  const [galleryHref, setGalleryHref] = useState(readStoredGalleryHref);
+  const rememberGallery = useCallback((href: string) => setGalleryHref(href), []);
   async function logout() {
     setError("");
     try {
@@ -718,14 +793,15 @@ export function ModelPreview({ path = window.location.pathname, navigate = goTo 
         <nav className="topbar-nav" aria-label="页面导航">
           <a className="nav-link" href="/">耗材选色</a>
           {!login && <>
-            <a className="nav-link" href="/models">模型画廊</a>
+            {detailView && <a className="nav-link model-back" href={galleryHref}>返回画廊</a>}
+            <a className="nav-link" href={galleryHref}>模型画廊</a>
             <button onClick={logout}>退出登录</button>
           </>}
         </nav>
       </header>
       <p className="model-banner" role="note">仅私人收藏预览、禁止外传</p>
       {error && <p role="alert">{error}</p>}
-      {login ? <Login navigate={navigate} /> : normalized === "/models" ? <Gallery navigate={navigate} /> : (
+      {login ? <Login navigate={navigate} /> : normalized === "/models" ? <Gallery navigate={navigate} onHref={rememberGallery} /> : (
         <Detail id={id} navigate={navigate} />
       )}
     </main>
