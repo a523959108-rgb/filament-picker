@@ -30,6 +30,7 @@ from .config import (
     SOURCE_RANK,
 )
 from .matcher import eligible, label_for, name_display
+from .model_import import parse_plate_layout
 from .note_parser import Params
 from .spoolman import annotate_picks, load_spools
 
@@ -418,6 +419,22 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         row = preview.record(model_id)
         payload = _public_model(row, detail=True)
         payload["colour_matches"] = preview.match_colours(payload["colours"])
+        plates = parse_plate_layout(_column(row, "plate_layout", ""))
+        if plates is not None:
+            by_hex = {item["hex"]: item["picks"] for item in payload["colour_matches"]}
+            extra = [
+                filament["hex"]
+                for plate in plates
+                for filament in plate["filaments"]
+                if isinstance(filament.get("hex"), str) and filament["hex"] not in by_hex
+            ]
+            for item in preview.match_colours(list(dict.fromkeys(extra))):
+                by_hex[item["hex"]] = item["picks"]
+            for plate in plates:
+                for filament in plate["filaments"]:
+                    colour = filament.get("hex")
+                    filament["picks"] = by_hex.get(colour, []) if isinstance(colour, str) else []
+        payload["plates"] = plates
         payload["mesh_url"] = preview.mesh_url(row["id"])
         return payload
 

@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS models (
     description TEXT NOT NULL DEFAULT '',
     dedupe_key TEXT NOT NULL DEFAULT '',
     images TEXT NOT NULL DEFAULT '[]',
-    updated_at TEXT NOT NULL DEFAULT ''
+    updated_at TEXT NOT NULL DEFAULT '',
+    plate_layout TEXT NOT NULL DEFAULT ''
 )
 """
 _EXTRA_COLUMNS = (
@@ -53,6 +54,7 @@ _EXTRA_COLUMNS = (
     ("dedupe_key", "ALTER TABLE models ADD COLUMN dedupe_key TEXT NOT NULL DEFAULT ''"),
     ("images", "ALTER TABLE models ADD COLUMN images TEXT NOT NULL DEFAULT '[]'"),
     ("updated_at", "ALTER TABLE models ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''"),
+    ("plate_layout", "ALTER TABLE models ADD COLUMN plate_layout TEXT NOT NULL DEFAULT ''"),
 )
 _CREATE_ALIASES = """
 CREATE TABLE IF NOT EXISTS model_aliases (
@@ -108,6 +110,7 @@ class _Preview:
     created_at: str
     model_dir: Path
     has_meta: bool
+    plate_layout: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -286,6 +289,7 @@ def _preview_from(directory: Path, model_id: str, obj: dict[str, Any]) -> _Previ
         created_at=_created_at(meta, obj.get("mtime")),
         model_dir=model_dir,
         has_meta=meta is not None,
+        plate_layout=plate_layout_json(meta),
     )
 
 
@@ -482,6 +486,200 @@ def _count_images(model_dir: Path, cover: Path | None = None) -> int:
     return (1 if thumb is not None else 0) + len(shots) + (0 if cover is None else 1)
 
 
+def plate_layout_json(meta: dict[str, Any] | None) -> str:
+    """Return canonical plate JSON, or ``""`` when the extract has no plate list.
+
+    An empty list means the extract recorded no print plates. Missing metadata
+    stays ``""`` so the API can say the mapping is unknown. Object names are not
+    paired with filament slots; the source only records filaments for each plate.
+    """
+    if meta is None or "plates" not in meta or not isinstance(meta.get("plates"), list):
+        return ""
+    plates: list[dict[str, Any]] = []
+    for plate in meta["plates"]:
+        if not isinstance(plate, dict):
+            continue
+        index = plate.get("index")
+        index_value = index if isinstance(index, int) and not isinstance(index, bool) else None
+        name = plain_text(plate.get("name")) or None
+        objects: list[str] = []
+        raw_objects = plate.get("objects")
+        if isinstance(raw_objects, list):
+            for item in raw_objects:
+                text = plain_text(item)
+                if text:
+                    objects.append(text)
+        filaments: list[dict[str, Any]] = []
+        raw_filaments = plate.get("filaments")
+        if isinstance(raw_filaments, list):
+            for item in raw_filaments:
+                if isinstance(item, dict):
+                    filaments.append(_filament_record(item))
+        plates.append(
+            {"index": index_value, "name": name, "objects": objects, "filaments": filaments}
+        )
+    return json.dumps(plates, ensure_ascii=False, separators=(",", ":"))
+
+
+def parse_plate_layout(raw: object) -> list[dict[str, Any]] | None:
+    """Parse stored plate JSON. ``None`` means the mapping was never stored."""
+    if not isinstance(raw, str) or raw == "":
+        return None
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(parsed, list):
+        return None
+    plates: list[dict[str, Any]] = []
+    for plate in parsed:
+        if not isinstance(plate, dict):
+            continue
+        index = plate.get("index")
+        name = plate.get("name")
+        objects = [item for item in plate.get("objects", []) if isinstance(item, str) and item]
+        filaments = [
+            _public_filament(item) for item in plate.get("filaments", []) if isinstance(item, dict)
+        ]
+        plates.append(
+            {
+                "index": index if isinstance(index, int) and not isinstance(index, bool) else None,
+                "name": name if isinstance(name, str) and name else None,
+                "objects": objects,
+                "filaments": filaments,
+            }
+        )
+    return plates
+
+
+def _filament_record(item: dict[str, Any]) -> dict[str, Any]:
+    slot = item.get("slot")
+    colors = _normalize_colors([item.get("hex")] if isinstance(item.get("hex"), str) else [])
+    used = item.get("used_g")
+    used_value = None if isinstance(used, bool) or not isinstance(used, (int, float)) else used
+    return {
+        "slot": slot if isinstance(slot, int) and not isinstance(slot, bool) else None,
+        "hex": colors[0] if colors else None,
+        "type": plain_text(item.get("type")),
+        "vendor": plain_text(item.get("vendor")),
+        "settings_id": plain_text(item.get("settings_id")),
+        "used_g": used_value,
+    }
+
+
+def _public_filament(item: dict[str, Any]) -> dict[str, Any]:
+    slot = item.get("slot")
+    hex_value = item.get("hex")
+    used = item.get("used_g")
+    return {
+        "slot": slot if isinstance(slot, int) and not isinstance(slot, bool) else None,
+        "hex": hex_value if isinstance(hex_value, str) and _HEX_RE.fullmatch(hex_value) else None,
+        "type": item.get("type") if isinstance(item.get("type"), str) else "",
+        "vendor": item.get("vendor") if isinstance(item.get("vendor"), str) else "",
+        "settings_id": item.get("settings_id") if isinstance(item.get("settings_id"), str) else "",
+        "used_g": used if not isinstance(used, bool) and isinstance(used, (int, float)) else None,
+    }
+
+
+def backfill_plate_layouts(
+    directory: Path, root: Path, *, apply: bool = False, backup_dir: Path | None = None
+) -> dict[str, int]:
+    """Write only ``plate_layout`` for ids that already exist and have meta.json.
+
+    Does not insert, delete, or rewrite other columns, and does not copy model files.
+    """
+    directory = directory.resolve()
+    root = root.resolve()
+    database = root / "manifest.sqlite"
+    if not directory.is_dir() or not (directory / "models").is_dir():
+        raise ValueError(f"提取目录缺少 models/：{directory}")
+    if not database.is_file():
+        raise ValueError(f"模型清单不存在：{database}")
+    planned: list[tuple[str, str]] = []
+    missing = unchanged = 0
+    with closing(sqlite3.connect(database.resolve().as_uri() + "?mode=ro", uri=True)) as conn:
+        ids = [row[0] for row in conn.execute("SELECT id FROM models ORDER BY id")]
+    before = len(ids)
+    for model_id in ids:
+        if not isinstance(model_id, str) or _ID_RE.fullmatch(model_id) is None:
+            continue
+        meta_path = directory / "models" / model_id / "meta.json"
+        meta = _load_meta(directory / "models" / model_id) if meta_path.is_file() else None
+        if meta is None:
+            missing += 1
+            continue
+        layout = plate_layout_json(meta)
+        planned.append((model_id, layout))
+    if not apply:
+        return {
+            "models": before,
+            "planned": len(planned),
+            "missing_meta": missing,
+            "updated": 0,
+            "unchanged": 0,
+            "applied": 0,
+        }
+    if backup_dir is None:
+        raise ValueError("写入盘映射前必须提供备份目录")
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(ZoneInfo(TZ)).strftime("%Y%m%dT%H%M%S")
+    backup = backup_dir / f"manifest.sqlite.{stamp}.bak"
+    _backup_sqlite(database, backup)
+    try:
+        with closing(sqlite3.connect(database)) as conn, conn:
+            _ensure_schema(conn)
+            for model_id, layout in planned:
+                current = conn.execute(
+                    "SELECT plate_layout FROM models WHERE id = ?", (model_id,)
+                ).fetchone()
+                if current is not None and current[0] == layout:
+                    unchanged += 1
+                    continue
+                conn.execute("UPDATE models SET plate_layout = ? WHERE id = ?", (layout, model_id))
+        after = _model_count(database)
+        if after != before:
+            raise RuntimeError("盘映射回填改变了模型条数，已停止")
+        if list(root.rglob("*.3mf")):
+            raise RuntimeError("盘映射回填不应写入 3MF")
+    except Exception:
+        _restore_sqlite(backup, database)
+        raise
+    return {
+        "models": before,
+        "planned": len(planned),
+        "missing_meta": missing,
+        "updated": len(planned) - unchanged,
+        "unchanged": unchanged,
+        "applied": 1,
+    }
+
+
+def restore_manifest(backup: Path, root: Path) -> None:
+    """Replace the model manifest with a backup. Does not touch image files or COS."""
+    database = root / "manifest.sqlite"
+    if not backup.is_file():
+        raise ValueError(f"备份不存在：{backup}")
+    if not database.is_file():
+        raise ValueError(f"模型清单不存在：{database}")
+    _restore_sqlite(backup, database)
+
+
+def _backup_sqlite(source: Path, destination: Path) -> None:
+    with closing(sqlite3.connect(source)) as src, closing(sqlite3.connect(destination)) as dest:
+        src.backup(dest)
+
+
+def _restore_sqlite(backup: Path, database: Path) -> None:
+    temporary = database.with_name(database.name + ".restore")
+    _backup_sqlite(backup, temporary)
+    os.replace(temporary, database)
+
+
+def _model_count(database: Path) -> int:
+    with closing(sqlite3.connect(database)) as conn:
+        return int(conn.execute("SELECT COUNT(*) FROM models").fetchone()[0])
+
+
 def _payload(preview: _Preview, cover: Path | None = None) -> tuple[Any, ...]:
     thumb, shots = _iter_shots(preview.model_dir)
     if cover is not None:
@@ -500,6 +698,7 @@ def _payload(preview: _Preview, cover: Path | None = None) -> tuple[Any, ...]:
         preview.description,
         preview.dedupe_key,
         tuple((shot.kind, shot.plate, shot.name) for shot in shots),
+        preview.plate_layout,
     )
 
 
@@ -537,6 +736,7 @@ def _stored_payload(row: sqlite3.Row, columns: set[str]) -> tuple[Any, ...]:
         cell("description", ""),
         cell("dedupe_key", ""),
         _stored_shots(cell("images", "[]")),
+        str(cell("plate_layout", "") or ""),
     )
 
 
@@ -644,7 +844,8 @@ def _upsert(
         conn.execute(
             "INSERT INTO models (id, sha256, title, series, author, source_relpath, "
             "size_bytes, plate_count, colours, thumb_path, created_at, description, "
-            "dedupe_key, images, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "dedupe_key, images, updated_at, plate_layout) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 preview.id,
                 digest,
@@ -661,13 +862,14 @@ def _upsert(
                 preview.dedupe_key,
                 image_json,
                 now,
+                preview.plate_layout,
             ),
         )
         return
     conn.execute(
         "UPDATE models SET sha256 = ?, title = ?, series = ?, author = ?, source_relpath = ?, "
         "size_bytes = ?, plate_count = ?, colours = ?, thumb_path = ?, description = ?, "
-        "dedupe_key = ?, images = ?, updated_at = ? WHERE id = ?",
+        "dedupe_key = ?, images = ?, updated_at = ?, plate_layout = ? WHERE id = ?",
         (
             digest,
             preview.title,
@@ -682,6 +884,7 @@ def _upsert(
             preview.dedupe_key,
             image_json,
             now,
+            preview.plate_layout,
             preview.id,
         ),
     )

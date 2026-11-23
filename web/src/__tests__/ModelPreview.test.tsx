@@ -216,6 +216,60 @@ describe("model preview", () => {
     expect(queryByRole("img", { name: /三维预览/ })).toBeNull();
   });
 
+  it("shows which print plate uses which filament slot", async () => {
+    const detailed = {
+      ...model,
+      plates: [
+        {
+          index: 1,
+          name: "眼白",
+          objects: ["body.stl", "eye.stl"],
+          filaments: [
+            {
+              slot: 3, hex: "#FFFFFF", type: "PLA", vendor: "Bambu Lab",
+              settings_id: "PLA Basic", used_g: null, picks: [],
+            },
+            {
+              slot: 7, hex: "#FFFFFF", type: "PETG", vendor: "Bambu Lab",
+              settings_id: "PETG Basic", used_g: 12.5, picks: [],
+            },
+          ],
+        },
+        {
+          index: 2,
+          name: null,
+          objects: [],
+          filaments: [{
+            slot: null, hex: null, type: "", vendor: "", settings_id: "", used_g: null, picks: [],
+          }],
+        },
+      ],
+      images: [
+        { kind: "plate" as const, plate: 1, url: "/api/models/sample-01/media/plate_1.png" },
+        { kind: "plate" as const, plate: 2, url: "/api/models/sample-01/media/plate_2.png" },
+      ],
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(detailed)));
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    expect(await view.findByText("眼白")).toBeTruthy();
+    expect(view.getByText("槽位 3")).toBeTruthy();
+    expect(view.getByText("槽位 7")).toBeTruthy();
+    expect(view.getByText("PETG")).toBeTruthy();
+    expect(view.getByText("未记录部件")).toBeTruthy();
+    expect(view.getByText("颜色未知")).toBeTruthy();
+    expect(view.getByText(/这里的盘是打印盘/)).toBeTruthy();
+    expect(view.queryByRole("button", { name: /下载/ })).toBeNull();
+    fireEvent.click(view.getByRole("button", { name: "对应盘 2" }));
+    expect(view.container.querySelector(".model-plate.is-active")?.textContent).toContain("盘 2");
+  });
+
+  it("says plate mapping is unknown when the record has no layout", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({ ...model, plates: null })));
+    const { findByText, getByLabelText } = render(<ModelPreview path="/models/sample-01" />);
+    expect(await findByText(/不能判断哪一盘用什么颜色/)).toBeTruthy();
+    expect(getByLabelText("#112233")).toBeTruthy();
+  });
+
   it("redirects expired sessions and logs out", async () => {
     const navigate = vi.fn();
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({}, 401)));

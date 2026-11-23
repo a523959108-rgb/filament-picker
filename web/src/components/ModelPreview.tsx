@@ -29,6 +29,23 @@ interface ColourMatch {
   picks: ColourPick[];
 }
 
+interface PlateFilament {
+  slot: number | null;
+  hex: string | null;
+  type: string;
+  vendor: string;
+  settings_id: string;
+  used_g: number | null;
+  picks?: ColourPick[];
+}
+
+interface PlateInfo {
+  index: number | null;
+  name: string | null;
+  objects: string[];
+  filaments: PlateFilament[];
+}
+
 interface Model {
   id: string;
   title: string;
@@ -44,6 +61,7 @@ interface Model {
   images?: ModelImage[];
   colour_matches?: ColourMatch[];
   mesh_url?: string | null;
+  plates?: PlateInfo[] | null;
 }
 
 interface ModelList {
@@ -186,6 +204,7 @@ function fileSize(bytes: number): string {
 function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Element {
   const [model, setModel] = useState<Model | null>(null);
   const [error, setError] = useState("");
+  const [activePlate, setActivePlate] = useState("");
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
@@ -198,7 +217,10 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
         if (response.status === 404) { setError("模型不存在"); return; }
         if (!response.ok) throw new Error();
         const result = await response.json() as Model;
-        if (active) setModel(result);
+        if (!active) return;
+        setModel(result);
+        const first = result.plates?.[0];
+        setActivePlate(first ? plateKey(first, 0) : "");
       })
       .catch(() => { if (active) setError("模型加载失败，请重试"); });
     return () => { active = false; controller.abort(); };
@@ -206,8 +228,12 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
   if (error) return <p className="panel" role="alert">{error}</p>;
   if (model === null) return <p role="status">模型加载中…</p>;
   const shots = orderedShots(model);
-  const matches = model.colour_matches ?? model.colours.map((hex) => ({ hex, picks: [] }));
   const mesh = privateMeshUrl(model.mesh_url);
+  function selectPlate(key: string, plateNumber: number | null) {
+    setActivePlate(key);
+    if (plateNumber == null) return;
+    document.getElementById(`model-shot-plate-${plateNumber}`)?.scrollIntoView?.({ block: "nearest" });
+  }
   return (
     <article className="panel model-detail">
       <div className="model-shots">
@@ -217,9 +243,17 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
           </Suspense>
         ) : null}
         {shots.map((shot) => (
-          <figure key={shot.url}>
-            <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
-            <figcaption>{shotCaption(shot.kind, shot.plate)}</figcaption>
+          <figure key={shot.url} className={shot.plate > 0 && activePlate === `plate-${shot.plate}` ? "is-active" : ""}>
+            <img id={shot.kind === "plate" && shot.plate > 0 ? `model-shot-plate-${shot.plate}` : undefined}
+              src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
+            <figcaption>
+              <span>{shotCaption(shot.kind, shot.plate)}</span>
+              {shot.plate > 0 ? (
+                <button type="button" onClick={() => selectPlate(`plate-${shot.plate}`, shot.plate)}>
+                  对应盘 {shot.plate}
+                </button>
+              ) : null}
+            </figcaption>
           </figure>
         ))}
       </div>
@@ -232,25 +266,120 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
           <dt>盘数</dt><dd>{model.plate_count} 盘</dd>
           <dt>大小</dt><dd>{fileSize(model.size_bytes)}</dd>
         </dl>
-        <h3>原配色</h3>
-        <div className="model-colours">
-          {matches.map((match, index) => (
-            <div className="model-colour-row" key={`${match.hex}-${index}`}>
-              <span className="model-colour" role="img" aria-label={match.hex} title={match.hex}
-                style={{ backgroundColor: match.hex }} />
-              {match.picks[0] ? (
-                <span className="model-colour-match">
-                  {match.picks[0].brand_name} {match.picks[0].name}
-                  {match.picks[0].label ? ` · ${match.picks[0].label}` : ""}
-                  {match.picks[0].stock?.in_stock === true ? " · 库存有" : ""}
-                </span>
-              ) : null}
-            </div>
-          ))}
-        </div>
+        <PlateColours model={model} activePlate={activePlate} onSelect={selectPlate} />
       </div>
     </article>
   );
+}
+
+function PlateColours({ model, activePlate, onSelect }: {
+  model: Model;
+  activePlate: string;
+  onSelect: (key: string, plateNumber: number | null) => void;
+}): JSX.Element {
+  const plates = model.plates;
+  const matches = model.colour_matches ?? model.colours.map((hex) => ({ hex, picks: [] as ColourPick[] }));
+  if (!Array.isArray(plates) || plates.length === 0) {
+    const unknown = !Array.isArray(plates);
+    return (
+      <section aria-label="打印盘配色">
+        <h3>打印盘配色</h3>
+        <p>{unknown
+          ? "这份预览没有保存盘和耗材的对应，不能判断哪一盘用什么颜色。"
+          : "没有打印盘记录。"}
+        </p>
+        {matches.length > 0 ? (
+          <>
+            <h3>{unknown ? "原配色" : "未对应到盘的颜色"}</h3>
+            <ColourList matches={matches} />
+          </>
+        ) : <p>没有配色数据。</p>}
+      </section>
+    );
+  }
+  return (
+    <section aria-label="打印盘配色">
+      <h3>打印盘配色</h3>
+      <p className="model-plate-note">
+        这里的盘是打印盘，槽位是耗材位置。编号用文字标出，不单靠颜色区分。部件没有单独的槽位记录，颜色属于这一整盘。
+      </p>
+      <div className="model-plates">
+        {plates.map((plate, ordinal) => {
+          const key = plateKey(plate, ordinal);
+          const active = activePlate === key;
+          return (
+            <article className={active ? "model-plate is-active" : "model-plate"} id={`model-plate-${key}`} key={key}>
+              <button type="button" className="model-plate-select" aria-pressed={active}
+                onClick={() => onSelect(key, plate.index)}>
+                <span className="model-plate-index">{plate.index == null ? "盘号未知" : `盘 ${plate.index}`}</span>
+                <span>{plate.name || "未命名"}</span>
+                {active ? <span className="model-plate-current">当前盘</span> : null}
+              </button>
+              <h4>部件</h4>
+              {plate.objects.length > 0 ? (
+                <ul className="model-objects">
+                  {plate.objects.map((object, index) => <li key={`${object}-${index}`}>{object}</li>)}
+                </ul>
+              ) : <p>未记录部件</p>}
+              <h4>本盘耗材</h4>
+              {plate.filaments.length > 0 ? (
+                <ul className="model-filaments">
+                  {plate.filaments.map((filament, index) => (
+                    <li key={`${filament.slot ?? "x"}-${filament.hex ?? "none"}-${index}`}>
+                      <span className="model-slot-badge">耗材 {index + 1}</span>
+                      <span className={filament.hex ? "model-colour" : "model-colour is-unknown"} role="img"
+                        aria-label={filament.hex ? `槽位 ${filament.slot ?? "未知"} 颜色 ${filament.hex}` : "槽位未知 颜色未知"}
+                        title={filament.hex ?? "颜色未知"}
+                        style={filament.hex ? { backgroundColor: filament.hex } : undefined} />
+                      <span>{filament.slot == null ? "槽位未知" : `槽位 ${filament.slot}`}</span>
+                      <span>{filament.hex ?? "颜色未知"}</span>
+                      {filament.type ? <span>{filament.type}</span> : null}
+                      {filament.vendor ? <span>{filament.vendor}</span> : null}
+                      {filament.used_g != null ? <span>{`${filament.used_g} g`}</span> : null}
+                      {filament.settings_id ? <span className="model-colour-match">{filament.settings_id}</span> : null}
+                      {filament.picks?.[0] ? (
+                        <span className="model-colour-match">
+                          {filament.picks[0].brand_name} {filament.picks[0].name}
+                          {filament.picks[0].label ? ` · ${filament.picks[0].label}` : ""}
+                          {filament.picks[0].stock?.in_stock === true ? " · 库存有" : ""}
+                        </span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              ) : <p>未记录耗材</p>}
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function ColourList({ matches }: { matches: ColourMatch[] }): JSX.Element {
+  return (
+    <div className="model-colours">
+      {matches.map((match, index) => (
+        <div className="model-colour-row" key={`${match.hex}-${index}`}>
+          <span className="model-slot-badge">颜色 {index + 1}</span>
+          <span className="model-colour" role="img" aria-label={match.hex} title={match.hex}
+            style={{ backgroundColor: match.hex }} />
+          <span>{match.hex}</span>
+          {match.picks[0] ? (
+            <span className="model-colour-match">
+              {match.picks[0].brand_name} {match.picks[0].name}
+              {match.picks[0].label ? ` · ${match.picks[0].label}` : ""}
+              {match.picks[0].stock?.in_stock === true ? " · 库存有" : ""}
+            </span>
+          ) : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function plateKey(plate: PlateInfo, ordinal: number): string {
+  return plate.index == null ? `unknown-${ordinal}` : `plate-${plate.index}`;
 }
 
 function privateMeshUrl(url: string | null | undefined): string | null {

@@ -407,6 +407,50 @@ def _add_models(sub: argparse._SubParsersAction) -> None:
     importer.add_argument("directory", type=Path)
     importer.add_argument("--dry-run", action="store_true", help="print stats without writing")
     importer.set_defaults(handler=_cmd_import_previews)
+    backfill = commands.add_parser(
+        "backfill-plates",
+        help="fill print-plate color maps from existing meta.json without copying model files",
+    )
+    backfill.add_argument("directory", type=Path)
+    backfill.add_argument("--backup-dir", type=Path)
+    backfill.add_argument(
+        "--apply",
+        action="store_true",
+        help="write plate_layout after backing up manifest.sqlite; default is dry-run",
+    )
+    backfill.add_argument(
+        "--restore",
+        type=Path,
+        help="replace manifest.sqlite with this backup and do nothing else",
+    )
+    backfill.set_defaults(handler=_cmd_backfill_plates)
+
+
+def _cmd_backfill_plates(args: argparse.Namespace) -> int:
+    from .model_import import backfill_plate_layouts, restore_manifest
+    from .models import models_root
+
+    try:
+        if args.restore is not None:
+            restore_manifest(args.restore, models_root())
+            print(f"restored={args.restore.name}")
+            return 0
+        if args.apply and args.backup_dir is None:
+            raise ValueError("写入盘映射必须同时给出 --backup-dir")
+        stats = backfill_plate_layouts(
+            args.directory,
+            models_root(),
+            apply=args.apply,
+            backup_dir=args.backup_dir,
+        )
+    except (OSError, ValueError, RuntimeError, sqlite3.Error) as exc:
+        print(str(exc))
+        return 1
+    print(
+        "models={models} planned={planned} missing_meta={missing_meta} "
+        "updated={updated} unchanged={unchanged} applied={applied}".format(**stats)
+    )
+    return 0
 
 
 def _cmd_import_previews(args: argparse.Namespace) -> int:
