@@ -258,19 +258,32 @@ describe("model preview", () => {
     expect(view.queryByText("槽位 3")).toBeNull();
     expect(view.container.querySelectorAll(".model-plate-card")).toHaveLength(2);
     expect(view.queryByRole("img", { name: /俯视/ })).toBeNull();
-    expect(view.queryByRole("button", { name: /下载/ })).toBeNull();
+    const download = view.getByRole("button", { name: "下载3MF" });
+    expect((download as HTMLButtonElement).disabled).toBe(true);
+    expect(view.getByText("未接通：原件在对象存储，这一版不能下载。")).toBeTruthy();
+    fireEvent.click(download);
+    expect(fetch).toHaveBeenCalledTimes(1);
     fireEvent.click(view.getByRole("button", { name: /盘 1 眼白/ }));
+    fireEvent.click(view.getByRole("tab", { name: /耗材/ }));
     expect(view.getByText("槽位 3")).toBeTruthy();
     expect(view.getByText("槽位 7")).toBeTruthy();
     expect(view.getByText("PETG")).toBeTruthy();
+    expect(view.getByLabelText("槽位 3 颜色 #FFFFFF").className).toContain("model-colour");
+    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
     expect(view.getByText("body.stl")).toBeTruthy();
     fireEvent.click(view.getByRole("button", { name: /盘面 2/ }));
+    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
     expect(view.getByText("未记录部件")).toBeTruthy();
+    fireEvent.click(view.getByRole("tab", { name: /耗材/ }));
     expect(view.getByText("颜色未知")).toBeTruthy();
     expect(view.queryByText("body.stl")).toBeNull();
     fireEvent.click(view.getByRole("button", { name: /盘面 2/ }));
     expect(view.queryByText("未记录部件")).toBeNull();
     expect(view.getByText("尚未展开打印盘。")).toBeTruthy();
+    fireEvent.click(view.getByRole("button", { name: "收起盘列表" }));
+    expect(view.container.querySelector(".model-plate-picker")).toBeNull();
+    fireEvent.click(view.getByRole("button", { name: "展开 2 盘" }));
+    expect(view.container.querySelectorAll(".model-plate-card")).toHaveLength(2);
   });
 
   it("keeps a real cover large and leaves other plates collapsed", async () => {
@@ -300,6 +313,7 @@ describe("model preview", () => {
     expect(view.getByRole("img", { name: "示例方块 01 盘面 1" }).closest(".model-plate-card")).toBeTruthy();
     expect(view.queryByText("a.stl")).toBeNull();
     fireEvent.click(view.getByRole("button", { name: /盘 1 第一盘/ }));
+    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
     expect(view.getByText("a.stl")).toBeTruthy();
     expect(view.queryByText("b.stl")).toBeNull();
     expect(view.container.querySelectorAll(".model-plate-card")).toHaveLength(2);
@@ -308,6 +322,7 @@ describe("model preview", () => {
   it("merges repeated part names and keeps one card per plate", async () => {
     const objects = Array.from({ length: 97 }, () => "tooth.stl_3");
     objects.push("eye.stl", "eye.stl");
+    for (let index = 0; index < 9; index += 1) objects.push(`extra_${index}.stl`);
     const plates = Array.from({ length: 22 }, (_, index) => ({
       index: index + 1,
       name: index === 10 ? "左眼" : null,
@@ -337,11 +352,64 @@ describe("model preview", () => {
     expect(view.queryByText("tooth.stl_3 ×97")).toBeNull();
     fireEvent.click(view.getByRole("button", { name: /盘 11 左眼/ }));
     expect(scroll).not.toHaveBeenCalled();
-    expect(view.getByText("tooth.stl_3 ×97")).toBeTruthy();
+    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
+    const parts = view.getByRole("tabpanel");
+    expect(parts.className).toContain("model-tab-panel");
+    expect(parts.contains(view.getByText("tooth.stl_3 ×97"))).toBe(true);
     expect(view.getByText("eye.stl ×2")).toBeTruthy();
     expect(view.queryAllByText("tooth.stl_3")).toHaveLength(0);
+    fireEvent.click(view.getByRole("tab", { name: "盘面" }));
     expect(view.getByRole("button", { name: "俯视" })).toBeTruthy();
+    fireEvent.click(view.getByRole("tab", { name: /耗材/ }));
+    expect(view.getByRole("tabpanel").contains(view.getByLabelText("槽位 11 颜色 #112233"))).toBe(true);
     expect(view.getByLabelText("槽位 11 颜色 #112233").className).toContain("model-colour");
+    const screen = view.container.querySelector(".model-screen");
+    expect(screen?.contains(view.getByRole("tabpanel"))).toBe(true);
+    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
+    fireEvent.click(view.getByRole("button", { name: /查看全部/ }));
+    const listed = view.getByRole("tabpanel").querySelectorAll(".model-objects li");
+    expect(listed.length).toBe(11);
+    expect(screen?.contains(view.getByText("extra_8.stl"))).toBe(true);
+    fireEvent.click(view.getByRole("button", { name: "展开说明" }));
+    const description = view.container.querySelector(".model-description");
+    expect(description?.className).toContain("is-open");
+    expect(view.container.querySelector(".model-head")?.contains(description)).toBe(true);
+    expect(view.container.querySelector(".is-detail .model-screen")).toBeTruthy();
+    expect(view.container.querySelector(".model-plate-picker")).toBeTruthy();
+  });
+
+  it("downloads a stored original and leaves the color-only API disabled", async () => {
+    const bytes = new Uint8Array([1, 2, 3, 4]);
+    const fetcher = vi.fn()
+      .mockResolvedValueOnce(response({
+        ...model,
+        original: {
+          available: true,
+          url: "/api/models/sample-01/original",
+          filename: "fixture.3mf",
+          size_bytes: bytes.byteLength,
+          sha256: null,
+          media_type: "model/3mf",
+        },
+      }))
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => null },
+        arrayBuffer: async () => bytes.buffer,
+      });
+    vi.stubGlobal("fetch", fetcher);
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:preview");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    const button = await view.findByRole("button", { name: "下载3MF" });
+    expect((button as HTMLButtonElement).disabled).toBe(false);
+    expect(view.queryByText(/不能下载/)).toBeNull();
+    expect(view.queryByText(/丢失|重新上传|未入库/)).toBeNull();
+    fireEvent.click(button);
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
+    expect(fetcher.mock.calls[1][0]).toBe("/api/models/sample-01/original");
+    expect(fetcher.mock.calls[1][1].credentials).toBe("same-origin");
   });
 
   it("says plate mapping is unknown when the record has no layout", async () => {
