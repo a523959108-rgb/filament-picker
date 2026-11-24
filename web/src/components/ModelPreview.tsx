@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent, JSX } from "react";
 import "./model-preview.css";
 
@@ -29,6 +29,33 @@ interface ColourMatch {
   picks: ColourPick[];
 }
 
+interface PlateFilament {
+  slot: number | null;
+  hex: string | null;
+  type: string;
+  vendor: string;
+  settings_id: string;
+  used_g: number | null;
+  picks?: ColourPick[];
+}
+
+interface PlateInfo {
+  index: number | null;
+  name: string | null;
+  objects: string[];
+  filaments: PlateFilament[];
+}
+
+interface OriginalFile {
+  available: boolean;
+  reason?: string | null;
+  filename?: string | null;
+  size_bytes?: number | null;
+  sha256?: string | null;
+  media_type?: string | null;
+  url?: string | null;
+}
+
 interface Model {
   id: string;
   title: string;
@@ -44,6 +71,8 @@ interface Model {
   images?: ModelImage[];
   colour_matches?: ColourMatch[];
   mesh_url?: string | null;
+  plates?: PlateInfo[] | null;
+  original?: OriginalFile | null;
 }
 
 interface ModelList {
@@ -101,11 +130,53 @@ function Login({ navigate }: { navigate: Navigate }): JSX.Element {
   );
 }
 
-function Gallery({ navigate }: { navigate: Navigate }): JSX.Element {
+const GALLERY_HREF_KEY = "fp.galleryHref";
+
+interface GalleryParams { q: string; series: string; author: string; page: number }
+
+function galleryParamsFromLocation(): GalleryParams {
+  const params = new URLSearchParams(window.location.search);
+  const page = Number(params.get("page") || "1");
+  return {
+    q: params.get("q") ?? "",
+    series: params.get("series") ?? "",
+    author: params.get("author") ?? "",
+    page: Number.isInteger(page) && page >= 1 ? page : 1,
+  };
+}
+
+function toGalleryHref(params: GalleryParams): string {
+  const search = new URLSearchParams();
+  if (params.q) search.set("q", params.q);
+  if (params.series) search.set("series", params.series);
+  if (params.author) search.set("author", params.author);
+  if (params.page > 1) search.set("page", String(params.page));
+  const query = search.toString();
+  return query ? `/models?${query}` : "/models";
+}
+
+function readStoredGalleryHref(): string {
+  try {
+    const value = sessionStorage.getItem(GALLERY_HREF_KEY);
+    if (typeof value === "string" && (value === "/models" || value.startsWith("/models?"))) return value;
+  } catch { /* sessionStorage can be blocked */ }
+  return "/models";
+}
+
+function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: string) => void }): JSX.Element {
+  const initial = galleryParamsFromLocation();
   const [data, setData] = useState<ModelList | null>(null);
   const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
-  const [params, setParams] = useState({ q: "", series: "", author: "", page: 1 });
+  const [search, setSearch] = useState(initial.q);
+  const [params, setParams] = useState(initial);
+  const href = toGalleryHref(params);
+  useEffect(() => {
+    onHref(href);
+    try { sessionStorage.setItem(GALLERY_HREF_KEY, href); } catch { /* ignore */ }
+    if (window.location.pathname === "/models" && `${window.location.pathname}${window.location.search}` !== href) {
+      window.history.replaceState(null, "", href);
+    }
+  }, [href, onHref]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -159,7 +230,8 @@ function Gallery({ navigate }: { navigate: Navigate }): JSX.Element {
                 <img src={model.cover_url || model.thumb_url} alt={model.title} loading="lazy" />
                 <h2 id={`model-title-${model.id}`}>{model.title}</h2>
               </a>
-              <p>{model.series || "—"} / {model.author || "—"}</p>
+              <p className="model-card-by">{model.series || "—"} / {model.author || "—"}</p>
+              <p className="model-card-meta">{model.plate_count} 盘 · {fileSize(model.size_bytes)}</p>
             </article>
           ))}
         </div>
@@ -186,11 +258,24 @@ function fileSize(bytes: number): string {
 function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Element {
   const [model, setModel] = useState<Model | null>(null);
   const [error, setError] = useState("");
+  const [activePlate, setActivePlate] = useState("");
+  const [shotKind, setShotKind] = useState<"plate" | "top">("plate");
+  const [descOpen, setDescOpen] = useState(false);
+  const [locked, setLocked] = useState<{ hero: number; work: number } | null>(null);
+  const screenRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    document.querySelector("main.model-preview")?.classList.toggle("is-desc-open", descOpen);
+    return () => document.querySelector("main.model-preview")?.classList.remove("is-desc-open");
+  }, [descOpen]);
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
     setModel(null);
     setError("");
+    setActivePlate("");
+    setShotKind("plate");
+    setDescOpen(false);
+    setLocked(null);
     fetch(`/api/models/${encodeURIComponent(id)}`, { credentials: "same-origin", signal: controller.signal })
       .then(async (response) => {
         if (!active) return;
@@ -205,52 +290,360 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
   }, [id, navigate]);
   if (error) return <p className="panel" role="alert">{error}</p>;
   if (model === null) return <p role="status">模型加载中…</p>;
-  const shots = orderedShots(model);
-  const matches = model.colour_matches ?? model.colours.map((hex) => ({ hex, picks: [] }));
+  const covers = coverShots(model);
+  const cards = plateCards(model);
   const mesh = privateMeshUrl(model.mesh_url);
+  const description = model.description ?? "";
+  const longDescription = description.length > 160 || description.split("\n").length > 4;
+  function selectPlate(key: string) {
+    setActivePlate((current) => current === key ? "" : key);
+    setShotKind("plate");
+  }
+  function toggleDescription() {
+    const main = document.querySelector("main.model-preview");
+    if (!descOpen) {
+      const root = screenRef.current;
+      const hero = root?.querySelector(".model-hero-pane")?.getBoundingClientRect().height ?? 0;
+      const work = root?.querySelector(".model-work")?.getBoundingClientRect().height ?? 0;
+      if (hero > 0 && work > 0) setLocked({ hero, work });
+      main?.classList.add("is-desc-open");
+      setDescOpen(true);
+      return;
+    }
+    main?.classList.remove("is-desc-open");
+    setLocked(null);
+    setDescOpen(false);
+  }
+  const open = cards.find((card) => card.key === activePlate) ?? null;
   return (
-    <article className="panel model-detail">
-      <div className="model-shots">
+    <article ref={screenRef} className="panel model-screen"
+      style={locked ? {
+        ["--hero-h" as string]: `${locked.hero}px`,
+        ["--work-h" as string]: `${locked.work}px`,
+      } : undefined}>
+      <header className="model-head">
+        <h2>{model.title}</h2>
+        <p className="model-meta">
+          <span>系列 {model.series || "—"}</span>
+          <span>作者 {model.author || "—"}</span>
+          <span>{model.plate_count} 盘</span>
+          <span>{fileSize(model.size_bytes)}</span>
+        </p>
+        <DownloadControl model={model} navigate={navigate} />
+        {description ? (
+          <div className="model-description-block">
+            <p className={longDescription && !descOpen ? "model-description is-clamped" : "model-description"}>{description}</p>
+            {longDescription ? (
+              <button type="button" className="model-text-button" aria-expanded={descOpen} onClick={toggleDescription}>
+                {descOpen ? "收起说明" : "展开说明"}
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+      </header>
+      <div className="model-hero-pane">
+        {covers.length > 0 ? covers.map((shot) => (
+          <figure className="model-hero" key={shot.url}>
+            <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
+            <figcaption><span>{shotCaption(shot.kind, shot.plate)}</span></figcaption>
+          </figure>
+        )) : mesh ? null : <p className="model-hero-empty">没有封面</p>}
         {mesh ? (
           <Suspense fallback={<p role="status">三维预览加载中…</p>}>
             <MeshViewer url={mesh} label={model.title} />
           </Suspense>
         ) : null}
-        {shots.map((shot) => (
-          <figure key={shot.url}>
-            <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
-            <figcaption>{shotCaption(shot.kind, shot.plate)}</figcaption>
-          </figure>
-        ))}
       </div>
-      <div>
-        <h2>{model.title}</h2>
-        {model.description ? <p className="model-description">{model.description}</p> : null}
-        <dl>
-          <dt>系列</dt><dd>{model.series || "—"}</dd>
-          <dt>作者</dt><dd>{model.author || "—"}</dd>
-          <dt>盘数</dt><dd>{model.plate_count} 盘</dd>
-          <dt>大小</dt><dd>{fileSize(model.size_bytes)}</dd>
-        </dl>
-        <h3>原配色</h3>
-        <div className="model-colours">
-          {matches.map((match, index) => (
-            <div className="model-colour-row" key={`${match.hex}-${index}`}>
-              <span className="model-colour" role="img" aria-label={match.hex} title={match.hex}
-                style={{ backgroundColor: match.hex }} />
-              {match.picks[0] ? (
-                <span className="model-colour-match">
-                  {match.picks[0].brand_name} {match.picks[0].name}
-                  {match.picks[0].label ? ` · ${match.picks[0].label}` : ""}
-                  {match.picks[0].stock?.in_stock === true ? " · 库存有" : ""}
-                </span>
-              ) : null}
-            </div>
-          ))}
-        </div>
-      </div>
+      <PlateBoard cards={cards} model={model} active={open} shotKind={shotKind}
+        onSelect={selectPlate} onShotKind={setShotKind} />
     </article>
   );
+}
+
+const PART_PREVIEW = 8;
+
+interface PlateCard {
+  key: string;
+  index: number | null;
+  name: string | null;
+  plate?: PlateInfo;
+  face?: ModelImage;
+  top?: ModelImage;
+}
+
+function PlateBoard({ cards, model, active, shotKind, onSelect, onShotKind }: {
+  cards: PlateCard[];
+  model: Model;
+  active: PlateCard | null;
+  shotKind: "plate" | "top";
+  onSelect: (key: string) => void;
+  onShotKind: (kind: "plate" | "top") => void;
+}): JSX.Element {
+  const [pickerOpen, setPickerOpen] = useState(true);
+  const plates = model.plates;
+  const matches = model.colour_matches ?? model.colours.map((hex) => ({ hex, picks: [] as ColourPick[] }));
+  const known = Array.isArray(plates) && plates.length > 0;
+  const note = known
+    ? "颜色属于这一整盘，不是单个部件。"
+    : plates === undefined || plates === null
+      ? "这份预览没有保存盘和耗材的对应，不能判断哪一盘用什么颜色。"
+      : "没有打印盘记录。";
+  return (
+    <section className="model-work" aria-label="打印盘配色">
+      <div className="model-plate-tools">
+        <p className="model-plate-note">{note}</p>
+        {cards.length > 0 ? (
+          <button type="button" className="model-text-button" aria-expanded={pickerOpen}
+            onClick={() => setPickerOpen((current) => !current)}>
+            {pickerOpen ? "收起盘列表" : `展开 ${cards.length} 盘`}
+          </button>
+        ) : null}
+      </div>
+      {cards.length > 0 && pickerOpen ? (
+        <div className="model-plate-picker">
+          {cards.map((card) => {
+            const selected = active?.key === card.key;
+            const thumb = card.face ?? card.top;
+            const label = card.index == null ? "盘号未知" : `盘 ${card.index}`;
+            return (
+              <button type="button" key={card.key}
+                className={selected ? "model-plate-card is-active" : "model-plate-card"}
+                aria-pressed={selected}
+                onClick={(event) => {
+                  revealInPicker(event.currentTarget);
+                  onSelect(card.key);
+                }}>
+                {thumb ? <img src={thumb.url} alt={shotLabel(model.title, thumb.kind, thumb.plate)} /> : <span className="model-plate-card-empty">无盘面图</span>}
+                <span className="model-plate-card-index">{label}</span>
+                {card.name ? <>{" "}<span className="model-plate-card-name" title={card.name}>{card.name}</span></> : null}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+      {cards.length > 0 ? (
+        <div className="model-plate-stage">
+          {active ? (
+            <PlateDetail model={model} card={active} shotKind={shotKind} onShotKind={onShotKind} />
+          ) : <p className="model-plate-empty">点选上面的打印盘，查看盘面、部件和耗材。</p>}
+        </div>
+      ) : (
+        <div className="model-tab-panel">
+          {!known && matches.length > 0 ? (
+            <>
+              <h3>{plates === undefined || plates === null ? "原配色" : "未对应到盘的颜色"}</h3>
+              <ColourList matches={matches} />
+            </>
+          ) : null}
+          {!known && matches.length === 0 ? <p>没有配色数据。</p> : null}
+        </div>
+      )}
+    </section>
+  );
+}
+
+type PlateTab = "shot" | "parts" | "filaments";
+
+function PlateDetail({ model, card, shotKind, onShotKind }: {
+  model: Model;
+  card: PlateCard;
+  shotKind: "plate" | "top";
+  onShotKind: (kind: "plate" | "top") => void;
+}): JSX.Element {
+  const [tab, setTab] = useState<PlateTab>("shot");
+  const [showAllParts, setShowAllParts] = useState(false);
+  useEffect(() => { setShowAllParts(false); }, [card.key]);
+  const shot = shotKind === "top" && card.top ? card.top : (card.face ?? card.top);
+  const plate = card.plate;
+  const grouped = groupObjects(plate?.objects ?? []);
+  const visible = showAllParts ? grouped : grouped.slice(0, PART_PREVIEW);
+  const title = `${card.index == null ? "盘号未知" : `盘 ${card.index}`}${card.name ? ` ${card.name}` : ""}`;
+  const tabs: { id: PlateTab; label: string }[] = [
+    { id: "shot", label: "盘面" },
+    { id: "parts", label: `部件 ${grouped.length}` },
+    { id: "filaments", label: `耗材 ${plate?.filaments.length ?? 0}` },
+  ];
+  return (
+    <div className="model-plate-detail" id="model-plate-detail">
+      <div className="model-plate-detail-head">
+        <p className="model-plate-current">{title || "当前盘"}</p>
+        <p className="model-plate-summary">{grouped.length} 种部件 · {plate?.filaments.length ?? 0} 个耗材槽</p>
+      </div>
+      <div className="model-tabs" role="tablist" aria-label="当前盘内容">
+        {tabs.map((item) => (
+          <button type="button" key={item.id} role="tab" className="model-tab"
+            aria-selected={tab === item.id} onClick={() => setTab(item.id)}>
+            {item.label}
+          </button>
+        ))}
+      </div>
+      <div className="model-tab-panel" role="tabpanel">
+        {tab === "shot" ? (
+          <>
+            {card.face && card.top ? <ViewToggle shotKind={shotKind} onShotKind={onShotKind} /> : null}
+            {shot ? (
+              <figure className="model-plate-preview">
+                <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
+                <figcaption><span>{shotCaption(shot.kind, shot.plate)}</span></figcaption>
+              </figure>
+            ) : <p>没有这一盘的图片。</p>}
+            {!plate && (model.colour_matches?.length || model.colours.length) ? (
+              <>
+                <h3>原配色</h3>
+                <ColourList matches={model.colour_matches ?? model.colours.map((hex) => ({ hex, picks: [] }))} />
+              </>
+            ) : null}
+          </>
+        ) : null}
+        {tab === "parts" ? (
+          grouped.length > 0 ? (
+            <>
+              <CompactShot model={model} card={card} shotKind={shotKind} />
+              <ul className="model-objects">
+                {visible.map((item) => (
+                  <li key={item.name}>{item.count > 1 ? `${item.name} ×${item.count}` : item.name}</li>
+                ))}
+              </ul>
+              {grouped.length > PART_PREVIEW ? (
+                <button type="button" className="model-text-button" aria-expanded={showAllParts}
+                  onClick={() => setShowAllParts((current) => !current)}>
+                  {showAllParts ? "收起部件" : `查看全部 ${grouped.length} 种`}
+                </button>
+              ) : null}
+            </>
+          ) : <p>未记录部件</p>
+        ) : null}
+        {tab === "filaments" ? (
+          <>
+            <CompactShot model={model} card={card} shotKind={shotKind} />
+            <FilamentList plate={plate} />
+          </>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function ViewToggle({ shotKind, onShotKind }: {
+  shotKind: "plate" | "top";
+  onShotKind: (kind: "plate" | "top") => void;
+}): JSX.Element {
+  return (
+    <div className="model-view-toggle" role="group" aria-label="视角">
+      <button type="button" aria-pressed={shotKind !== "top"} onClick={() => onShotKind("plate")}>斜视</button>
+      <button type="button" aria-pressed={shotKind === "top"} onClick={() => onShotKind("top")}>俯视</button>
+    </div>
+  );
+}
+
+function CompactShot({ model, card, shotKind }: {
+  model: Model;
+  card: PlateCard;
+  shotKind: "plate" | "top";
+}): JSX.Element | null {
+  const shot = shotKind === "top" && card.top ? card.top : (card.face ?? card.top);
+  if (!shot) return null;
+  return (
+    <figure className="model-plate-mini">
+      <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
+      <figcaption>{shotCaption(shot.kind, shot.plate)}</figcaption>
+    </figure>
+  );
+}
+
+function FilamentList({ plate }: { plate: PlateInfo | undefined }): JSX.Element {
+  if (!plate) return <p>这一盘没有耗材映射。</p>;
+  if (plate.filaments.length === 0) return <p>未记录耗材</p>;
+  return (
+    <ul className="model-filaments">
+      {plate.filaments.map((filament, index) => (
+        <li key={`${filament.slot ?? "x"}-${filament.hex ?? "none"}-${index}`}>
+          <span className={filament.hex ? "model-colour" : "model-colour is-unknown"} role="img"
+            aria-label={filament.hex ? `槽位 ${filament.slot ?? "未知"} 颜色 ${filament.hex}` : "槽位未知 颜色未知"}
+            title={filament.hex ?? "颜色未知"}
+            style={filament.hex ? { ["--swatch" as string]: filament.hex } : undefined} />
+          <span>{filament.slot == null ? "槽位未知" : `槽位 ${filament.slot}`}</span>
+          <span>{filament.hex ?? "颜色未知"}</span>
+          {filament.type ? <span>{filament.type}</span> : null}
+          {filament.vendor ? <span>{filament.vendor}</span> : null}
+          {filament.used_g != null ? <span>{`${filament.used_g} g`}</span> : null}
+          {filament.settings_id ? <span className="model-colour-match">{filament.settings_id}</span> : null}
+          {filament.picks?.[0] ? (
+            <span className="model-colour-match">
+              {filament.picks[0].brand_name} {filament.picks[0].name}
+              {filament.picks[0].label ? ` · ${filament.picks[0].label}` : ""}
+              {filament.picks[0].stock?.in_stock === true ? " · 库存有" : ""}
+            </span>
+          ) : null}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function ColourList({ matches }: { matches: ColourMatch[] }): JSX.Element {
+  return (
+    <div className="model-colours">
+      {matches.map((match, index) => (
+        <div className="model-colour-row" key={`${match.hex}-${index}`}>
+          <span className="model-slot-badge">颜色 {index + 1}</span>
+          <span className="model-colour" role="img" aria-label={match.hex} title={match.hex}
+            style={{ ["--swatch" as string]: match.hex }} />
+          <span>{match.hex}</span>
+          {match.picks[0] ? (
+            <span className="model-colour-match">
+              {match.picks[0].brand_name} {match.picks[0].name}
+              {match.picks[0].label ? ` · ${match.picks[0].label}` : ""}
+              {match.picks[0].stock?.in_stock === true ? " · 库存有" : ""}
+            </span>
+          ) : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function plateKey(plate: PlateInfo, ordinal: number): string {
+  return plate.index == null ? `unknown-${ordinal}` : `plate-${plate.index}`;
+}
+
+function coverShots(model: Model): ModelImage[] {
+  const images = model.images ?? [];
+  const covers = images.filter((image) => image.kind === "cover");
+  if (covers.length > 0) return covers;
+  if (model.cover_url) return [{ kind: "cover", plate: 0, url: model.cover_url }];
+  return [];
+}
+
+function plateCards(model: Model): PlateCard[] {
+  const images = model.images ?? [];
+  const faceOf = (plate: number) => images.find((image) => image.kind === "plate" && image.plate === plate);
+  const topOf = (plate: number) => images.find((image) => image.kind === "top" && image.plate === plate);
+  if (Array.isArray(model.plates) && model.plates.length > 0) {
+    return model.plates.map((plate, ordinal) => ({
+      key: plateKey(plate, ordinal),
+      index: plate.index,
+      name: plate.name,
+      plate,
+      face: plate.index == null ? undefined : faceOf(plate.index),
+      top: plate.index == null ? undefined : topOf(plate.index),
+    }));
+  }
+  const numbers = [...new Set(images.filter((image) => image.plate > 0).map((image) => image.plate))]
+    .sort((left, right) => left - right);
+  return numbers.map((plate) => ({
+    key: `plate-${plate}`,
+    index: plate,
+    name: null,
+    face: faceOf(plate),
+    top: topOf(plate),
+  }));
+}
+
+function groupObjects(names: string[]): { name: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const name of names) counts.set(name, (counts.get(name) ?? 0) + 1);
+  return [...counts.entries()].map(([name, count]) => ({ name, count }));
 }
 
 function privateMeshUrl(url: string | null | undefined): string | null {
@@ -258,22 +651,119 @@ function privateMeshUrl(url: string | null | undefined): string | null {
   return url;
 }
 
-function orderedShots(model: Model): ModelImage[] {
-  const images = model.images ?? [];
-  const cover = images.filter((image) => image.kind === "cover");
-  const rest = images.filter((image) => image.kind !== "cover");
-  if (cover.length + rest.length > 0) return [...cover, ...rest];
-  if (model.cover_url) return [{ kind: "cover", plate: 0, url: model.cover_url }];
-  return [{ kind: "plate", plate: 1, url: model.thumb_url }];
-}
-
 function shotCaption(kind: ModelImage["kind"], plate: number): string {
   if (kind === "cover") return "封面";
-  return kind === "top" ? `俯视 ${plate}` : `盘面 ${plate}`;
+  return kind === "top" ? `俯视 ${plate}` : `斜视 ${plate}`;
 }
 
 function shotLabel(title: string, kind: ModelImage["kind"], plate: number): string {
   return `${title} ${shotCaption(kind, plate)}`;
+}
+
+const DOWNLOAD_IDLE = "未接通，暂不能下载";
+
+function canDownload(model: Model): OriginalFile | null {
+  const original = model.original;
+  if (!original?.available || typeof original.url !== "string") return null;
+  if (!original.url.startsWith("/api/models/")) return null;
+  return original;
+}
+
+function revealInPicker(target: HTMLElement): void {
+  const scroller = target.closest(".model-plate-picker");
+  if (!(scroller instanceof HTMLElement)) return;
+  const top = target.offsetTop - scroller.offsetTop;
+  const bottom = top + target.offsetHeight;
+  if (top < scroller.scrollTop) scroller.scrollTop = top;
+  else if (bottom > scroller.scrollTop + scroller.clientHeight) {
+    scroller.scrollTop = bottom - scroller.clientHeight;
+  }
+}
+
+function DownloadControl({ model, navigate }: { model: Model; navigate: Navigate }): JSX.Element {
+  const original = canDownload(model);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function click() {
+    if (!original || busy) return;
+    setBusy(true);
+    setNote("");
+    try {
+      const message = await fetchOriginal(original, navigate);
+      if (message) setNote(message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="model-download-block">
+      <button type="button" className="model-download" disabled={original == null || busy}
+        aria-disabled={original == null || busy} aria-describedby="model-download-status"
+        onClick={() => { void click(); }}>
+        {busy ? "正在核对…" : "下载3MF"}
+      </button>
+      <p id="model-download-status" className="model-download-status">
+        {original ? (original.filename || "可下载已入库原件") : DOWNLOAD_IDLE}
+      </p>
+      {note ? <p role="alert">{note}</p> : null}
+    </div>
+  );
+}
+
+async function fetchOriginal(original: OriginalFile, navigate: Navigate): Promise<string> {
+  if (!original.available || !original.url?.startsWith("/api/models/")) return DOWNLOAD_IDLE;
+  let response: Response;
+  try {
+    response = await fetch(original.url, { credentials: "same-origin" });
+  } catch {
+    return "下载失败，请重试";
+  }
+  if (response.status === 401) {
+    navigate("/models/login");
+    return "";
+  }
+  if (!response.ok) return errorDetail(response);
+  const buffer = await response.arrayBuffer();
+  if (original.size_bytes != null && buffer.byteLength !== original.size_bytes) {
+    return "下载的字节数和记录不一致，已取消保存。";
+  }
+  if (original.sha256) {
+    const actual = await sha256Hex(buffer);
+    const header = response.headers.get("X-Content-SHA256");
+    if (actual == null || actual !== original.sha256 || (header != null && header !== original.sha256)) {
+      return "下载校验和不匹配，已取消保存。";
+    }
+  }
+  try {
+    const blob = new Blob([buffer], { type: original.media_type ?? "application/octet-stream" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = original.filename || "model.3mf";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  } catch {
+    return "下载失败，请重试";
+  }
+  return "";
+}
+
+async function sha256Hex(buffer: ArrayBuffer): Promise<string | null> {
+  if (!globalThis.crypto?.subtle) return null;
+  const digest = await crypto.subtle.digest("SHA-256", buffer);
+  return [...new Uint8Array(digest)].map((part) => part.toString(16).padStart(2, "0")).join("");
+}
+
+async function errorDetail(response: Response): Promise<string> {
+  try {
+    const body = await response.json() as { detail?: unknown };
+    if (typeof body.detail === "string" && body.detail) return body.detail;
+  } catch {
+    return "下载失败，请重试";
+  }
+  return "下载失败，请重试";
 }
 
 export function ModelPreview({ path = window.location.pathname, navigate = goTo }: {
@@ -281,7 +771,10 @@ export function ModelPreview({ path = window.location.pathname, navigate = goTo 
 }): JSX.Element {
   const normalized = path.replace(/\/+$/, "");
   const login = normalized === "/models/login";
+  const detailView = !login && normalized !== "/models";
   const [error, setError] = useState("");
+  const [galleryHref, setGalleryHref] = useState(readStoredGalleryHref);
+  const rememberGallery = useCallback((href: string) => setGalleryHref(href), []);
   async function logout() {
     setError("");
     try {
@@ -294,20 +787,21 @@ export function ModelPreview({ path = window.location.pathname, navigate = goTo 
   try { id = decodeURIComponent(normalized.slice("/models/".length)); }
   catch { id = ""; }
   return (
-    <main className="page model-preview">
+    <main className={detailView ? "page model-preview is-detail" : "page model-preview"}>
       <header className="topbar">
         <h1>模型预览</h1>
         <nav className="topbar-nav" aria-label="页面导航">
           <a className="nav-link" href="/">耗材选色</a>
           {!login && <>
-            <a className="nav-link" href="/models">模型画廊</a>
+            {detailView && <a className="nav-link model-back" href={galleryHref}>返回画廊</a>}
+            <a className="nav-link" href={galleryHref}>模型画廊</a>
             <button onClick={logout}>退出登录</button>
           </>}
         </nav>
       </header>
       <p className="model-banner" role="note">仅私人收藏预览、禁止外传</p>
       {error && <p role="alert">{error}</p>}
-      {login ? <Login navigate={navigate} /> : normalized === "/models" ? <Gallery navigate={navigate} /> : (
+      {login ? <Login navigate={navigate} /> : normalized === "/models" ? <Gallery navigate={navigate} onHref={rememberGallery} /> : (
         <Detail id={id} navigate={navigate} />
       )}
     </main>

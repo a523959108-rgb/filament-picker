@@ -22,6 +22,7 @@ function response(data: unknown, status = 200) {
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  sessionStorage.clear();
   window.history.replaceState({}, "", "/");
 });
 
@@ -74,7 +75,7 @@ describe("model preview", () => {
     fireEvent.change(getByLabelText("搜索模型"), { target: { value: "方块" } });
     fireEvent.click(getByRole("button", { name: "搜索" }));
     await waitFor(() => {
-      const url = new URL(fetcher.mock.calls.at(-1)?.[0], "http://localhost");
+      const url = new URL(String(fetcher.mock.calls.at(-1)?.[0] ?? ""), "http://localhost");
       expect(url.searchParams.get("q")).toBe("方块");
       expect(url.searchParams.get("series")).toBe("几何");
       expect(url.searchParams.get("author")).toBe("样例作者");
@@ -105,8 +106,11 @@ describe("model preview", () => {
     };
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(detailed)));
     const { findByRole, getByText, container } = render(<ModelPreview path="/models/sample-01" />);
-    expect((await findByRole("img", { name: "示例方块 01 盘面 1" })).getAttribute("src"))
+    expect((await findByRole("img", { name: "示例方块 01 斜视 1" })).getAttribute("src"))
       .toBe(detailed.images[0].url);
+    expect(container.querySelectorAll(".model-plate-card")).toHaveLength(1);
+    fireEvent.click(getByText("盘 1"));
+    fireEvent.click(getByText("俯视"));
     expect(getByText("俯视 1")).toBeTruthy();
     const description = container.querySelector(".model-description");
     expect(description?.textContent).toContain("<img");
@@ -182,8 +186,8 @@ describe("model preview", () => {
     const { findByRole, findByText } = render(<ModelPreview path="/models/sample-01" />);
     const viewer = await findByRole("img", { name: "示例方块 01 三维预览" });
     expect(viewer.getAttribute("data-url")).toBe("/api/models/sample-01/glb");
-    expect(await findByText("盘面 1")).toBeTruthy();
-    expect((await findByRole("img", { name: "示例方块 01 盘面 1" })).getAttribute("src"))
+    expect(await findByText("盘 1")).toBeTruthy();
+    expect((await findByRole("img", { name: "示例方块 01 斜视 1" })).getAttribute("src"))
       .toBe(detailed.images[0].url);
   });
 
@@ -212,8 +216,269 @@ describe("model preview", () => {
     };
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(detailed)));
     const { findByRole, queryByRole } = render(<ModelPreview path="/models/sample-01" />);
-    expect(await findByRole("img", { name: "示例方块 01 盘面 1" })).toBeTruthy();
+    expect(await findByRole("img", { name: "示例方块 01 斜视 1" })).toBeTruthy();
     expect(queryByRole("img", { name: /三维预览/ })).toBeNull();
+  });
+
+  it("shows which print plate uses which filament slot", async () => {
+    const detailed = {
+      ...model,
+      plates: [
+        {
+          index: 1,
+          name: "眼白",
+          objects: ["body.stl", "eye.stl"],
+          filaments: [
+            {
+              slot: 3, hex: "#FFFFFF", type: "PLA", vendor: "Bambu Lab",
+              settings_id: "PLA Basic", used_g: null, picks: [],
+            },
+            {
+              slot: 7, hex: "#FFFFFF", type: "PETG", vendor: "Bambu Lab",
+              settings_id: "PETG Basic", used_g: 12.5, picks: [],
+            },
+          ],
+        },
+        {
+          index: 2,
+          name: null,
+          objects: [],
+          filaments: [{
+            slot: null, hex: null, type: "", vendor: "", settings_id: "", used_g: null, picks: [],
+          }],
+        },
+      ],
+      images: [
+        { kind: "plate" as const, plate: 1, url: "/api/models/sample-01/media/plate_1.png" },
+        { kind: "plate" as const, plate: 2, url: "/api/models/sample-01/media/plate_2.png" },
+      ],
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(detailed)));
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    expect(await view.findByText("点选上面的打印盘，查看盘面、部件和耗材。")).toBeTruthy();
+    expect(view.queryByText("槽位 3")).toBeNull();
+    expect(view.container.querySelectorAll(".model-plate-card")).toHaveLength(2);
+    expect(view.queryByRole("img", { name: /俯视/ })).toBeNull();
+    const download = view.getByRole("button", { name: "下载3MF" });
+    expect((download as HTMLButtonElement).disabled).toBe(true);
+    expect(view.getByText("未接通，暂不能下载")).toBeTruthy();
+    fireEvent.click(download);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    fireEvent.click(view.getByRole("button", { name: /盘 1 眼白/ }));
+    fireEvent.click(view.getByRole("tab", { name: /耗材/ }));
+    expect(view.getByText("槽位 3")).toBeTruthy();
+    expect(view.getByText("槽位 7")).toBeTruthy();
+    expect(view.getByText("PETG")).toBeTruthy();
+    expect(view.getByLabelText("槽位 3 颜色 #FFFFFF").className).toContain("model-colour");
+    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
+    expect(view.getByText("body.stl")).toBeTruthy();
+    fireEvent.click(view.getByRole("button", { name: /斜视 2/ }));
+    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
+    expect(view.getByText("未记录部件")).toBeTruthy();
+    fireEvent.click(view.getByRole("tab", { name: /耗材/ }));
+    expect(view.getByText("颜色未知")).toBeTruthy();
+    expect(view.queryByText("body.stl")).toBeNull();
+    fireEvent.click(view.getByRole("button", { name: /斜视 2/ }));
+    expect(view.queryByText("未记录部件")).toBeNull();
+    expect(view.getByText("点选上面的打印盘，查看盘面、部件和耗材。")).toBeTruthy();
+    fireEvent.click(view.getByRole("button", { name: "收起盘列表" }));
+    expect(view.container.querySelector(".model-plate-picker")).toBeNull();
+    fireEvent.click(view.getByRole("button", { name: "展开 2 盘" }));
+    expect(view.container.querySelectorAll(".model-plate-card")).toHaveLength(2);
+  });
+
+  it("keeps a real cover large and leaves other plates collapsed", async () => {
+    const cover = "/api/models/sample-01/media/cover.png";
+    const detailed = {
+      ...model,
+      cover_url: cover,
+      images: [
+        { kind: "cover" as const, plate: 0, url: cover },
+        { kind: "plate" as const, plate: 1, url: "/api/models/sample-01/media/plate_1.png" },
+        { kind: "plate" as const, plate: 2, url: "/api/models/sample-01/media/plate_2.png" },
+      ],
+      plates: [
+        { index: 1, name: "第一盘", objects: ["a.stl"], filaments: [
+          { slot: 1, hex: "#112233", type: "PLA", vendor: "", settings_id: "", used_g: null, picks: [] },
+        ] },
+        { index: 2, name: null, objects: ["b.stl"], filaments: [
+          { slot: 2, hex: "#FFFFFF", type: "PLA", vendor: "", settings_id: "", used_g: null, picks: [] },
+        ] },
+      ],
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(detailed)));
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    const hero = await view.findByRole("img", { name: "示例方块 01 封面" });
+    expect(hero.getAttribute("src")).toBe(cover);
+    expect(hero.closest(".model-hero")).toBeTruthy();
+    expect(view.getByRole("img", { name: "示例方块 01 斜视 1" }).closest(".model-plate-card")).toBeTruthy();
+    expect(view.queryByText("a.stl")).toBeNull();
+    fireEvent.click(view.getByRole("button", { name: /盘 1 第一盘/ }));
+    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
+    expect(view.getByText("a.stl")).toBeTruthy();
+    expect(view.queryByText("b.stl")).toBeNull();
+    expect(view.container.querySelectorAll(".model-plate-card")).toHaveLength(2);
+  });
+
+  it("merges repeated part names and keeps one card per plate", async () => {
+    const objects = Array.from({ length: 97 }, () => "tooth.stl_3");
+    objects.push("eye.stl", "eye.stl");
+    for (let index = 0; index < 9; index += 1) objects.push(`extra_${index}.stl`);
+    const plates = Array.from({ length: 22 }, (_, index) => ({
+      index: index + 1,
+      name: index === 10 ? "左眼" : null,
+      objects: index === 10 ? objects : ["body.stl"],
+      filaments: [{
+        slot: index + 1, hex: index === 0 ? "#FFFFFF" : "#112233", type: "PLA", vendor: "Bambu Lab",
+        settings_id: "", used_g: null, picks: [],
+      }],
+    }));
+    const images = plates.flatMap((plate) => [
+      { kind: "plate" as const, plate: plate.index, url: `/api/models/sample-01/media/plate_${plate.index}.png` },
+      { kind: "top" as const, plate: plate.index, url: `/api/models/sample-01/media/top_${plate.index}.png` },
+    ]);
+    Element.prototype.scrollIntoView = () => undefined;
+    const scroll = vi.spyOn(Element.prototype, "scrollIntoView");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({
+      ...model,
+      description: "很长的说明。".repeat(40),
+      plate_count: 22,
+      plates,
+      images,
+    })));
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    expect(await view.findByText("展开说明")).toBeTruthy();
+    expect(view.container.querySelectorAll(".model-plate-card")).toHaveLength(22);
+    expect(view.container.querySelectorAll(".model-plate-card img")).toHaveLength(22);
+    expect(view.queryByText("tooth.stl_3 ×97")).toBeNull();
+    fireEvent.click(view.getByRole("button", { name: /盘 11 左眼/ }));
+    expect(scroll).not.toHaveBeenCalled();
+    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
+    const parts = view.getByRole("tabpanel");
+    expect(parts.className).toContain("model-tab-panel");
+    expect(parts.contains(view.getByText("tooth.stl_3 ×97"))).toBe(true);
+    expect(view.getByText("eye.stl ×2")).toBeTruthy();
+    expect(view.queryAllByText("tooth.stl_3")).toHaveLength(0);
+    fireEvent.click(view.getByRole("tab", { name: "盘面" }));
+    expect(view.getByRole("button", { name: "俯视" })).toBeTruthy();
+    fireEvent.click(view.getByRole("tab", { name: /耗材/ }));
+    expect(view.getByRole("tabpanel").contains(view.getByLabelText("槽位 11 颜色 #112233"))).toBe(true);
+    expect(view.getByLabelText("槽位 11 颜色 #112233").className).toContain("model-colour");
+    const layout = view.container.querySelector(".model-screen");
+    expect(layout?.contains(view.getByRole("tabpanel"))).toBe(true);
+    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
+    fireEvent.click(view.getByRole("button", { name: /查看全部/ }));
+    const listed = view.getByRole("tabpanel").querySelectorAll(".model-objects li");
+    expect(listed.length).toBe(11);
+    expect(layout?.contains(view.getByText("extra_8.stl"))).toBe(true);
+    const fullText = "很长的说明。".repeat(40);
+    fireEvent.click(view.getByRole("button", { name: "展开说明" }));
+    const shown = view.container.querySelector(".model-head .model-description");
+    expect(shown?.textContent).toBe(fullText);
+    expect(shown?.className).not.toContain("is-clamped");
+    expect(view.container.querySelector(".model-head")?.contains(shown ?? null)).toBe(true);
+    expect(view.queryByRole("dialog")).toBeNull();
+    expect(view.container.querySelector("main")?.className).toContain("is-desc-open");
+    fireEvent.click(view.getByRole("button", { name: "收起说明" }));
+    expect(view.container.querySelector(".model-head .model-description")?.className).toContain("is-clamped");
+    expect(view.container.querySelector("main")?.className).not.toContain("is-desc-open");
+    expect(view.container.querySelector(".model-plate-picker")).toBeTruthy();
+  });
+
+  it("keeps an enabled download beside the long Chinese original name", async () => {
+    const filename = "分件版 仙子伊布拉布布labubu （无需AMS）.3mf";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({
+      ...model,
+      original: {
+        available: true,
+        url: "/api/models/sample-01/original",
+        filename,
+        size_bytes: null,
+        sha256: null,
+        media_type: "model/3mf",
+      },
+    })));
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    const button = await view.findByRole("button", { name: "下载3MF" });
+    expect((button as HTMLButtonElement).disabled).toBe(false);
+    const status = view.getByText(filename);
+    expect(status.id).toBe("model-download-status");
+    expect(button.getAttribute("aria-describedby")).toBe("model-download-status");
+    expect(status.closest(".model-download-block")?.contains(button)).toBe(true);
+    expect(status.closest(".model-head")).toBeTruthy();
+    expect(view.queryByRole("dialog")).toBeNull();
+  });
+
+  it("downloads a stored original and leaves the color-only API disabled", async () => {
+    const bytes = new Uint8Array([1, 2, 3, 4]);
+    const fetcher = vi.fn()
+      .mockResolvedValueOnce(response({
+        ...model,
+        original: {
+          available: true,
+          url: "/api/models/sample-01/original",
+          filename: "fixture.3mf",
+          size_bytes: bytes.byteLength,
+          sha256: null,
+          media_type: "model/3mf",
+        },
+      }))
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => null },
+        arrayBuffer: async () => bytes.buffer,
+      });
+    vi.stubGlobal("fetch", fetcher);
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:preview");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    const button = await view.findByRole("button", { name: "下载3MF" });
+    expect((button as HTMLButtonElement).disabled).toBe(false);
+    expect(view.queryByText(/不能下载/)).toBeNull();
+    expect(view.queryByText(/丢失|重新上传|未入库/)).toBeNull();
+    fireEvent.click(button);
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
+    expect(fetcher.mock.calls[1][0]).toBe("/api/models/sample-01/original");
+    expect(fetcher.mock.calls[1][1].credentials).toBe("same-origin");
+  });
+
+  it("says plate mapping is unknown when the record has no layout", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({ ...model, plates: null })));
+    const { findByText, getByLabelText } = render(<ModelPreview path="/models/sample-01" />);
+    expect(await findByText(/不能判断哪一盘用什么颜色/)).toBeTruthy();
+    expect(getByLabelText("#112233")).toBeTruthy();
+  });
+
+  it("restores the gallery page and filters, and falls back when opened directly", async () => {
+    window.history.replaceState({}, "", "/models?page=2&q=%E5%B8%83&series=%E5%87%A0%E4%BD%95&author=%E7%8E%8B%E9%93%81%E9%94%A4");
+    const fetcher = vi.fn((url: string) => Promise.resolve(
+      String(url).startsWith("/api/models?") ? response(listing) : response(model),
+    ));
+    vi.stubGlobal("fetch", fetcher);
+    const gallery = render(<ModelPreview path="/models" />);
+    await gallery.findByText(model.title);
+    await waitFor(() => {
+      const url = new URL(String(fetcher.mock.calls.at(-1)?.[0] ?? ""), "http://localhost");
+      expect(url.searchParams.get("page")).toBe("2");
+      expect(url.searchParams.get("q")).toBe("布");
+      expect(url.searchParams.get("series")).toBe("几何");
+      expect(url.searchParams.get("author")).toBe("王铁锤");
+    });
+    expect(gallery.getByText("2 盘 · 2.0 KB")).toBeTruthy();
+    const stored = sessionStorage.getItem("fp.galleryHref");
+    gallery.unmount();
+    const detail = render(<ModelPreview path="/models/sample-01" />);
+    await detail.findByRole("heading", { name: model.title });
+    expect(detail.getByRole("link", { name: "返回画廊" }).getAttribute("href")).toBe(stored);
+    expect(detail.getByRole("link", { name: "模型画廊" }).getAttribute("href")).toBe(stored);
+    expect(stored).toContain("page=2");
+    detail.unmount();
+    sessionStorage.clear();
+    const direct = render(<ModelPreview path="/models/sample-01" />);
+    await direct.findByRole("heading", { name: model.title });
+    expect(direct.getByRole("link", { name: "返回画廊" }).getAttribute("href")).toBe("/models");
+    expect(direct.getByRole("link", { name: "模型画廊" }).getAttribute("href")).toBe("/models");
   });
 
   it("redirects expired sessions and logs out", async () => {

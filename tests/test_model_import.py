@@ -657,3 +657,97 @@ def test_list_and_detail_prefer_cover_through_the_media_route(
     plain_detail = _request(app, "GET", f"/api/models/{plain}", cookie).json()
     assert plain_detail["cover_url"] is None
     assert plain_detail["images"][0]["kind"] == "plate"
+
+
+def test_detail_groups_colors_by_print_plate_without_copying_models(
+    tmp_path: Path, repo_root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from filament_picker.model_import import backfill_plate_layouts, restore_manifest
+
+    directory = _library(tmp_path)
+    root = tmp_path / "models-private"
+    import_previews(directory, root)
+    assert list(root.rglob("*.3mf")) == []
+    with sqlite3.connect(root / "manifest.sqlite") as conn:
+        before = conn.execute(
+            "SELECT COUNT(*), sha256 FROM models WHERE id = ?", (META_0020,)
+        ).fetchone()
+        conn.execute("UPDATE models SET plate_layout = ''")
+    thumb = (root / "thumbs" / f"{META_0020}.jpg").read_bytes()
+    dry = backfill_plate_layouts(directory, root, apply=False)
+    assert dry["applied"] == 0
+    assert dry["planned"] == 6
+    with sqlite3.connect(root / "manifest.sqlite") as conn:
+        assert (
+            conn.execute("SELECT plate_layout FROM models WHERE id = ?", (META_0020,)).fetchone()[0]
+            == ""
+        )
+    backup = tmp_path / "backups"
+    applied = backfill_plate_layouts(directory, root, apply=True, backup_dir=backup)
+    assert applied["updated"] == 6
+    assert applied["models"] == 6
+    assert list(backup.glob("manifest.sqlite.*.bak"))
+    assert list(root.rglob("*.3mf")) == []
+    assert (root / "thumbs" / f"{META_0020}.jpg").read_bytes() == thumb
+    with sqlite3.connect(root / "manifest.sqlite") as conn:
+        row = conn.execute(
+            "SELECT COUNT(*), sha256 FROM models WHERE id = ?", (META_0020,)
+        ).fetchone()
+        assert row[0] == before[0]
+        assert row[1] == before[1]
+        layout = conn.execute(
+            "SELECT plate_layout FROM models WHERE id = ?", (META_0059,)
+        ).fetchone()[0]
+    assert '"index":2' in layout
+    assert "#F73CA0" in layout
+    assert "#86FF00" not in layout
+    db = tmp_path / "auth" / "users.sqlite"
+    monkeypatch.setenv("FILAMENT_PICKER_AUTH_DB", str(db))
+    monkeypatch.setenv("FILAMENT_PICKER_MODELS_ROOT", str(root))
+    monkeypatch.setenv("FILAMENT_PICKER_SESSION_SECRET", secrets.token_urlsafe(48))
+    monkeypatch.setenv("FILAMENT_PICKER_SESSION_SECURE", "0")
+    monkeypatch.setenv("FILAMENT_PICKER_MODELS_DIRECT", "1")
+    password = secrets.token_urlsafe(24)
+    monkeypatch.setenv(PREVIEW_USER_ENV, "preview-tester")
+    AuthStore(db).create_user("preview-tester", password)
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    (dist / "index.html").write_text('<div id="root"></div>\n', encoding="utf-8")
+    app = build_server_app(
+        dist, repo_root / "docs/schemas/examples/filament-catalog.example.json", tmp_path, None
+    )
+    cookie = (
+        _request(
+            app,
+            "POST",
+            "/api/models/login",
+            json={"username": "preview-tester", "password": password},
+        )
+        .headers["set-cookie"]
+        .split(";", 1)[0]
+    )
+    body = _request(app, "GET", f"/api/models/{META_0020}", cookie).json()
+    assert body["plates"][0]["name"] == "改良支持牙齿"
+    assert body["plates"][0]["objects"] == ["眼睛嘴.stl_2"]
+    assert [(item["slot"], item["hex"]) for item in body["plates"][0]["filaments"]] == [
+        (3, "#FFFFFF")
+    ]
+    assert body["original"]["available"] is False
+    assert body["original"]["url"] is None
+    assert "source_relpath" not in body
+    assert "1-系列分类" not in json.dumps(body, ensure_ascii=False)
+    multi = _request(app, "GET", f"/api/models/{META_0059}", cookie).json()
+    assert [plate["index"] for plate in multi["plates"]] == [1, 2, 3, 4]
+    assert multi["plates"][1]["name"] is None
+    assert "头套(2).stl" in multi["plates"][1]["objects"]
+    assert multi["plates"][1]["filaments"][0]["slot"] == 1
+    assert multi["plates"][1]["filaments"][0]["hex"] == "#F73CA0"
+    used = {item["hex"] for plate in multi["plates"] for item in plate["filaments"]}
+    assert "#86FF00" not in used
+    saved = next(backup.glob("manifest.sqlite.*.bak"))
+    restore_manifest(saved, root)
+    with sqlite3.connect(root / "manifest.sqlite") as conn:
+        assert (
+            conn.execute("SELECT plate_layout FROM models WHERE id = ?", (META_0020,)).fetchone()[0]
+            == ""
+        )
