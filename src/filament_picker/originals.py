@@ -7,8 +7,11 @@ import hmac
 import json
 import os
 import re
+import shutil
 import sqlite3
+import time
 from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from http.client import HTTPConnection, HTTPException, HTTPResponse, HTTPSConnection
@@ -270,6 +273,83 @@ def _discard(response: HTTPResponse) -> None:
         response.read(1024)
     except (OSError, HTTPException, TimeoutError):
         return
+
+
+_FETCH_LIMIT = 64 * 1024 * 1024
+_FETCH_DEADLINE = 120.0
+
+
+class OriginalUnavailable(Exception):
+    """No local file and no usable object key. Nothing was written."""
+
+
+class OriginalTooLarge(Exception):
+    """The object is larger than the temporary-file limit."""
+
+
+@contextmanager
+def materialize_original(
+    root: Path,
+    local: Path | None,
+    key: str | None,
+    *,
+    limit: int = _FETCH_LIMIT,
+) -> Iterator[Path]:
+    """Yield a readable 3MF path. A remote object is streamed to a temp file.
+
+    The local original is returned unchanged and is not deleted. A temporary
+    file is removed on the way out, including when the caller fails. Object
+    storage URLs and credentials never leave this function.
+    """
+    if local is not None:
+        yield local
+        return
+    if key is None or load_cos_settings() is None:
+        raise OriginalUnavailable()
+    incoming = root.resolve() / "derived" / ".incoming"
+    if _inside(incoming, root.resolve() / "originals"):
+        raise OriginalUnavailable()
+    incoming.mkdir(mode=0o700, parents=True, exist_ok=True)
+    free = shutil.disk_usage(incoming).free
+    if free < limit + 32 * 1024 * 1024:
+        raise OriginalTooLarge()
+    temporary = incoming / f".fetch-{os.getpid()}-{time.monotonic_ns()}.3mf"
+    settings = load_cos_settings()
+    assert settings is not None
+    try:
+        opened = HttpObjectSource(settings).open(key, None, "GET")
+    except UpstreamFailure:
+        raise
+    if opened.size is not None and opened.size > limit:
+        if callable(opened.close):
+            opened.close()
+        raise OriginalTooLarge()
+    written = 0
+    deadline = time.monotonic() + min(_FETCH_DEADLINE, max(1.0, settings.timeout))
+    try:
+        with temporary.open("wb") as handle:
+            for piece in opened.chunks:
+                if time.monotonic() > deadline:
+                    raise UpstreamFailure()
+                written += len(piece)
+                if written > limit:
+                    raise OriginalTooLarge()
+                handle.write(piece)
+        temporary.chmod(0o600)
+        yield temporary
+    finally:
+        if callable(opened.close):
+            opened.close()
+        if temporary.exists() and not temporary.is_symlink():
+            temporary.unlink()
+
+
+def _inside(path: Path, parent: Path) -> bool:
+    try:
+        path.resolve().relative_to(parent.resolve())
+    except ValueError:
+        return False
+    return True
 
 
 def local_original(root: Path, model_id: str) -> Path | None:

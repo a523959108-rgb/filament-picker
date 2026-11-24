@@ -34,10 +34,19 @@ from .config import (
 )
 from .library import delete_favorite, get_scheme, list_favorites, put_favorite, put_scheme
 from .matcher import eligible, label_for, name_display
+from .mesh_derive import (
+    DeriveError,
+    derive_file,
+    derived_file,
+    derived_index,
+    model_lock,
+)
 from .model_import import parse_plate_layout
 from .note_parser import Params
 from .originals import (
     HttpObjectSource,
+    OriginalTooLarge,
+    OriginalUnavailable,
     RangeNotSatisfiable,
     UpstreamFailure,
     content_disposition,
@@ -48,6 +57,7 @@ from .originals import (
     load_key_overrides,
     local_original,
     lookup_download,
+    materialize_original,
     media_type_for,
     original_descriptor,
     parse_range,
@@ -293,6 +303,52 @@ class ModelPreview:
         except HTTPException:
             return None
         return f"/api/models/{quote(model_id, safe='')}/glb"
+
+    def derived_payload(self, model_id: str) -> dict[str, Any]:
+        index = derived_index(self.root, model_id)
+        ready = (
+            index is not None
+            and index.get("status") == "ready"
+            and derived_file(self.root, model_id, "model.glb") is not None
+        )
+        if not ready or index is None:
+            return {
+                "mesh_derived": False,
+                "front_views": [],
+                "derive_note": None,
+                "derive_error": None if index is None else index.get("error"),
+            }
+        quoted = quote(model_id, safe="")
+        note = str(index.get("note") or "")
+        views: list[dict[str, Any]] = []
+        if index.get("scope") == "plate":
+            for plate in index.get("plates") or []:
+                if not isinstance(plate, dict) or not isinstance(plate.get("index"), int):
+                    continue
+                views.append(
+                    {
+                        "scope": "plate",
+                        "plate": plate["index"],
+                        "url": f"/api/models/{quoted}/derived/front-{plate['index']}.png",
+                        "note": note,
+                    }
+                )
+        else:
+            views.append(
+                {
+                    "scope": "overall",
+                    "plate": None,
+                    "url": f"/api/models/{quoted}/derived/front.png",
+                    "note": note,
+                }
+            )
+        return {
+            "mesh_derived": True,
+            "mesh_url": f"/api/models/{quoted}/derived/model.glb",
+            "front_views": views,
+            "derive_note": note,
+            "derive_error": None,
+        }
 
     def _mesh_rel(self, model_id: str) -> PurePosixPath:
         if _MODEL_ID.fullmatch(model_id) is None:
@@ -671,15 +727,75 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
             raise HTTPException(status_code=400, detail="模型编号无效")
         preview.record(model_id)
         slots = get_scheme(request.state.model_username, model_id)["slots"]
-        source = local_original(preview.root, model_id)
-        if source is None:
-            raise HTTPException(status_code=409, detail="本机没有这份 3MF 原件，没有生成副本")
-        if source.suffix.lower() != ".3mf":
-            raise HTTPException(status_code=422, detail="只有 3MF 能另存配色副本")
+        target = preview._download_target(model_id)
+        local = None if target is None else target[3]
+        key = None if target is None or local is not None else target[4]
+        if local is None and key is None:
+            raise HTTPException(status_code=409, detail="没有这份 3MF 原件，没有生成副本")
         try:
-            return store_scheme_copy(request.state.model_username, model_id, source, slots)
+            with model_lock(model_id), materialize_original(preview.root, local, key) as source:
+                if source.suffix.lower() != ".3mf":
+                    raise HTTPException(status_code=422, detail="只有 3MF 能另存配色副本")
+                return store_scheme_copy(request.state.model_username, model_id, source, slots)
+        except OriginalUnavailable:
+            raise HTTPException(status_code=409, detail="没有这份 3MF 原件，没有生成副本") from None
+        except OriginalTooLarge:
+            raise HTTPException(status_code=413, detail="原件过大，没有生成副本") from None
+        except UpstreamFailure:
+            raise HTTPException(status_code=502, detail="原件暂时无法读取，没有生成副本") from None
         except SchemeCopyError as exc:
             raise HTTPException(status_code=exc.status, detail=exc.detail) from None
+
+    @router.post("/{model_id}/derive")
+    async def derive_create(model_id: str, request: Request) -> dict[str, Any]:
+        if _MODEL_ID.fullmatch(model_id) is None:
+            raise HTTPException(status_code=400, detail="模型编号无效")
+        preview.record(model_id)
+        force = False
+        if request.headers.get("content-type", "").startswith("application/json"):
+            try:
+                body = await request.json()
+            except (ValueError, UnicodeError):
+                body = None
+            if isinstance(body, dict) and body.get("force") is True:
+                force = True
+        target = preview._download_target(model_id)
+        local = None if target is None else target[3]
+        key = None if target is None or local is not None else target[4]
+        if local is None and key is None:
+            raise HTTPException(status_code=409, detail="没有这份 3MF 原件，没有派生")
+        try:
+            with model_lock(model_id), materialize_original(preview.root, local, key) as source:
+                if source.suffix.lower() != ".3mf":
+                    raise HTTPException(status_code=422, detail="只有 3MF 能派生网格")
+                return derive_file(preview.root, model_id, source, force=force)
+        except OriginalUnavailable:
+            raise HTTPException(status_code=409, detail="没有这份 3MF 原件，没有派生") from None
+        except OriginalTooLarge:
+            raise HTTPException(status_code=413, detail="原件过大，没有派生") from None
+        except UpstreamFailure:
+            raise HTTPException(status_code=502, detail="原件暂时无法读取，没有派生") from None
+        except DeriveError as exc:
+            raise HTTPException(status_code=422, detail=exc.detail) from None
+
+    @router.get("/{model_id}/derived/{name}")
+    def derived_asset(model_id: str, name: str) -> Response:
+        if _MODEL_ID.fullmatch(model_id) is None:
+            raise HTTPException(status_code=404, detail="派生文件不存在")
+        preview.record(model_id)
+        path = derived_file(preview.root, model_id, name)
+        if path is None:
+            raise HTTPException(status_code=404, detail="派生文件不存在")
+        media = "model/gltf-binary" if path.suffix.lower() == ".glb" else "image/png"
+        headers = {"Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow"}
+        if preview.direct:
+            return FileResponse(path, media_type=media, headers=headers)
+        rel = PurePosixPath("derived") / model_id / path.name
+        redirect = "/internal-models/" + quote(rel.as_posix(), safe="/")
+        return Response(
+            media_type=media,
+            headers={**headers, "X-Accel-Redirect": redirect},
+        )
 
     @router.get("/{model_id}/scheme-copy")
     def scheme_copy_download(model_id: str, request: Request) -> Response:
@@ -722,7 +838,12 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
                     colour = filament.get("hex")
                     filament["picks"] = by_hex.get(colour, []) if isinstance(colour, str) else []
         payload["plates"] = plates
-        payload["mesh_url"] = preview.mesh_url(row["id"])
+        derived = preview.derived_payload(row["id"])
+        payload["mesh_url"] = derived.get("mesh_url") or preview.mesh_url(row["id"])
+        payload["mesh_derived"] = derived["mesh_derived"]
+        payload["front_views"] = derived["front_views"]
+        payload["derive_note"] = derived["derive_note"]
+        payload["derive_error"] = derived["derive_error"]
         payload["original"] = preview.original_payload(row["id"])
         return payload
 

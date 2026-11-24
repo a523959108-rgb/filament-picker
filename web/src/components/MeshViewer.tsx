@@ -58,7 +58,9 @@ function frame(camera: PerspectiveCamera, controls: OrbitControls, object: Objec
   controls.update();
 }
 
-export function MeshViewer({ url, label }: { url: string; label: string }): JSX.Element {
+export function MeshViewer({ url, label, controls = false }: {
+  url: string; label: string; controls?: boolean;
+}): JSX.Element {
   const hostRef = useRef<HTMLDivElement>(null);
   const cameraRef = useRef<PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
@@ -192,7 +194,7 @@ export function MeshViewer({ url, label }: { url: string; label: string }): JSX.
 
   return (
     <figure className="model-mesh" aria-busy={state === "loading"} aria-label={`${label} 三维预览`}>
-      {state === "ready" && (
+      {state === "ready" && controls && (
         <div className="model-mesh-tools" role="group" aria-label="网格">
           <button type="button" onClick={() => {
             const home = homeRef.current;

@@ -36,7 +36,10 @@ from .ingest import (
     sha256_file,
     verify_snapshots,
 )
+from .mesh_derive import DeriveError, derive_file
+from .models import models_root
 from .ofd import ENRICHMENT_PATH, import_ofd, update_esun_confidence, write_json
+from .originals import local_original
 from .validate import validate_json
 from .web_export import DEFAULT_WEB_CATALOG, export_web
 
@@ -220,6 +223,53 @@ def _add_export_web(sub: argparse._SubParsersAction) -> None:
     parser.add_argument("--catalog", type=Path)
     parser.add_argument("--out", type=Path, default=DEFAULT_WEB_CATALOG)
     parser.set_defaults(handler=_cmd_export_web)
+
+
+def _add_derive(sub: argparse._SubParsersAction) -> None:
+    parser = sub.add_parser("derive-preview", help="write a GLB and front views from local 3MF")
+    parser.add_argument("--id", default="")
+    parser.add_argument("--force", action="store_true")
+    parser.set_defaults(handler=_cmd_derive)
+
+
+def _cmd_derive(args: argparse.Namespace) -> int:
+    root = models_root()
+    if args.id:
+        ids = [args.id]
+    else:
+        directory = root / "originals"
+        ids = (
+            sorted(
+                path.stem
+                for path in directory.glob("*.3mf")
+                if path.is_file() and not path.is_symlink()
+            )
+            if directory.is_dir()
+            else []
+        )
+    if not ids:
+        print("没有本地 3MF 可派生")
+        return 1
+    failed = 0
+    for model_id in ids:
+        source = local_original(root, model_id)
+        if source is None or source.suffix.lower() != ".3mf":
+            print(f"{model_id}\tskipped\tno-local-3mf")
+            continue
+        try:
+            record = derive_file(root, model_id, source, force=args.force)
+        except DeriveError as exc:
+            print(f"{model_id}\tfailed\t{exc.detail}")
+            failed += 1
+            continue
+        status = record.get("status")
+        print(
+            f"{model_id}\t{status}\t{record.get('scope')}\t"
+            f"{record.get('triangles')}\t{record.get('source_sha256')}"
+        )
+        if status != "ready":
+            failed += 1
+    return 1 if failed else 0
 
 
 def _add_serve(sub: argparse._SubParsersAction) -> None:
@@ -527,6 +577,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_export_web(sub)
     _add_import_ofd(sub)
     _add_serve(sub)
+    _add_derive(sub)
     _add_models(sub)
     _add_auth(sub)
     return parser

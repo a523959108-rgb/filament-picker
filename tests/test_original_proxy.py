@@ -435,6 +435,68 @@ def test_object_key_uses_stored_path_or_map_and_rejects_escape() -> None:
     assert resolve_object_key("alias", "canon", "other.3mf", {"alias": "alias.3mf"}) == "alias.3mf"
 
 
+def test_scheme_copy_reads_a_mocked_object_without_keeping_it(
+    preview: tuple, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    app, password, models, _db = preview
+    httpd = _server()
+    _configure(monkeypatch, httpd)
+    from filament_picker.scheme_copy import synthetic_3mf
+
+    payload = synthetic_3mf(["#111111", "#222222"])
+    httpd.files = {_PREFIX + "/library/sample.3mf": payload}
+    _write_map(tmp_path, {"sample-01": "library/sample.3mf"}, monkeypatch)
+    import sqlite3
+
+    plates = [
+        {
+            "index": 1,
+            "name": "盘面",
+            "objects": ["a.stl"],
+            "filaments": [
+                {
+                    "slot": 1,
+                    "hex": "#111111",
+                    "type": "PLA",
+                    "vendor": "",
+                    "settings_id": "",
+                    "used_g": None,
+                }
+            ],
+        }
+    ]
+    with sqlite3.connect(models / "manifest.sqlite") as conn:
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(models)")}
+        if "plate_layout" not in columns:
+            conn.execute("ALTER TABLE models ADD COLUMN plate_layout TEXT NOT NULL DEFAULT ''")
+        conn.execute(
+            "UPDATE models SET plate_layout = ?, sha256 = ? WHERE id = 'sample-01'",
+            (json.dumps(plates), hashlib.sha256(b"sample-01").hexdigest()),
+        )
+    cookie = _cookie(_login(app, password))
+    saved = _request(
+        app,
+        "PUT",
+        "/api/models/sample-01/scheme",
+        cookie,
+        json={"slots": [{"plate_index": 1, "slot": 1, "hex": "#ABCDEF"}]},
+    )
+    assert saved.status_code == 200
+    created = _request(app, "POST", "/api/models/sample-01/scheme-copy", cookie)
+    assert created.status_code == 200
+    body = created.json()
+    assert body["source_sha256"] == hashlib.sha256(payload).hexdigest()
+    assert body["source_sha256"] != hashlib.sha256(b"sample-01").hexdigest()
+    assert "需要重新切片" in body["caveat"]
+    assert "location" not in {key.lower() for key in created.headers}
+    _quiet(created.text)
+    assert httpd.files[_PREFIX + "/library/sample.3mf"] == payload
+    assert not (models / "originals").exists() or not any((models / "originals").glob("*.3mf"))
+    incoming = models / "derived" / ".incoming"
+    assert not incoming.exists() or list(incoming.iterdir()) == []
+    httpd.shutdown()
+
+
 def test_sign_request_changes_when_the_secret_changes() -> None:
     from filament_picker.originals import sign_request
 

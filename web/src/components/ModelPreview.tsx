@@ -6,7 +6,7 @@ import { SiteHeader } from "./SiteHeader";
 const MeshViewer = lazy(() =>
   import("./MeshViewer").then((module) => ({ default: module.MeshViewer })),
 );
-const PRIVATE_MESH = /^\/api\/models\/[A-Za-z0-9_-]{1,128}\/glb$/;
+const PRIVATE_MESH = /^\/api\/models\/[A-Za-z0-9_-]{1,128}\/(?:glb|derived\/model\.glb)$/;
 
 interface ModelImage {
   kind: "cover" | "plate" | "top";
@@ -57,6 +57,13 @@ interface OriginalFile {
   url?: string | null;
 }
 
+interface FrontView {
+  scope: "overall" | "plate";
+  plate: number | null;
+  url: string;
+  note: string;
+}
+
 interface Model {
   id: string;
   title: string;
@@ -72,6 +79,10 @@ interface Model {
   images?: ModelImage[];
   colour_matches?: ColourMatch[];
   mesh_url?: string | null;
+  mesh_derived?: boolean;
+  front_views?: FrontView[];
+  derive_note?: string | null;
+  derive_error?: string | null;
   plates?: PlateInfo[] | null;
   original?: OriginalFile | null;
 }
@@ -357,7 +368,8 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
   const [model, setModel] = useState<Model | null>(null);
   const [error, setError] = useState("");
   const [activePlate, setActivePlate] = useState("");
-  const [shotKind, setShotKind] = useState<"plate" | "top">("plate");
+  const [shotKind, setShotKind] = useState<"plate" | "top" | "front">("plate");
+  const [revision, setRevision] = useState(0);
   const [descOpen, setDescOpen] = useState(false);
   const [locked, setLocked] = useState<{ hero: number; work: number } | null>(null);
   const screenRef = useRef<HTMLElement>(null);
@@ -385,7 +397,7 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
       })
       .catch(() => { if (active) setError("模型加载失败，请重试"); });
     return () => { active = false; controller.abort(); };
-  }, [id, navigate]);
+  }, [id, navigate, revision]);
   if (error) return <p className="panel" role="alert">{error}</p>;
   if (model === null) return <p role="status">模型加载中…</p>;
   const covers = coverShots(model);
@@ -449,14 +461,15 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
             )) : mesh ? null : <p className="model-hero-empty">没有封面</p>}
             {mesh ? (
               <Suspense fallback={<p role="status">三维预览加载中…</p>}>
-                <MeshViewer url={mesh} label={model.title} />
+                <MeshViewer url={mesh} label={model.title} controls={model.mesh_derived === true} />
               </Suspense>
             ) : null}
           </div>
         </div>
         <div className="model-rail">
           <PlateBoard cards={cards} model={model} active={open} shotKind={shotKind}
-            onSelect={selectPlate} onShotKind={setShotKind} />
+            onSelect={selectPlate} onShotKind={setShotKind}
+            onDerive={() => setRevision((current) => current + 1)} />
           <ModelTools model={model} />
           <section className="model-download-panel" aria-label="原厂切片">
             <h3>原厂切片</h3>
@@ -698,13 +711,14 @@ interface PlateCard {
   top?: ModelImage;
 }
 
-function PlateBoard({ cards, model, active, shotKind, onSelect, onShotKind, tools }: {
+function PlateBoard({ cards, model, active, shotKind, onSelect, onShotKind, onDerive, tools }: {
   cards: PlateCard[];
   model: Model;
   active: PlateCard | null;
-  shotKind: "plate" | "top";
+  shotKind: "plate" | "top" | "front";
   onSelect: (key: string) => void;
-  onShotKind: (kind: "plate" | "top") => void;
+  onShotKind: (kind: "plate" | "top" | "front") => void;
+  onDerive: () => void;
   tools?: JSX.Element;
 }): JSX.Element {
   const [pickerOpen, setPickerOpen] = useState(true);
@@ -758,7 +772,7 @@ function PlateBoard({ cards, model, active, shotKind, onSelect, onShotKind, tool
       </section>
       {cards.length > 0 ? (
         active ? (
-          <PlateDetail model={model} card={active} shotKind={shotKind} onShotKind={onShotKind} />
+          <PlateDetail model={model} card={active} shotKind={shotKind} onShotKind={onShotKind} onDerive={onDerive} />
         ) : <p className="rail-panel model-plate-empty">点选上面的打印盘，查看盘面、部件和耗材。</p>
       ) : (
         <div className="model-tab-panel">
@@ -775,27 +789,59 @@ function PlateBoard({ cards, model, active, shotKind, onSelect, onShotKind, tool
   );
 }
 
-function PlateDetail({ model, card, shotKind, onShotKind }: {
+function PlateDetail({ model, card, shotKind, onShotKind, onDerive }: {
   model: Model;
   card: PlateCard;
-  shotKind: "plate" | "top";
-  onShotKind: (kind: "plate" | "top") => void;
+  shotKind: "plate" | "top" | "front";
+  onShotKind: (kind: "plate" | "top" | "front") => void;
+  onDerive: () => void;
 }): JSX.Element {
   const [showAllParts, setShowAllParts] = useState(false);
+  const [deriveMessage, setDeriveMessage] = useState("");
   useEffect(() => { setShowAllParts(false); }, [card.key]);
   const shot = shotKind === "top" && card.top ? card.top : (card.face ?? card.top);
+  const front = frontFor(model, card.index);
   const plate = card.plate;
   const grouped = groupObjects(plate?.objects ?? []);
   const visible = showAllParts ? grouped : grouped.slice(0, PART_PREVIEW);
   const title = `${card.index == null ? "盘号未知" : `盘 ${card.index}`}${card.name ? ` ${card.name}` : ""}`;
+  async function derive() {
+    setDeriveMessage("");
+    const response = await fetch(`/api/models/${encodeURIComponent(model.id)}/derive`, {
+      method: "POST",
+      credentials: "same-origin",
+    });
+    if (!response.ok) {
+      setDeriveMessage(await errorDetail(response));
+      return;
+    }
+    const body = await response.json() as { status?: string; error?: string | null };
+    if (body.status !== "ready") {
+      setDeriveMessage(body.error || "正视没有生成");
+      return;
+    }
+    onDerive();
+  }
   return (
     <div className="model-plate-detail" id="model-plate-detail">
       <div className="model-plate-detail-head">
         <p className="model-plate-current">{title || "当前盘"}</p>
         <p className="model-plate-summary">{grouped.length} 种部件 · {plate?.filaments.length ?? 0} 个耗材槽</p>
       </div>
-      {card.face && card.top ? <ViewToggle shotKind={shotKind} onShotKind={onShotKind} /> : null}
-      {shot ? <p className="model-shot-caption">{shotCaption(shot.kind, shot.plate)}</p> : <p>没有这一盘的图片。</p>}
+      {(card.face && card.top) || front ? (
+        <ViewToggle shotKind={shotKind} onShotKind={onShotKind} oblique={Boolean(card.face && card.top)} front={front != null} />
+      ) : null}
+      {model.original?.available && model.mesh_derived !== true ? (
+        <button type="button" onClick={() => { void derive(); }}>生成网格和正视</button>
+      ) : null}
+      {deriveMessage ? <p role="status">{deriveMessage}</p> : null}
+      {model.derive_error ? <p role="status">{model.derive_error}</p> : null}
+      {shotKind === "front" && front ? (
+        <figure className="model-front">
+          <img src={front.url} alt={`${model.title} 正视`} />
+          <figcaption>{front.scope === "overall" ? front.note : "正视"}</figcaption>
+        </figure>
+      ) : shot ? <p className="model-shot-caption">{shotCaption(shot.kind, shot.plate)}</p> : <p>没有这一盘的图片。</p>}
       <section className="rail-panel model-parts" aria-label="部件清单">
         <h3>部件清单</h3>
         {grouped.length > 0 ? (
@@ -825,16 +871,26 @@ function PlateDetail({ model, card, shotKind, onShotKind }: {
   );
 }
 
-function ViewToggle({ shotKind, onShotKind }: {
-  shotKind: "plate" | "top";
-  onShotKind: (kind: "plate" | "top") => void;
+function ViewToggle({ shotKind, onShotKind, oblique, front }: {
+  shotKind: "plate" | "top" | "front";
+  onShotKind: (kind: "plate" | "top" | "front") => void;
+  oblique: boolean;
+  front: boolean;
 }): JSX.Element {
   return (
     <div className="model-view-toggle" role="group" aria-label="视角">
-      <button type="button" aria-pressed={shotKind !== "top"} onClick={() => onShotKind("plate")}>斜视</button>
-      <button type="button" aria-pressed={shotKind === "top"} onClick={() => onShotKind("top")}>俯视</button>
+      {oblique ? <button type="button" aria-pressed={shotKind === "plate"} onClick={() => onShotKind("plate")}>斜视</button> : null}
+      {oblique ? <button type="button" aria-pressed={shotKind === "top"} onClick={() => onShotKind("top")}>俯视</button> : null}
+      {front ? <button type="button" aria-pressed={shotKind === "front"} onClick={() => onShotKind("front")}>正视</button> : null}
     </div>
   );
+}
+
+function frontFor(model: Model, plate: number | null): FrontView | null {
+  const views = model.front_views ?? [];
+  const matched = views.find((view) => view.scope === "plate" && view.plate === plate);
+  if (matched) return matched;
+  return views.find((view) => view.scope === "overall") ?? null;
 }
 
 function CompactShot({ model, card, shotKind }: {

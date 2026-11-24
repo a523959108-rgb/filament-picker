@@ -534,4 +534,38 @@ describe("model preview", () => {
     ))).toBe(true);
     expect(fetcher.mock.calls.some((call) => String(call[0]).includes("cos."))).toBe(false);
   });
+
+  it("shows a derived front view and keeps slice shots under their own names", async () => {
+    const detailed = {
+      ...model,
+      plates: [{
+        index: 1,
+        name: "盘面",
+        objects: ["a.stl"],
+        filaments: [{
+          slot: 1, hex: "#112233", type: "PLA", vendor: "", settings_id: "", used_g: null, picks: [],
+        }],
+      }],
+      images: [
+        { kind: "plate" as const, plate: 1, url: "/api/models/sample-01/media/plate_1.png" },
+      ],
+      front_views: [{
+        scope: "overall" as const,
+        plate: null,
+        url: "/api/models/sample-01/derived/front.png",
+        note: "仅整体正视，没有可靠的盘面定位。这是网格正交投影，不是切片斜视图。",
+      }],
+      mesh_derived: false,
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(detailed)));
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    fireEvent.click(await view.findByRole("button", { name: /盘 1 盘面/ }));
+    expect(view.queryByRole("button", { name: "俯视" })).toBeNull();
+    fireEvent.click(view.getByRole("button", { name: "正视" }));
+    const front = view.getByRole("img", { name: "示例方块 01 正视" });
+    expect(front.getAttribute("src")).toBe("/api/models/sample-01/derived/front.png");
+    expect(view.getByText("仅整体正视，没有可靠的盘面定位。这是网格正交投影，不是切片斜视图。")).toBeTruthy();
+    expect(view.getByRole("img", { name: "示例方块 01 斜视 1" }).getAttribute("src"))
+      .toBe("/api/models/sample-01/media/plate_1.png");
+  });
 });
