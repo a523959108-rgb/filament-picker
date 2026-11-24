@@ -104,8 +104,9 @@
 }
 .model-plate-picker { max-height: none; overflow-x: auto; overflow-y: hidden; display: flex; flex-wrap: nowrap; gap: 8px; align-content: flex-start; }
 .model-preview .model-plate-card {
-  display: grid; grid-template-rows: 46px 14px 14px; align-content: start; gap: 1px;
-  width: 92px; height: 86px; padding: 4px; text-align: left; background: var(--surface);
+  display: grid; grid-template-rows: 72px 18px 18px; align-content: start; gap: 2px;
+  flex: 0 0 156px; width: 156px; min-width: 156px; height: 118px; padding: 8px;
+  text-align: left; background: var(--surface-2); writing-mode: horizontal-tb;
 }
 .model-plate-card-index { font-size: 0.75rem; font-weight: 650; line-height: 14px; }
 .model-plate-card-name { color: var(--text-2); font-size: 0.72rem; line-height: 14px; }

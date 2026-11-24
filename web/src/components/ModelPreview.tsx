@@ -118,17 +118,21 @@ function Login({ navigate }: { navigate: Navigate }): JSX.Element {
   }
 
   return (
-    <section className="panel model-login">
-      <h2>登录模型预览</h2>
+    <section className="login-card">
+      <p className="login-kicker">模型画廊与模型详情需要登录。耗材选色公开浏览。</p>
+      <h2>工坊凭证登录</h2>
+      <p className="login-lead">登录后进入模型画廊。账号由站方分配，不设开放注册。</p>
       <form onSubmit={submit}>
-        <label>用户名<input name="username" autoComplete="username" value={username}
+        <label>用户名<input name="username" autoComplete="username" placeholder="创作者工号" value={username}
           onChange={(event) => setUsername(event.target.value)} required /></label>
-        <label>密码<input name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" value={password}
+        <label>密码<input name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="访问凭证" value={password}
           onChange={(event) => setPassword(event.target.value)} required /></label>
-        <button type="button" onClick={() => setShowPassword((current) => !current)}>{showPassword ? "隐藏密码" : "显示密码"}</button>
-        <button type="button" onClick={() => { setUsername(""); setPassword(""); }}>清空</button>
+        <div className="login-aux">
+          <button type="button" onClick={() => setShowPassword((current) => !current)}>{showPassword ? "隐藏密码" : "显示密码"}</button>
+          <button type="button" onClick={() => { setUsername(""); setPassword(""); }}>清空</button>
+        </div>
         {error && <p role="alert">{error}</p>}
-        <button type="submit" disabled={busy}>{busy ? "登录中…" : "登录"}</button>
+        <button className="login-submit" type="submit" disabled={busy}>{busy ? "登录中…" : "登录"}</button>
       </form>
     </section>
   );

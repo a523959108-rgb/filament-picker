@@ -1,0 +1,133 @@
+/* Layout taken from the Stitch screens: compact chips, image-led cards, centered login. */
+
+.spectrum-chip {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: max-content;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 14px;
+  white-space: nowrap;
+  writing-mode: horizontal-tb;
+  line-height: 36px;
+}
+
+.spectrum-row {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.filters fieldset { border: 0; padding: 0; margin: 0; }
+.filters { gap: 10px; }
+
+.swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.swatch-card {
+  display: grid;
+  grid-template-rows: 148px auto;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  text-align: left;
+}
+.swatch, .swatch-img { width: 100%; height: 148px; object-fit: cover; }
+.swatch-meta { display: grid; gap: 2px; padding: 10px 12px 12px; }
+.swatch-color { font-size: 1rem; font-weight: 650; }
+.swatch-name { color: var(--text-2); font-size: 0.8rem; }
+
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.model-card {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 16px;
+}
+.model-card img { aspect-ratio: 16 / 10; border-radius: 0; }
+.model-card h2, .model-card-by, .model-card-meta { margin-left: 12px; margin-right: 12px; }
+.model-card h2 { white-space: normal; }
+.model-card-meta { margin-bottom: 12px; }
+
+.model-preview.is-detail { background: var(--bg); }
+.model-screen {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+.model-stage {
+  min-height: 0;
+  align-items: start;
+}
+.model-hero, .model-hero img, .model-hero-pane { min-height: 460px; }
+.model-plate-picker {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  max-height: none;
+  width: 100%;
+  min-width: 0;
+}
+.model-plate-card,
+.model-plate-card-index,
+.model-plate-card-name {
+  writing-mode: horizontal-tb;
+  white-space: nowrap;
+}
+.model-plate-card { flex: 0 0 156px; width: 156px; min-width: 156px; }
+
+.page.model-preview:has(.login-card) {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+}
+.login-card {
+  width: min(520px, 100%);
+  margin: 24px auto;
+  padding: 28px 24px 22px;
+  border-radius: 18px;
+  background: #162433;
+  border: 1px solid #2a3c50;
+}
+.login-kicker, .login-lead { color: var(--text-2); margin: 0 0 12px; }
+.login-card h2 { font-size: 1.7rem; margin: 0 0 8px; }
+.login-card form { display: grid; gap: 12px; }
+.login-card input {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 10px;
+  border: 0;
+  background: #0c1824;
+  color: var(--text);
+  padding: 0 12px;
+}
+.login-aux { display: flex; gap: 8px; }
+.model-preview .login-submit {
+  min-height: 48px;
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: #38bdf8;
+  color: #062033;
+  font-weight: 700;
+}
+
+@media (max-width: 800px) {
+  .swatch-grid { grid-template-columns: 1fr 1fr; }
+  .swatch-card { grid-template-rows: 120px auto; }
+  .swatch, .swatch-img { height: 120px; }
+  .model-grid { grid-template-columns: 1fr; }
+  .model-hero, .model-hero img, .model-hero-pane { min-height: 240px; height: 34vh; }
+  .model-plate-card { flex-basis: 148px; width: 148px; min-width: 148px; }
+}
