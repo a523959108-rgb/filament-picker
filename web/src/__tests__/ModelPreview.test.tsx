@@ -263,7 +263,7 @@ describe("model preview", () => {
     expect((download as HTMLButtonElement).disabled).toBe(true);
     expect(view.getByText("未接通，暂不能下载")).toBeTruthy();
     fireEvent.click(download);
-    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(fetch).mock.calls.some((call) => String(call[0]).endsWith("/original"))).toBe(false);
     fireEvent.click(view.getByRole("button", { name: /盘 1 眼白/ }));
     fireEvent.click(view.getByRole("tab", { name: /耗材/ }));
     expect(view.getByText("槽位 3")).toBeTruthy();
@@ -411,8 +411,18 @@ describe("model preview", () => {
 
   it("downloads a stored original and leaves the color-only API disabled", async () => {
     const bytes = new Uint8Array([1, 2, 3, 4]);
-    const fetcher = vi.fn()
-      .mockResolvedValueOnce(response({
+    const fetcher = vi.fn(async (url: string) => {
+      if (String(url).endsWith("/original")) {
+        return {
+          ok: true,
+          status: 200,
+          headers: { get: () => null },
+          arrayBuffer: async () => bytes.buffer,
+        };
+      }
+      if (String(url).endsWith("/scheme")) return response({ slots: [], note: "仅展示色" });
+      if (String(url).endsWith("/favorites")) return response({ items: [] });
+      return response({
         ...model,
         original: {
           available: true,
@@ -422,13 +432,8 @@ describe("model preview", () => {
           sha256: null,
           media_type: "model/3mf",
         },
-      }))
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => null },
-        arrayBuffer: async () => bytes.buffer,
       });
+    });
     vi.stubGlobal("fetch", fetcher);
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:preview");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
@@ -438,9 +443,9 @@ describe("model preview", () => {
     expect(view.queryByText(/不能下载/)).toBeNull();
     expect(view.queryByText(/丢失|重新上传|未入库/)).toBeNull();
     fireEvent.click(button);
-    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
-    expect(fetcher.mock.calls[1][0]).toBe("/api/models/sample-01/original");
-    expect(fetcher.mock.calls[1][1].credentials).toBe("same-origin");
+    await waitFor(() => expect(fetcher.mock.calls.some((call) => call[0] === "/api/models/sample-01/original")).toBe(true));
+    const downloadCall = fetcher.mock.calls.find((call) => call[0] === "/api/models/sample-01/original");
+    expect(downloadCall?.[1].credentials).toBe("same-origin");
   });
 
   it("says plate mapping is unknown when the record has no layout", async () => {

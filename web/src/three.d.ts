@@ -97,12 +97,18 @@ declare module "three" {
 
   export class Material {
     dispose(): void;
+    needsUpdate: boolean;
+  }
+
+  export class Plane {
+    constructor(normal?: Vector3, constant?: number);
   }
 
   export class MeshStandardMaterial extends Material {
     map: Texture | null;
     color: Color;
-    needsUpdate: boolean;
+    wireframe: boolean;
+    clippingPlanes: Plane[];
     constructor(parameters?: object);
   }
 
@@ -162,6 +168,7 @@ declare module "three" {
     setPixelRatio(value: number): void;
     setSize(width: number, height: number, updateStyle?: boolean): void;
     setClearColor(color: number, alpha?: number): void;
+    localClippingEnabled: boolean;
     render(scene: Object3D, camera: PerspectiveCamera): void;
     dispose(): void;
   }

@@ -4,6 +4,7 @@ import type { FilterState } from "../search";
 export function Filters(props: {
   brands: { slug: string; name: string }[];
   families: string[];
+  effects: string[];
   value: FilterState;
   onChange: (f: FilterState) => void;
 }): JSX.Element {
@@ -46,18 +47,39 @@ export function Filters(props: {
         ))}
       </fieldset>
       <fieldset>
-        <legend>色系</legend>
-        {props.families.map((family) => (
-          <label key={family}>
-            <input
-              type="checkbox"
-              checked={props.value.families.includes(family)}
-              onChange={() => props.onChange({ ...props.value, families: toggle(props.value.families, family) })}
-            />
-            {family}
-          </label>
-        ))}
+        <legend>色谱</legend>
+        <div className="spectrum-row" role="group" aria-label="色谱">
+          {props.families.map((family) => (
+            <button
+              key={family}
+              type="button"
+              className={props.value.families.includes(family) ? "spectrum-chip is-on" : "spectrum-chip"}
+              aria-pressed={props.value.families.includes(family)}
+              onClick={() => props.onChange({ ...props.value, families: toggle(props.value.families, family) })}
+            >
+              {family}
+            </button>
+          ))}
+        </div>
       </fieldset>
+      {props.effects.length > 0 && (
+        <fieldset>
+          <legend>效果</legend>
+          <div className="spectrum-row" role="group" aria-label="效果">
+            {props.effects.map((effect) => (
+              <button
+                key={effect}
+                type="button"
+                className={props.value.effects.includes(effect) ? "spectrum-chip is-on" : "spectrum-chip"}
+                aria-pressed={props.value.effects.includes(effect)}
+                onClick={() => props.onChange({ ...props.value, effects: toggle(props.value.effects, effect) })}
+              >
+                {effect}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      )}
       <label>
         <input
           type="checkbox"

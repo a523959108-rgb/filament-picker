@@ -31,6 +31,7 @@ from .config import (
     REPO_ROOT,
     SOURCE_RANK,
 )
+from .library import delete_favorite, get_scheme, list_favorites, put_favorite, put_scheme
 from .matcher import eligible, label_for, name_display
 from .model_import import parse_plate_layout
 from .note_parser import Params
@@ -54,6 +55,22 @@ from .originals import (
 from .spoolman import annotate_picks, load_spools
 
 
+def _distinct_materials(conn: sqlite3.Connection, has_layout: bool) -> list[str]:
+    if not has_layout:
+        return []
+    found: set[str] = set()
+    for (raw,) in conn.execute("SELECT plate_layout FROM models"):
+        plates = parse_plate_layout(raw)
+        if not plates:
+            continue
+        for plate in plates:
+            for filament in plate.get("filaments", []):
+                kind = filament.get("type")
+                if isinstance(kind, str) and kind:
+                    found.add(kind)
+    return sorted(found)
+
+
 def models_root() -> Path:
     return Path(os.environ.get("FILAMENT_PICKER_MODELS_ROOT", REPO_ROOT / "data/models-private"))
 
@@ -66,6 +83,8 @@ _IMAGE_TYPES = {
 }
 _MESH_TYPE = "model/gltf-binary"
 _MODEL_ID = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
+_SORTS = ("id", "created_at", "plate_count", "colour_count")
+_ORDERS = ("asc", "desc")
 _MEDIA_NAME = re.compile(r"^(?:cover\.png|(?:plate|top)_[1-9][0-9]{0,3}\.png)$")
 _COLOUR_PARAMS = Params(
     max_colors=DEFAULT_MAX_COLORS,
@@ -155,8 +174,18 @@ class ModelPreview:
         return conn
 
     def listing(
-        self, page: int, page_size: int, q: str, series: str, author: str
+        self,
+        page: int,
+        page_size: int,
+        q: str,
+        series: str,
+        author: str,
+        material: str = "",
+        sort: str = "id",
+        order: str = "asc",
     ) -> dict[str, Any]:
+        if sort not in _SORTS or order not in _ORDERS:
+            raise HTTPException(status_code=422, detail="排序无效")
         result: dict[str, Any] = {
             "items": [],
             "total": 0,
@@ -164,26 +193,62 @@ class ModelPreview:
             "page_size": page_size,
             "series": [],
             "authors": [],
+            "materials": [],
+            "query": {
+                "q": q,
+                "series": series,
+                "author": author,
+                "material": material,
+                "sort": sort,
+                "order": order,
+            },
         }
         if not (self.root / "manifest.sqlite").is_file():
             return result
-        clauses = []
-        params = []
-        if q:
-            clauses.append("title LIKE ? ESCAPE '\\'")
-            escaped = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
-            params.append(f"%{escaped}%")
-        for name, value in (("series", series), ("author", author)):
-            if value:
-                clauses.append(f"{name} = ?")
-                params.append(value)
-        where = " WHERE " + " AND ".join(clauses) if clauses else ""
         with closing(self._connect()) as conn:
+            columns = {row[1] for row in conn.execute("PRAGMA table_info(models)")}
+            clauses: list[str] = []
+            params: list[object] = []
+            if q:
+                escaped = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+                like = f"%{escaped}%"
+                clauses.append("(title LIKE ? ESCAPE '\\' OR id LIKE ? ESCAPE '\\')")
+                params.extend((like, like))
+            for name, value in (("series", series), ("author", author)):
+                if value:
+                    clauses.append(f"{name} = ?")
+                    params.append(value)
+            if material:
+                if "plate_layout" not in columns:
+                    clauses.append("0")
+                else:
+                    clauses.append(
+                        "json_valid(plate_layout) AND plate_layout != '' AND EXISTS ("
+                        "SELECT 1 FROM json_each(models.plate_layout) AS plate "
+                        "JOIN json_each(json_extract(plate.value, '$.filaments')) AS filament "
+                        "WHERE json_extract(filament.value, '$.type') = ?)"
+                    )
+                    params.append(material)
+            where = " WHERE " + " AND ".join(clauses) if clauses else ""
+            colour_expr = (
+                "CASE WHEN json_valid(colours) AND json_type(colours) = 'array' "
+                "THEN json_array_length(colours) END"
+            )
+            sort_expr = {
+                "id": "id",
+                "created_at": "created_at",
+                "plate_count": "plate_count",
+                "colour_count": colour_expr,
+            }[sort]
+            direction = "ASC" if order == "asc" else "DESC"
             result["total"] = conn.execute(
                 "SELECT COUNT(*) FROM models" + where, params
             ).fetchone()[0]
             rows = conn.execute(
-                "SELECT * FROM models" + where + " ORDER BY id LIMIT ? OFFSET ?",
+                "SELECT * FROM models"
+                + where
+                + f" ORDER BY {sort_expr} IS NULL, {sort_expr} {direction}, id ASC "
+                "LIMIT ? OFFSET ?",
                 [*params, page_size, (page - 1) * page_size],
             )
             result["items"] = [_public_model(row) for row in rows]
@@ -195,6 +260,7 @@ class ModelPreview:
                         f"WHERE {column} != '' ORDER BY {column}"
                     )
                 ]
+            result["materials"] = _distinct_materials(conn, "plate_layout" in columns)
         return result
 
     def record(self, model_id: str) -> sqlite3.Row:
@@ -532,8 +598,28 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         q: str = "",
         series: str = "",
         author: str = "",
+        material: str = "",
+        sort: str = "id",
+        order: str = "asc",
     ) -> dict[str, Any]:
-        return preview.listing(page, page_size, q, series, author)
+        return preview.listing(page, page_size, q, series, author, material, sort, order)
+
+    @router.get("/favorites")
+    def favorites(request: Request) -> dict[str, Any]:
+        return {"items": list_favorites(request.state.model_username)}
+
+    @router.put("/favorites/{model_id}")
+    def favorite_add(model_id: str, request: Request) -> dict[str, bool]:
+        if _MODEL_ID.fullmatch(model_id) is None:
+            raise HTTPException(status_code=400, detail="模型编号无效")
+        preview.record(model_id)
+        put_favorite(request.state.model_username, model_id)
+        return {"ok": True}
+
+    @router.delete("/favorites/{model_id}")
+    def favorite_remove(model_id: str, request: Request) -> dict[str, bool]:
+        delete_favorite(request.state.model_username, model_id)
+        return {"ok": True}
 
     @router.get("/{model_id}/thumb")
     def thumbnail(model_id: str) -> Response:
@@ -546,6 +632,27 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
     @router.get("/{model_id}/media/{name}")
     def media(model_id: str, name: str) -> Response:
         return preview.media(model_id, name)
+
+    @router.get("/{model_id}/scheme")
+    def scheme_get(model_id: str, request: Request) -> dict[str, Any]:
+        if _MODEL_ID.fullmatch(model_id) is None:
+            raise HTTPException(status_code=400, detail="模型编号无效")
+        preview.record(model_id)
+        return get_scheme(request.state.model_username, model_id)
+
+    @router.put("/{model_id}/scheme")
+    async def scheme_put(model_id: str, request: Request) -> dict[str, Any]:
+        if _MODEL_ID.fullmatch(model_id) is None:
+            raise HTTPException(status_code=400, detail="模型编号无效")
+        row = preview.record(model_id)
+        try:
+            body = await request.json()
+        except (ValueError, UnicodeError):
+            raise HTTPException(status_code=400, detail="展示色格式无效") from None
+        if not isinstance(body, dict) or "slots" not in body:
+            raise HTTPException(status_code=400, detail="展示色格式无效")
+        plates = parse_plate_layout(_column(row, "plate_layout", ""))
+        return put_scheme(request.state.model_username, model_id, body.get("slots"), plates)
 
     @router.get("/{model_id}")
     def detail(model_id: str) -> dict[str, Any]:

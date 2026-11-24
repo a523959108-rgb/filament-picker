@@ -10,6 +10,7 @@ import { PlanPage } from "./components/PlanPage";
 import { CostPage } from "./components/CostPage";
 import { ModelPreview } from "./components/ModelPreview";
 import { PhotoPage } from "./components/PhotoPage";
+import { SpecIndex } from "./components/SpecIndex";
 import { StackPage } from "./components/StackPage";
 import { buildIndex, EMPTY_FILTER, query } from "./search";
 import type { FilterState } from "./search";
@@ -19,13 +20,14 @@ function routeFromHash(): string {
   return window.location.hash;
 }
 
-function pageFromHash(hash: string): "plan" | "cost" | "stack" | "photo" | "catalog" {
+function pageFromHash(hash: string): "plan" | "cost" | "stack" | "photo" | "specs" | "catalog" {
   const body = (hash.startsWith("#") ? hash.slice(1) : hash).split("?")[0] ?? "";
   const path = body.replace(/\/+$/, "") || "/";
   if (path === "/plan") return "plan";
   if (path === "/cost") return "cost";
   if (path === "/stack") return "stack";
   if (path === "/photo") return "photo";
+  if (path === "/specs") return "specs";
   return "catalog";
 }
 
@@ -42,7 +44,8 @@ function CatalogHeader(): JSX.Element {
         <a href="#/plan" className="nav-link">图片配色</a>
         <a href="#/cost" className="nav-link">打印成本</a>
         <a href={stackHref} className="nav-link">叠色</a>
-        <a href="/models/login" className="nav-link">模型预览</a>
+        <a href="#/specs" className="nav-link">规格索引</a>
+        <a href="/models/login" className="nav-link">模型画廊</a>
       </nav>
     </header>
   );
@@ -131,6 +134,12 @@ function CatalogApp(): JSX.Element {
   }, [page]);
 
   const index = useMemo(() => (catalog === null ? null : buildIndex(catalog.entries)), [catalog]);
+  const effects = useMemo(() => {
+    if (catalog === null) return [];
+    return [...new Set(catalog.entries.flatMap((entry) => entry.eff))].sort((left, right) =>
+      left.localeCompare(right, "zh"),
+    );
+  }, [catalog]);
   const entries = useMemo(
     () =>
       catalog === null || index === null
@@ -150,6 +159,14 @@ function CatalogApp(): JSX.Element {
   }
   if (page === "photo") {
     return <main className="page"><PhotoPage /></main>;
+  }
+  if (page === "specs") {
+    return (
+      <main className="page">
+        <CatalogHeader />
+        <SpecIndex catalog={catalog} />
+      </main>
+    );
   }
   if (loadError) {
     return (
@@ -198,8 +215,17 @@ function CatalogApp(): JSX.Element {
               value={searchText}
               onChange={(event) => setSearchText(event.target.value)}
             />
+            {searchText !== "" && (
+              <button type="button" onClick={() => setSearchText("")}>清空搜索</button>
+            )}
           </label>
-          <Filters brands={catalog.brands} families={[...FAMILIES]} value={filters} onChange={setFilters} />
+          <Filters
+            brands={catalog.brands}
+            families={[...FAMILIES].filter((family) => catalog.entries.some((entry) => entry.fam === family))}
+            effects={effects}
+            value={filters}
+            onChange={setFilters}
+          />
         </aside>
         <div className="catalog-main">
           <SwatchGrid entries={entries} brands={catalog.brands} onSelect={setSelectedId} />

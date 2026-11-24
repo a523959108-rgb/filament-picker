@@ -118,6 +118,14 @@ export function ColorDetail(props: {
 
           <div className="detail-actions">
             <button type="button" className="btn btn-primary" onClick={() => props.onCompare(entry.id)}>加入对比</button>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              disabled={entry.hex.length === 0}
+              onClick={() => { void navigator.clipboard?.writeText(entry.hex.join("\n")); }}
+            >
+              {entry.hex.length === 0 ? "无色值" : "复制色值"}
+            </button>
             {entry.url !== "" && (
               <p className="purchase">
                 {href !== null ? (

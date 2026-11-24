@@ -9,13 +9,14 @@ import {
   DirectionalLight,
   HemisphereLight,
   PerspectiveCamera,
+  Plane,
   Scene,
   SRGBColorSpace,
   TOUCH,
   Vector3,
   WebGLRenderer,
 } from "three";
-import type { BufferGeometry, Material, Object3D } from "three";
+import type { BufferGeometry, Material, MeshStandardMaterial, Object3D } from "three";
 
 type MeshState = "loading" | "ready" | "error";
 
@@ -59,7 +60,13 @@ function frame(camera: PerspectiveCamera, controls: OrbitControls, object: Objec
 
 export function MeshViewer({ url, label }: { url: string; label: string }): JSX.Element {
   const hostRef = useRef<HTMLDivElement>(null);
+  const cameraRef = useRef<PerspectiveCamera | null>(null);
+  const controlsRef = useRef<OrbitControls | null>(null);
+  const rootRef = useRef<Object3D | null>(null);
+  const homeRef = useRef<{ x: number; y: number; z: number } | null>(null);
   const [state, setState] = useState<MeshState>("loading");
+  const [wire, setWire] = useState(false);
+  const [clip, setClip] = useState(false);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -89,6 +96,9 @@ export function MeshViewer({ url, label }: { url: string; label: string }): JSX.
     scene.add(key);
 
     const controls = new OrbitControls(camera, renderer.domElement);
+    cameraRef.current = camera;
+    controlsRef.current = controls;
+    renderer.localClippingEnabled = true;
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
     controls.screenSpacePanning = true;
@@ -142,7 +152,9 @@ export function MeshViewer({ url, label }: { url: string; label: string }): JSX.
           return;
         }
         scene.add(gltf.scene);
+        rootRef.current = gltf.scene;
         frame(camera, controls, gltf.scene);
+        homeRef.current = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
         setState("ready");
       },
       undefined,
@@ -162,8 +174,46 @@ export function MeshViewer({ url, label }: { url: string; label: string }): JSX.
         ? "拖动旋转，滚轮缩放，双指可缩放或平移"
         : "三维预览加载中…";
 
+  function restyle(nextWire: boolean, nextClip: boolean) {
+    const root = rootRef.current;
+    if (root === null) return;
+    const plane = new Plane(new Vector3(0, 1, 0), 0);
+    root.traverse((object) => {
+      const material = (object as DisposableObject).material;
+      const list = Array.isArray(material) ? material : material ? [material] : [];
+      for (const item of list) {
+        const surface = item as MeshStandardMaterial;
+        surface.wireframe = nextWire;
+        surface.clippingPlanes = nextClip ? [plane] : [];
+        surface.needsUpdate = true;
+      }
+    });
+  }
+
   return (
     <figure className="model-mesh" aria-busy={state === "loading"} aria-label={`${label} 三维预览`}>
+      {state === "ready" && (
+        <div className="model-mesh-tools" role="group" aria-label="网格">
+          <button type="button" onClick={() => {
+            const home = homeRef.current;
+            const camera = cameraRef.current;
+            if (!home || !camera) return;
+            camera.position.set(home.x, home.y, home.z);
+            controlsRef.current?.target.set(0, 0, 0);
+            controlsRef.current?.update();
+          }}>归位</button>
+          <button type="button" aria-pressed={wire} onClick={() => {
+            const next = !wire;
+            setWire(next);
+            restyle(next, clip);
+          }}>线框</button>
+          <button type="button" aria-pressed={clip} onClick={() => {
+            const next = !clip;
+            setClip(next);
+            restyle(wire, next);
+          }}>剖切</button>
+        </div>
+      )}
       <div
         ref={hostRef}
         className="model-mesh-stage"

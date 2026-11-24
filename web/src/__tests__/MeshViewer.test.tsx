@@ -126,6 +126,9 @@ vi.mock("three", () => {
       }
     },
     WebGLRenderer,
+    Plane: class {
+      constructor(_normal?: unknown, _constant?: number) {}
+    },
   };
 });
 
