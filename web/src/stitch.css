@@ -272,6 +272,12 @@
   height: 56px; min-height: 56px; max-height: 56px; overflow: hidden;
   margin: 0 0 8px; padding: 0 12px; position: relative;
 }
+@media (max-width: 360px) {
+  .site-header { padding: 0 4px; gap: 2px; }
+  .site-brand { font-size: 14px; gap: 4px; }
+  .site-actions { gap: 0; }
+  .site-link, .site-header button { padding: 0 4px; font-size: 13px; }
+}
 .site-brand { display: flex; align-items: center; gap: 8px; color: #e8f1fb; font-weight: 650; font-size: 16px; text-decoration: none; white-space: nowrap; flex: 0 0 auto; }
 .site-brand svg { color: #8ed5ff; flex: none; }
 .site-brand-home { display: none; }

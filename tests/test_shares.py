@@ -69,6 +69,8 @@ def _share_cookie(response: httpx.Response) -> str:
     header = response.headers["set-cookie"]
     assert "fp_share=" in header
     assert "httponly" in header.lower()
+    assert "path=/api/share" in header.lower()
+    assert "samesite=strict" in header.lower()
     return header.split(";", 1)[0]
 
 
@@ -183,6 +185,24 @@ def test_another_username_cannot_see_or_revoke(preview: tuple) -> None:
     assert listed == []
     hidden = _request(app, "POST", f"/api/models/shares/{created['grant_id']}/revoke", cookie)
     assert hidden.status_code == 404
+
+
+def test_grant_dies_when_ownership_moves(preview: tuple) -> None:
+    app, password, models, _db = preview
+    cookie = _cookie(app, password)
+    created = _request(
+        app,
+        "POST",
+        "/api/models/sample-01/shares",
+        cookie,
+        json={"days": 7, "allow_scheme_copy": True},
+    ).json()
+    token = created["link"].split("#", 1)[1]
+    with sqlite3.connect(models / "manifest.sqlite") as conn:
+        conn.execute("UPDATE models SET owner = ? WHERE id = ?", ("other-user", "sample-01"))
+    opened = _request(app, "POST", "/api/share/open", json={"token": token})
+    assert opened.status_code == 410
+    assert opened.json()["detail"] == "链接已失效"
 
 
 def test_grant_dies_when_the_owner_account_is_removed(preview: tuple) -> None:

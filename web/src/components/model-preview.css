@@ -308,3 +308,9 @@
 }
 .model-preview .topbar .nav-link::after { content: none; }
 .gallery-actions button { height: 36px; }
+@media (max-width: 360px) {
+  .model-preview .site-header { padding: 0 4px; gap: 2px; }
+  .model-preview .site-brand { font-size: 14px; gap: 4px; }
+  .model-preview .site-actions { gap: 0; }
+  .model-preview .site-link, .model-preview .site-header button { padding: 0 4px; font-size: 13px; }
+}

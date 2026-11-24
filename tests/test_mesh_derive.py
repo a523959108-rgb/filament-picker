@@ -59,3 +59,35 @@ def test_partial_plate_map_stays_an_overall_view() -> None:
     assert record["scope"] == "overall"
     assert record["plates"] == []
     assert set(images) == {"front.png"}
+
+
+def test_external_component_and_dtd_are_refused_without_fetching(tmp_path: Path) -> None:
+    remote_zip = io.BytesIO()
+    with zipfile.ZipFile(remote_zip, "w") as archive:
+        archive.writestr(
+            "3D/3dmodel.model",
+            '<?xml version="1.0"?><model unit="millimeter" '
+            'xmlns:p="http://schemas.microsoft.com/3dmanufacturing/production/2015/06">'
+            '<resources><object id="1" type="model"><components>'
+            '<component p:path="https://example.invalid/evil.model" objectid="1"/>'
+            '</components></object></resources><build><item objectid="1"/></build></model>',
+        )
+    remote_path = tmp_path / "originals" / "remote.3mf"
+    remote_path.parent.mkdir()
+    remote_path.write_bytes(remote_zip.getvalue())
+    remote = derive_file(tmp_path, "remote", remote_path)
+    assert remote["status"] == "failed"
+    assert "不安全" in remote["error"]
+    assert not (tmp_path / "derived" / "remote" / "model.glb").exists()
+    bombed = io.BytesIO()
+    with zipfile.ZipFile(bombed, "w") as archive:
+        archive.writestr(
+            "3D/3dmodel.model",
+            '<!DOCTYPE model [<!ENTITY x "x">]>'
+            '<model unit="millimeter"><resources></resources></model>',
+        )
+    entity_path = tmp_path / "originals" / "entity.3mf"
+    entity_path.write_bytes(bombed.getvalue())
+    entity = derive_file(tmp_path, "entity", entity_path)
+    assert entity["status"] == "failed"
+    assert "DTD" in entity["error"]

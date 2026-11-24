@@ -410,8 +410,11 @@ def _load_objects(
         return cached
     if key not in archive.namelist():
         raise DeriveError(f"缺少网格 {key}，没有派生")
+    raw_xml = archive.read(key)
+    if b"<!DOCTYPE" in raw_xml or b"<!ENTITY" in raw_xml:
+        raise DeriveError(f"{key} 含有 DTD，没有派生")
     try:
-        root = ElementTree.fromstring(archive.read(key))
+        root = ElementTree.fromstring(raw_xml)
     except ElementTree.ParseError as exc:
         raise DeriveError(f"{key} 不是可解析的网格") from exc
     unit = _UNITS.get(_attr(root, "unit") or "millimeter")
@@ -447,7 +450,12 @@ def _load_objects(
             if child_id is None or not child_id.isdigit():
                 raise DeriveError("组件编号无效，没有派生")
             child_path = (_attr(component, "path") or key).lstrip("/")
-            if ".." in PurePosixPath(child_path).parts:
+            if (
+                ".." in PurePosixPath(child_path).parts
+                or "://" in child_path
+                or child_path.startswith("//")
+                or child_path.startswith("\\\\")
+            ):
                 raise DeriveError("组件路径不安全，没有派生")
             child_objects, _child_unit = _load_objects(archive, child_path, cache)
             child = child_objects.get(int(child_id))

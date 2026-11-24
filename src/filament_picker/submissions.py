@@ -7,11 +7,16 @@ else's library. STEP is refused unless FreeCAD's freecadcmd is installed.
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import secrets
 import shutil
+import signal
 import sqlite3
 import struct
+import subprocess
+import sys
+import threading
 from contextlib import closing
 from datetime import datetime
 from pathlib import Path, PurePosixPath
@@ -22,7 +27,7 @@ import numpy as np
 from PIL import Image
 
 from .config import TZ
-from .mesh_derive import DeriveError, derive_file, save_derived_scene
+from .mesh_derive import DeriveError
 
 _USER = re.compile(r"^[A-Za-z0-9_-]{3,32}$")
 _ID = re.compile(r"^m-[0-9a-f]{16}$")
@@ -30,6 +35,12 @@ _SUB = re.compile(r"^sub-[0-9a-f]{16}$")
 _MAX_BYTES = 32 * 1024 * 1024
 _MAX_TRIANGLES = 1_500_000
 _MAX_ATTEMPTS = 3
+_CHECK_TIMEOUT = 25
+_SLOTS = threading.BoundedSemaphore(2)
+
+
+def submissions_enabled() -> bool:
+    return os.environ.get("FILAMENT_PICKER_SUBMISSIONS", "0") == "1"
 
 
 class SubmissionError(Exception):
@@ -48,17 +59,18 @@ def step_dependency() -> str | None:
 def accept_upload(
     root: Path, manifest: Path, username: str, filename: str, data: bytes
 ) -> dict[str, Any]:
+    if not submissions_enabled():
+        raise SubmissionError("投稿未开放", status=403)
     if _USER.fullmatch(username) is None:
         raise SubmissionError("账号名无效", status=403)
     suffix = PurePosixPath(filename or "").suffix.lower()
     if suffix not in {".3mf", ".stl", ".step", ".stp"}:
-        raise SubmissionError("只接受 .3mf、.stl，以及已安装 freecadcmd 时的 .step/.stp")
-    if suffix in {".step", ".stp"}:
-        tool = step_dependency()
-        if tool:
-            raise SubmissionError(
-                f"STEP 需要本机命令 {tool}（FreeCAD）。当前没有安装，已拒绝，不会按扩展名假装解析。"
-            )
+        raise SubmissionError("只接受 .3mf、.stl，以及显式开启后的 .step/.stp")
+    if suffix in {".step", ".stp"} and os.environ.get("FILAMENT_PICKER_STEP", "0") != "1":
+        raise SubmissionError(
+            "STEP 转换默认关闭，尚未实现。需要 FILAMENT_PICKER_STEP=1 和本机 freecadcmd。"
+            "缺命令时的拒绝不是已经实现的转换。"
+        )
     if len(data) > _MAX_BYTES:
         raise SubmissionError("文件超过 32MB", status=413)
     if len(data) < 16:
@@ -116,16 +128,12 @@ def _process(
     try:
         if hashlib.sha256(data).hexdigest() != content_sha:
             raise SubmissionError("内容和记录的校验不一致")
-        positions: np.ndarray | None = None
-        indices: np.ndarray | None = None
-        if suffix == ".3mf":
-            _reject_zip_bomb(data)
-        elif suffix == ".stl":
-            positions, indices = _parse_stl(data)
-        else:
-            tool = step_dependency()
+        if suffix not in {".3mf", ".stl", ".step", ".stp"}:
+            raise SubmissionError("只接受 .3mf、.stl，以及显式开启后的 STEP")
+        if suffix in {".step", ".stp"} and os.environ.get("FILAMENT_PICKER_STEP", "0") != "1":
             raise SubmissionError(
-                f"STEP 需要本机命令 {tool or 'freecadcmd'}（FreeCAD）。当前没有安装，已拒绝。"
+                "STEP 转换默认关闭。设置 FILAMENT_PICKER_STEP=1 且安装 freecadcmd 后才会尝试。"
+                "缺命令时的拒绝不是已经实现的 STEP 转换。"
             )
     except (SubmissionError, DeriveError, OSError, ValueError) as exc:
         detail = exc.detail if isinstance(exc, (SubmissionError, DeriveError)) else "处理失败"
@@ -142,27 +150,53 @@ def _process(
     _insert_model(manifest, model_id, username, title, suffix, len(data), stored)
     _write_thumb(root, model_id, content_sha)
     try:
-        if suffix == ".3mf":
-            derive_file(root, model_id, stored, force=True)
-        elif positions is not None and indices is not None:
-            scene = {
-                "unit": "millimeter",
-                "scope": "overall",
-                "parts": [{"positions": positions, "indices": indices}],
-            }
-            save_derived_scene(root, model_id, content_sha, scene)
-    except (DeriveError, OSError) as exc:
-        detail = exc.detail if isinstance(exc, DeriveError) else "网格派生失败"
-        _mark(manifest, submission_id, "failed", detail)
+        _run_isolated(root, model_id, stored, suffix, content_sha)
+    except SubmissionError as exc:
+        _mark(manifest, submission_id, "failed", exc.detail)
         failed = _get(manifest, submission_id, username)
         if failed is None:
-            raise SubmissionError(detail) from exc
+            raise
         return failed
     _mark(manifest, submission_id, "ready", None, model_id=model_id)
     ready = _get(manifest, submission_id, username)
     if ready is None:
         raise SubmissionError("投稿记录丢失", status=500)
     return ready
+
+
+def _run_isolated(root: Path, model_id: str, stored: Path, suffix: str, content_sha: str) -> None:
+    free = shutil.disk_usage(root).free
+    if free < stored.stat().st_size + 64 * 1024 * 1024:
+        raise SubmissionError("磁盘空间不足", status=507)
+    if not _SLOTS.acquire(timeout=1):
+        raise SubmissionError("同时处理的投稿过多", status=429)
+    command = [
+        sys.executable,
+        "-m",
+        "filament_picker.upload_check",
+        suffix,
+        str(stored),
+        str(root),
+        model_id,
+        content_sha,
+    ]
+    proc = subprocess.Popen(
+        command,
+        start_new_session=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    try:
+        _stdout, stderr = proc.communicate(timeout=_CHECK_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        os.killpg(proc.pid, signal.SIGKILL)
+        proc.communicate()
+        raise SubmissionError("处理超时，已停止该进程") from None
+    finally:
+        _SLOTS.release()
+    if proc.returncode != 0:
+        detail = stderr.decode("utf-8", "replace").strip().splitlines()
+        raise SubmissionError(detail[-1] if detail else "校验失败")
 
 
 def _parse_stl(data: bytes) -> tuple[np.ndarray, np.ndarray]:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import secrets
 import struct
 from pathlib import Path
@@ -77,7 +78,10 @@ def test_registration_is_off_by_default(preview: tuple, monkeypatch: pytest.Monk
     assert refused.status_code == 403
 
 
-def test_members_cannot_see_or_share_the_legacy_library(preview: tuple) -> None:
+def test_members_cannot_see_or_share_the_legacy_library(
+    preview: tuple, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("FILAMENT_PICKER_SUBMISSIONS", "1")
     app, password, models = preview
     owner = _login(app, USER, password)
     assert _request(app, "GET", "/api/models", owner).json()["total"] == 8
@@ -94,6 +98,7 @@ def test_members_cannot_see_or_share_the_legacy_library(preview: tuple) -> None:
     assert listing["total"] == 0
     assert _request(app, "GET", "/api/models/sample-01", member).status_code == 404
     assert _request(app, "GET", "/api/models/sample-01/thumb", member).status_code == 404
+    assert _request(app, "GET", "/api/models/sample-01/original", member).status_code == 404
     hidden = _request(app, "POST", "/api/models/sample-01/shares", member, json={"days": 7})
     assert hidden.status_code == 404
     uploaded = _request(
@@ -133,3 +138,72 @@ def test_members_cannot_see_or_share_the_legacy_library(preview: tuple) -> None:
     assert renamed.status_code == 200
     assert renamed.json()["status"] == "failed"
     assert renamed.json()["retryable"] is True
+
+
+def test_empty_owner_is_not_claimed_by_a_later_identity(
+    preview: tuple, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    app, password, models = preview
+    owner = _login(app, USER, password)
+    assert _request(app, "GET", "/api/models/sample-01", owner).status_code == 200
+    import sqlite3
+
+    with sqlite3.connect(models / "manifest.sqlite") as conn:
+        conn.execute("UPDATE models SET owner = '' WHERE id = 'sample-01'")
+    monkeypatch.setenv("FILAMENT_PICKER_PREVIEW_USER", "someone-else")
+    assert _request(app, "GET", "/api/models/sample-01", owner).status_code == 404
+
+
+def test_submissions_stay_off_until_their_own_switch(
+    preview: tuple, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    app, password, _models = preview
+    monkeypatch.delenv("FILAMENT_PICKER_SUBMISSIONS", raising=False)
+    owner = _login(app, USER, password)
+    response = _request(
+        app,
+        "POST",
+        "/api/models/submissions",
+        owner,
+        files={"file": ("box.stl", b"solid x\nendsolid x\n", "model/stl")},
+    )
+    assert response.status_code == 403
+    assert response.json()["detail"] == "投稿未开放"
+
+
+def test_step_calls_a_local_converter_only_when_enabled(
+    preview: tuple, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    app, password, _models = preview
+    monkeypatch.setenv("FILAMENT_PICKER_SUBMISSIONS", "1")
+    stub = tmp_path / "freecadcmd"
+    stub.write_text(
+        "#!/bin/sh\nprintf 'solid x\\nfacet normal 0 0 0\\nouter loop\\n"
+        "vertex 0 0 0\\nvertex 1 0 0\\nvertex 0 1 0\\n"
+        'endloop\\nendfacet\\nendsolid x\\n\' > "$2"\n',
+        encoding="utf-8",
+    )
+    stub.chmod(0o755)
+    monkeypatch.setenv("PATH", f"{tmp_path}:{os.environ.get('PATH', '')}")
+    owner = _login(app, USER, password)
+    body = b"ISO-10303-21;\nEND-ISO-10303-21;\n"
+    closed = _request(
+        app,
+        "POST",
+        "/api/models/submissions",
+        owner,
+        files={"file": ("part.step", body, "application/step")},
+    )
+    assert closed.status_code == 400
+    assert "默认关闭" in closed.json()["detail"]
+    assert "freecadcmd" in closed.json()["detail"]
+    monkeypatch.setenv("FILAMENT_PICKER_STEP", "1")
+    opened = _request(
+        app,
+        "POST",
+        "/api/models/submissions",
+        owner,
+        files={"file": ("part.step", body, "application/step")},
+    )
+    assert opened.status_code == 200
+    assert opened.json()["status"] == "ready"

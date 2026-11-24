@@ -103,6 +103,7 @@ interface ModelList {
   series: string[];
   authors: string[];
   materials?: string[];
+  submissions?: boolean;
 }
 
 type Navigate = (path: string) => void;
@@ -297,6 +298,8 @@ function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: stri
     }
   }, [href, onHref]);
   const [loading, setLoading] = useState(true);
+  const [uploadNote, setUploadNote] = useState("");
+  const [canUpload, setCanUpload] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -319,7 +322,10 @@ function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: stri
         if (response.status === 401) { navigate("/models/login"); return; }
         if (!response.ok) throw new Error();
         const result = await response.json() as ModelList;
-        if (active) setData(result);
+        if (active) {
+          setData(result);
+          setCanUpload(result.submissions === true);
+        }
       })
       .catch(() => { if (active) setError("模型加载失败，请重试"); })
       .finally(() => { if (active) setLoading(false); });
@@ -328,7 +334,6 @@ function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: stri
 
   const pageCount = Math.max(1, Math.ceil((data?.total ?? 0) / params.page_size));
   const [jump, setJump] = useState("1");
-  const [uploadNote, setUploadNote] = useState("");
   async function upload(event: FormEvent) {
     event.preventDefault();
     const input = (event.currentTarget as HTMLFormElement).elements.namedItem("model");
@@ -348,11 +353,13 @@ function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: stri
   }
   return (
     <>
-      <form className="gallery-upload" onSubmit={(event) => { void upload(event); }}>
-        <label>投稿模型<input name="model" type="file" accept=".3mf,.stl,.step,.stp" /></label>
-        <button type="submit">上传</button>
-        {uploadNote ? <p role="status">{uploadNote}</p> : null}
-      </form>
+      {canUpload ? (
+        <form className="gallery-upload" onSubmit={(event) => { void upload(event); }}>
+          <label>投稿模型<input name="model" type="file" accept=".3mf,.stl,.step,.stp" /></label>
+          <button type="submit">上传</button>
+          {uploadNote ? <p role="status">{uploadNote}</p> : null}
+        </form>
+      ) : null}
       <form className="gallery-toolbar" onSubmit={(event) => {
         event.preventDefault(); setParams((current) => ({ ...current, q: search, page: 1 }));
       }}>
@@ -1308,14 +1315,10 @@ function ShareView(): JSX.Element {
       body: JSON.stringify({ token }),
     }).then(async (response) => {
       if (!active) return;
-      if (response.status === 410 || response.status === 404) {
+      if (response.status === 410 || response.status === 404 || !response.ok) {
         setDetail(await errorDetail(response));
         setState("dead");
-        return;
-      }
-      if (!response.ok) {
-        setDetail(await errorDetail(response));
-        setState("dead");
+        window.history.replaceState({}, "", "/models/s");
         return;
       }
       setView(await response.json());

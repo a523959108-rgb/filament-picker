@@ -81,14 +81,23 @@ from .shares import (
     revoke_grant,
 )
 from .spoolman import annotate_picks, load_spools
-from .submissions import SubmissionError, accept_upload, list_submissions, retry_submission
+from .submissions import (
+    SubmissionError,
+    accept_upload,
+    list_submissions,
+    retry_submission,
+    submissions_enabled,
+)
 
 
-def _distinct_materials(conn: sqlite3.Connection, has_layout: bool) -> list[str]:
+def _distinct_materials(conn: sqlite3.Connection, has_layout: bool, username: str) -> list[str]:
     if not has_layout:
         return []
     found: set[str] = set()
-    for (raw,) in conn.execute("SELECT plate_layout FROM models"):
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(models)")}
+    query = "SELECT plate_layout FROM models WHERE owner = ?" if "owner" in columns else None
+    rows = conn.execute(query, (username,)) if query else []
+    for (raw,) in rows:
         plates = parse_plate_layout(raw)
         if not plates:
             continue
@@ -243,6 +252,7 @@ class ModelPreview:
             "series": [],
             "authors": [],
             "materials": [],
+            "submissions": submissions_enabled(),
             "query": {
                 "q": q,
                 "series": series,
@@ -313,7 +323,7 @@ class ModelPreview:
                         (username,),
                     )
                 ]
-            result["materials"] = _distinct_materials(conn, "plate_layout" in columns)
+            result["materials"] = _distinct_materials(conn, "plate_layout" in columns, username)
         return result
 
     def ensure_owners(self) -> None:
@@ -348,7 +358,7 @@ class ModelPreview:
         owner = _column(row, "owner", "")
         if isinstance(owner, str) and owner:
             return owner
-        return configured_preview_user() or ""
+        return ""
 
     def _fetch(self, model_id: str) -> sqlite3.Row | None:
         if not (self.root / "manifest.sqlite").is_file():
@@ -729,7 +739,12 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
 
     @router.get("/registration")
     def registration() -> dict[str, bool]:
-        return {"enabled": registration_enabled(), "email_sent": False, "email_verification": False}
+        return {
+            "enabled": registration_enabled(),
+            "submissions": submissions_enabled(),
+            "email_sent": False,
+            "email_verification": False,
+        }
 
     @router.post("/register")
     async def register(request: Request) -> dict[str, object]:
@@ -1064,6 +1079,10 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
 
     @router.api_route("/{model_id}/original", methods=["GET", "HEAD"])
     def original(model_id: str, request: Request) -> Response:
+        preview.ensure_owners()
+        target = preview._download_target(model_id)
+        if target is None or preview._row_owner(target[0]) != request.state.model_username:
+            raise HTTPException(status_code=404, detail="模型不存在")
         return preview.original_response(model_id, request)
 
     share_router = APIRouter(prefix="/api/share")
@@ -1117,8 +1136,8 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
             max_age=max(1, int(remaining.total_seconds())),
             httponly=True,
             secure=preview.auth.secure,
-            samesite="lax",
-            path="/",
+            samesite="strict",
+            path="/api/share",
         )
 
     @share_router.post("/open")
@@ -1182,6 +1201,7 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         grant = _share_grant(request)
         if not grant["allow_scheme_copy"]:
             raise HTTPException(status_code=403, detail="这份分享不能下载配色副本")
+        preview.grant_row(grant["model_id"], grant["username"])
         found = scheme_copy_path(grant["username"], grant["model_id"])
         if found is None:
             raise HTTPException(status_code=404, detail="还没有配色副本")
