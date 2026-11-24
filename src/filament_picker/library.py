@@ -19,6 +19,7 @@ from fastapi import HTTPException
 
 from .auth import auth_db_path
 from .config import TZ
+from .shares import ensure_tables as ensure_share_tables
 
 _MODEL_ID = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
 _HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
@@ -38,6 +39,7 @@ def ensure_tables(conn: sqlite3.Connection) -> None:
         "username TEXT NOT NULL, model_id TEXT NOT NULL, slots_json TEXT NOT NULL, "
         "updated_at TEXT NOT NULL, PRIMARY KEY (username, model_id))"
     )
+    ensure_share_tables(conn)
 
 
 def _connect() -> sqlite3.Connection:

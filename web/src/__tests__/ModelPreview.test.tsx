@@ -568,4 +568,35 @@ describe("model preview", () => {
     expect(view.getByRole("img", { name: "示例方块 01 斜视 1" }).getAttribute("src"))
       .toBe("/api/models/sample-01/media/plate_1.png");
   });
+
+  it("opens a share fragment without requesting the private library", async () => {
+    window.location.hash = "#abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN123";
+    const fetcher = vi.fn(async (url: string) => {
+      if (String(url) === "/api/share/open") {
+        return response({
+          title: "分享方块",
+          note: "这是一份限时分享，不是公开模型。",
+          expires_at: "2026-12-01T00:00:00+09:00",
+          allow_original: false,
+          thumb_url: "/api/share/thumb",
+        });
+      }
+      return response({}, 401);
+    });
+    vi.stubGlobal("fetch", fetcher);
+    const view = render(<ModelPreview path="/models/s" />);
+    expect(await view.findByRole("heading", { name: "分享方块" })).toBeTruthy();
+    expect(view.getByText("这份分享不能下载原件。")).toBeTruthy();
+    expect(fetcher.mock.calls.some((call) => String(call[0]).startsWith("/api/models"))).toBe(false);
+    window.location.hash = "";
+  });
+
+  it("shows an expired share without a login form", async () => {
+    window.location.hash = "#abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN123";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({ detail: "链接已过期" }, 410)));
+    const view = render(<ModelPreview path="/models/s" />);
+    expect(await view.findByText("链接已过期")).toBeTruthy();
+    expect(view.queryByLabelText("密码")).toBeNull();
+    window.location.hash = "";
+  });
 });

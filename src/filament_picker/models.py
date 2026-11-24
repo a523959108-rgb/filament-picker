@@ -7,9 +7,11 @@ import re
 import sqlite3
 from collections.abc import Iterator
 from contextlib import closing
+from datetime import datetime
 from pathlib import Path, PurePosixPath
 from typing import Any
 from urllib.parse import quote
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, FastAPI, HTTPException, Query, Request
 from fastapi.responses import (
@@ -31,6 +33,7 @@ from .config import (
     MATCH_MAX_DE,
     REPO_ROOT,
     SOURCE_RANK,
+    TZ,
 )
 from .library import delete_favorite, get_scheme, list_favorites, put_favorite, put_scheme
 from .matcher import eligible, label_for, name_display
@@ -66,6 +69,17 @@ from .originals import (
     resolve_object_key,
 )
 from .scheme_copy import SchemeCopyError, scheme_copy_path, store_scheme_copy
+from .shares import (
+    COOKIE_NAME as SHARE_COOKIE,
+)
+from .shares import (
+    create_grant,
+    grant_from_cookie,
+    list_grants,
+    may_share_model,
+    open_token,
+    revoke_grant,
+)
 from .spoolman import annotate_picks, load_spools
 
 
@@ -588,14 +602,20 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         path = request.url.path
         api = path == "/api/models" or path.startswith("/api/models/")
         page = path == "/models" or path.startswith("/models/")
-        if not (api or page):
+        share_api = path == "/api/share" or path.startswith("/api/share/")
+        if not (api or page or share_api):
             return await call_next(request)
+        share_page = path.rstrip("/") == "/models/s" and request.method in ("GET", "HEAD")
         login = (path == "/api/models/login" and request.method == "POST") or (
             path.rstrip("/") == "/models/login" and request.method in ("GET", "HEAD")
         )
-        username = None if login else preview.auth.username(request.cookies.get(COOKIE_NAME))
+        username = (
+            None
+            if login or share_page or share_api
+            else preview.auth.username(request.cookies.get(COOKIE_NAME))
+        )
         request.state.model_username = username
-        if not login and username is None:
+        if not login and not share_page and not share_api and username is None:
             response = (
                 JSONResponse({"detail": "需要登录"}, status_code=401)
                 if api
@@ -605,12 +625,14 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
             response = await call_next(request)
         response.headers["X-Robots-Tag"] = "noindex, nofollow"
         response.headers["Cache-Control"] = "no-store"
+        response.headers["Referrer-Policy"] = "no-referrer"
         return response
 
     @app.get("/robots.txt", response_class=PlainTextResponse)
     def robots() -> str:
         return (
-            "User-agent: *\nDisallow: /models\nDisallow: /api/models\nDisallow: /internal-models\n"
+            "User-agent: *\nDisallow: /models\nDisallow: /api/models\n"
+            "Disallow: /api/share\nDisallow: /internal-models\n"
         )
 
     @router.post("/login")
@@ -706,6 +728,40 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
             raise HTTPException(status_code=400, detail="模型编号无效")
         preview.record(model_id)
         return get_scheme(request.state.model_username, model_id)
+
+    @router.get("/{model_id}/shares")
+    def share_list(model_id: str, request: Request) -> dict[str, Any]:
+        if not may_share_model(request.state.model_username, model_id):
+            raise HTTPException(status_code=403, detail="不能分享这个模型")
+        preview.record(model_id)
+        return {"items": list_grants(request.state.model_username, model_id)}
+
+    @router.post("/{model_id}/shares")
+    async def share_create(model_id: str, request: Request) -> dict[str, Any]:
+        if not may_share_model(request.state.model_username, model_id):
+            raise HTTPException(status_code=403, detail="不能分享这个模型")
+        preview.record(model_id)
+        try:
+            body = await request.json()
+        except (ValueError, UnicodeError):
+            raise HTTPException(status_code=400, detail="分享请求无效") from None
+        if not isinstance(body, dict):
+            raise HTTPException(status_code=400, detail="分享请求无效")
+        created = create_grant(
+            request.state.model_username,
+            model_id,
+            days=body.get("days", 7),
+            allow_original=body.get("allow_original", False),
+            allow_scheme_copy=body.get("allow_scheme_copy", False),
+        )
+        token = created.pop("token")
+        created["link"] = "/models/s#" + token
+        return created
+
+    @router.post("/shares/{grant_id}/revoke")
+    def share_revoke(grant_id: str, request: Request) -> dict[str, bool]:
+        revoke_grant(request.state.model_username, grant_id)
+        return {"ok": True}
 
     @router.put("/{model_id}/scheme")
     async def scheme_put(model_id: str, request: Request) -> dict[str, Any]:
@@ -851,4 +907,133 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
     def original(model_id: str, request: Request) -> Response:
         return preview.original_response(model_id, request)
 
+    share_router = APIRouter(prefix="/api/share")
+
+    def _share_grant(request: Request) -> dict[str, Any]:
+        return grant_from_cookie(request.cookies.get(SHARE_COOKIE))
+
+    def _share_payload(grant: dict[str, Any]) -> dict[str, Any]:
+        row = preview.record(grant["model_id"])
+        images = []
+        for image in _public_images(row):
+            name = str(image["url"]).rsplit("/", 1)[-1]
+            images.append({**image, "url": "/api/share/media/" + name})
+        derived = preview.derived_payload(str(row["id"]))
+        fronts = []
+        for view in derived["front_views"]:
+            name = str(view["url"]).rsplit("/", 1)[-1]
+            fronts.append({**view, "url": "/api/share/derived/" + name})
+        plates = parse_plate_layout(_column(row, "plate_layout", ""))
+        if plates is not None:
+            for plate in plates:
+                for filament in plate["filaments"]:
+                    filament.pop("picks", None)
+        payload: dict[str, Any] = {
+            "title": row["title"],
+            "author": row["author"],
+            "plate_count": row["plate_count"],
+            "expires_at": grant["expires_at"],
+            "allow_original": grant["allow_original"],
+            "allow_scheme_copy": grant["allow_scheme_copy"],
+            "thumb_url": "/api/share/thumb",
+            "images": images,
+            "front_views": fronts,
+            "mesh_url": "/api/share/glb"
+            if derived["mesh_derived"] or preview.mesh_url(str(row["id"]))
+            else None,
+            "plates": plates,
+            "note": "这是一份限时分享，不是公开模型。",
+        }
+        if grant["allow_original"]:
+            payload["original_url"] = "/api/share/original"
+        if grant["allow_scheme_copy"]:
+            payload["scheme_copy_url"] = "/api/share/scheme-copy"
+        return payload
+
+    def _share_session(response: Response, grant: dict[str, Any], session: str) -> None:
+        remaining = datetime.fromisoformat(grant["expires_at"]) - datetime.now(ZoneInfo(TZ))
+        response.set_cookie(
+            SHARE_COOKIE,
+            session,
+            max_age=max(1, int(remaining.total_seconds())),
+            httponly=True,
+            secure=preview.auth.secure,
+            samesite="lax",
+            path="/",
+        )
+
+    @share_router.post("/open")
+    async def share_open(request: Request) -> Response:
+        try:
+            body = await request.json()
+        except (ValueError, UnicodeError):
+            raise HTTPException(status_code=400, detail="链接无效") from None
+        token = body.get("token") if isinstance(body, dict) else None
+        grant, session = open_token(request.client.host if request.client else "unknown", token)
+        response = JSONResponse(_share_payload(grant))
+        _share_session(response, grant, session)
+        return response
+
+    @share_router.get("/view")
+    def share_view(request: Request) -> dict[str, Any]:
+        return _share_payload(_share_grant(request))
+
+    @share_router.get("/thumb")
+    def share_thumb(request: Request) -> Response:
+        grant = _share_grant(request)
+        return preview.thumbnail(grant["model_id"])
+
+    @share_router.get("/media/{name}")
+    def share_media(name: str, request: Request) -> Response:
+        grant = _share_grant(request)
+        return preview.media(grant["model_id"], name)
+
+    @share_router.get("/glb")
+    def share_glb(request: Request) -> Response:
+        grant = _share_grant(request)
+        derived = derived_file(preview.root, grant["model_id"], "model.glb")
+        if derived is not None:
+            return FileResponse(
+                derived,
+                media_type="model/gltf-binary",
+                headers={"Cache-Control": "no-store"},
+            )
+        return preview.mesh(grant["model_id"])
+
+    @share_router.get("/derived/{name}")
+    def share_derived(name: str, request: Request) -> Response:
+        grant = _share_grant(request)
+        path = derived_file(preview.root, grant["model_id"], name)
+        if path is None or path.suffix.lower() != ".png":
+            raise HTTPException(status_code=404, detail="派生文件不存在")
+        return FileResponse(path, media_type="image/png", headers={"Cache-Control": "no-store"})
+
+    @share_router.api_route("/original", methods=["GET", "HEAD"])
+    def share_original(request: Request) -> Response:
+        grant = _share_grant(request)
+        if not grant["allow_original"]:
+            raise HTTPException(status_code=403, detail="这份分享不能下载原件")
+        return preview.original_response(grant["model_id"], request)
+
+    @share_router.get("/scheme-copy")
+    def share_scheme_copy(request: Request) -> Response:
+        grant = _share_grant(request)
+        if not grant["allow_scheme_copy"]:
+            raise HTTPException(status_code=403, detail="这份分享不能下载配色副本")
+        found = scheme_copy_path(grant["username"], grant["model_id"])
+        if found is None:
+            raise HTTPException(status_code=404, detail="还没有配色副本")
+        path, record = found
+        payload = path.read_bytes()
+        digest = hashlib.sha256(payload).hexdigest()
+        if digest != record["sha256"]:
+            raise HTTPException(status_code=409, detail="副本校验和不匹配")
+        headers = {
+            "Content-Disposition": content_disposition(str(record["filename"])),
+            "X-Content-SHA256": digest,
+            "Cache-Control": "no-store",
+        }
+        return Response(content=payload, media_type="model/3mf", headers=headers)
+
     app.include_router(router)
+    app.include_router(share_router)

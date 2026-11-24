@@ -57,6 +57,14 @@ interface OriginalFile {
   url?: string | null;
 }
 
+interface ShareRow {
+  grant_id: string;
+  expires_at: string;
+  revoked: boolean;
+  allow_original: boolean;
+  allow_scheme_copy: boolean;
+}
+
 interface FrontView {
   scope: "overall" | "plate";
   plate: number | null;
@@ -504,6 +512,11 @@ function ModelTools({ model }: { model: Model }): JSX.Element {
   const [copySha, setCopySha] = useState("");
   const [copyNote, setCopyNote] = useState("");
   const [copyUnchanged, setCopyUnchanged] = useState("");
+  const [shareDays, setShareDays] = useState(7);
+  const [shareOriginal, setShareOriginal] = useState(false);
+  const [shareCopy, setShareCopy] = useState(false);
+  const [shareLink, setShareLink] = useState("");
+  const [shares, setShares] = useState<ShareRow[]>([]);
   const plates = Array.isArray(model.plates) ? model.plates : [];
 
   useEffect(() => {
@@ -620,6 +633,55 @@ function ModelTools({ model }: { model: Model }): JSX.Element {
     setMessage("已加入模型对比。相同槽号不表示同一个零件。");
   }
 
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/models/${encodeURIComponent(model.id)}/shares`, { credentials: "same-origin" })
+      .then(async (response) => response.ok ? response.json() as Promise<{ items?: ShareRow[] }> : null)
+      .then((body) => { if (active && body) setShares(body.items ?? []); })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, [model.id, shareLink]);
+
+  async function createShare() {
+    setMessage("");
+    const response = await fetch(`/api/models/${encodeURIComponent(model.id)}/shares`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        days: shareDays,
+        allow_original: shareOriginal,
+        allow_scheme_copy: shareCopy,
+      }),
+    });
+    if (!response.ok) {
+      setMessage(await errorDetail(response));
+      return;
+    }
+    const body = await response.json() as { link?: string };
+    const link = `${window.location.origin}${body.link ?? ""}`;
+    setShareLink(link);
+    try {
+      await navigator.clipboard.writeText(link);
+      setMessage("分享链接已复制。它只显示这一次，默认不含原件。");
+    } catch {
+      setMessage("分享链接已生成。它只显示这一次，默认不含原件。");
+    }
+  }
+
+  async function revokeShare(grantId: string) {
+    const response = await fetch(`/api/models/shares/${encodeURIComponent(grantId)}/revoke`, {
+      method: "POST",
+      credentials: "same-origin",
+    });
+    if (!response.ok) {
+      setMessage(await errorDetail(response));
+      return;
+    }
+    setShares((current) => current.map((item) => item.grant_id === grantId ? { ...item, revoked: true } : item));
+    setMessage("分享已撤销");
+  }
+
   async function copyAddress() {
     const url = `${window.location.origin}/models/${encodeURIComponent(model.id)}`;
     try {
@@ -639,6 +701,28 @@ function ModelTools({ model }: { model: Model }): JSX.Element {
         <button type="button" onClick={() => { void toggleFavorite(); }}>{favorite ? "已收藏" : "收藏"}</button>
         <button type="button" onClick={addCompare}>加入模型对比</button>
         <button type="button" onClick={() => { void copyAddress(); }}>复制站内地址</button>
+      </div>
+      <div className="model-share">
+        <p>分享链接默认不包含原件和配色副本。勾选后才会单独放开。</p>
+        <label>有效期
+          <select value={shareDays} onChange={(event) => setShareDays(Number(event.target.value))}>
+            <option value={1}>1 天</option>
+            <option value={7}>7 天</option>
+            <option value={30}>30 天</option>
+          </select>
+        </label>
+        <label><input type="checkbox" checked={shareOriginal} onChange={(event) => setShareOriginal(event.target.checked)} />允许下载原件</label>
+        <label><input type="checkbox" checked={shareCopy} onChange={(event) => setShareCopy(event.target.checked)} />允许下载配色副本</label>
+        <button type="button" onClick={() => { void createShare(); }}>创建分享链接</button>
+        {shareLink ? <p>链接只显示这一次：<input readOnly value={shareLink} aria-label="分享链接" /></p> : null}
+        {shares.filter((item) => !item.revoked).map((item) => (
+          <p key={item.grant_id}>
+            到期 {item.expires_at}
+            {item.allow_original ? " · 含原件" : " · 不含原件"}
+            {item.allow_scheme_copy ? " · 含配色副本" : " · 不含配色副本"}
+            <button type="button" onClick={() => { void revokeShare(item.grant_id); }}>撤销</button>
+          </p>
+        ))}
       </div>
       <p className="model-plate-note">{note}</p>
       <button type="button" aria-expanded={schemeOpen} onClick={() => setSchemeOpen((current) => !current)}>
@@ -1123,12 +1207,61 @@ async function errorDetail(response: Response): Promise<string> {
   return "下载失败，请重试";
 }
 
+function ShareView(): JSX.Element {
+  const [state, setState] = useState<"wait" | "ready" | "dead" | "incomplete">("wait");
+  const [detail, setDetail] = useState("");
+  const [view, setView] = useState<{ title?: string; note?: string; thumb_url?: string; expires_at?: string; allow_original?: boolean } | null>(null);
+  useEffect(() => {
+    const token = window.location.hash.replace(/^#/, "");
+    if (!/^[A-Za-z0-9_-]{43}$/.test(token)) {
+      setState("incomplete");
+      return;
+    }
+    let active = true;
+    fetch("/api/share/open", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    }).then(async (response) => {
+      if (!active) return;
+      if (response.status === 410 || response.status === 404) {
+        setDetail(await errorDetail(response));
+        setState("dead");
+        return;
+      }
+      if (!response.ok) {
+        setDetail(await errorDetail(response));
+        setState("dead");
+        return;
+      }
+      setView(await response.json());
+      setState("ready");
+      window.history.replaceState({}, "", "/models/s");
+    }).catch(() => { if (active) { setDetail("分享没有打开"); setState("dead"); } });
+    return () => { active = false; };
+  }, []);
+  if (state === "wait") return <p role="status">正在打开分享</p>;
+  if (state === "incomplete") return <p role="alert">链接不完整</p>;
+  if (state === "dead") return <p role="alert">{detail || "这份分享已失效"}</p>;
+  return (
+    <section className="model-share-view">
+      <h1>{view?.title}</h1>
+      <p>{view?.note}</p>
+      <p>到期 {view?.expires_at}</p>
+      {view?.thumb_url ? <img src={view.thumb_url} alt={`${view.title ?? ""} 封面`} /> : null}
+      {view?.allow_original ? null : <p>这份分享不能下载原件。</p>}
+    </section>
+  );
+}
+
 export function ModelPreview({ path = window.location.pathname, navigate = goTo }: {
   path?: string; navigate?: Navigate;
 }): JSX.Element {
   const normalized = path.replace(/\/+$/, "");
   const login = normalized === "/models/login";
-  const detailView = !login && normalized !== "/models";
+  const share = normalized === "/models/s";
+  const detailView = !login && !share && normalized !== "/models";
   const [error, setError] = useState("");
   const [galleryHref, setGalleryHref] = useState(readStoredGalleryHref);
   const rememberGallery = useCallback((href: string) => setGalleryHref(href), []);
@@ -1146,13 +1279,14 @@ export function ModelPreview({ path = window.location.pathname, navigate = goTo 
   return (
     <main className={login ? "page model-preview is-login" : detailView ? "page model-preview is-detail" : "page model-preview"}>
       <SiteHeader
-        active={login ? "login" : detailView ? "detail" : "gallery"}
-        onLogout={login ? undefined : logout}
+        active={login ? "login" : share || detailView ? "detail" : "gallery"}
+        onLogout={login || share ? undefined : logout}
         backHref={detailView ? galleryHref : undefined}
       />
-      {login ? null : <p className="model-banner" role="note">仅私人收藏预览、禁止外传</p>}
+      {login || share ? null : <p className="model-banner" role="note">仅私人收藏预览、禁止外传</p>}
+      {share ? <p className="model-banner" role="note">这是限时分享，不能浏览其他模型。</p> : null}
       {error && <p role="alert">{error}</p>}
-      {login ? <Login navigate={navigate} /> : normalized === "/models" ? <Gallery navigate={navigate} onHref={rememberGallery} /> : (
+      {login ? <Login navigate={navigate} /> : share ? <ShareView /> : normalized === "/models" ? <Gallery navigate={navigate} onHref={rememberGallery} /> : (
         <Detail id={id} navigate={navigate} />
       )}
     </main>
