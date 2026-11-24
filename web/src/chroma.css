@@ -38,7 +38,7 @@ body { background: var(--bg); color: var(--text); }
 .model-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 .model-card img { aspect-ratio: 16 / 10; }
 .model-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
-.model-plate-picker { flex-wrap: nowrap; overflow-x: auto; max-height: none; }
+.model-plate-picker { display: grid; grid-template-columns: 1fr 1fr; max-height: 248px; overflow-x: hidden; overflow-y: auto; }
 .model-work { display: flex; flex-direction: column; }
 .model-plate-tools { order: 0; }
 .model-plate-picker { order: 1; }

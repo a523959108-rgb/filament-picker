@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent, JSX } from "react";
 import "./model-preview.css";
+import { SiteHeader } from "./SiteHeader";
 
 const MeshViewer = lazy(() =>
   import("./MeshViewer").then((module) => ({ default: module.MeshViewer })),
@@ -298,20 +299,24 @@ function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: stri
       {error && <p className="panel" role="alert">{error}</p>}
       {loading && <p role="status">模型加载中…</p>}
       {data && !error && <>
-        <p className="model-count">共 {data.total} 个模型</p>
+        <p className="model-count">共 {data.total} 个模型 · 每页 {params.page_size} 条</p>
         {data.items.length === 0 && <p className="panel">没有找到模型</p>}
         <div className="model-grid" aria-busy={loading}>
           {data.items.map((model) => (
-            <article className="model-card" key={model.id}>
-              <a href={`/models/${encodeURIComponent(model.id)}`} aria-labelledby={`model-title-${model.id}`}>
+            <article className="model-card gallery-card" key={model.id}>
+              <a className="gallery-card-link" href={`/models/${encodeURIComponent(model.id)}`} aria-labelledby={`model-title-${model.id}`}>
                 <span className="model-card-media">
                   <img src={model.cover_url || model.thumb_url} alt={model.title} loading="lazy" />
                   {model.series ? <span className="model-card-badge">{model.series}</span> : null}
+                  {model.id.startsWith("sample-") ? <span className="gallery-fixture">夹具图</span> : null}
                 </span>
-                <h2 id={`model-title-${model.id}`}>{model.title}</h2>
+                <span className="gallery-card-copy">
+                  <h2 id={`model-title-${model.id}`}>{model.title}</h2>
+                  <span className="model-card-by">作者：{model.author || "—"} · 系列：{model.series || "—"}</span>
+                  <span className="model-card-meta"><span>{`${model.plate_count} 盘 · ${fileSize(model.size_bytes)}`}</span><span>{` · ${model.colours?.length ?? 0} 色`}</span></span>
+                  <span className="gallery-card-go">查看详情</span>
+                </span>
               </a>
-              <p className="model-card-by">作者：{model.author || "—"}</p>
-              <p className="model-card-meta">{model.plate_count} 盘 · {fileSize(model.size_bytes)}</p>
             </article>
           ))}
         </div>
@@ -409,7 +414,7 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
   }
   const open = cards.find((card) => card.key === activePlate) ?? null;
   return (
-    <article ref={screenRef} className="panel model-screen"
+    <article ref={screenRef} className="model-screen"
       style={locked ? {
         ["--hero-h" as string]: `${locked.hero}px`,
         ["--work-h" as string]: `${locked.work}px`,
@@ -661,11 +666,12 @@ function PlateBoard({ cards, model, active, shotKind, onSelect, onShotKind, tool
       ? "这份预览没有保存盘和耗材的对应，不能判断哪一盘用什么颜色。"
       : "没有打印盘记录。";
   return (
-    <section className="model-work" aria-label="打印盘配色">
+    <div className="model-rail-stack">
       {tools}
+      <section className="rail-panel" aria-label="切片成型盘选择">
       <div className="plate-board-head">
         <h3>切片成型盘选择</h3>
-        <span>共 {cards.length} 盘工程</span>
+        <span>共 {cards.length} 盘</span>
       </div>
       <div className="model-plate-tools">
         <p className="model-plate-note">{note}</p>
@@ -698,12 +704,11 @@ function PlateBoard({ cards, model, active, shotKind, onSelect, onShotKind, tool
           })}
         </div>
       ) : null}
+      </section>
       {cards.length > 0 ? (
-        <div className="model-plate-stage">
-          {active ? (
-            <PlateDetail model={model} card={active} shotKind={shotKind} onShotKind={onShotKind} />
-          ) : <p className="model-plate-empty">点选上面的打印盘，查看盘面、部件和耗材。</p>}
-        </div>
+        active ? (
+          <PlateDetail model={model} card={active} shotKind={shotKind} onShotKind={onShotKind} />
+        ) : <p className="rail-panel model-plate-empty">点选上面的打印盘，查看盘面、部件和耗材。</p>
       ) : (
         <div className="model-tab-panel">
           {!known && matches.length > 0 ? (
@@ -715,7 +720,7 @@ function PlateBoard({ cards, model, active, shotKind, onSelect, onShotKind, tool
           {!known && matches.length === 0 ? <p>没有配色数据。</p> : null}
         </div>
       )}
-    </section>
+    </div>
   );
 }
 
@@ -740,7 +745,7 @@ function PlateDetail({ model, card, shotKind, onShotKind }: {
       </div>
       {card.face && card.top ? <ViewToggle shotKind={shotKind} onShotKind={onShotKind} /> : null}
       {shot ? <p className="model-shot-caption">{shotCaption(shot.kind, shot.plate)}</p> : <p>没有这一盘的图片。</p>}
-      <section className="model-parts" aria-label="部件清单">
+      <section className="rail-panel model-parts" aria-label="部件清单">
         <h3>部件清单</h3>
         {grouped.length > 0 ? (
           <ul className="model-objects">
@@ -756,7 +761,7 @@ function PlateDetail({ model, card, shotKind, onShotKind }: {
           </button>
         ) : null}
       </section>
-      <section className="model-slots" aria-label="耗材清单">
+      <section className="rail-panel model-slots" aria-label="耗材清单">
         <h3>本盘耗材</h3>
         {!plate && (model.colour_matches?.length || model.colours.length) ? (
           <>
@@ -1033,19 +1038,12 @@ export function ModelPreview({ path = window.location.pathname, navigate = goTo 
   catch { id = ""; }
   return (
     <main className={login ? "page model-preview is-login" : detailView ? "page model-preview is-detail" : "page model-preview"}>
-      {login ? null : (
-        <header className="topbar">
-          <div className="topbar-title">
-            <h1>{detailView ? "模型详情" : "模型画廊"}</h1>
-            <p className="model-banner" role="note">仅私人收藏预览、禁止外传</p>
-          </div>
-          <nav className="topbar-nav" aria-label="页面导航">
-            <a className="nav-link" href="/">耗材选色</a>
-            {detailView && <a className="nav-link model-back" href={galleryHref}>返回画廊</a>}
-            <button onClick={logout}>退出登录</button>
-          </nav>
-        </header>
-      )}
+      <SiteHeader
+        active={login ? "login" : detailView ? "detail" : "gallery"}
+        onLogout={login ? undefined : logout}
+        backHref={detailView ? galleryHref : undefined}
+      />
+      {login ? null : <p className="model-banner" role="note">仅私人收藏预览、禁止外传</p>}
       {error && <p role="alert">{error}</p>}
       {login ? <Login navigate={navigate} /> : normalized === "/models" ? <Gallery navigate={navigate} onHref={rememberGallery} /> : (
         <Detail id={id} navigate={navigate} />

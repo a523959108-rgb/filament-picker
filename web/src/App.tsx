@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
 import { loadCatalog } from "./catalog";
-import { FAMILIES, defaultStackHash, stackEntryHref } from "./config";
+import { FAMILIES, defaultStackHash } from "./config";
 import { Filters } from "./components/Filters";
 import { ColorDetail } from "./components/ColorDetail";
 import { CompareBar } from "./components/CompareBar";
@@ -10,6 +10,7 @@ import { PlanPage } from "./components/PlanPage";
 import { CostPage } from "./components/CostPage";
 import { ModelPreview } from "./components/ModelPreview";
 import { PhotoPage } from "./components/PhotoPage";
+import { SiteHeader } from "./components/SiteHeader";
 import { SpecIndex } from "./components/SpecIndex";
 import { StackPage } from "./components/StackPage";
 import { buildIndex, EMPTY_FILTER, query } from "./search";
@@ -32,34 +33,7 @@ function pageFromHash(hash: string): "plan" | "cost" | "stack" | "photo" | "spec
 }
 
 function CatalogHeader(): JSX.Element {
-  const [toolsOpen, setToolsOpen] = useState(false);
-  const stackHref = stackEntryHref(window.location.hostname);
-  return (
-    <header className="topbar catalog-top">
-      <div className="topbar-title">
-        <span className="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="18" height="18">
-            <path fill="currentColor" d="M12 3a9 9 0 0 0-9 9c0 2.4.9 4.6 2.5 6.2L12 12V3zm0 0a9 9 0 0 1 9 9c0 2.1-.7 4-1.9 5.5L12 12V3zM4.6 16.8A9 9 0 0 0 12 21a9 9 0 0 0 6.7-3L12 12l-7.4 4.8z" />
-          </svg>
-        </span>
-        <h1>耗材选色</h1>
-      </div>
-      <nav className="topbar-nav" aria-label="页面导航">
-        <a href="/models" className="nav-link">画廊</a>
-        <a href="/models/login" className="nav-link">登录</a>
-        <button type="button" aria-expanded={toolsOpen} onClick={() => setToolsOpen((open) => !open)}>工具</button>
-      </nav>
-      <div className={toolsOpen ? "fp-tools is-open" : "fp-tools"}>
-        <a className="nav-link" href="#/photo" tabIndex={toolsOpen ? 0 : -1}>拍照找耗材</a>
-        <a className="nav-link" href="#/photo" tabIndex={toolsOpen ? 0 : -1}>开始找色</a>
-        <a className="nav-link" href="#/plan" tabIndex={toolsOpen ? 0 : -1}>图片配色</a>
-        <a className="nav-link" href="#/cost" tabIndex={toolsOpen ? 0 : -1}>打印成本</a>
-        <a className="nav-link" href={stackHref} tabIndex={toolsOpen ? 0 : -1}>叠色</a>
-        <a className="nav-link" href={stackHref} tabIndex={toolsOpen ? 0 : -1}>打开叠色</a>
-        <a className="nav-link" href="#/specs" tabIndex={toolsOpen ? 0 : -1}>规格索引</a>
-      </div>
-    </header>
-  );
+  return <SiteHeader active="catalog" />;
 }
 
 export default function App(): JSX.Element {
