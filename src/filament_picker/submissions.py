@@ -68,8 +68,8 @@ def accept_upload(
         raise SubmissionError("只接受 .3mf、.stl，以及显式开启后的 .step/.stp")
     if suffix in {".step", ".stp"} and os.environ.get("FILAMENT_PICKER_STEP", "0") != "1":
         raise SubmissionError(
-            "STEP 转换默认关闭，尚未实现。需要 FILAMENT_PICKER_STEP=1 和本机 freecadcmd。"
-            "缺命令时的拒绝不是已经实现的转换。"
+            "STEP 转换默认关闭。需要 FILAMENT_PICKER_STEP=1，以及 occt-draw 或 freecadcmd。"
+            "缺命令时的拒绝不是已经执行的转换。"
         )
     if len(data) > _MAX_BYTES:
         raise SubmissionError("文件超过 32MB", status=413)
@@ -132,8 +132,8 @@ def _process(
             raise SubmissionError("只接受 .3mf、.stl，以及显式开启后的 STEP")
         if suffix in {".step", ".stp"} and os.environ.get("FILAMENT_PICKER_STEP", "0") != "1":
             raise SubmissionError(
-                "STEP 转换默认关闭。设置 FILAMENT_PICKER_STEP=1 且安装 freecadcmd 后才会尝试。"
-                "缺命令时的拒绝不是已经实现的 STEP 转换。"
+                "STEP 转换默认关闭。需要 FILAMENT_PICKER_STEP=1，以及 occt-draw 或 freecadcmd。"
+                "缺命令时的拒绝不是已经执行的转换。"
             )
     except (SubmissionError, DeriveError, OSError, ValueError) as exc:
         detail = exc.detail if isinstance(exc, (SubmissionError, DeriveError)) else "处理失败"

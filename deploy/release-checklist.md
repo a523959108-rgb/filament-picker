@@ -15,7 +15,7 @@
 
 - `FILAMENT_PICKER_REGISTRATION=0`
 - `FILAMENT_PICKER_SUBMISSIONS=0`
-- `FILAMENT_PICKER_STEP=0`
+- `FILAMENT_PICKER_STEP=0`。Ubuntu 24.04 要实测转换时再装 `occt-draw` 和 `libocct-draw-dev`，见 `deploy/step-converter.md`。不要用完整前端包覆盖生产 `sku/` 或目录 JSON。
 - `FILAMENT_PICKER_PREVIEW_USER` 已设成现有预览账号，且不是占位符 `change-me-preview-user`
 - `FILAMENT_PICKER_SESSION_SECRET` 已设，`FILAMENT_PICKER_SESSION_SECURE=1`
 

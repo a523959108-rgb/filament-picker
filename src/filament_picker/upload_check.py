@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import sys
 from pathlib import Path
@@ -55,40 +56,106 @@ def main(argv: list[str] | None = None) -> int:
 
 def _convert_step(source: Path, root: Path, model_id: str) -> None:
     import os
-    import shutil
+    import signal
     import subprocess
 
     if os.environ.get("FILAMENT_PICKER_STEP", "0") != "1":
         raise SubmissionError(
-            "STEP 转换默认关闭。设置 FILAMENT_PICKER_STEP=1 且安装 freecadcmd 后才会尝试。"
+            "STEP 转换默认关闭。需要 FILAMENT_PICKER_STEP=1，以及 occt-draw 或 freecadcmd。"
+            "缺命令时的拒绝不是已经执行的转换。"
         )
-    binary = shutil.which("freecadcmd")
-    if binary is None:
-        raise SubmissionError(
-            "STEP 需要本机命令 freecadcmd（FreeCAD）。当前没有安装，转换没有执行。"
-        )
-    out_dir = root / "accounts" / ".step-out"
+    payload = source.read_bytes()
+    lowered = payload.lower()
+    if b"://" in lowered or b"file:" in lowered or b"\\\\" in payload:
+        raise SubmissionError("STEP 含有外部地址，不会自动抓取")
+    if not payload.lstrip().startswith(b"ISO-10303-21"):
+        raise SubmissionError("不是 STEP 文件，没有按扩展名解析")
+    out_dir = (root / "accounts" / ".step-out").resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
-    destination = out_dir / f"{model_id}.stl"
-    completed = subprocess.run(
-        [binary, str(source), str(destination)],
-        timeout=20,
-        capture_output=True,
-        check=False,
+    destination = (out_dir / f"{model_id}.stl").resolve()
+    source_ok = _safe_converter_path(source)
+    dest_ok = _safe_converter_path(destination) and destination.parent == out_dir
+    if not source_ok or not dest_ok:
+        raise SubmissionError("STEP 输出路径不安全")
+    command = _converter_command(source.resolve(), destination)
+    timeout = float(os.environ.get("FILAMENT_PICKER_STEP_TIMEOUT", "20"))
+    proc = subprocess.Popen(
+        command,
+        cwd=out_dir,
+        env=_converter_env(),
+        start_new_session=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        preexec_fn=_converter_limits,
     )
-    if completed.returncode != 0 or not destination.is_file():
-        raise SubmissionError("freecadcmd 没有产出 STL")
-    positions, indices = _parse_stl(destination.read_bytes())
+    try:
+        _stdout, _stderr = proc.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        with contextlib.suppress(ProcessLookupError):
+            os.killpg(proc.pid, signal.SIGKILL)
+        proc.communicate()
+        raise SubmissionError("STEP 转换超时，已停止该进程") from None
+    max_stl = int(os.environ.get("FILAMENT_PICKER_STEP_MAX_STL", str(32 * 1024 * 1024)))
+    if proc.returncode != 0 or not destination.is_file() or destination.stat().st_size > max_stl:
+        destination.unlink(missing_ok=True)
+        raise SubmissionError("STEP 转换没有产出可用的 STL")
+    try:
+        positions, indices = _parse_stl(destination.read_bytes())
+    finally:
+        destination.unlink(missing_ok=True)
     save_derived_scene(
         root,
         model_id,
-        hashlib.sha256(source.read_bytes()).hexdigest(),
+        hashlib.sha256(payload).hexdigest(),
         {
             "unit": "millimeter",
             "scope": "overall",
             "parts": [{"positions": positions, "indices": indices}],
         },
     )
+
+
+def _safe_converter_path(path: Path) -> bool:
+    text = str(path)
+    return bool(text) and not any(char in text for char in " \t\n;$'\"\\`")
+
+
+def _converter_command(source: Path, destination: Path) -> list[str]:
+    import shutil
+
+    freecad = shutil.which("freecadcmd")
+    if freecad is not None:
+        script = Path(__file__).with_name("freecad_step.py")
+        return [freecad, str(script), str(source), str(destination)]
+    draw = shutil.which("occt-draw")
+    if draw is None:
+        raise SubmissionError(
+            "STEP 转换器没有安装。Ubuntu 24.04 用 apt 安装 occt-draw 和 libocct-draw-dev；"
+            "freecadcmd 可用时优先调用它。转换没有执行。"
+        )
+    return [
+        draw,
+        "-b",
+        "-c",
+        f"pload ALL; testreadstep {source} shape; incmesh shape 0.1; writestl shape {destination}",
+    ]
+
+
+def _converter_env() -> dict[str, str]:
+    import os
+
+    blocked = {"http_proxy", "https_proxy", "all_proxy", "ftp_proxy", "no_proxy"}
+    return {key: value for key, value in os.environ.items() if key.lower() not in blocked}
+
+
+def _converter_limits() -> None:
+    import os
+    import resource
+
+    cpu = int(os.environ.get("FILAMENT_PICKER_STEP_CPU", "20"))
+    fsize = int(os.environ.get("FILAMENT_PICKER_STEP_FSIZE", str(32 * 1024 * 1024)))
+    resource.setrlimit(resource.RLIMIT_CPU, (cpu, cpu))
+    resource.setrlimit(resource.RLIMIT_FSIZE, (fsize, fsize))
 
 
 if __name__ == "__main__":

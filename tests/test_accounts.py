@@ -180,7 +180,7 @@ def test_step_calls_a_local_converter_only_when_enabled(
     stub.write_text(
         "#!/bin/sh\nprintf 'solid x\\nfacet normal 0 0 0\\nouter loop\\n"
         "vertex 0 0 0\\nvertex 1 0 0\\nvertex 0 1 0\\n"
-        'endloop\\nendfacet\\nendsolid x\\n\' > "$2"\n',
+        'endloop\\nendfacet\\nendsolid x\\n\' > "$3"\n',
         encoding="utf-8",
     )
     stub.chmod(0o755)
