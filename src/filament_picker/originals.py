@@ -375,6 +375,30 @@ def iter_file(path: Path, start: int, end: int) -> Iterator[bytes]:
             yield piece
 
 
+def content_sha256(path: Path) -> str:
+    """SHA-256 of the file bytes. This is the only hash that verifies a download."""
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def publishable_sha(digest: str | None, *model_ids: str) -> str | None:
+    """Drop a claim that is only the identity digest of a model id.
+
+    ``models.sha256`` is ``sha256(id)``. It names the row. It is not the
+    original file, and it must not be shown as a passed content check.
+    """
+    if not isinstance(digest, str) or re.fullmatch(r"[0-9a-fA-F]{64}", digest) is None:
+        return None
+    lowered = digest.lower()
+    identity = {hashlib.sha256(item.encode()).hexdigest() for item in model_ids if item}
+    if lowered in identity:
+        return None
+    return lowered
+
+
 def read_map_sha(path: str | None, model_id: str) -> str | None:
     raw_path = path if path is not None else os.environ.get("FILAMENT_PICKER_COS_MAP", "").strip()
     if not raw_path:

@@ -488,6 +488,9 @@ function ModelTools({ model }: { model: Model }): JSX.Element {
   const [others, setOthers] = useState<Model[]>([]);
   const [message, setMessage] = useState("");
   const [schemeOpen, setSchemeOpen] = useState(false);
+  const [copySha, setCopySha] = useState("");
+  const [copyNote, setCopyNote] = useState("");
+  const [copyUnchanged, setCopyUnchanged] = useState("");
   const plates = Array.isArray(model.plates) ? model.plates : [];
 
   useEffect(() => {
@@ -543,6 +546,50 @@ function ModelTools({ model }: { model: Model }): JSX.Element {
     const body = await response.json() as { note?: string; slots?: DisplaySlot[] };
     setSlots(body.slots ?? []);
     setMessage(body.note ?? "已保存展示色");
+  }
+
+  async function saveSchemeCopy() {
+    setMessage("");
+    setCopyNote("");
+    setCopyUnchanged("");
+    const response = await fetch(`/api/models/${encodeURIComponent(model.id)}/scheme-copy`, {
+      method: "POST",
+      credentials: "same-origin",
+    });
+    if (!response.ok) {
+      setMessage(await errorDetail(response));
+      return;
+    }
+    const body = await response.json() as { sha256?: string; caveat?: string; unchanged?: string[] };
+    setCopySha(body.sha256 ?? "");
+    setCopyNote(body.caveat ?? "不能直接打印，需要重新切片。");
+    setCopyUnchanged((body.unchanged ?? []).join("、"));
+  }
+
+  async function downloadSchemeCopy() {
+    const response = await fetch(`/api/models/${encodeURIComponent(model.id)}/scheme-copy`, {
+      credentials: "same-origin",
+    });
+    if (!response.ok) {
+      setMessage(await errorDetail(response));
+      return;
+    }
+    const buffer = await response.arrayBuffer();
+    const header = response.headers.get("X-Content-SHA256");
+    const actual = await sha256Hex(buffer);
+    if (actual == null || actual !== copySha || (header != null && header !== actual)) {
+      setMessage("副本校验和不匹配，已取消保存。");
+      return;
+    }
+    const blob = new Blob([buffer], { type: "model/3mf" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${model.id}-scheme.3mf`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
   }
 
   async function toggleFavorite() {
@@ -611,6 +658,10 @@ function ModelTools({ model }: { model: Model }): JSX.Element {
             </div>
           ))}
           <button type="button" onClick={() => { void saveScheme(); }}>保存展示色</button>
+          <button type="button" onClick={() => { void saveSchemeCopy(); }}>另存配色副本</button>
+          {copySha ? <button type="button" onClick={() => { void downloadSchemeCopy(); }}>下载配色副本</button> : null}
+          {copyNote ? <p>{copyNote}</p> : null}
+          {copyUnchanged ? <p>这些字段没有改：{copyUnchanged}</p> : null}
         </div>
       ) : null}
       </div>

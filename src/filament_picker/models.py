@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -40,6 +41,7 @@ from .originals import (
     RangeNotSatisfiable,
     UpstreamFailure,
     content_disposition,
+    content_sha256,
     filename_for,
     iter_file,
     load_cos_settings,
@@ -49,9 +51,11 @@ from .originals import (
     media_type_for,
     original_descriptor,
     parse_range,
+    publishable_sha,
     read_map_sha,
     resolve_object_key,
 )
+from .scheme_copy import SchemeCopyError, scheme_copy_path, store_scheme_copy
 from .spoolman import annotate_picks, load_spools
 
 
@@ -311,7 +315,7 @@ class ModelPreview:
             size,
             media_type_for(chosen),
         )
-        payload["sha256"] = read_map_sha(None, requested) or read_map_sha(None, str(row["id"]))
+        payload["sha256"] = self._download_sha(requested, str(row["id"]), local)
         return payload
 
     def original_response(self, model_id: str, request: Request) -> Response:
@@ -328,8 +332,9 @@ class ModelPreview:
             "Cache-Control": "no-store",
             "X-Robots-Tag": "noindex, nofollow",
         }
-        digest = read_map_sha(None, requested) or read_map_sha(None, str(row["id"]))
-        if digest:
+        digest = self._download_sha(requested, str(row["id"]), local)
+        ranged = request.headers.get("range")
+        if digest and not (local is not None and ranged):
             headers["X-Content-SHA256"] = digest
         if local is not None:
             return self._local_original(local, request, headers)
@@ -352,6 +357,12 @@ class ModelPreview:
         if local is None and (key is None or load_cos_settings() is None):
             key = None
         return row, requested, stored, local, key
+
+    def _download_sha(self, requested: str, canonical: str, local: Path | None) -> str | None:
+        if local is not None:
+            return content_sha256(local)
+        claim = read_map_sha(None, requested) or read_map_sha(None, canonical)
+        return publishable_sha(claim, requested, canonical)
 
     def _local_original(self, path: Path, request: Request, headers: dict[str, str]) -> Response:
         size = path.stat().st_size
@@ -653,6 +664,42 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
             raise HTTPException(status_code=400, detail="展示色格式无效")
         plates = parse_plate_layout(_column(row, "plate_layout", ""))
         return put_scheme(request.state.model_username, model_id, body.get("slots"), plates)
+
+    @router.post("/{model_id}/scheme-copy")
+    def scheme_copy_create(model_id: str, request: Request) -> dict[str, Any]:
+        if _MODEL_ID.fullmatch(model_id) is None:
+            raise HTTPException(status_code=400, detail="模型编号无效")
+        preview.record(model_id)
+        slots = get_scheme(request.state.model_username, model_id)["slots"]
+        source = local_original(preview.root, model_id)
+        if source is None:
+            raise HTTPException(status_code=409, detail="本机没有这份 3MF 原件，没有生成副本")
+        if source.suffix.lower() != ".3mf":
+            raise HTTPException(status_code=422, detail="只有 3MF 能另存配色副本")
+        try:
+            return store_scheme_copy(request.state.model_username, model_id, source, slots)
+        except SchemeCopyError as exc:
+            raise HTTPException(status_code=exc.status, detail=exc.detail) from None
+
+    @router.get("/{model_id}/scheme-copy")
+    def scheme_copy_download(model_id: str, request: Request) -> Response:
+        if _MODEL_ID.fullmatch(model_id) is None:
+            raise HTTPException(status_code=400, detail="模型编号无效")
+        preview.record(model_id)
+        found = scheme_copy_path(request.state.model_username, model_id)
+        if found is None:
+            raise HTTPException(status_code=404, detail="还没有配色副本")
+        path, record = found
+        payload = path.read_bytes()
+        digest = hashlib.sha256(payload).hexdigest()
+        if digest != record["sha256"]:
+            raise HTTPException(status_code=409, detail="副本校验和不匹配")
+        headers = {
+            "Content-Disposition": content_disposition(str(record["filename"])),
+            "X-Content-SHA256": digest,
+            "Cache-Control": "no-store",
+        }
+        return Response(content=payload, media_type="model/3mf", headers=headers)
 
     @router.get("/{model_id}")
     def detail(model_id: str) -> dict[str, Any]:

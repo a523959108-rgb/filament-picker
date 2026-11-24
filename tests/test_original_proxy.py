@@ -290,6 +290,62 @@ def test_unicode_object_streams_and_catalog_hash_is_not_the_file_hash(
     httpd.shutdown()
 
 
+def test_local_hash_is_the_file_and_identity_digest_is_not_verification(
+    preview: tuple, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    app, password, models, _db = preview
+    payload = b"local-original-not-the-row-id"
+    directory = models / "originals"
+    directory.mkdir()
+    (directory / "sample-01.3mf").write_bytes(payload)
+    identity = hashlib.sha256(b"sample-01").hexdigest()
+    content = hashlib.sha256(payload).hexdigest()
+    import sqlite3
+
+    with sqlite3.connect(models / "manifest.sqlite") as conn:
+        conn.execute("UPDATE models SET sha256 = ? WHERE id = 'sample-01'", (identity,))
+    _write_map(
+        tmp_path,
+        {"sample-01": {"key": "library/sample.3mf", "sha256": identity}},
+        monkeypatch,
+    )
+    cookie = _cookie(_login(app, password))
+    original = _request(app, "GET", "/api/models/sample-01", cookie).json()["original"]
+    assert original["sha256"] == content
+    assert original["sha256"] != identity
+    downloaded = _request(app, "GET", "/api/models/sample-01/original", cookie)
+    assert downloaded.status_code == 200
+    assert downloaded.content == payload
+    assert downloaded.headers["x-content-sha256"] == content
+    ranged = _request(
+        app, "GET", "/api/models/sample-01/original", cookie, headers={"range": "bytes=0-3"}
+    )
+    assert ranged.status_code == 206
+    assert "x-content-sha256" not in {key.lower() for key in ranged.headers}
+
+
+def test_remote_identity_digest_is_not_advertised_as_content_hash(
+    preview: tuple, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    app, password, _models, _db = preview
+    httpd = _server()
+    _configure(monkeypatch, httpd)
+    identity = hashlib.sha256(b"sample-01").hexdigest()
+    _write_map(
+        tmp_path,
+        {"sample-01": {"key": "library/sample.3mf", "sha256": identity}},
+        monkeypatch,
+    )
+    cookie = _cookie(_login(app, password))
+    original = _request(app, "GET", "/api/models/sample-01", cookie).json()["original"]
+    assert original["sha256"] is None
+    downloaded = _request(app, "GET", "/api/models/sample-01/original", cookie)
+    assert downloaded.status_code == 200
+    assert downloaded.content == _BODY
+    assert "x-content-sha256" not in {key.lower() for key in downloaded.headers}
+    httpd.shutdown()
+
+
 def test_alias_and_local_file_do_not_use_object_storage(
     preview: tuple, monkeypatch: pytest.MonkeyPatch
 ) -> None:

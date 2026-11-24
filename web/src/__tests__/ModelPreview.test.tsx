@@ -498,4 +498,40 @@ describe("model preview", () => {
     await waitFor(() => expect(navigate).toHaveBeenCalledWith("/models/login"));
     expect(fetcher.mock.calls.at(-1)?.[0]).toBe("/api/models/logout");
   });
+
+  it("asks for a separate scheme copy and shows that slicing is still required", async () => {
+    const detailed = {
+      ...model,
+      plates: [{
+        index: 1,
+        name: "盘面",
+        objects: ["a.stl"],
+        filaments: [{
+          slot: 1, hex: "#112233", type: "PLA", vendor: "", settings_id: "", used_g: null, picks: [],
+        }],
+      }],
+    };
+    const fetcher = vi.fn(async (url: string, init?: RequestInit) => {
+      if (String(url).endsWith("/scheme-copy") && init?.method === "POST") {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            sha256: "abc",
+            caveat: "只改了耗材颜色记录，没有改切片路径。不能直接打印，需要重新切片。",
+          }),
+        };
+      }
+      return response(detailed);
+    });
+    vi.stubGlobal("fetch", fetcher);
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    fireEvent.click(await view.findByRole("button", { name: "槽位展示色" }));
+    fireEvent.click(view.getByRole("button", { name: "另存配色副本" }));
+    expect(await view.findByText("只改了耗材颜色记录，没有改切片路径。不能直接打印，需要重新切片。")).toBeTruthy();
+    expect(fetcher.mock.calls.some((call) => (
+      String(call[0]).endsWith("/scheme-copy") && call[1]?.method === "POST"
+    ))).toBe(true);
+    expect(fetcher.mock.calls.some((call) => String(call[0]).includes("cos."))).toBe(false);
+  });
 });
