@@ -23,7 +23,7 @@ from fastapi.responses import (
     StreamingResponse,
 )
 
-from .auth import COOKIE_NAME, ModelAuth
+from .auth import COOKIE_NAME, ModelAuth, configured_preview_user, registration_enabled
 from .catalog import Catalog
 from .ciede2000 import delta_e_2000
 from .colorspace import hex_to_lab
@@ -81,6 +81,7 @@ from .shares import (
     revoke_grant,
 )
 from .spoolman import annotate_picks, load_spools
+from .submissions import SubmissionError, accept_upload, list_submissions, retry_submission
 
 
 def _distinct_materials(conn: sqlite3.Connection, has_layout: bool) -> list[str]:
@@ -99,8 +100,27 @@ def _distinct_materials(conn: sqlite3.Connection, has_layout: bool) -> list[str]
     return sorted(found)
 
 
+_MAX_UPLOAD = 32 * 1024 * 1024
+
+
 def models_root() -> Path:
     return Path(os.environ.get("FILAMENT_PICKER_MODELS_ROOT", REPO_ROOT / "data/models-private"))
+
+
+def _account_original(root: Path, username: str, model_id: str) -> Path | None:
+    if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", username):
+        return None
+    if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", model_id):
+        return None
+    directory = root.resolve() / "accounts" / username / "originals"
+    for suffix in (".3mf", ".stl"):
+        candidate = directory / f"{model_id}{suffix}"
+        if candidate.is_symlink() or not candidate.is_file():
+            continue
+        if candidate.resolve().parent != directory:
+            continue
+        return candidate
+    return None
 
 
 _IMAGE_TYPES = {
@@ -211,6 +231,7 @@ class ModelPreview:
         material: str = "",
         sort: str = "id",
         order: str = "asc",
+        username: str = "",
     ) -> dict[str, Any]:
         if sort not in _SORTS or order not in _ORDERS:
             raise HTTPException(status_code=422, detail="排序无效")
@@ -233,6 +254,7 @@ class ModelPreview:
         }
         if not (self.root / "manifest.sqlite").is_file():
             return result
+        self.ensure_owners()
         with closing(self._connect()) as conn:
             columns = {row[1] for row in conn.execute("PRAGMA table_info(models)")}
             clauses: list[str] = []
@@ -257,6 +279,8 @@ class ModelPreview:
                         "WHERE json_extract(filament.value, '$.type') = ?)"
                     )
                     params.append(material)
+            clauses.append("owner = ?")
+            params.append(username)
             where = " WHERE " + " AND ".join(clauses) if clauses else ""
             colour_expr = (
                 "CASE WHEN json_valid(colours) AND json_type(colours) = 'array' "
@@ -285,28 +309,76 @@ class ModelPreview:
                     row[0]
                     for row in conn.execute(
                         f"SELECT DISTINCT {column} FROM models "
-                        f"WHERE {column} != '' ORDER BY {column}"
+                        f"WHERE owner = ? AND {column} != '' ORDER BY {column}",
+                        (username,),
                     )
                 ]
             result["materials"] = _distinct_materials(conn, "plate_layout" in columns)
         return result
 
-    def record(self, model_id: str) -> sqlite3.Row:
-        if (self.root / "manifest.sqlite").is_file():
-            with closing(self._connect()) as conn:
-                row = conn.execute("SELECT * FROM models WHERE id = ?", (model_id,)).fetchone()
-            if row is not None:
-                return row
-        raise HTTPException(status_code=404, detail="模型不存在")
+    def ensure_owners(self) -> None:
+        path = self.root / "manifest.sqlite"
+        owner = configured_preview_user()
+        if not path.is_file() or not owner:
+            return
+        conn = sqlite3.connect(path)
+        try:
+            columns = {row[1] for row in conn.execute("PRAGMA table_info(models)")}
+            if "owner" not in columns:
+                conn.execute("ALTER TABLE models ADD COLUMN owner TEXT NOT NULL DEFAULT ''")
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS schema_migrations ("
+                "id TEXT PRIMARY KEY, applied_at TEXT NOT NULL)"
+            )
+            done = conn.execute(
+                "SELECT 1 FROM schema_migrations WHERE id = 'assign-legacy-owner'"
+            ).fetchone()
+            if done is None:
+                conn.execute("UPDATE models SET owner = ? WHERE owner = ''", (owner,))
+                conn.execute(
+                    "INSERT INTO schema_migrations (id, applied_at) "
+                    "VALUES ('assign-legacy-owner', ?)",
+                    (datetime.now(ZoneInfo(TZ)).isoformat(timespec="seconds"),),
+                )
+            conn.commit()
+        finally:
+            conn.close()
 
-    def thumbnail(self, model_id: str) -> Response:
-        rel = PurePosixPath(self.record(model_id)["thumb_path"])
+    def _row_owner(self, row: sqlite3.Row) -> str:
+        owner = _column(row, "owner", "")
+        if isinstance(owner, str) and owner:
+            return owner
+        return configured_preview_user() or ""
+
+    def _fetch(self, model_id: str) -> sqlite3.Row | None:
+        if not (self.root / "manifest.sqlite").is_file():
+            return None
+        with closing(self._connect()) as conn:
+            return conn.execute("SELECT * FROM models WHERE id = ?", (model_id,)).fetchone()
+
+    def record(self, model_id: str, username: str) -> sqlite3.Row:
+        self.ensure_owners()
+        row = self._fetch(model_id)
+        if row is None or self._row_owner(row) != username:
+            raise HTTPException(status_code=404, detail="模型不存在")
+        return row
+
+    def grant_row(self, model_id: str, grant_username: str) -> sqlite3.Row:
+        self.ensure_owners()
+        if not self.auth.store.user_exists(grant_username):
+            raise HTTPException(status_code=410, detail="链接已失效")
+        row = self._fetch(model_id)
+        if row is None or self._row_owner(row) != grant_username:
+            raise HTTPException(status_code=410, detail="链接已失效")
+        return row
+
+    def thumbnail_of(self, row: sqlite3.Row) -> Response:
+        rel = PurePosixPath(row["thumb_path"])
         path = self._guarded_file(rel, {".png", ".webp", ".jpg", ".jpeg"}, ("thumbs",))
         return self._image_response(path, rel)
 
-    def mesh(self, model_id: str) -> Response:
-        self.record(model_id)
-        rel = self._mesh_rel(model_id)
+    def mesh_of(self, row: sqlite3.Row) -> Response:
+        rel = self._mesh_rel(str(row["id"]))
         path = self._guarded_file(rel, {".glb"}, ("meshes",), detail="网格不存在")
         return self._binary_response(path, rel, _MESH_TYPE)
 
@@ -419,6 +491,8 @@ class ModelPreview:
             return None
         row, requested, stored = found
         local = local_original(self.root, requested) or local_original(self.root, str(row["id"]))
+        if local is None:
+            local = _account_original(self.root, self._row_owner(row), str(row["id"]))
         try:
             overrides = load_key_overrides()
         except (OSError, ValueError, json.JSONDecodeError):
@@ -490,14 +564,14 @@ class ModelPreview:
             generate(), status_code=opened.status, media_type=media_type, headers=headers
         )
 
-    def media(self, model_id: str, name: str) -> Response:
+    def media_of(self, row: sqlite3.Row, name: str) -> Response:
         if _MEDIA_NAME.fullmatch(name) is None:
             raise HTTPException(status_code=404, detail="图片不存在")
-        images = _public_images(self.record(model_id))
+        images = _public_images(row)
         if not any(image["url"].endswith("/" + quote(name, safe="")) for image in images):
             raise HTTPException(status_code=404, detail="图片不存在")
-        rel = PurePosixPath("images") / model_id / name
-        path = self._guarded_file(rel, {".png"}, ("images", model_id))
+        rel = PurePosixPath("images") / str(row["id"]) / name
+        path = self._guarded_file(rel, {".png"}, ("images", str(row["id"])))
         return self._image_response(path, rel)
 
     def _guarded_file(
@@ -606,16 +680,34 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         if not (api or page or share_api):
             return await call_next(request)
         share_page = path.rstrip("/") == "/models/s" and request.method in ("GET", "HEAD")
+        register_page = path.rstrip("/") == "/models/register" and request.method in ("GET", "HEAD")
+        register_api = path == "/api/models/registration" and request.method == "GET"
+        register_post = path == "/api/models/register" and request.method == "POST"
         login = (path == "/api/models/login" and request.method == "POST") or (
             path.rstrip("/") == "/models/login" and request.method in ("GET", "HEAD")
         )
+        if request.method in {"POST", "PUT", "DELETE", "PATCH"}:
+            origin = request.headers.get("origin")
+            if origin:
+                from urllib.parse import urlsplit
+
+                if urlsplit(origin).netloc != request.url.netloc:
+                    return JSONResponse({"detail": "跨站请求已拒绝"}, status_code=403)
         username = (
             None
-            if login or share_page or share_api
+            if login or share_page or share_api or register_page or register_api or register_post
             else preview.auth.username(request.cookies.get(COOKIE_NAME))
         )
         request.state.model_username = username
-        if not login and not share_page and not share_api and username is None:
+        if (
+            not login
+            and not share_page
+            and not share_api
+            and not register_page
+            and not register_api
+            and not register_post
+            and username is None
+        ):
             response = (
                 JSONResponse({"detail": "需要登录"}, status_code=401)
                 if api
@@ -633,6 +725,32 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         return (
             "User-agent: *\nDisallow: /models\nDisallow: /api/models\n"
             "Disallow: /api/share\nDisallow: /internal-models\n"
+        )
+
+    @router.get("/registration")
+    def registration() -> dict[str, bool]:
+        return {"enabled": registration_enabled(), "email_sent": False, "email_verification": False}
+
+    @router.post("/register")
+    async def register(request: Request) -> dict[str, object]:
+        try:
+            body = await request.json()
+        except (ValueError, UnicodeError):
+            raise HTTPException(status_code=400, detail="注册请求无效") from None
+        if not isinstance(body, dict) or not isinstance(body.get("username"), str):
+            raise HTTPException(status_code=400, detail="注册请求无效")
+        password = body.get("password")
+        email = body.get("email")
+        if email is not None and not isinstance(email, str):
+            raise HTTPException(status_code=400, detail="邮箱格式无效")
+        from starlette.concurrency import run_in_threadpool
+
+        return await run_in_threadpool(
+            preview.auth.register,
+            request.client.host if request.client else "unknown",
+            body["username"],
+            password if isinstance(password, str) else "",
+            email or None,
         )
 
     @router.post("/login")
@@ -675,6 +793,43 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         )
         return response
 
+    @router.get("/submissions")
+    def submission_list(request: Request) -> dict[str, Any]:
+        items = list_submissions(preview.root / "manifest.sqlite", request.state.model_username)
+        return {"items": items}
+
+    @router.post("/submissions")
+    async def submission_create(request: Request) -> dict[str, Any]:
+        form = await request.form()
+        upload = form.get("file")
+        if upload is None or not hasattr(upload, "read"):
+            raise HTTPException(status_code=400, detail="需要上传文件")
+        data = await upload.read(_MAX_UPLOAD + 1)
+        if len(data) > _MAX_UPLOAD:
+            raise HTTPException(status_code=413, detail="文件超过 32MB")
+        try:
+            return accept_upload(
+                preview.root,
+                preview.root / "manifest.sqlite",
+                request.state.model_username,
+                getattr(upload, "filename", "") or "",
+                data,
+            )
+        except SubmissionError as exc:
+            raise HTTPException(status_code=exc.status, detail=exc.detail) from None
+
+    @router.post("/submissions/{submission_id}/retry")
+    def submission_retry(submission_id: str, request: Request) -> dict[str, Any]:
+        try:
+            return retry_submission(
+                preview.root,
+                preview.root / "manifest.sqlite",
+                request.state.model_username,
+                submission_id,
+            )
+        except SubmissionError as exc:
+            raise HTTPException(status_code=exc.status, detail=exc.detail) from None
+
     @router.get("/me")
     def me(request: Request) -> dict[str, str]:
         return {"username": request.state.model_username}
@@ -682,6 +837,7 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
     @router.get("")
     @router.get("/")
     def listing(
+        request: Request,
         page: int = Query(1, ge=1, le=1_000_000),
         page_size: int = Query(12, ge=1, le=100),
         q: str = "",
@@ -691,7 +847,9 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         sort: str = "id",
         order: str = "asc",
     ) -> dict[str, Any]:
-        return preview.listing(page, page_size, q, series, author, material, sort, order)
+        return preview.listing(
+            page, page_size, q, series, author, material, sort, order, request.state.model_username
+        )
 
     @router.get("/favorites")
     def favorites(request: Request) -> dict[str, Any]:
@@ -701,7 +859,7 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
     def favorite_add(model_id: str, request: Request) -> dict[str, bool]:
         if _MODEL_ID.fullmatch(model_id) is None:
             raise HTTPException(status_code=400, detail="模型编号无效")
-        preview.record(model_id)
+        preview.record(model_id, request.state.model_username)
         put_favorite(request.state.model_username, model_id)
         return {"ok": True}
 
@@ -711,36 +869,36 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         return {"ok": True}
 
     @router.get("/{model_id}/thumb")
-    def thumbnail(model_id: str) -> Response:
-        return preview.thumbnail(model_id)
+    def thumbnail(model_id: str, request: Request) -> Response:
+        return preview.thumbnail_of(preview.record(model_id, request.state.model_username))
 
     @router.get("/{model_id}/glb")
-    def mesh(model_id: str) -> Response:
-        return preview.mesh(model_id)
+    def mesh(model_id: str, request: Request) -> Response:
+        return preview.mesh_of(preview.record(model_id, request.state.model_username))
 
     @router.get("/{model_id}/media/{name}")
-    def media(model_id: str, name: str) -> Response:
-        return preview.media(model_id, name)
+    def media(model_id: str, name: str, request: Request) -> Response:
+        return preview.media_of(preview.record(model_id, request.state.model_username), name)
 
     @router.get("/{model_id}/scheme")
     def scheme_get(model_id: str, request: Request) -> dict[str, Any]:
         if _MODEL_ID.fullmatch(model_id) is None:
             raise HTTPException(status_code=400, detail="模型编号无效")
-        preview.record(model_id)
+        preview.record(model_id, request.state.model_username)
         return get_scheme(request.state.model_username, model_id)
 
     @router.get("/{model_id}/shares")
     def share_list(model_id: str, request: Request) -> dict[str, Any]:
-        if not may_share_model(request.state.model_username, model_id):
+        row = preview.record(model_id, request.state.model_username)
+        if not may_share_model(request.state.model_username, model_id, preview._row_owner(row)):
             raise HTTPException(status_code=403, detail="不能分享这个模型")
-        preview.record(model_id)
         return {"items": list_grants(request.state.model_username, model_id)}
 
     @router.post("/{model_id}/shares")
     async def share_create(model_id: str, request: Request) -> dict[str, Any]:
-        if not may_share_model(request.state.model_username, model_id):
+        row = preview.record(model_id, request.state.model_username)
+        if not may_share_model(request.state.model_username, model_id, preview._row_owner(row)):
             raise HTTPException(status_code=403, detail="不能分享这个模型")
-        preview.record(model_id)
         try:
             body = await request.json()
         except (ValueError, UnicodeError):
@@ -750,6 +908,7 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         created = create_grant(
             request.state.model_username,
             model_id,
+            preview._row_owner(row),
             days=body.get("days", 7),
             allow_original=body.get("allow_original", False),
             allow_scheme_copy=body.get("allow_scheme_copy", False),
@@ -767,7 +926,7 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
     async def scheme_put(model_id: str, request: Request) -> dict[str, Any]:
         if _MODEL_ID.fullmatch(model_id) is None:
             raise HTTPException(status_code=400, detail="模型编号无效")
-        row = preview.record(model_id)
+        row = preview.record(model_id, request.state.model_username)
         try:
             body = await request.json()
         except (ValueError, UnicodeError):
@@ -781,7 +940,7 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
     def scheme_copy_create(model_id: str, request: Request) -> dict[str, Any]:
         if _MODEL_ID.fullmatch(model_id) is None:
             raise HTTPException(status_code=400, detail="模型编号无效")
-        preview.record(model_id)
+        preview.record(model_id, request.state.model_username)
         slots = get_scheme(request.state.model_username, model_id)["slots"]
         target = preview._download_target(model_id)
         local = None if target is None else target[3]
@@ -806,7 +965,7 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
     async def derive_create(model_id: str, request: Request) -> dict[str, Any]:
         if _MODEL_ID.fullmatch(model_id) is None:
             raise HTTPException(status_code=400, detail="模型编号无效")
-        preview.record(model_id)
+        preview.record(model_id, request.state.model_username)
         force = False
         if request.headers.get("content-type", "").startswith("application/json"):
             try:
@@ -835,10 +994,10 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
             raise HTTPException(status_code=422, detail=exc.detail) from None
 
     @router.get("/{model_id}/derived/{name}")
-    def derived_asset(model_id: str, name: str) -> Response:
+    def derived_asset(model_id: str, name: str, request: Request) -> Response:
         if _MODEL_ID.fullmatch(model_id) is None:
             raise HTTPException(status_code=404, detail="派生文件不存在")
-        preview.record(model_id)
+        preview.record(model_id, request.state.model_username)
         path = derived_file(preview.root, model_id, name)
         if path is None:
             raise HTTPException(status_code=404, detail="派生文件不存在")
@@ -857,7 +1016,7 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
     def scheme_copy_download(model_id: str, request: Request) -> Response:
         if _MODEL_ID.fullmatch(model_id) is None:
             raise HTTPException(status_code=400, detail="模型编号无效")
-        preview.record(model_id)
+        preview.record(model_id, request.state.model_username)
         found = scheme_copy_path(request.state.model_username, model_id)
         if found is None:
             raise HTTPException(status_code=404, detail="还没有配色副本")
@@ -874,8 +1033,8 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         return Response(content=payload, media_type="model/3mf", headers=headers)
 
     @router.get("/{model_id}")
-    def detail(model_id: str) -> dict[str, Any]:
-        row = preview.record(model_id)
+    def detail(model_id: str, request: Request) -> dict[str, Any]:
+        row = preview.record(model_id, request.state.model_username)
         payload = _public_model(row, detail=True)
         payload["colour_matches"] = preview.match_colours(payload["colours"])
         plates = parse_plate_layout(_column(row, "plate_layout", ""))
@@ -913,7 +1072,7 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         return grant_from_cookie(request.cookies.get(SHARE_COOKIE))
 
     def _share_payload(grant: dict[str, Any]) -> dict[str, Any]:
-        row = preview.record(grant["model_id"])
+        row = preview.grant_row(grant["model_id"], grant["username"])
         images = []
         for image in _public_images(row):
             name = str(image["url"]).rsplit("/", 1)[-1]
@@ -981,16 +1140,17 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
     @share_router.get("/thumb")
     def share_thumb(request: Request) -> Response:
         grant = _share_grant(request)
-        return preview.thumbnail(grant["model_id"])
+        return preview.thumbnail_of(preview.grant_row(grant["model_id"], grant["username"]))
 
     @share_router.get("/media/{name}")
     def share_media(name: str, request: Request) -> Response:
         grant = _share_grant(request)
-        return preview.media(grant["model_id"], name)
+        return preview.media_of(preview.grant_row(grant["model_id"], grant["username"]), name)
 
     @share_router.get("/glb")
     def share_glb(request: Request) -> Response:
         grant = _share_grant(request)
+        row = preview.grant_row(grant["model_id"], grant["username"])
         derived = derived_file(preview.root, grant["model_id"], "model.glb")
         if derived is not None:
             return FileResponse(
@@ -998,11 +1158,12 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
                 media_type="model/gltf-binary",
                 headers={"Cache-Control": "no-store"},
             )
-        return preview.mesh(grant["model_id"])
+        return preview.mesh_of(row)
 
     @share_router.get("/derived/{name}")
     def share_derived(name: str, request: Request) -> Response:
         grant = _share_grant(request)
+        preview.grant_row(grant["model_id"], grant["username"])
         path = derived_file(preview.root, grant["model_id"], name)
         if path is None or path.suffix.lower() != ".png":
             raise HTTPException(status_code=404, detail="派生文件不存在")
@@ -1013,6 +1174,7 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         grant = _share_grant(request)
         if not grant["allow_original"]:
             raise HTTPException(status_code=403, detail="这份分享不能下载原件")
+        preview.grant_row(grant["model_id"], grant["username"])
         return preview.original_response(grant["model_id"], request)
 
     @share_router.get("/scheme-copy")

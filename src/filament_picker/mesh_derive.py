@@ -275,6 +275,44 @@ def derive_bytes(source: bytes) -> tuple[bytes, dict[str, bytes], dict[str, Any]
     return glb, images, record
 
 
+def save_derived_scene(
+    root: Path, model_id: str, source_sha: str, scene: dict[str, Any]
+) -> dict[str, Any]:
+    """Write a GLB and front view for an already parsed scene. Does not touch originals."""
+    if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", model_id):
+        raise DeriveError("模型编号无效")
+    glb = build_glb(scene)
+    images = {"front.png": render_front(scene)}
+    record = {
+        "model_id": model_id,
+        "source_sha256": source_sha,
+        "status": "ready",
+        "scope": scene.get("scope") or "overall",
+        "note": _OVERALL_NOTE,
+        "error": None,
+        "triangles": int(sum(len(part["indices"]) for part in scene["parts"])),
+        "unit": scene.get("unit") or "millimeter",
+        "glb": "model.glb",
+        "front": "front.png",
+        "plates": [],
+        "updated_at": datetime.now(ZoneInfo(TZ)).isoformat(timespec="seconds"),
+    }
+    directory = _derived_dir(root, model_id)
+    if _inside_originals(root, directory):
+        raise DeriveError("派生目录不能放在原件目录里")
+    directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    temporary = directory / ".model.glb.tmp"
+    temporary.write_bytes(glb)
+    temporary.chmod(0o600)
+    temporary.replace(directory / "model.glb")
+    image_tmp = directory / ".front.png.tmp"
+    image_tmp.write_bytes(images["front.png"])
+    image_tmp.chmod(0o600)
+    image_tmp.replace(directory / "front.png")
+    _write_index(directory, record)
+    return record
+
+
 def derive_file(root: Path, model_id: str, source: Path, *, force: bool = False) -> dict[str, Any]:
     if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", model_id):
         raise DeriveError("模型编号无效")

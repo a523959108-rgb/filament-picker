@@ -50,24 +50,24 @@ def ensure_tables(conn: sqlite3.Connection) -> None:
     )
 
 
-def may_share_model(username: str, model_id: str) -> bool:
-    """Default-deny hook for a later per-user library.
+def may_share_model(username: str, model_id: str, owner: str) -> bool:
+    """Only the current owner of this model may create or list its grants.
 
-    Today the signed-in preview account may share a model it can already open.
-    A future account must pass an ownership check here before this returns true.
+    Being logged in is not enough. A member cannot share the library owner's files.
     """
-    return bool(username) and _MODEL_ID.fullmatch(model_id) is not None
+    return bool(username) and username == owner and _MODEL_ID.fullmatch(model_id) is not None
 
 
 def create_grant(
     username: str,
     model_id: str,
+    owner: str,
     *,
     days: int,
     allow_original: bool,
     allow_scheme_copy: bool,
 ) -> dict[str, Any]:
-    if not may_share_model(username, model_id):
+    if not may_share_model(username, model_id, owner):
         raise HTTPException(status_code=403, detail="不能分享这个模型")
     if days not in _DAYS:
         raise HTTPException(status_code=400, detail="有效期只能是 1、7 或 30 天")

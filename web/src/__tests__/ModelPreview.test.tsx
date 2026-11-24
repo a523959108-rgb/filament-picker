@@ -34,7 +34,8 @@ describe("model preview", () => {
     const { getByLabelText } = render(<App />);
     expect(getByLabelText("用户名")).toBeTruthy();
     expect(getByLabelText("密码").getAttribute("type")).toBe("password");
-    expect(fetcher).not.toHaveBeenCalled();
+    expect(fetcher.mock.calls.every((call) => call[0] === "/api/models/registration")).toBe(true);
+    expect(fetcher.mock.calls.some((call) => String(call[0]).includes("catalog"))).toBe(false);
   });
 
   it("submits login and navigates to the gallery", async () => {
@@ -47,8 +48,9 @@ describe("model preview", () => {
     fireEvent.change(getByLabelText("密码"), { target: { value: crypto.randomUUID() } });
     fireEvent.click(getByRole("button", { name: "登录" }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith("/models"));
-    expect(fetcher.mock.calls[0][0]).toBe("/api/models/login");
-    expect(fetcher.mock.calls[0][1].credentials).toBe("same-origin");
+    const loginCall = fetcher.mock.calls.find((call) => call[0] === "/api/models/login");
+    expect(loginCall?.[0]).toBe("/api/models/login");
+    expect(loginCall?.[1].credentials).toBe("same-origin");
   });
 
   it("shows failed login and rate limit messages", async () => {

@@ -185,6 +185,18 @@ def test_another_username_cannot_see_or_revoke(preview: tuple) -> None:
     assert hidden.status_code == 404
 
 
+def test_grant_dies_when_the_owner_account_is_removed(preview: tuple) -> None:
+    app, password, _models, db = preview
+    cookie = _cookie(app, password)
+    created = _request(app, "POST", "/api/models/sample-01/shares", cookie, json={"days": 7}).json()
+    token = created["link"].split("#", 1)[1]
+    with sqlite3.connect(db) as conn:
+        conn.execute("DELETE FROM users WHERE username = ?", (USER,))
+    opened = _request(app, "POST", "/api/share/open", json={"token": token})
+    assert opened.status_code == 410
+    assert opened.json()["detail"] == "链接已失效"
+
+
 def _digest_present(db: Path, token: str) -> bool:
     digest = hashlib.sha256(token.encode()).hexdigest()
     text = db.read_text(encoding="utf-8", errors="ignore")

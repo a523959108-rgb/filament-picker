@@ -108,12 +108,71 @@ interface ModelList {
 type Navigate = (path: string) => void;
 const goTo: Navigate = (path) => window.location.assign(path);
 
+function RegisterForm({ navigate }: { navigate: Navigate }): JSX.Element {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [closed, setClosed] = useState(false);
+  useEffect(() => {
+    fetch("/api/models/registration")
+      .then(async (response) => response.ok ? response.json() as Promise<{ enabled?: boolean }> : null)
+      .then((body) => setClosed(body?.enabled !== true))
+      .catch(() => setClosed(true));
+  }, []);
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    setError("");
+    const response = await fetch("/api/models/register", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password, email }),
+    });
+    if (response.status === 403) {
+      setClosed(true);
+      setError("注册未开放");
+      return;
+    }
+    if (!response.ok) {
+      setError(await errorDetail(response));
+      return;
+    }
+    navigate("/models/login");
+  }
+  if (closed) return <p role="alert">注册未开放。不会发送邮件。</p>;
+  return (
+    <form onSubmit={(event) => { void submit(event); }}>
+      <h2>注册</h2>
+      <p>不会发送邮件，也不验证邮箱。</p>
+      {error ? <p role="alert">{error}</p> : null}
+      <label>用户名<input value={username} onChange={(event) => setUsername(event.target.value)} required /></label>
+      <label>密码<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
+      <label>邮箱（可选）<input value={email} onChange={(event) => setEmail(event.target.value)} /></label>
+      <button type="submit">创建账号</button>
+    </form>
+  );
+}
+
 function Login({ navigate }: { navigate: Navigate }): JSX.Element {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [canRegister, setCanRegister] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const pending = fetch("/api/models/registration");
+    if (pending && typeof pending.then === "function") {
+      pending
+        .then(async (response) => response.ok ? response.json() as Promise<{ enabled?: boolean }> : null)
+        .then((body) => { if (active) setCanRegister(body?.enabled === true); })
+        .catch(() => { if (active) setCanRegister(false); });
+    }
+    return () => { active = false; };
+  }, []);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -158,8 +217,9 @@ function Login({ navigate }: { navigate: Navigate }): JSX.Element {
           </div>
           <button className="login-submit" type="submit" disabled={busy}>{busy ? "登录中…" : "登录"}</button>
         </form>
+        {canRegister ? <a href="/models/register">注册</a> : null}
         <footer className="login-foot">
-          <span>账号由站方 / 管理员统一分配创建</span>
+          <span>{canRegister ? "注册不发送邮件，也不验证邮箱" : "账号由站方 / 管理员统一分配创建"}</span>
           <span>工坊内网专用 · 不设开放注册与密码重置</span>
         </footer>
       </section>
@@ -268,8 +328,31 @@ function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: stri
 
   const pageCount = Math.max(1, Math.ceil((data?.total ?? 0) / params.page_size));
   const [jump, setJump] = useState("1");
+  const [uploadNote, setUploadNote] = useState("");
+  async function upload(event: FormEvent) {
+    event.preventDefault();
+    const input = (event.currentTarget as HTMLFormElement).elements.namedItem("model");
+    const file = input instanceof HTMLInputElement ? input.files?.[0] : undefined;
+    if (!file) return;
+    const body = new FormData();
+    body.set("file", file);
+    setUploadNote("");
+    const response = await fetch("/api/models/submissions", { method: "POST", credentials: "same-origin", body });
+    if (!response.ok) {
+      setUploadNote(await errorDetail(response));
+      return;
+    }
+    const result = await response.json() as { status?: string; error?: string | null; model_id?: string | null };
+    setUploadNote(result.status === "ready" ? "投稿已进入你的私有预览" : (result.error || "投稿没有完成"));
+    if (result.status === "ready") setParams((current) => ({ ...current }));
+  }
   return (
     <>
+      <form className="gallery-upload" onSubmit={(event) => { void upload(event); }}>
+        <label>投稿模型<input name="model" type="file" accept=".3mf,.stl,.step,.stp" /></label>
+        <button type="submit">上传</button>
+        {uploadNote ? <p role="status">{uploadNote}</p> : null}
+      </form>
       <form className="gallery-toolbar" onSubmit={(event) => {
         event.preventDefault(); setParams((current) => ({ ...current, q: search, page: 1 }));
       }}>
@@ -1260,8 +1343,9 @@ export function ModelPreview({ path = window.location.pathname, navigate = goTo 
 }): JSX.Element {
   const normalized = path.replace(/\/+$/, "");
   const login = normalized === "/models/login";
+  const register = normalized === "/models/register";
   const share = normalized === "/models/s";
-  const detailView = !login && !share && normalized !== "/models";
+  const detailView = !login && !share && !register && normalized !== "/models";
   const [error, setError] = useState("");
   const [galleryHref, setGalleryHref] = useState(readStoredGalleryHref);
   const rememberGallery = useCallback((href: string) => setGalleryHref(href), []);
@@ -1279,14 +1363,14 @@ export function ModelPreview({ path = window.location.pathname, navigate = goTo 
   return (
     <main className={login ? "page model-preview is-login" : detailView ? "page model-preview is-detail" : "page model-preview"}>
       <SiteHeader
-        active={login ? "login" : share || detailView ? "detail" : "gallery"}
-        onLogout={login || share ? undefined : logout}
+        active={login || register ? "login" : share || detailView ? "detail" : "gallery"}
+        onLogout={login || share || register ? undefined : logout}
         backHref={detailView ? galleryHref : undefined}
       />
       {login || share ? null : <p className="model-banner" role="note">仅私人收藏预览、禁止外传</p>}
       {share ? <p className="model-banner" role="note">这是限时分享，不能浏览其他模型。</p> : null}
       {error && <p role="alert">{error}</p>}
-      {login ? <Login navigate={navigate} /> : share ? <ShareView /> : normalized === "/models" ? <Gallery navigate={navigate} onHref={rememberGallery} /> : (
+      {login ? <Login navigate={navigate} /> : register ? <RegisterForm navigate={navigate} /> : share ? <ShareView /> : normalized === "/models" ? <Gallery navigate={navigate} onHref={rememberGallery} /> : (
         <Detail id={id} navigate={navigate} />
       )}
     </main>
