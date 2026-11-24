@@ -13,8 +13,10 @@ export function ColorDetail(props: {
   onClose: () => void;
   onCompare: (id: string) => void;
   onSelect?: (id: string) => void;
+  presentation?: "dialog" | "dock";
 }): JSX.Element {
   const { entry, catalog, onClose } = props;
+  const dock = props.presentation === "dock";
   const brandName = catalog.brands.find((brand) => brand.slug === entry.b)?.name ?? entry.b;
   const matches = similar(entry, catalog.entries);
   const entryName = entry.en ?? entry.zh ?? entry.id;
@@ -56,8 +58,8 @@ export function ColorDetail(props: {
 
   return (
     <>
-      <div className="drawer-backdrop" onClick={onClose} aria-hidden="true" />
-      <aside className="color-detail" role="dialog" aria-label="颜色详情">
+      {dock ? null : <div className="drawer-backdrop" onClick={onClose} aria-hidden="true" />}
+      <aside className={dock ? "color-detail color-detail-dock" : "color-detail"} role={dock ? "region" : "dialog"} aria-label="颜色详情">
         <div
           className={[
             "color-detail-swatch",

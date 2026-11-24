@@ -56,6 +56,15 @@ function CatalogApp(): JSX.Element {
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [compareMessage, setCompareMessage] = useState<string | null>(null);
   const [brandOpen, setBrandOpen] = useState(false);
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const query = window.matchMedia("(min-width: 1100px)");
+    const apply = () => setWide(query.matches);
+    apply();
+    query.addEventListener("change", apply);
+    return () => query.removeEventListener("change", apply);
+  }, []);
 
   useEffect(() => {
     const onHashChange = () => setRoute(routeFromHash());
@@ -187,9 +196,21 @@ function CatalogApp(): JSX.Element {
             />
           </div>
           <aside className="catalog-rail" aria-label="色卡参数">
-            <h2>色卡</h2>
-            <p>共 {entries.length} 个颜色。点开一张色卡查看色值、渠道和相近色。</p>
-            <p>{compareIds.length > 0 ? `对比托盘 ${compareIds.length}/4` : "还没有加入对比。"}</p>
+            {wide && selected ? (
+              <ColorDetail
+                presentation="dock"
+                entry={selected}
+                catalog={catalog}
+                onClose={() => setSelectedId(null)}
+                onCompare={addCompare}
+                onSelect={setSelectedId}
+              />
+            ) : (
+              <>
+                <h2>色卡</h2>
+                <p>点开一张色卡，这里显示照片、色号、品牌、材料和购买链接。</p>
+              </>
+            )}
           </aside>
         </div>
       </div>
@@ -225,7 +246,7 @@ function CatalogApp(): JSX.Element {
       {compareEntries.length > 0 && (
         <CompareBar entries={compareEntries} onRemove={(id) => setCompareIds((current) => current.filter((item) => item !== id))} />
       )}
-      {selected && (
+      {selected && !wide && (
         <ColorDetail
           entry={selected}
           catalog={catalog}

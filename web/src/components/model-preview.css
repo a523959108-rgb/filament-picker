@@ -86,7 +86,10 @@
 .plate-board-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
 .model-parts, .model-slots { margin-top: 12px; padding-top: 12px; border-top: 1px solid #2a3c50; }
 .model-ops { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr); gap: 16px; align-items: start; }
-.model-preview .model-download { min-height: 32px; padding: 4px 12px; max-width: 100%; white-space: nowrap; }
+.model-preview .model-download {
+  width: 100%; min-height: 48px; padding: 0 16px; border: 0; border-radius: 10px;
+  background: #38bdf8; color: #004965; font-weight: 700; white-space: nowrap;
+}
 .model-preview .model-download:disabled {
   opacity: 1; color: var(--text-3); background: var(--surface-2);
   border: 1px dashed var(--text-3); cursor: not-allowed;

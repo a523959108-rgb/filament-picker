@@ -16,7 +16,7 @@ export function CompareBar(props: { entries: WebEntry[]; onRemove: (id: string) 
         ))}
       </ul>
       {entries.length > 1 && (
-        <ul>
+        <ul className="compare-deltas">
           {entries.flatMap((a, index) =>
             entries.slice(index + 1).map((b) => {
               const delta =
@@ -32,6 +32,7 @@ export function CompareBar(props: { entries: WebEntry[]; onRemove: (id: string) 
           )}
         </ul>
       )}
+      <button type="button" className="compare-open" onClick={() => document.getElementById("compare-tray")?.querySelector(".compare-deltas")?.scrollIntoView({ block: "nearest" })}>比较</button>
     </aside>
   );
 }
