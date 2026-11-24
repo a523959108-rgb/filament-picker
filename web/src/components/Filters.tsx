@@ -11,44 +11,34 @@ export function Filters(props: {
   const toggle = (values: string[], value: string): string[] =>
     values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
 
+  const brandValue = props.value.brands.length === 1 ? props.value.brands[0] : "";
+  const materialValue = props.value.materials.length === 1 ? props.value.materials[0] : "";
   return (
     <div className="filters">
-      <fieldset>
-        <legend>品牌</legend>
-        {props.brands.map((brand) => (
-          <label key={brand.slug}>
-            <input
-              type="checkbox"
-              checked={props.value.brands.includes(brand.slug)}
-              onChange={() => props.onChange({ ...props.value, brands: toggle(props.value.brands, brand.slug) })}
-            />
-            {brand.name}
-          </label>
-        ))}
-      </fieldset>
-      <fieldset>
-        <legend>材料</legend>
-        {(["PLA", "PETG"] as const).map((material) => (
-          <label key={material}>
-            <input
-              type="checkbox"
-              checked={props.value.materials.includes(material)}
-              onChange={() =>
-                props.onChange({
-                  ...props.value,
-                  materials: props.value.materials.includes(material)
-                    ? props.value.materials.filter((item) => item !== material)
-                    : [...props.value.materials, material],
-                })
-              }
-            />
-            {material}
-          </label>
-        ))}
-      </fieldset>
+      <div className="filter-selects">
+        <label>品牌
+          <select aria-label="品牌" value={brandValue} onChange={(event) => {
+            const value = event.target.value;
+            props.onChange({ ...props.value, brands: value ? [value] : [] });
+          }}>
+            <option value="">全部</option>
+            {props.brands.map((brand) => <option key={brand.slug} value={brand.slug}>{brand.name}</option>)}
+          </select>
+        </label>
+        <label>材料
+          <select aria-label="材料" value={materialValue} onChange={(event) => {
+            const value = event.target.value as "" | "PLA" | "PETG";
+            props.onChange({ ...props.value, materials: value ? [value] : [] });
+          }}>
+            <option value="">全部</option>
+            <option value="PLA">PLA</option>
+            <option value="PETG">PETG</option>
+          </select>
+        </label>
+      </div>
       <fieldset>
         <legend>色谱</legend>
-        <div className="spectrum-row" role="group" aria-label="色谱">
+        <div className="spectrum-row" role="group" aria-label="色谱" style={{ display: "flex", flexWrap: "nowrap", overflowX: "auto" }}>
           {props.families.map((family) => (
             <button
               key={family}
@@ -63,22 +53,15 @@ export function Filters(props: {
         </div>
       </fieldset>
       {props.effects.length > 0 && (
-        <fieldset>
-          <legend>效果</legend>
-          <div className="spectrum-row" role="group" aria-label="效果">
-            {props.effects.map((effect) => (
-              <button
-                key={effect}
-                type="button"
-                className={props.value.effects.includes(effect) ? "spectrum-chip is-on" : "spectrum-chip"}
-                aria-pressed={props.value.effects.includes(effect)}
-                onClick={() => props.onChange({ ...props.value, effects: toggle(props.value.effects, effect) })}
-              >
-                {effect}
-              </button>
-            ))}
-          </div>
-        </fieldset>
+        <label className="filter-selects">效果
+          <select aria-label="效果" value={props.value.effects[0] ?? ""} onChange={(event) => {
+            const value = event.target.value;
+            props.onChange({ ...props.value, effects: value ? [value] : [] });
+          }}>
+            <option value="">全部</option>
+            {props.effects.map((effect) => <option key={effect} value={effect}>{effect}</option>)}
+          </select>
+        </label>
       )}
       <label>
         <input

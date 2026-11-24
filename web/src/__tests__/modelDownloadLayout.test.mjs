@@ -24,7 +24,8 @@ describe("enabled download layout", () => {
     const statusRule = previewCss.match(/\.model-download-status\s*\{[^}]*\}/)?.[0] ?? "";
     expect(statusRule).toContain("overflow-wrap: anywhere");
     expect(statusRule).not.toContain("nowrap");
-    expect(previewCss).toContain("minmax(6.5rem, 22rem)");
+    expect(previewCss).toContain("overflow-wrap: anywhere");
+    expect(previewCss).toContain('grid-template-areas: "title" "meta" "desc" "download"');
     const dir = await mkdtemp(join(tmpdir(), "fp-download-layout-"));
     const htmlPath = join(dir, "index.html");
     await writeFile(htmlPath, `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><style>${styles}\n${previewCss}</style></head><body>
