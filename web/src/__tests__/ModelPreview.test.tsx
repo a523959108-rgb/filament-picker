@@ -353,6 +353,7 @@ describe("model preview", () => {
     expect(view.getByText("eye.stl ×2")).toBeTruthy();
     expect(view.queryAllByText("tooth.stl_3")).toHaveLength(0);
     expect(view.getByRole("button", { name: "俯视" })).toBeTruthy();
+    expect(view.queryByRole("button", { name: "正视" })).toBeNull();
     expect(view.container.querySelector(".model-slots")?.contains(view.getByLabelText("槽位 11 颜色 #112233"))).toBe(true);
     expect(view.getByLabelText("槽位 11 颜色 #112233").className).toContain("model-colour");
     const layout = view.container.querySelector(".model-screen");
