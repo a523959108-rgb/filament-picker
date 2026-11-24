@@ -385,6 +385,30 @@ describe("model preview", () => {
     expect(view.container.querySelector(".model-plate-picker")).toBeTruthy();
   });
 
+  it("keeps an enabled download beside the long Chinese original name", async () => {
+    const filename = "分件版 仙子伊布拉布布labubu （无需AMS）.3mf";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({
+      ...model,
+      original: {
+        available: true,
+        url: "/api/models/sample-01/original",
+        filename,
+        size_bytes: null,
+        sha256: null,
+        media_type: "model/3mf",
+      },
+    })));
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    const button = await view.findByRole("button", { name: "下载3MF" });
+    expect((button as HTMLButtonElement).disabled).toBe(false);
+    const status = view.getByText(filename);
+    expect(status.id).toBe("model-download-status");
+    expect(button.getAttribute("aria-describedby")).toBe("model-download-status");
+    expect(status.closest(".model-download-block")?.contains(button)).toBe(true);
+    expect(status.closest(".model-head")).toBeTruthy();
+    expect(view.queryByRole("dialog")).toBeNull();
+  });
+
   it("downloads a stored original and leaves the color-only API disabled", async () => {
     const bytes = new Uint8Array([1, 2, 3, 4]);
     const fetcher = vi.fn()

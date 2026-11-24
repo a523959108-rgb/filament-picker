@@ -39,6 +39,6 @@
 "$VENV/bin/pip" install --no-deps --force-reinstall ./filament_picker-0.3.0-py3-none-any.whl
 ```
 
-然后只重启提供 `/models` 的进程。前端继续用已经批准的 `c520977`。那个版本会在 `original.available` 且 `url` 以 `/api/models/` 开头时启用「下载3MF」。
+然后只重启提供 `/models` 的进程。下载按钮启用后的位置在单独的前端静态包里，不要停在 `c520977`。那个前端会在 `original.available` 且 `url` 以 `/api/models/` 开头时启用「下载3MF」。静态包只覆盖 `index.html` 和 `assets/`，不要清空静态目录，也不要替换 `web-catalog.json` 或 `sku/`。
 
 回滚：装回上一只 wheel（SHA-256 `9927e6c48b1ee94fce53a9cc89267e0a4de0cc8c8bb83834c8b0fa7fa985c9bb`），重启同一进程。清单、色卡和静态目录都不用改。
