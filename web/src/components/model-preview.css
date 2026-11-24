@@ -14,14 +14,18 @@
 .model-preview label { display: grid; gap: 6px; }
 .model-preview [role="alert"] { color: var(--danger); }
 .model-banner {
-  margin: 0 0 8px;
-  padding: 6px 10px;
+  margin: 0;
+  padding: 0;
   border: 0;
-  border-radius: 8px;
-  background: #0d1c2d;
+  background: transparent;
   color: var(--text-2);
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 14px;
 }
+.model-preview .topbar-title { display: grid; gap: 0; min-width: 0; }
+.gallery-more { font-size: 13px; color: #8ed5ff; }
+.gallery-more summary { min-height: 36px; cursor: pointer; }
+.gallery-more label { margin-top: 8px; }
 .model-login { max-width: 420px; margin: 48px auto; }
 .model-login form { display: grid; gap: 20px; margin-top: 24px; }
 .gallery-toolbar { display: grid; gap: 8px; margin-bottom: 8px; }
@@ -58,29 +62,30 @@
 .model-preview.is-detail .model-banner { margin-bottom: 8px; padding: 6px 12px; }
 .model-screen {
   min-height: 0; overflow: visible; flex: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
-  grid-template-areas: "hero title" "hero meta" "hero desc" "hero plates" "hero tools" "hero download";
-  gap: 0 16px; align-items: start;
+  display: flex; flex-direction: column; gap: 12px;
   padding: 0; border: 0; background: transparent; box-shadow: none;
 }
-.model-stage { grid-area: hero; display: block; min-height: 0; }
-.model-head { display: contents; grid-template-areas: "title" "meta" "desc" "download"; }
-.model-head h2 { grid-area: title; margin: 0; padding: 14px 14px 0; background: #0d1c2d; border-radius: 12px 12px 0 0; }
-.model-meta { grid-area: meta; margin: 0; padding: 4px 14px; background: #0d1c2d; }
-.model-description-block { grid-area: desc; padding: 0 14px 14px; background: #0d1c2d; border-radius: 0 0 12px 12px; }
-.model-download-panel, .model-download-block { grid-area: download; }
-.model-work { grid-area: plates; margin-top: 12px; }
-.model-library { grid-area: tools; margin-top: 12px; }
-.model-download-panel { margin-top: 12px; background: #0d1c2d; border-radius: 12px; padding: 14px; }
-.model-download-panel h3, .plate-board-head h3 { margin: 0 0 8px; font-size: 16px; }
+.model-head {
+  display: block; width: 100%; min-width: 0;
+  background: #0d1c2d; border-radius: 12px; padding: 14px 16px;
+}
+.model-columns {
+  display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 16px; align-items: start;
+}
+.model-rail { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.model-stage { display: block; min-height: 0; min-width: 0; }
+.model-head h2 { margin: 0; font-size: 1.7rem; line-height: 1.25; min-width: 0; overflow-wrap: anywhere; }
+.model-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 6px 0 0; color: var(--text-2); font-size: 0.92rem; min-width: 0; }
+.model-description-block { min-width: 0; margin-top: 8px; }
+.model-work, .model-library, .model-download-panel {
+  background: #0d1c2d; border-radius: 12px; padding: 12px;
+}
+.model-download-block { display: grid; justify-items: start; align-content: start; gap: 4px; min-width: 0; max-width: 100%; }
+.model-download-panel h3, .plate-board-head h3, .model-parts h3, .model-slots h3 { margin: 0 0 8px; font-size: 16px; }
 .plate-board-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.model-parts, .model-slots { margin-top: 12px; padding-top: 12px; border-top: 1px solid #2a3c50; }
 .model-ops { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr); gap: 16px; align-items: start; }
-.model-head { display: contents; min-width: 0; }
-.model-head h2 { grid-area: title; font-size: 1.35rem; line-height: 1.25; min-width: 0; overflow-wrap: anywhere; }
-.model-meta { grid-area: meta; display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; color: var(--text-2); font-size: 0.92rem; min-width: 0; }
-.model-description-block { grid-area: desc; min-width: 0; }
-.model-download-block { grid-area: download; display: grid; justify-items: start; align-content: start; gap: 4px; min-width: 0; max-width: 100%; }
 .model-preview .model-download { min-height: 32px; padding: 4px 12px; max-width: 100%; white-space: nowrap; }
 .model-preview .model-download:disabled {
   opacity: 1; color: var(--text-3); background: var(--surface-2);
@@ -215,14 +220,7 @@
   .model-download-block, .model-download-status { justify-items: start; justify-self: stretch; text-align: left; max-width: 100%; }
   .model-preview.is-detail { height: auto; overflow: visible; display: block; }
   .model-preview.is-detail .model-screen { height: auto; overflow: visible; }
-  .model-screen { display: flex; flex-direction: column; }
-  .model-stage { order: 1; }
-  .model-head h2 { order: 2; }
-  .model-meta { order: 3; }
-  .model-description-block { order: 4; }
-  .model-work { order: 5; }
-  .model-library { order: 6; }
-  .model-download-panel { order: 7; }
+  .model-columns { grid-template-columns: minmax(0, 1fr); }
   .model-stage, .model-ops { min-height: 0; }
   .model-hero-pane, .model-hero, .model-hero img { min-height: 0; height: auto; max-height: 280px; }
   .model-hero img { aspect-ratio: 4 / 3; object-fit: cover; }
@@ -230,10 +228,10 @@
   .model-preview.is-detail .model-hero img { width: 100%; max-height: none; }
   .model-preview.is-detail .model-plate-picker { max-height: 280px; }
   .model-preview.is-detail .model-tab-panel { max-height: 240px; flex: none; }
-  .model-preview.is-detail .model-head { display: contents; }
+  .model-preview.is-detail .model-head { display: block; }
   .model-preview .model-plate-card { width: auto; height: 72px; min-width: 0; grid-template-columns: 48px minmax(0, 1fr); grid-template-rows: 20px 20px; }
   .model-summary { grid-template-columns: minmax(0, 1fr); }
-  .model-preview .topbar { flex-wrap: wrap; }
+  .model-preview .topbar { flex-wrap: nowrap; }
   .gallery-selects { grid-template-columns: 1fr 1fr; }
   .model-preview .model-view-toggle button, .model-preview .model-tab, .model-preview .model-download { min-height: 44px; }
 }

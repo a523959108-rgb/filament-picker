@@ -266,24 +266,27 @@ function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: stri
         }}><option value="">全部作者</option>
           {data?.authors.map((value) => <option key={value} value={value}>{value}</option>)}
         </select></label>
-        {(data?.materials?.length ?? 0) > 0 && (
-          <label>材料<select value={params.material} onChange={(event) => {
-            setParams((current) => ({ ...current, material: event.target.value, page: 1 }));
-          }}><option value="">全部材料</option>
-            {(data?.materials ?? []).map((value) => <option key={value} value={value}>{value}</option>)}
-          </select></label>
-        )}
-        <label>排序<select value={params.sort} onChange={(event) => {
-          setParams((current) => ({ ...current, sort: event.target.value, page: 1 }));
-        }}>{SORTS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-        </select></label>
-        <label>方向<select value={params.order} onChange={(event) => {
-          setParams((current) => ({ ...current, order: event.target.value, page: 1 }));
-        }}>
-          <option value="asc">升序</option>
-          <option value="desc">降序</option>
-        </select></label>
         </div>
+        <details className="gallery-more">
+          <summary>筛选</summary>
+          {(data?.materials?.length ?? 0) > 0 && (
+            <label>材料<select value={params.material} onChange={(event) => {
+              setParams((current) => ({ ...current, material: event.target.value, page: 1 }));
+            }}><option value="">全部材料</option>
+              {(data?.materials ?? []).map((value) => <option key={value} value={value}>{value}</option>)}
+            </select></label>
+          )}
+          <label>排序<select value={params.sort} onChange={(event) => {
+            setParams((current) => ({ ...current, sort: event.target.value, page: 1 }));
+          }}>{SORTS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+          </select></label>
+          <label>方向<select value={params.order} onChange={(event) => {
+            setParams((current) => ({ ...current, order: event.target.value, page: 1 }));
+          }}>
+            <option value="asc">升序</option>
+            <option value="desc">降序</option>
+          </select></label>
+        </details>
         <div className="gallery-actions">
           <button type="submit">搜索</button>
           <button type="button" onClick={() => {
@@ -411,21 +414,6 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
         ["--hero-h" as string]: `${locked.hero}px`,
         ["--work-h" as string]: `${locked.work}px`,
       } : undefined}>
-      <div className="model-stage">
-        <div className="model-hero-pane">
-          {covers.length > 0 ? covers.map((shot) => (
-            <figure className="model-hero" key={shot.url}>
-              <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
-              <figcaption><span>{shotCaption(shot.kind, shot.plate)}</span></figcaption>
-            </figure>
-          )) : mesh ? null : <p className="model-hero-empty">没有封面</p>}
-          {mesh ? (
-            <Suspense fallback={<p role="status">三维预览加载中…</p>}>
-              <MeshViewer url={mesh} label={model.title} />
-            </Suspense>
-          ) : null}
-        </div>
-      </div>
       <header className="model-head">
         <h2>{model.title}</h2>
         <p className="model-meta">
@@ -444,14 +432,33 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
             ) : null}
           </div>
         ) : null}
-        <div className="model-download-panel">
-          <h3>原厂切片</h3>
-          <DownloadControl model={model} navigate={navigate} />
-        </div>
       </header>
-      <PlateBoard cards={cards} model={model} active={open} shotKind={shotKind}
-        onSelect={selectPlate} onShotKind={setShotKind} />
-      <ModelTools model={model} />
+      <div className="model-columns">
+        <div className="model-stage">
+          <div className="model-hero-pane">
+            {covers.length > 0 ? covers.map((shot) => (
+              <figure className="model-hero" key={shot.url}>
+                <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
+                <figcaption><span>{shotCaption(shot.kind, shot.plate)}</span></figcaption>
+              </figure>
+            )) : mesh ? null : <p className="model-hero-empty">没有封面</p>}
+            {mesh ? (
+              <Suspense fallback={<p role="status">三维预览加载中…</p>}>
+                <MeshViewer url={mesh} label={model.title} />
+              </Suspense>
+            ) : null}
+          </div>
+        </div>
+        <div className="model-rail">
+          <PlateBoard cards={cards} model={model} active={open} shotKind={shotKind}
+            onSelect={selectPlate} onShotKind={setShotKind} />
+          <ModelTools model={model} />
+          <section className="model-download-panel" aria-label="原厂切片">
+            <h3>原厂切片</h3>
+            <DownloadControl model={model} navigate={navigate} />
+          </section>
+        </div>
+      </div>
     </article>
   );
 }
@@ -712,15 +719,12 @@ function PlateBoard({ cards, model, active, shotKind, onSelect, onShotKind, tool
   );
 }
 
-type PlateTab = "shot" | "parts" | "filaments";
-
 function PlateDetail({ model, card, shotKind, onShotKind }: {
   model: Model;
   card: PlateCard;
   shotKind: "plate" | "top";
   onShotKind: (kind: "plate" | "top") => void;
 }): JSX.Element {
-  const [tab, setTab] = useState<PlateTab>("shot");
   const [showAllParts, setShowAllParts] = useState(false);
   useEffect(() => { setShowAllParts(false); }, [card.key]);
   const shot = shotKind === "top" && card.top ? card.top : (card.face ?? card.top);
@@ -728,68 +732,39 @@ function PlateDetail({ model, card, shotKind, onShotKind }: {
   const grouped = groupObjects(plate?.objects ?? []);
   const visible = showAllParts ? grouped : grouped.slice(0, PART_PREVIEW);
   const title = `${card.index == null ? "盘号未知" : `盘 ${card.index}`}${card.name ? ` ${card.name}` : ""}`;
-  const tabs: { id: PlateTab; label: string }[] = [
-    { id: "shot", label: "盘面" },
-    { id: "parts", label: `部件 ${grouped.length}` },
-    { id: "filaments", label: `耗材 ${plate?.filaments.length ?? 0}` },
-  ];
   return (
     <div className="model-plate-detail" id="model-plate-detail">
       <div className="model-plate-detail-head">
         <p className="model-plate-current">{title || "当前盘"}</p>
         <p className="model-plate-summary">{grouped.length} 种部件 · {plate?.filaments.length ?? 0} 个耗材槽</p>
       </div>
-      <div className="model-tabs" role="tablist" aria-label="当前盘内容">
-        {tabs.map((item) => (
-          <button type="button" key={item.id} role="tab" className="model-tab"
-            aria-selected={tab === item.id} onClick={() => setTab(item.id)}>
-            {item.label}
+      {card.face && card.top ? <ViewToggle shotKind={shotKind} onShotKind={onShotKind} /> : null}
+      {shot ? <p className="model-shot-caption">{shotCaption(shot.kind, shot.plate)}</p> : <p>没有这一盘的图片。</p>}
+      <section className="model-parts" aria-label="部件清单">
+        <h3>部件清单</h3>
+        {grouped.length > 0 ? (
+          <ul className="model-objects">
+            {visible.map((item) => (
+              <li key={item.name}>{item.count > 1 ? `${item.name} ×${item.count}` : item.name}</li>
+            ))}
+          </ul>
+        ) : <p>未记录部件</p>}
+        {grouped.length > PART_PREVIEW ? (
+          <button type="button" className="model-text-button" aria-expanded={showAllParts}
+            onClick={() => setShowAllParts((current) => !current)}>
+            {showAllParts ? "收起部件" : `查看全部 ${grouped.length} 种`}
           </button>
-        ))}
-      </div>
-      <div className="model-tab-panel" role="tabpanel">
-        {tab === "shot" ? (
+        ) : null}
+      </section>
+      <section className="model-slots" aria-label="耗材清单">
+        <h3>本盘耗材</h3>
+        {!plate && (model.colour_matches?.length || model.colours.length) ? (
           <>
-            {card.face && card.top ? <ViewToggle shotKind={shotKind} onShotKind={onShotKind} /> : null}
-            {shot ? (
-              <figure className="model-plate-preview">
-                <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
-                <figcaption><span>{shotCaption(shot.kind, shot.plate)}</span></figcaption>
-              </figure>
-            ) : <p>没有这一盘的图片。</p>}
-            {!plate && (model.colour_matches?.length || model.colours.length) ? (
-              <>
-                <h3>原配色</h3>
-                <ColourList matches={model.colour_matches ?? model.colours.map((hex) => ({ hex, picks: [] }))} />
-              </>
-            ) : null}
+            <h3>原配色</h3>
+            <ColourList matches={model.colour_matches ?? model.colours.map((hex) => ({ hex, picks: [] }))} />
           </>
-        ) : null}
-        {tab === "parts" ? (
-          grouped.length > 0 ? (
-            <>
-              <CompactShot model={model} card={card} shotKind={shotKind} />
-              <ul className="model-objects">
-                {visible.map((item) => (
-                  <li key={item.name}>{item.count > 1 ? `${item.name} ×${item.count}` : item.name}</li>
-                ))}
-              </ul>
-              {grouped.length > PART_PREVIEW ? (
-                <button type="button" className="model-text-button" aria-expanded={showAllParts}
-                  onClick={() => setShowAllParts((current) => !current)}>
-                  {showAllParts ? "收起部件" : `查看全部 ${grouped.length} 种`}
-                </button>
-              ) : null}
-            </>
-          ) : <p>未记录部件</p>
-        ) : null}
-        {tab === "filaments" ? (
-          <>
-            <CompactShot model={model} card={card} shotKind={shotKind} />
-            <FilamentList plate={plate} />
-          </>
-        ) : null}
-      </div>
+        ) : <FilamentList plate={plate} />}
+      </section>
     </div>
   );
 }
@@ -1060,7 +1035,10 @@ export function ModelPreview({ path = window.location.pathname, navigate = goTo 
     <main className={login ? "page model-preview is-login" : detailView ? "page model-preview is-detail" : "page model-preview"}>
       {login ? null : (
         <header className="topbar">
-          <h1>{detailView ? "模型详情" : "模型画廊"}</h1>
+          <div className="topbar-title">
+            <h1>{detailView ? "模型详情" : "模型画廊"}</h1>
+            <p className="model-banner" role="note">仅私人收藏预览、禁止外传</p>
+          </div>
           <nav className="topbar-nav" aria-label="页面导航">
             <a className="nav-link" href="/">耗材选色</a>
             {detailView && <a className="nav-link model-back" href={galleryHref}>返回画廊</a>}
@@ -1068,7 +1046,6 @@ export function ModelPreview({ path = window.location.pathname, navigate = goTo 
           </nav>
         </header>
       )}
-      {login ? null : <p className="model-banner" role="note">仅私人收藏预览、禁止外传</p>}
       {error && <p role="alert">{error}</p>}
       {login ? <Login navigate={navigate} /> : normalized === "/models" ? <Gallery navigate={navigate} onHref={rememberGallery} /> : (
         <Detail id={id} navigate={navigate} />

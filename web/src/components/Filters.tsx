@@ -19,6 +19,15 @@ export function Filters(props: {
       <fieldset>
         <legend className="visually-hidden">色谱</legend>
         <div className="spectrum-row" role="group" aria-label="色谱">
+          <button
+            type="button"
+            className={props.value.families.length === 0 ? "spectrum-chip is-on" : "spectrum-chip"}
+            aria-pressed={props.value.families.length === 0}
+            onClick={() => props.onChange({ ...props.value, families: [] })}
+          >
+            <span className="spectrum-dot" style={{ background: "#d4e4fa" }} />
+            <span>全色谱</span>
+          </button>
           {props.families.map((family) => (
             <button
               key={family}

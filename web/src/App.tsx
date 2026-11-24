@@ -32,32 +32,33 @@ function pageFromHash(hash: string): "plan" | "cost" | "stack" | "photo" | "spec
 }
 
 function CatalogHeader(): JSX.Element {
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const stackHref = stackEntryHref(window.location.hostname);
   return (
     <header className="topbar catalog-top">
       <div className="topbar-title">
-        <span className="brand-mark" aria-hidden="true" />
+        <span className="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <path fill="currentColor" d="M12 3a9 9 0 0 0-9 9c0 2.4.9 4.6 2.5 6.2L12 12V3zm0 0a9 9 0 0 1 9 9c0 2.1-.7 4-1.9 5.5L12 12V3zM4.6 16.8A9 9 0 0 0 12 21a9 9 0 0 0 6.7-3L12 12l-7.4 4.8z" />
+          </svg>
+        </span>
         <h1>耗材选色</h1>
       </div>
       <nav className="topbar-nav" aria-label="页面导航">
         <a href="/models" className="nav-link">画廊</a>
         <a href="/models/login" className="nav-link">登录</a>
+        <button type="button" aria-expanded={toolsOpen} onClick={() => setToolsOpen((open) => !open)}>工具</button>
       </nav>
+      <div className={toolsOpen ? "fp-tools is-open" : "fp-tools"}>
+        <a className="nav-link" href="#/photo" tabIndex={toolsOpen ? 0 : -1}>拍照找耗材</a>
+        <a className="nav-link" href="#/photo" tabIndex={toolsOpen ? 0 : -1}>开始找色</a>
+        <a className="nav-link" href="#/plan" tabIndex={toolsOpen ? 0 : -1}>图片配色</a>
+        <a className="nav-link" href="#/cost" tabIndex={toolsOpen ? 0 : -1}>打印成本</a>
+        <a className="nav-link" href={stackHref} tabIndex={toolsOpen ? 0 : -1}>叠色</a>
+        <a className="nav-link" href={stackHref} tabIndex={toolsOpen ? 0 : -1}>打开叠色</a>
+        <a className="nav-link" href="#/specs" tabIndex={toolsOpen ? 0 : -1}>规格索引</a>
+      </div>
     </header>
-  );
-}
-
-function CatalogTools(): JSX.Element {
-  const stackHref = stackEntryHref(window.location.hostname);
-  return (
-    <nav className="fp-tabbar" aria-label="工具">
-      <a className="nav-link" href="#/photo">拍照找耗材</a>
-      <a className="nav-link fp-alias" href="#/photo">开始找色</a>
-      <a className="nav-link" href="#/plan">图片配色</a>
-      <a className="nav-link" href="#/cost">打印成本</a>
-      <a className="nav-link" href={stackHref}>叠色</a>
-      <a className="nav-link fp-alias" href={stackHref}>打开叠色</a>
-      <a className="nav-link" href="#/specs">规格索引</a>
-    </nav>
   );
 }
 
@@ -80,6 +81,7 @@ function CatalogApp(): JSX.Element {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [compareMessage, setCompareMessage] = useState<string | null>(null);
+  const [brandOpen, setBrandOpen] = useState(false);
 
   useEffect(() => {
     const onHashChange = () => setRoute(routeFromHash());
@@ -199,18 +201,43 @@ function CatalogApp(): JSX.Element {
             onChange={setFilters}
           />
         </section>
-        <div className="catalog-main">
-          <SwatchGrid
-            entries={entries}
-            brands={catalog.brands}
-            compareIds={compareIds}
-            onSelect={setSelectedId}
-            onCompare={addCompare}
-            onUncompare={(id) => setCompareIds((current) => current.filter((item) => item !== id))}
-          />
+        <div className="catalog-body">
+          <div className="catalog-main">
+            <SwatchGrid
+              entries={entries}
+              brands={catalog.brands}
+              compareIds={compareIds}
+              onSelect={setSelectedId}
+              onCompare={addCompare}
+              onUncompare={(id) => setCompareIds((current) => current.filter((item) => item !== id))}
+            />
+          </div>
+          <aside className="catalog-rail" aria-label="色卡参数">
+            <h2>色卡</h2>
+            <p>共 {entries.length} 个颜色。点开一张色卡查看色值、渠道和相近色。</p>
+            <p>{compareIds.length > 0 ? `对比托盘 ${compareIds.length}/4` : "还没有加入对比。"}</p>
+          </aside>
         </div>
       </div>
-      <CatalogTools />
+      {brandOpen && (
+        <div className="brand-sheet" role="dialog" aria-label="品牌">
+          <div className="brand-sheet-head">
+            <h2>品牌</h2>
+            <button type="button" onClick={() => setBrandOpen(false)}>关闭</button>
+          </div>
+          <button type="button" onClick={() => { setFilters({ ...filters, brands: [] }); setBrandOpen(false); }}>全部品牌</button>
+          {catalog.brands.map((brand) => (
+            <button type="button" key={brand.slug} onClick={() => { setFilters({ ...filters, brands: [brand.slug] }); setBrandOpen(false); }}>
+              {brand.name}
+            </button>
+          ))}
+        </div>
+      )}
+      <nav className="fp-tabbar" aria-label="主导航">
+        <a href="#/" aria-current="page">色卡</a>
+        <button type="button" onClick={() => setBrandOpen(true)}>品牌</button>
+        <a href="#compare-tray">对比{compareIds.length > 0 ? ` ${compareIds.length}` : ""}</a>
+      </nav>
       {compareMessage && <p className="toast" role="status">{compareMessage}</p>}
       {compareEntries.length > 0 && (
         <CompareBar entries={compareEntries} onRemove={(id) => setCompareIds((current) => current.filter((item) => item !== id))} />

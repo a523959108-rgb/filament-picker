@@ -5,7 +5,7 @@ import type { WebEntry } from "../types";
 export function CompareBar(props: { entries: WebEntry[]; onRemove: (id: string) => void }): JSX.Element {
   const entries = props.entries.slice(0, 4);
   return (
-    <aside className="compare-bar compare-tray" aria-label="对比栏">
+    <aside className="compare-bar compare-tray" id="compare-tray" aria-label="对比栏">
       <h2>对比托盘 <span>{entries.length}/4</span></h2>
       <ul>
         {entries.map((entry) => (
