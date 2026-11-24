@@ -38,36 +38,67 @@ function disposeHierarchy(root: Object3D): void {
   });
 }
 
+const FRAME_LIMIT = 0.84;
+
+function boxCorners(box: Box3): Vector3[] {
+  const points: Vector3[] = [];
+  for (const x of [box.min.x, box.max.x]) {
+    for (const y of [box.min.y, box.max.y]) {
+      for (const z of [box.min.z, box.max.z]) points.push(new Vector3(x, y, z));
+    }
+  }
+  return points;
+}
+
+function projectedExtent(camera: PerspectiveCamera, points: Vector3[]): number {
+  camera.updateProjectionMatrix();
+  camera.updateMatrixWorld(true);
+  let extent = 0;
+  for (const point of points) {
+    const projected = point.clone().project(camera);
+    if (!Number.isFinite(projected.x) || !Number.isFinite(projected.y) || projected.z < -1 || projected.z > 1) {
+      return Number.POSITIVE_INFINITY;
+    }
+    extent = Math.max(extent, Math.abs(projected.x), Math.abs(projected.y));
+  }
+  return extent;
+}
+
 export function frame(camera: PerspectiveCamera, controls: OrbitControls, object: Object3D): void {
   const box = new Box3().setFromObject(object);
+  if (!box.min || !box.max || !Number.isFinite(box.min.x) || !Number.isFinite(box.max.x)) return;
   const center = box.getCenter(new Vector3());
-  const size = box.getSize(new Vector3());
+  const points = boxCorners(box);
   camera.up.set(0, 0, 1);
-  const aspect = Number.isFinite(camera.aspect) && camera.aspect > 0.2 ? camera.aspect : 1;
-  const vFov = (camera.fov * Math.PI) / 180;
-  const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
   const direction = new Vector3(0.65, -1, 0.45).normalize();
-  const right = new Vector3().crossVectors(direction, new Vector3(0, 0, 1));
-  if (right.lengthSq() < 1e-8) right.set(1, 0, 0);
-  right.normalize();
-  const up = new Vector3().crossVectors(right, direction).normalize();
-  const half = new Vector3(Math.max(size.x, 1e-3) / 2, Math.max(size.y, 1e-3) / 2, Math.max(size.z, 1e-3) / 2);
-  const projected = (axis: Vector3) =>
-    Math.abs(axis.x) * half.x + Math.abs(axis.y) * half.y + Math.abs(axis.z) * half.z;
-  const distance = Math.max(
-    projected(right) / Math.tan(hFov / 2),
-    projected(up) / Math.tan(vFov / 2),
-    1,
-  ) * 1.12;
-  camera.position.copy(center).add(direction.multiplyScalar(distance));
-  camera.near = Math.max(distance / 200, 0.01);
-  camera.far = Math.max(distance * 40, 100);
-  camera.updateProjectionMatrix();
-  camera.lookAt(center);
+  const radius = Math.max(box.getSize(new Vector3()).length() * 0.5, 1);
+  const place = (distance: number) => {
+    camera.position.copy(center).add(direction.clone().multiplyScalar(distance));
+    camera.near = Math.max(distance / 500, 0.01);
+    camera.far = Math.max(distance * 80, radius * 20);
+    camera.lookAt(center);
+  };
+  let low = radius * 0.2;
+  let high = radius * 40;
+  place(high);
+  if (projectedExtent(camera, points) > FRAME_LIMIT) return;
+  for (let step = 0; step < 24; step += 1) {
+    const mid = (low + high) / 2;
+    place(mid);
+    if (projectedExtent(camera, points) <= FRAME_LIMIT) high = mid;
+    else low = mid;
+  }
+  place(high);
   controls.target.copy(center);
-  controls.minDistance = distance * 0.35;
-  controls.maxDistance = distance * 6;
+  controls.minDistance = high * 0.25;
+  controls.maxDistance = high * 8;
   controls.update();
+  camera.updateMatrixWorld(true);
+  const after = projectedExtent(camera, points);
+  if (after > FRAME_LIMIT && Number.isFinite(after)) {
+    place(high * (after / FRAME_LIMIT) * 1.05);
+    controls.update();
+  }
 }
 
 export function MeshViewer({ url, label, controls = false }: {
@@ -122,12 +153,19 @@ export function MeshViewer({ url, label, controls = false }: {
     controls.listenToKeyEvents(host);
 
     const resize = () => {
-      const width = host.clientWidth || 640;
-      const height = host.clientHeight || 420;
-      camera.aspect = width / Math.max(height, 1);
+      const width = host.clientWidth;
+      const height = host.clientHeight;
+      if (width < 2 || height < 2) return;
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
-      if (rootRef.current) frame(camera, controls, rootRef.current);
+      if (rootRef.current) {
+        frame(camera, controls, rootRef.current);
+        homeRef.current = {
+          x: camera.position.x, y: camera.position.y, z: camera.position.z,
+          tx: controls.target.x, ty: controls.target.y, tz: controls.target.z,
+        };
+      }
     };
     resize();
     const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(resize);
@@ -215,12 +253,15 @@ export function MeshViewer({ url, label, controls = false }: {
       {state === "ready" && controls && (
         <div className="model-mesh-tools" role="group" aria-label="网格">
           <button type="button" onClick={() => {
-            const home = homeRef.current;
             const camera = cameraRef.current;
-            if (!home || !camera) return;
-            camera.position.set(home.x, home.y, home.z);
-            controlsRef.current?.target.set(home.tx, home.ty, home.tz);
-            controlsRef.current?.update();
+            const orbit = controlsRef.current;
+            const root = rootRef.current;
+            if (!camera || !orbit || !root) return;
+            frame(camera, orbit, root);
+            homeRef.current = {
+              x: camera.position.x, y: camera.position.y, z: camera.position.z,
+              tx: orbit.target.x, ty: orbit.target.y, tz: orbit.target.z,
+            };
           }}>归位</button>
           <button type="button" aria-pressed={wire} onClick={() => {
             const next = !wire;

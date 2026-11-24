@@ -1,30 +1,63 @@
 /** @vitest-environment jsdom */
 import { describe, expect, it } from "vitest";
-import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Group } from "three";
+import { Box3, BoxGeometry, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, Vector3 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { frame } from "../components/MeshViewer";
 
-describe("derived mesh framing", () => {
-  it("fills a wide canvas with a flat z-up pair instead of a few pixels", () => {
-    const group = new Group();
-    for (const x of [125, 148]) {
-      const bead = new Mesh(new BoxGeometry(3.7, 3.7, 2.2), new MeshBasicMaterial());
-      bead.position.set(x, 163, 1);
-      group.add(bead);
+const ASPECTS = [745 / 423, 265 / 240, 713 / 420, 335 / 265, 1063 / 423];
+
+function corners(object: Group | Mesh): Vector3[] {
+  object.updateMatrixWorld(true);
+  const box = new Box3().setFromObject(object);
+  const points: Vector3[] = [];
+  for (const x of [box.min.x, box.max.x]) {
+    for (const y of [box.min.y, box.max.y]) {
+      for (const z of [box.min.z, box.max.z]) points.push(new Vector3(x, y, z));
     }
-    group.updateMatrixWorld(true);
-    const camera = new PerspectiveCamera(40, 700 / 480, 0.1, 1000);
-    const controls = new OrbitControls(camera, document.createElement("canvas"));
-    frame(camera, controls, group);
-    const projected = group.children.map((child) => {
-      const point = child.position.clone().project(camera);
-      return { x: point.x, y: point.y };
-    });
-    const spanX = Math.abs(projected[0].x - projected[1].x);
-    const midY = (projected[0].y + projected[1].y) / 2;
-    expect(spanX).toBeGreaterThan(0.35);
-    expect(Math.abs(midY)).toBeLessThan(0.45);
-    expect(projected.every((point) => Math.abs(point.x) < 1 && Math.abs(point.y) < 1)).toBe(true);
-    controls.dispose();
+  }
+  return points;
+}
+
+function extent(camera: PerspectiveCamera, points: Vector3[]): number {
+  camera.updateMatrixWorld(true);
+  let max = 0;
+  for (const point of points) {
+    const projected = point.clone().project(camera);
+    max = Math.max(max, Math.abs(projected.x), Math.abs(projected.y));
+    expect(projected.z).toBeGreaterThanOrEqual(-1);
+    expect(projected.z).toBeLessThanOrEqual(1);
+  }
+  return max;
+}
+
+function view(object: Group | Mesh, aspect: number): number {
+  const camera = new PerspectiveCamera(40, aspect, 0.1, 5000);
+  camera.up.set(0, 0, 1);
+  const controls = new OrbitControls(camera, document.createElement("canvas"));
+  frame(camera, controls, object);
+  controls.update();
+  const max = extent(camera, corners(object));
+  controls.dispose();
+  return max;
+}
+
+describe("derived mesh framing", () => {
+  const eye = new Group();
+  for (const [x, y] of [[147.6, 162.1], [124.7, 164.6]] as const) {
+    const bead = new Mesh(new BoxGeometry(3.7, 3.7, 2.4), new MeshBasicMaterial());
+    bead.position.set(x, y, 1);
+    eye.add(bead);
+  }
+  const dryer = new Mesh(new BoxGeometry(210, 220, 51), new MeshBasicMaterial());
+  dryer.position.set(131, 140, 25.5);
+  const base = new Mesh(new BoxGeometry(150, 150, 18), new MeshBasicMaterial());
+  base.position.set(128, 128, 9);
+
+  it.each(ASPECTS)("keeps the eye, base, and dryer corners inside aspect %s", (aspect) => {
+    for (const object of [eye, dryer, base]) {
+      const max = view(object, aspect);
+      expect(max).toBeLessThanOrEqual(0.9);
+      expect(max).toBeGreaterThan(0.5);
+    }
   });
 });

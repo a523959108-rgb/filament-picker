@@ -25,6 +25,7 @@ declare module "three" {
     multiplyScalar(s: number): this;
     fromBufferAttribute(attribute: BufferAttribute, index: number): this;
     crossVectors(a: Vector3, b: Vector3): this;
+    length(): number;
     lengthSq(): number;
     clone(): Vector3;
     project(camera: PerspectiveCamera): this;
