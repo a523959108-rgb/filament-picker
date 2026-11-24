@@ -150,7 +150,7 @@ function CatalogApp(): JSX.Element {
     setCompareIds([...compareIds, id]);
   };
   return (
-    <main className="page catalog-page">
+    <main className={compareEntries.length > 0 ? "page catalog-page has-compare" : "page catalog-page"}>
       <CatalogHeader />
       <div className="catalog-layout">
         <section className="catalog-controls">
@@ -208,9 +208,18 @@ function CatalogApp(): JSX.Element {
         </div>
       )}
       <nav className="fp-tabbar" aria-label="主导航">
-        <a href="#/" aria-current="page">色卡</a>
-        <button type="button" onClick={() => setBrandOpen(true)}>品牌</button>
-        <a href="#compare-tray">对比{compareIds.length > 0 ? ` ${compareIds.length}` : ""}</a>
+        <a href="#/" aria-current={brandOpen ? undefined : "page"}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z" /></svg>
+          色卡
+        </a>
+        <button type="button" aria-pressed={brandOpen} className={filters.brands.length > 0 ? "is-on" : undefined} onClick={() => setBrandOpen(true)}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 6h16v2H4V6zm2 5h12v2H6v-2zm3 5h6v2H9v-2z" /></svg>
+          品牌
+        </button>
+        <a href="#compare-tray" className={compareIds.length > 0 ? "is-on" : undefined}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 4h4v16H7V4zm6 4h4v12h-4V8z" /></svg>
+          对比{compareIds.length > 0 ? ` ${compareIds.length}` : ""}
+        </a>
       </nav>
       {compareMessage && <p className="toast" role="status">{compareMessage}</p>}
       {compareEntries.length > 0 && (

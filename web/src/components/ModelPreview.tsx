@@ -922,9 +922,9 @@ function canDownload(model: Model): OriginalFile | null {
 function revealInPicker(target: HTMLElement): void {
   const scroller = target.closest(".model-plate-picker");
   if (!(scroller instanceof HTMLElement)) return;
-  const top = target.offsetTop - scroller.offsetTop;
+  const top = target.offsetParent === scroller ? target.offsetTop : target.offsetTop - scroller.offsetTop;
   const bottom = top + target.offsetHeight;
-  if (top < scroller.scrollTop) scroller.scrollTop = top;
+  if (top < scroller.scrollTop) scroller.scrollTop = Math.max(0, top);
   else if (bottom > scroller.scrollTop + scroller.clientHeight) {
     scroller.scrollTop = bottom - scroller.clientHeight;
   }

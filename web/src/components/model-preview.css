@@ -158,12 +158,7 @@
   position: absolute; right: 10px; top: 10px; padding: 2px 8px; border-radius: 8px;
   background: rgba(5, 20, 36, 0.85); font-size: 11px;
 }
-.site-header {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; min-height: 56px; margin: 0 0 8px;
-  position: relative;
-}
-.site-nav { flex: 1 1 auto; overflow-x: auto; }
-.site-actions { flex: 0 0 auto; }
+.model-preview .site-header { flex-wrap: nowrap; height: 56px; max-height: 56px; overflow: hidden; }
 .site-brand { display: flex; align-items: center; gap: 8px; color: #e8f1fb; text-decoration: none; font-weight: 650; white-space: nowrap; }
 .site-brand svg { color: #8ed5ff; }
 .site-nav, .site-actions { display: flex; align-items: center; gap: 6px; min-width: 0; }
