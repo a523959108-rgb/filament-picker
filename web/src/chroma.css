@@ -34,7 +34,9 @@ body { background: var(--bg); color: var(--text); }
 }
 .spectrum-chip.is-on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
 
-.model-library { display: grid; gap: 8px; min-width: 0; }
+.model-library { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(240px, 0.8fr); gap: 16px; min-width: 0; align-items: start; }
+.tool-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.home-cta-row { display: none; }
 .model-library-actions, .model-scheme, .model-compare { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
 .model-scheme label, .model-compare article, .model-compare p, .model-library p {
   min-width: 0;
@@ -56,6 +58,13 @@ body { background: var(--bg); color: var(--text); }
 
 @media (max-width: 800px) {
   .nav-link, .topbar button, .model-preview button, .spectrum-chip { min-height: 44px; }
-  .page { padding: 12px 12px 72px; }
-  .model-library-actions { display: grid; }
+  .page { padding: 12px 12px 72px; max-width: 100%; min-width: 0; overflow-x: hidden; }
+  .topbar, .topbar-nav, .catalog-layout, .sidebar { min-width: 0; max-width: 100%; }
+  .topbar { align-items: stretch; width: 100%; }
+  .topbar-sub { display: none; }
+  .topbar-nav { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; width: 100%; }
+  .nav-link { flex: none; white-space: nowrap; }
+  .model-library, .model-library-actions { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .model-preview .topbar { flex-wrap: wrap; }
+  .model-pagination, .model-filters { flex-wrap: wrap; }
 }

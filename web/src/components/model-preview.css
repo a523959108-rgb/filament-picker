@@ -40,7 +40,9 @@
 .model-preview.is-detail .topbar { margin-bottom: 8px; padding-bottom: 8px; }
 .model-preview.is-detail .topbar h1 { font-size: 1.15rem; }
 .model-preview.is-detail .model-banner { margin-bottom: 8px; padding: 6px 12px; }
-.model-screen { min-height: 0; overflow: hidden; flex: 1; display: grid; grid-template-columns: minmax(340px, 1.05fr) minmax(420px, 0.95fr); grid-template-rows: auto minmax(0, 1fr); gap: 8px 16px; padding: 12px; }
+.model-screen { min-height: 0; overflow: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; padding: 12px; }
+.model-stage { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.9fr); gap: 16px; min-height: 480px; align-items: stretch; }
+.model-ops { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr); gap: 16px; align-items: start; }
 .model-head { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(6.5rem, 22rem); grid-template-areas: "title download" "meta download" "desc desc"; column-gap: 16px; row-gap: 2px; align-items: center; min-width: 0; }
 .model-head h2 { grid-area: title; font-size: 1.35rem; line-height: 1.25; min-width: 0; overflow-wrap: anywhere; }
 .model-meta { grid-area: meta; display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; color: var(--text-2); font-size: 0.92rem; min-width: 0; }
@@ -52,9 +54,9 @@
   border: 1px dashed var(--text-3); cursor: not-allowed;
 }
 .model-download-status { margin: 0; min-width: 0; max-width: 100%; color: var(--text-2); font-size: 0.75rem; line-height: 1.3; text-align: right; overflow-wrap: anywhere; }
-.model-hero-pane { min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 6px; }
-.model-hero { min-height: 0; flex: 1; margin: 0; display: flex; flex-direction: column; }
-.model-hero img { width: 100%; height: 100%; min-height: 0; object-fit: contain; background: var(--surface-2); border-radius: var(--radius-sm); }
+.model-hero-pane { min-width: 0; min-height: 420px; overflow: hidden; display: flex; flex-direction: column; gap: 6px; }
+.model-hero { min-height: 420px; flex: 1; margin: 0; display: flex; flex-direction: column; }
+.model-hero img { width: 100%; height: 100%; min-height: 420px; object-fit: contain; background: var(--surface-2); border-radius: var(--radius-sm); }
 .model-hero-empty { color: var(--text-2); }
 .model-work { min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 6px; }
 .model-plate-tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -92,7 +94,7 @@
 }
 .model-preview.is-detail.is-desc-open { height: auto; min-height: 100dvh; overflow: visible; }
 .model-preview.is-detail.is-desc-open .model-screen {
-  flex: none; height: auto; overflow: visible; grid-template-rows: auto auto;
+  flex: none; height: auto; overflow: visible;
 }
 .model-preview.is-detail.is-desc-open .model-hero-pane {
   height: var(--hero-h); min-height: var(--hero-h); flex: none;
@@ -169,14 +171,16 @@
   .model-plate-tools { flex-direction: column; align-items: flex-start; }
   .model-download-block, .model-download-status { justify-items: start; justify-self: stretch; text-align: left; max-width: 100%; }
   .model-preview.is-detail { height: auto; overflow: visible; display: block; }
-  .model-preview.is-detail .model-screen { display: flex; flex-direction: column; height: auto; overflow: visible; }
-  .model-preview.is-detail .model-hero img { width: 100%; height: auto; max-height: 280px; }
+  .model-preview.is-detail .model-screen { height: auto; overflow: visible; }
+  .model-stage, .model-ops { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+  .model-hero-pane, .model-hero, .model-hero img { min-height: 240px; height: 38vh; }
+  .model-preview.is-detail .model-hero img { width: 100%; max-height: none; }
   .model-preview.is-detail .model-plate-picker { max-height: 200px; }
   .model-preview.is-detail .model-tab-panel { max-height: 240px; flex: none; }
   .model-preview.is-detail .model-head { grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "download" "meta" "desc"; }
   .model-preview .model-plate-card { width: 104px; height: 104px; min-height: 44px; grid-template-rows: 58px 16px 16px; }
   .model-summary { grid-template-columns: minmax(0, 1fr); }
   .model-preview .topbar { flex-wrap: wrap; }
-  .model-filters label { width: 100%; }
+  .model-filters label { flex: 1 1 140px; width: auto; min-width: 0; }
   .model-preview .model-view-toggle button, .model-preview .model-tab, .model-preview .model-download { min-height: 44px; }
 }

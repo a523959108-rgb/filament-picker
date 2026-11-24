@@ -411,7 +411,7 @@ describe("model preview", () => {
 
   it("downloads a stored original and leaves the color-only API disabled", async () => {
     const bytes = new Uint8Array([1, 2, 3, 4]);
-    const fetcher = vi.fn(async (url: string) => {
+    const fetcher = vi.fn(async (url: string, init?: { credentials?: string }) => {
       if (String(url).endsWith("/original")) {
         return {
           ok: true,
@@ -445,7 +445,7 @@ describe("model preview", () => {
     fireEvent.click(button);
     await waitFor(() => expect(fetcher.mock.calls.some((call) => call[0] === "/api/models/sample-01/original")).toBe(true));
     const downloadCall = fetcher.mock.calls.find((call) => call[0] === "/api/models/sample-01/original");
-    expect(downloadCall?.[1].credentials).toBe("same-origin");
+    expect(downloadCall?.[1]?.credentials).toBe("same-origin");
   });
 
   it("says plate mapping is unknown when the record has no layout", async () => {
@@ -476,14 +476,14 @@ describe("model preview", () => {
     const detail = render(<ModelPreview path="/models/sample-01" />);
     await detail.findByRole("heading", { name: model.title });
     expect(detail.getByRole("link", { name: "返回画廊" }).getAttribute("href")).toBe(stored);
-    expect(detail.getByRole("link", { name: "模型画廊" }).getAttribute("href")).toBe(stored);
+    expect(detail.queryByRole("link", { name: "模型画廊" })).toBeNull();
     expect(stored).toContain("page=2");
     detail.unmount();
     sessionStorage.clear();
     const direct = render(<ModelPreview path="/models/sample-01" />);
     await direct.findByRole("heading", { name: model.title });
     expect(direct.getByRole("link", { name: "返回画廊" }).getAttribute("href")).toBe("/models");
-    expect(direct.getByRole("link", { name: "模型画廊" }).getAttribute("href")).toBe("/models");
+    expect(direct.queryByRole("link", { name: "模型画廊" })).toBeNull();
   });
 
   it("redirects expired sessions and logs out", async () => {

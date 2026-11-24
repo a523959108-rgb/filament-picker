@@ -51,40 +51,6 @@ function CatalogHeader(): JSX.Element {
   );
 }
 
-function PhotoHomeCta(): JSX.Element {
-  return (
-    <section className="stack-home-cta panel" aria-label="拍照找耗材入口">
-      <div className="stack-home-cta-copy">
-        <h2>拍照找耗材</h2>
-        <p>上传实物或模型照片，提取主色，匹配最接近的可买耗材。照片不上传。</p>
-      </div>
-      <a className="stack-home-cta-btn" href="#/photo">
-        开始找色
-      </a>
-    </section>
-  );
-}
-
-function StackHomeCta(): JSX.Element {
-  const href = stackEntryHref(window.location.hostname);
-  const external = href.startsWith("http");
-  return (
-    <section className="stack-home-cta panel" aria-label="叠色入口">
-      <div className="stack-home-cta-copy">
-        <h2>四色叠色</h2>
-        <p>上传图片，本机引擎生成叠色模型，并用色卡库推荐可买颜色。</p>
-      </div>
-      <a
-        className="stack-home-cta-btn"
-        href={href}
-        {...(external ? { rel: "noopener noreferrer" } : {})}
-      >
-        打开叠色
-      </a>
-    </section>
-  );
-}
-
 export default function App(): JSX.Element {
   if (window.location.pathname === "/models" || window.location.pathname.startsWith("/models/")) {
     return <ModelPreview />;
@@ -200,10 +166,6 @@ function CatalogApp(): JSX.Element {
   return (
     <main className="page">
       <CatalogHeader />
-      <div className="home-cta-row">
-        <PhotoHomeCta />
-        <StackHomeCta />
-      </div>
       <div className="catalog-layout">
         <aside className="sidebar">
           <label className="search">
@@ -229,6 +191,10 @@ function CatalogApp(): JSX.Element {
         </aside>
         <div className="catalog-main">
           <SwatchGrid entries={entries} brands={catalog.brands} onSelect={setSelectedId} />
+          <section className="tool-strip" aria-label="其他工具">
+            <a className="nav-link" href="#/photo">开始找色</a>
+            <a className="nav-link" href={stackEntryHref(window.location.hostname)}>打开叠色</a>
+          </section>
         </div>
       </div>
       {compareMessage && <p className="toast" role="status">{compareMessage}</p>}

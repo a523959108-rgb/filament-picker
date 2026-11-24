@@ -411,22 +411,24 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
           </div>
         ) : null}
       </header>
-      <div className="model-hero-pane">
-        {covers.length > 0 ? covers.map((shot) => (
-          <figure className="model-hero" key={shot.url}>
-            <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
-            <figcaption><span>{shotCaption(shot.kind, shot.plate)}</span></figcaption>
-          </figure>
-        )) : mesh ? null : <p className="model-hero-empty">没有封面</p>}
-        {mesh ? (
-          <Suspense fallback={<p role="status">三维预览加载中…</p>}>
-            <MeshViewer url={mesh} label={model.title} />
-          </Suspense>
-        ) : null}
+      <div className="model-stage">
+        <div className="model-hero-pane">
+          {covers.length > 0 ? covers.map((shot) => (
+            <figure className="model-hero" key={shot.url}>
+              <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
+              <figcaption><span>{shotCaption(shot.kind, shot.plate)}</span></figcaption>
+            </figure>
+          )) : mesh ? null : <p className="model-hero-empty">没有封面</p>}
+          {mesh ? (
+            <Suspense fallback={<p role="status">三维预览加载中…</p>}>
+              <MeshViewer url={mesh} label={model.title} />
+            </Suspense>
+          ) : null}
+        </div>
+        <PlateBoard cards={cards} model={model} active={open} shotKind={shotKind}
+          onSelect={selectPlate} onShotKind={setShotKind} />
       </div>
-      <PlateBoard cards={cards} model={model} active={open} shotKind={shotKind}
-        onSelect={selectPlate} onShotKind={setShotKind}
-        tools={<ModelTools model={model} />} />
+      <ModelTools model={model} />
     </article>
   );
 }
@@ -537,6 +539,7 @@ function ModelTools({ model }: { model: Model }): JSX.Element {
 
   return (
     <section className="model-library">
+      <div className="model-scheme-column">
       <div className="model-library-actions">
         <button type="button" onClick={() => { void toggleFavorite(); }}>{favorite ? "已收藏" : "收藏"}</button>
         <button type="button" onClick={addCompare}>加入模型对比</button>
@@ -575,6 +578,8 @@ function ModelTools({ model }: { model: Model }): JSX.Element {
           <button type="button" onClick={() => { void saveScheme(); }}>保存展示色</button>
         </div>
       ) : null}
+      </div>
+      <div className="model-compare-column">
       {compared.length > 1 && (
         <div className="model-compare">
           <p>颜色差按色值计算，不是实测。不同模型的相同槽号不能当成同一个零件。</p>
@@ -592,6 +597,7 @@ function ModelTools({ model }: { model: Model }): JSX.Element {
         </div>
       )}
       {message && <p role="status">{message}</p>}
+      </div>
     </section>
   );
 }
@@ -1026,14 +1032,11 @@ export function ModelPreview({ path = window.location.pathname, navigate = goTo 
   return (
     <main className={detailView ? "page model-preview is-detail" : "page model-preview"}>
       <header className="topbar">
-        <h1>模型预览</h1>
+        <h1>{login ? "登录" : detailView ? "模型详情" : "模型画廊"}</h1>
         <nav className="topbar-nav" aria-label="页面导航">
           <a className="nav-link" href="/">耗材选色</a>
-          {!login && <>
-            {detailView && <a className="nav-link model-back" href={galleryHref}>返回画廊</a>}
-            <a className="nav-link" href={galleryHref}>模型画廊</a>
-            <button onClick={logout}>退出登录</button>
-          </>}
+          {detailView && <a className="nav-link model-back" href={galleryHref}>返回画廊</a>}
+          {!login && <button onClick={logout}>退出登录</button>}
         </nav>
       </header>
       <p className="model-banner" role="note">仅私人收藏预览、禁止外传</p>
