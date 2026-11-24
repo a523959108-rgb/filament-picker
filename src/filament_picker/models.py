@@ -208,6 +208,36 @@ def _public_images(row: sqlite3.Row) -> list[dict[str, Any]]:
     return images
 
 
+def _with_card_preview(root: Path, item: dict[str, Any]) -> dict[str, Any]:
+    """Tell the gallery whether the card image is a cover, a derived stand-in, or a fixture."""
+    model_id = str(item["id"])
+    cover = item.get("cover_url")
+    if isinstance(cover, str) and cover:
+        item["preview_url"] = cover
+        item["preview_kind"] = "cover"
+        return item
+    index = derived_index(root, model_id)
+    ready = index is not None and index.get("status") == "ready"
+    quoted = quote(model_id, safe="")
+    if ready and index is not None:
+        name = "front.png"
+        if index.get("scope") == "plate":
+            plates = [
+                plate
+                for plate in (index.get("plates") or [])
+                if isinstance(plate, dict) and isinstance(plate.get("index"), int)
+            ]
+            if plates:
+                name = f"front-{plates[0]['index']}.png"
+        if derived_file(root, model_id, name) is not None:
+            item["preview_url"] = f"/api/models/{quoted}/derived/{name}"
+            item["preview_kind"] = "derived"
+            return item
+    item["preview_url"] = item["thumb_url"]
+    item["preview_kind"] = "fixture" if model_id.startswith("sample-") else "thumb"
+    return item
+
+
 def _cover_url(row: sqlite3.Row) -> str | None:
     for image in _public_images(row):
         if image["kind"] == "cover":
@@ -313,7 +343,7 @@ class ModelPreview:
                 "LIMIT ? OFFSET ?",
                 [*params, page_size, (page - 1) * page_size],
             )
-            result["items"] = [_public_model(row) for row in rows]
+            result["items"] = [_with_card_preview(self.root, _public_model(row)) for row in rows]
             for column, key in (("series", "series"), ("author", "authors")):
                 result[key] = [
                     row[0]

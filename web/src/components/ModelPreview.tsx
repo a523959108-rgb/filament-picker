@@ -82,6 +82,8 @@ interface Model {
   colours: string[];
   thumb_url: string;
   cover_url?: string | null;
+  preview_url?: string | null;
+  preview_kind?: "cover" | "derived" | "thumb" | "fixture";
   created_at: string;
   description?: string;
   images?: ModelImage[];
@@ -415,9 +417,10 @@ function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: stri
             <article className="model-card gallery-card" key={model.id}>
               <a className="gallery-card-link" href={`/models/${encodeURIComponent(model.id)}`} aria-labelledby={`model-title-${model.id}`}>
                 <span className="model-card-media">
-                  <img src={model.cover_url || model.thumb_url} alt={model.title} loading="lazy" />
+                  <img src={model.preview_url || model.cover_url || model.thumb_url} alt={model.title} loading="lazy" />
                   {model.series ? <span className="model-card-badge">{model.series}</span> : null}
-                  {model.id.startsWith("sample-") ? <span className="gallery-fixture">夹具图</span> : null}
+                  {model.preview_kind === "derived" ? <span className="gallery-fixture">派生缩略图</span> : null}
+                  {model.preview_kind === "fixture" || (model.preview_kind == null && model.id.startsWith("sample-")) ? <span className="gallery-fixture">夹具图</span> : null}
                 </span>
                 <span className="gallery-card-copy">
                   <h2 id={`model-title-${model.id}`}>{model.title}</h2>
@@ -556,23 +559,25 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
                 <img src={shot.url} alt={shotLabel(model.title, shot.kind, shot.plate)} />
                 <figcaption><span>{shotCaption(shot.kind, shot.plate)}</span></figcaption>
               </figure>
-            )) : mesh ? null : <p className="model-hero-empty">没有封面</p>}
+            )            ) : mesh ? (
+              <p className="model-hero-empty">没有原始封面。主图是由原件网格派生的预览，不是封面照片。</p>
+            ) : <p className="model-hero-empty">没有封面</p>}
             {mesh ? (
               <Suspense fallback={<p role="status">三维预览加载中…</p>}>
                 <MeshViewer url={mesh} label={model.title} controls={model.mesh_derived === true} />
               </Suspense>
             ) : null}
           </div>
+          <section className="model-download-panel" aria-label="原厂切片">
+            <h3>原厂切片</h3>
+            <DownloadControl model={model} navigate={navigate} />
+          </section>
         </div>
         <div className="model-rail">
           <PlateBoard cards={cards} model={model} active={open} shotKind={shotKind}
             onSelect={selectPlate} onShotKind={setShotKind}
             onDerive={() => setRevision((current) => current + 1)} />
           <ModelTools model={model} />
-          <section className="model-download-panel" aria-label="原厂切片">
-            <h3>原厂切片</h3>
-            <DownloadControl model={model} navigate={navigate} />
-          </section>
         </div>
       </div>
     </article>
@@ -792,7 +797,8 @@ function ModelTools({ model }: { model: Model }): JSX.Element {
         <button type="button" onClick={addCompare}>加入模型对比</button>
         <button type="button" onClick={() => { void copyAddress(); }}>复制站内地址</button>
       </div>
-      <div className="model-share">
+      <details className="model-share">
+        <summary>分享这个模型</summary>
         <p>分享链接默认不包含原件和配色副本。勾选后才会单独放开。</p>
         <label>有效期
           <select value={shareDays} onChange={(event) => setShareDays(Number(event.target.value))}>
@@ -813,7 +819,7 @@ function ModelTools({ model }: { model: Model }): JSX.Element {
             <button type="button" onClick={() => { void revokeShare(item.grant_id); }}>撤销</button>
           </p>
         ))}
-      </div>
+      </details>
       <p className="model-plate-note">{note}</p>
       <button type="button" aria-expanded={schemeOpen} onClick={() => setSchemeOpen((current) => !current)}>
         {schemeOpen ? "收起展示色" : "槽位展示色"}

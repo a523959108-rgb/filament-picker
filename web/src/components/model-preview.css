@@ -115,12 +115,19 @@
 .model-mesh { margin: 12px 0 0; }
 .model-preview.is-detail .model-mesh-stage {
   width: 100%;
-  height: 96px;
+  height: clamp(420px, 52vh, 640px);
   flex: none;
-  background: var(--surface-2);
+  background: #122131;
   border-radius: var(--radius-sm);
   overflow: hidden;
   touch-action: none;
+}
+.model-preview.is-detail .model-library { display: flex; flex-direction: column; gap: 12px; }
+.model-share { display: grid; gap: 8px; }
+.model-share summary { cursor: pointer; min-height: 36px; color: #8ed5ff; }
+.model-preview .model-share label { display: flex; align-items: center; gap: 8px; min-height: 36px; cursor: pointer; }
+.model-preview .model-share input[type="checkbox"] {
+  width: 18px; height: 18px; margin: 0; padding: 0; flex: none; accent-color: #38bdf8;
 }
 .model-mesh-stage:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .model-mesh-canvas { display: block; width: 100%; height: 100%; touch-action: none; }
@@ -251,7 +258,7 @@
   .model-stage, .model-ops { min-height: 0; }
   .model-hero-pane, .model-hero, .model-hero img { min-height: 0; height: auto; max-height: 280px; }
   .model-hero img { aspect-ratio: 4 / 3; object-fit: cover; }
-  .model-preview.is-detail .model-mesh-stage { height: 120px; }
+  .model-preview.is-detail .model-mesh-stage { height: clamp(240px, 68vw, 420px); }
   .model-preview.is-detail .model-hero img { width: 100%; max-height: none; }
   .model-preview.is-detail .model-plate-picker { max-height: 280px; }
   .model-preview.is-detail .model-tab-panel { max-height: 240px; flex: none; }

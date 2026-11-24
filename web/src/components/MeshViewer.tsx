@@ -38,23 +38,35 @@ function disposeHierarchy(root: Object3D): void {
   });
 }
 
-function frame(camera: PerspectiveCamera, controls: OrbitControls, object: Object3D): void {
+export function frame(camera: PerspectiveCamera, controls: OrbitControls, object: Object3D): void {
   const box = new Box3().setFromObject(object);
   const center = box.getCenter(new Vector3());
   const size = box.getSize(new Vector3());
-  const span = Math.max(size.x, size.y, size.z);
-  const radius = (Number.isFinite(span) && span > 0 ? span : 1) * 0.5;
-  const fov = (camera.fov * Math.PI) / 180;
-  const distance = (radius / Math.sin(fov / 2)) * 1.35;
-  const offset = new Vector3().set(0.75, 0.55, 1).normalize().multiplyScalar(distance);
-  camera.position.copy(center).add(offset);
-  camera.near = Math.max(distance / 200, 0.001);
-  camera.far = Math.max(distance * 200, 10);
+  camera.up.set(0, 0, 1);
+  const aspect = Number.isFinite(camera.aspect) && camera.aspect > 0.2 ? camera.aspect : 1;
+  const vFov = (camera.fov * Math.PI) / 180;
+  const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
+  const direction = new Vector3(0.65, -1, 0.45).normalize();
+  const right = new Vector3().crossVectors(direction, new Vector3(0, 0, 1));
+  if (right.lengthSq() < 1e-8) right.set(1, 0, 0);
+  right.normalize();
+  const up = new Vector3().crossVectors(right, direction).normalize();
+  const half = new Vector3(Math.max(size.x, 1e-3) / 2, Math.max(size.y, 1e-3) / 2, Math.max(size.z, 1e-3) / 2);
+  const projected = (axis: Vector3) =>
+    Math.abs(axis.x) * half.x + Math.abs(axis.y) * half.y + Math.abs(axis.z) * half.z;
+  const distance = Math.max(
+    projected(right) / Math.tan(hFov / 2),
+    projected(up) / Math.tan(vFov / 2),
+    1,
+  ) * 1.12;
+  camera.position.copy(center).add(direction.multiplyScalar(distance));
+  camera.near = Math.max(distance / 200, 0.01);
+  camera.far = Math.max(distance * 40, 100);
   camera.updateProjectionMatrix();
   camera.lookAt(center);
   controls.target.copy(center);
-  controls.minDistance = distance * 0.25;
-  controls.maxDistance = distance * 8;
+  controls.minDistance = distance * 0.35;
+  controls.maxDistance = distance * 6;
   controls.update();
 }
 
@@ -65,7 +77,7 @@ export function MeshViewer({ url, label, controls = false }: {
   const cameraRef = useRef<PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
   const rootRef = useRef<Object3D | null>(null);
-  const homeRef = useRef<{ x: number; y: number; z: number } | null>(null);
+  const homeRef = useRef<{ x: number; y: number; z: number; tx: number; ty: number; tz: number } | null>(null);
   const [state, setState] = useState<MeshState>("loading");
   const [wire, setWire] = useState(false);
   const [clip, setClip] = useState(false);
@@ -75,7 +87,7 @@ export function MeshViewer({ url, label, controls = false }: {
     if (host === null) return;
     let renderer: WebGLRenderer;
     try {
-      renderer = new WebGLRenderer({ antialias: true, alpha: true });
+      renderer = new WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
     } catch {
       setState("error");
       return;
@@ -84,6 +96,7 @@ export function MeshViewer({ url, label, controls = false }: {
     let stopped = false;
     const scene = new Scene();
     const camera = new PerspectiveCamera(40, 1, 0.01, 100);
+    camera.up.set(0, 0, 1);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.outputColorSpace = SRGBColorSpace;
     renderer.toneMapping = ACESFilmicToneMapping;
@@ -109,11 +122,12 @@ export function MeshViewer({ url, label, controls = false }: {
     controls.listenToKeyEvents(host);
 
     const resize = () => {
-      const width = host.clientWidth || 320;
-      const height = host.clientHeight || 240;
-      camera.aspect = width / height;
+      const width = host.clientWidth || 640;
+      const height = host.clientHeight || 420;
+      camera.aspect = width / Math.max(height, 1);
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
+      if (rootRef.current) frame(camera, controls, rootRef.current);
     };
     resize();
     const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(resize);
@@ -155,8 +169,12 @@ export function MeshViewer({ url, label, controls = false }: {
         }
         scene.add(gltf.scene);
         rootRef.current = gltf.scene;
+        resize();
         frame(camera, controls, gltf.scene);
-        homeRef.current = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        homeRef.current = {
+          x: camera.position.x, y: camera.position.y, z: camera.position.z,
+          tx: controls.target.x, ty: controls.target.y, tz: controls.target.z,
+        };
         setState("ready");
       },
       undefined,
@@ -201,7 +219,7 @@ export function MeshViewer({ url, label, controls = false }: {
             const camera = cameraRef.current;
             if (!home || !camera) return;
             camera.position.set(home.x, home.y, home.z);
-            controlsRef.current?.target.set(0, 0, 0);
+            controlsRef.current?.target.set(home.tx, home.ty, home.tz);
             controlsRef.current?.update();
           }}>归位</button>
           <button type="button" aria-pressed={wire} onClick={() => {
