@@ -32,22 +32,32 @@ function pageFromHash(hash: string): "plan" | "cost" | "stack" | "photo" | "spec
 }
 
 function CatalogHeader(): JSX.Element {
-  const stackHref = stackEntryHref(window.location.hostname);
   return (
-    <header className="topbar">
+    <header className="topbar catalog-top">
       <div className="topbar-title">
-        <h1>耗材选色站</h1>
-        <p className="topbar-sub">按品牌、材料与色系浏览 3D 打印耗材颜色</p>
+        <span className="brand-mark" aria-hidden="true" />
+        <h1>耗材选色</h1>
       </div>
       <nav className="topbar-nav" aria-label="页面导航">
-        <a href="#/photo" className="nav-link">拍照找耗材</a>
-        <a href="#/plan" className="nav-link">图片配色</a>
-        <a href="#/cost" className="nav-link">打印成本</a>
-        <a href={stackHref} className="nav-link">叠色</a>
-        <a href="#/specs" className="nav-link">规格索引</a>
-        <a href="/models/login" className="nav-link">模型画廊</a>
+        <a href="/models" className="nav-link">画廊</a>
+        <a href="/models/login" className="nav-link">登录</a>
       </nav>
     </header>
+  );
+}
+
+function CatalogTools(): JSX.Element {
+  const stackHref = stackEntryHref(window.location.hostname);
+  return (
+    <nav className="fp-tabbar" aria-label="工具">
+      <a className="nav-link" href="#/photo">拍照找耗材</a>
+      <a className="nav-link fp-alias" href="#/photo">开始找色</a>
+      <a className="nav-link" href="#/plan">图片配色</a>
+      <a className="nav-link" href="#/cost">打印成本</a>
+      <a className="nav-link" href={stackHref}>叠色</a>
+      <a className="nav-link fp-alias" href={stackHref}>打开叠色</a>
+      <a className="nav-link" href="#/specs">规格索引</a>
+    </nav>
   );
 }
 
@@ -128,7 +138,7 @@ function CatalogApp(): JSX.Element {
   }
   if (page === "specs") {
     return (
-      <main className="page">
+      <main className="page catalog-page">
         <CatalogHeader />
         <SpecIndex catalog={catalog} />
       </main>
@@ -164,21 +174,21 @@ function CatalogApp(): JSX.Element {
     setCompareIds([...compareIds, id]);
   };
   return (
-    <main className="page">
+    <main className="page catalog-page">
       <CatalogHeader />
       <div className="catalog-layout">
-        <aside className="sidebar">
+        <section className="catalog-controls">
           <label className="search">
-            <span className="field-label">搜索</span>
+            <span className="visually-hidden">搜索</span>
             <input
               type="search"
               aria-label="搜索"
-              placeholder="颜色名、色号、拼音…"
+              placeholder="搜索耗材颜色、色号或品牌"
               value={searchText}
               onChange={(event) => setSearchText(event.target.value)}
             />
             {searchText !== "" && (
-              <button type="button" onClick={() => setSearchText("")}>清空搜索</button>
+              <button type="button" className="search-clear" onClick={() => setSearchText("")}>清空搜索</button>
             )}
           </label>
           <Filters
@@ -188,15 +198,19 @@ function CatalogApp(): JSX.Element {
             value={filters}
             onChange={setFilters}
           />
-        </aside>
+        </section>
         <div className="catalog-main">
-          <SwatchGrid entries={entries} brands={catalog.brands} onSelect={setSelectedId} />
-          <section className="tool-strip" aria-label="其他工具">
-            <a className="nav-link" href="#/photo">开始找色</a>
-            <a className="nav-link" href={stackEntryHref(window.location.hostname)}>打开叠色</a>
-          </section>
+          <SwatchGrid
+            entries={entries}
+            brands={catalog.brands}
+            compareIds={compareIds}
+            onSelect={setSelectedId}
+            onCompare={addCompare}
+            onUncompare={(id) => setCompareIds((current) => current.filter((item) => item !== id))}
+          />
         </div>
       </div>
+      <CatalogTools />
       {compareMessage && <p className="toast" role="status">{compareMessage}</p>}
       {compareEntries.length > 0 && (
         <CompareBar entries={compareEntries} onRemove={(id) => setCompareIds((current) => current.filter((item) => item !== id))} />

@@ -118,23 +118,32 @@ function Login({ navigate }: { navigate: Navigate }): JSX.Element {
   }
 
   return (
-    <section className="login-card">
-      <p className="login-kicker">模型画廊与模型详情需要登录。耗材选色公开浏览。</p>
-      <h2>工坊凭证登录</h2>
-      <p className="login-lead">登录后进入模型画廊。账号由站方分配，不设开放注册。</p>
-      <form onSubmit={submit}>
-        <label>用户名<input name="username" autoComplete="username" placeholder="创作者工号" value={username}
-          onChange={(event) => setUsername(event.target.value)} required /></label>
-        <label>密码<input name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="访问凭证" value={password}
-          onChange={(event) => setPassword(event.target.value)} required /></label>
-        <div className="login-aux">
-          <button type="button" onClick={() => setShowPassword((current) => !current)}>{showPassword ? "隐藏密码" : "显示密码"}</button>
-          <button type="button" onClick={() => { setUsername(""); setPassword(""); }}>清空</button>
-        </div>
+    <div className="login-shell">
+      <div className="login-permit">
+        <p><strong>访问权限控制</strong> 模型画廊与模型详情需登录访问；耗材选色库开放公开浏览</p>
+        <a href="/">返回耗材选色</a>
+      </div>
+      <section className="login-card">
+        <h2>工坊凭证登录</h2>
+        <p className="login-lead">登录后将直接接入模型画廊</p>
         {error && <p role="alert">{error}</p>}
-        <button className="login-submit" type="submit" disabled={busy}>{busy ? "登录中…" : "登录"}</button>
-      </form>
-    </section>
+        <form onSubmit={submit}>
+          <label>用户名<input name="username" autoComplete="username" placeholder="请输入创作者/工坊工号" value={username}
+            onChange={(event) => setUsername(event.target.value)} required /></label>
+          <label>密码<input name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="访问凭证" value={password}
+            onChange={(event) => setPassword(event.target.value)} required /></label>
+          <div className="login-aux">
+            <button type="button" onClick={() => setShowPassword((current) => !current)}>{showPassword ? "隐藏密码" : "显示密码"}</button>
+            <button type="button" onClick={() => { setUsername(""); setPassword(""); }}>清空</button>
+          </div>
+          <button className="login-submit" type="submit" disabled={busy}>{busy ? "登录中…" : "登录"}</button>
+        </form>
+        <footer className="login-foot">
+          <span>账号由站方 / 管理员统一分配创建</span>
+          <span>工坊内网专用 · 不设开放注册与密码重置</span>
+        </footer>
+      </section>
+    </div>
   );
 }
 
@@ -241,11 +250,12 @@ function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: stri
   const [jump, setJump] = useState("1");
   return (
     <>
-      <form className="panel model-filters" onSubmit={(event) => {
+      <form className="gallery-toolbar" onSubmit={(event) => {
         event.preventDefault(); setParams((current) => ({ ...current, q: search, page: 1 }));
       }}>
-        <label>搜索模型<input type="search" value={search} placeholder="标题或编号"
+        <label className="gallery-search">搜索模型<input type="search" value={search} placeholder="标题或编号"
           onChange={(event) => setSearch(event.target.value)} /></label>
+        <div className="gallery-selects">
         <label>系列<select value={params.series} onChange={(event) => {
           setParams((current) => ({ ...current, series: event.target.value, page: 1 }));
         }}><option value="">全部系列</option>
@@ -273,11 +283,14 @@ function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: stri
           <option value="asc">升序</option>
           <option value="desc">降序</option>
         </select></label>
-        <button type="submit">搜索</button>
-        <button type="button" onClick={() => {
-          setSearch("");
-          setParams({ q: "", series: "", author: "", material: "", page: 1, page_size: 12, sort: "id", order: "asc" });
-        }}>清空筛选</button>
+        </div>
+        <div className="gallery-actions">
+          <button type="submit">搜索</button>
+          <button type="button" onClick={() => {
+            setSearch("");
+            setParams({ q: "", series: "", author: "", material: "", page: 1, page_size: 12, sort: "id", order: "asc" });
+          }}>清空筛选</button>
+        </div>
       </form>
       {error && <p className="panel" role="alert">{error}</p>}
       {loading && <p role="status">模型加载中…</p>}
@@ -286,12 +299,15 @@ function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: stri
         {data.items.length === 0 && <p className="panel">没有找到模型</p>}
         <div className="model-grid" aria-busy={loading}>
           {data.items.map((model) => (
-            <article className="panel model-card" key={model.id}>
+            <article className="model-card" key={model.id}>
               <a href={`/models/${encodeURIComponent(model.id)}`} aria-labelledby={`model-title-${model.id}`}>
-                <img src={model.cover_url || model.thumb_url} alt={model.title} loading="lazy" />
+                <span className="model-card-media">
+                  <img src={model.cover_url || model.thumb_url} alt={model.title} loading="lazy" />
+                  {model.series ? <span className="model-card-badge">{model.series}</span> : null}
+                </span>
                 <h2 id={`model-title-${model.id}`}>{model.title}</h2>
               </a>
-              <p className="model-card-by">{model.series || "—"} / {model.author || "—"}</p>
+              <p className="model-card-by">作者：{model.author || "—"}</p>
               <p className="model-card-meta">{model.plate_count} 盘 · {fileSize(model.size_bytes)}</p>
             </article>
           ))}
@@ -395,26 +411,6 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
         ["--hero-h" as string]: `${locked.hero}px`,
         ["--work-h" as string]: `${locked.work}px`,
       } : undefined}>
-      <header className="model-head">
-        <h2>{model.title}</h2>
-        <p className="model-meta">
-          <span>系列 {model.series || "—"}</span>
-          <span>作者 {model.author || "—"}</span>
-          <span>{model.plate_count} 盘</span>
-          <span>{fileSize(model.size_bytes)}</span>
-        </p>
-        <DownloadControl model={model} navigate={navigate} />
-        {description ? (
-          <div className="model-description-block">
-            <p className={longDescription && !descOpen ? "model-description is-clamped" : "model-description"}>{description}</p>
-            {longDescription ? (
-              <button type="button" className="model-text-button" aria-expanded={descOpen} onClick={toggleDescription}>
-                {descOpen ? "收起说明" : "展开说明"}
-              </button>
-            ) : null}
-          </div>
-        ) : null}
-      </header>
       <div className="model-stage">
         <div className="model-hero-pane">
           {covers.length > 0 ? covers.map((shot) => (
@@ -429,9 +425,32 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
             </Suspense>
           ) : null}
         </div>
-        <PlateBoard cards={cards} model={model} active={open} shotKind={shotKind}
-          onSelect={selectPlate} onShotKind={setShotKind} />
       </div>
+      <header className="model-head">
+        <h2>{model.title}</h2>
+        <p className="model-meta">
+          <span>系列 {model.series || "—"}</span>
+          <span>作者 {model.author || "—"}</span>
+          <span>{model.plate_count} 盘</span>
+          <span>{fileSize(model.size_bytes)}</span>
+        </p>
+        {description ? (
+          <div className="model-description-block">
+            <p className={longDescription && !descOpen ? "model-description is-clamped" : "model-description"}>{description}</p>
+            {longDescription ? (
+              <button type="button" className="model-text-button" aria-expanded={descOpen} onClick={toggleDescription}>
+                {descOpen ? "收起说明" : "展开说明"}
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+        <div className="model-download-panel">
+          <h3>原厂切片</h3>
+          <DownloadControl model={model} navigate={navigate} />
+        </div>
+      </header>
+      <PlateBoard cards={cards} model={model} active={open} shotKind={shotKind}
+        onSelect={selectPlate} onShotKind={setShotKind} />
       <ModelTools model={model} />
     </article>
   );
@@ -637,6 +656,10 @@ function PlateBoard({ cards, model, active, shotKind, onSelect, onShotKind, tool
   return (
     <section className="model-work" aria-label="打印盘配色">
       {tools}
+      <div className="plate-board-head">
+        <h3>切片成型盘选择</h3>
+        <span>共 {cards.length} 盘工程</span>
+      </div>
       <div className="model-plate-tools">
         <p className="model-plate-note">{note}</p>
         {cards.length > 0 ? (
@@ -1034,16 +1057,18 @@ export function ModelPreview({ path = window.location.pathname, navigate = goTo 
   try { id = decodeURIComponent(normalized.slice("/models/".length)); }
   catch { id = ""; }
   return (
-    <main className={detailView ? "page model-preview is-detail" : "page model-preview"}>
-      <header className="topbar">
-        <h1>{login ? "登录" : detailView ? "模型详情" : "模型画廊"}</h1>
-        <nav className="topbar-nav" aria-label="页面导航">
-          <a className="nav-link" href="/">耗材选色</a>
-          {detailView && <a className="nav-link model-back" href={galleryHref}>返回画廊</a>}
-          {!login && <button onClick={logout}>退出登录</button>}
-        </nav>
-      </header>
-      <p className="model-banner" role="note">仅私人收藏预览、禁止外传</p>
+    <main className={login ? "page model-preview is-login" : detailView ? "page model-preview is-detail" : "page model-preview"}>
+      {login ? null : (
+        <header className="topbar">
+          <h1>{detailView ? "模型详情" : "模型画廊"}</h1>
+          <nav className="topbar-nav" aria-label="页面导航">
+            <a className="nav-link" href="/">耗材选色</a>
+            {detailView && <a className="nav-link model-back" href={galleryHref}>返回画廊</a>}
+            <button onClick={logout}>退出登录</button>
+          </nav>
+        </header>
+      )}
+      {login ? null : <p className="model-banner" role="note">仅私人收藏预览、禁止外传</p>}
       {error && <p role="alert">{error}</p>}
       {login ? <Login navigate={navigate} /> : normalized === "/models" ? <Gallery navigate={navigate} onHref={rememberGallery} /> : (
         <Detail id={id} navigate={navigate} />
