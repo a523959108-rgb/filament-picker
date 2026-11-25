@@ -4,6 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>耗材选色站</title>
+    <script>
+      (function () {
+        var mode = "auto";
+        try {
+          var stored = localStorage.getItem("fp-theme");
+          if (stored === "light" || stored === "dark" || stored === "auto") mode = stored;
+        } catch (error) { /* storage unavailable */ }
+        var minutes = new Date().getHours() * 60 + new Date().getMinutes();
+        var theme = mode === "auto" ? (minutes >= 420 && minutes < 1140 ? "light" : "dark") : mode;
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.themeMode = mode;
+      })();
+    </script>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />

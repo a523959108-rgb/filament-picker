@@ -10,7 +10,7 @@ import { PlanPage } from "./components/PlanPage";
 import { CostPage } from "./components/CostPage";
 import { ModelPreview } from "./components/ModelPreview";
 import { PhotoPage } from "./components/PhotoPage";
-import { SiteHeader } from "./components/SiteHeader";
+import { SiteHeader, useThemeClock } from "./components/SiteHeader";
 import { SpecIndex } from "./components/SpecIndex";
 import { StackPage } from "./components/StackPage";
 import { buildIndex, EMPTY_FILTER, query } from "./search";
@@ -37,6 +37,7 @@ function CatalogHeader(): JSX.Element {
 }
 
 export default function App(): JSX.Element {
+  useThemeClock();
   if (window.location.pathname === "/models" || window.location.pathname.startsWith("/models/")) {
     return <ModelPreview />;
   }

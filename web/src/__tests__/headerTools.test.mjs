@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 
+const boot = readFileSync(join(process.cwd(), "index.html"), "utf8");
 const css = ["src/styles.css", "src/chroma.css", "src/stitch.css", "src/components/model-preview.css"]
   .map((file) => readFileSync(join(process.cwd(), file), "utf8"))
   .join("\n");
@@ -52,6 +53,10 @@ describe("header tools menu", () => {
   afterAll(() => {
     ws?.close();
     browser?.kill();
+  });
+
+  it("keeps the boot script on the same 07:00 and 19:00 bounds", () => {
+    expect(boot).toContain("minutes >= 420 && minutes < 1140");
   });
 
   it.skipIf(!chrome)("opens past the 56px header and keeps the title on the nav baseline", async () => {
