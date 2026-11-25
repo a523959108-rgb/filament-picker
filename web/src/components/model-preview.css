@@ -171,11 +171,11 @@
 .model-preview .site-header { flex-wrap: nowrap; height: 56px; max-height: 56px; overflow: hidden; }
 .site-brand { display: flex; align-items: center; gap: 8px; color: #e8f1fb; text-decoration: none; font-weight: 650; white-space: nowrap; }
 .site-brand svg { color: #8ed5ff; }
-.site-nav, .site-actions { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.site-actions { margin-left: auto; }
+.site-actions { display: flex; align-items: center; gap: 6px; min-width: 0; margin-left: auto; }
 .site-link, .site-header button {
-  min-height: 32px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent;
-  color: #bdc8d1; text-decoration: none; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+  height: 36px; min-height: 36px; margin: 0; padding: 0 10px; line-height: 20px;
+  font-family: inherit; font-size: 14px; font-weight: 650;
 }
 .site-link.is-active { background: #1c2b3c; color: #8ed5ff; }
 .model-preview .model-plate-card {

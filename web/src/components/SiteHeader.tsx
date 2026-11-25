@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { JSX } from "react";
+import type { JSX, MouseEvent } from "react";
 import { stackEntryHref } from "../config";
 
 const PAGE_NAME = {
@@ -15,7 +15,17 @@ export function SiteHeader(props: {
   backHref?: string;
 }): JSX.Element {
   const [toolsOpen, setToolsOpen] = useState(false);
+  const [toolsBox, setToolsBox] = useState({ top: 60, left: 12 });
   const stackHref = stackEntryHref(window.location.hostname);
+  function toggleTools(event: MouseEvent<HTMLButtonElement>) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const width = 180;
+    setToolsBox({
+      top: rect.bottom + 4,
+      left: Math.max(8, Math.min(rect.left, window.innerWidth - width - 8)),
+    });
+    setToolsOpen((open) => !open);
+  }
   return (
     <header className="site-header">
       <a className="site-brand" href={props.active === "catalog" ? "#/" : "/"}>
@@ -30,7 +40,7 @@ export function SiteHeader(props: {
         {props.active === "detail" ? null : (
           <a href="/models" className={props.active === "gallery" ? "site-link is-active" : "site-link"} aria-current={props.active === "gallery" ? "page" : undefined}>模型画廊</a>
         )}
-        <button type="button" className="site-tools-desktop" aria-expanded={toolsOpen} onClick={() => setToolsOpen((open) => !open)}>工具</button>
+        <button type="button" className="site-tools-desktop" aria-expanded={toolsOpen} onClick={toggleTools}>工具</button>
       </nav>
       <div className="site-actions">
         {props.active === "catalog" ? <a className="site-link site-mobile" href="/models">画廊</a> : null}
@@ -38,9 +48,12 @@ export function SiteHeader(props: {
         {props.backHref ? <a className="site-link model-back" href={props.backHref}>返回画廊</a> : null}
         {props.active === "catalog" ? <a className="site-link" href="/models/login">登录</a> : null}
         {props.onLogout ? <button type="button" onClick={props.onLogout}>退出登录</button> : null}
-        <button type="button" className="site-tools" aria-expanded={toolsOpen} onClick={() => setToolsOpen((open) => !open)}>工具</button>
+        <button type="button" className="site-tools" aria-expanded={toolsOpen} onClick={toggleTools}>工具</button>
       </div>
-      <div className={toolsOpen ? "fp-tools is-open" : "fp-tools"}>
+      <div
+        className={toolsOpen ? "fp-tools is-open" : "fp-tools"}
+        style={{ ["--tools-top" as string]: `${toolsBox.top}px`, ["--tools-left" as string]: `${toolsBox.left}px` }}
+      >
         <a className="nav-link" href="#/photo" tabIndex={toolsOpen ? 0 : -1}>拍照找耗材</a>
         <a className="nav-link" href="#/photo" tabIndex={toolsOpen ? 0 : -1}>开始找色</a>
         <a className="nav-link" href="#/plan" tabIndex={toolsOpen ? 0 : -1}>图片配色</a>
