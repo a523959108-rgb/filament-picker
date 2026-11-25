@@ -70,34 +70,77 @@ def _timestamp() -> str:
     return datetime.now(ZoneInfo(TZ)).isoformat(timespec="seconds")
 
 
+_NEW_USERS = (
+    "CREATE TABLE users (username TEXT PRIMARY KEY, password_hash TEXT NOT NULL, "
+    "email TEXT, role TEXT NOT NULL DEFAULT 'member', created_at TEXT NOT NULL)"
+)
+
+
+def _table_exists(conn: sqlite3.Connection, name: str) -> bool:
+    row = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+        (name,),
+    ).fetchone()
+    return row is not None
+
+
 def _migrate_users(conn: sqlite3.Connection) -> None:
     conn.execute(
         "CREATE TABLE IF NOT EXISTS sessions (token_digest TEXT PRIMARY KEY, "
         "username TEXT NOT NULL, expires_at INTEGER NOT NULL)"
     )
+    # 改名和建表会单独提交。复制哈希必须在同一事务里提交，否则连接关闭时回滚，
+    # 新 users 留下 0 行，users_legacy 里的原哈希再也不会被读到。
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        _copy_legacy_users(conn)
+    except Exception:
+        conn.rollback()
+        raise
+    else:
+        conn.commit()
+
+
+def _copy_legacy_users(conn: sqlite3.Connection) -> None:
+    legacy = _table_exists(conn, "users_legacy")
     columns = {row[1] for row in conn.execute("PRAGMA table_info(users)")}
+    if "singleton" in columns:
+        if legacy:
+            raise sqlite3.DatabaseError("users 与 users_legacy 不能同时是旧结构")
+        conn.execute("ALTER TABLE users RENAME TO users_legacy")
+        legacy = True
+        columns = set()
     if not columns:
-        conn.execute(
-            "CREATE TABLE users (username TEXT PRIMARY KEY, password_hash TEXT NOT NULL, "
-            "email TEXT, role TEXT NOT NULL DEFAULT 'member', created_at TEXT NOT NULL)"
-        )
+        conn.execute(_NEW_USERS)
+    elif "role" not in columns:
+        raise sqlite3.DatabaseError("users 表结构无法迁移")
+    if not legacy:
         return
-    if "singleton" not in columns and "role" in columns:
-        return
-    conn.execute("ALTER TABLE users RENAME TO users_legacy")
-    conn.execute(
-        "CREATE TABLE users (username TEXT PRIMARY KEY, password_hash TEXT NOT NULL, "
-        "email TEXT, role TEXT NOT NULL DEFAULT 'member', created_at TEXT NOT NULL)"
-    )
     owner = configured_preview_user()
     now = _timestamp()
-    for row in conn.execute("SELECT username, password_hash FROM users_legacy"):
-        role = "owner" if owner and row[0] == owner else "member"
-        conn.execute(
-            "INSERT INTO users (username, password_hash, email, role, created_at) "
-            "VALUES (?, ?, NULL, ?, ?)",
-            (row[0], row[1], role, now),
-        )
+    rows = list(conn.execute("SELECT username, password_hash FROM users_legacy"))
+    for username, password_hash in rows:
+        if not isinstance(username, str) or not username:
+            raise sqlite3.DatabaseError("users_legacy 缺少用户名")
+        if not isinstance(password_hash, str) or not password_hash.startswith("$argon2id$"):
+            raise sqlite3.DatabaseError("users_legacy 密码哈希不是 Argon2id")
+        existing = conn.execute(
+            "SELECT password_hash FROM users WHERE username = ?",
+            (username,),
+        ).fetchone()
+        if existing is None:
+            role = "owner" if owner and username == owner else "member"
+            conn.execute(
+                "INSERT INTO users (username, password_hash, email, role, created_at) "
+                "VALUES (?, ?, NULL, ?, ?)",
+                (username, password_hash, role, now),
+            )
+            continue
+        if existing[0] != password_hash:
+            conn.execute(
+                "UPDATE users SET password_hash = ? WHERE username = ?",
+                (password_hash, username),
+            )
     conn.execute("DROP TABLE users_legacy")
 
 
