@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, JSX } from "react";
 import { loadCatalog } from "../catalog";
-import { SOURCE_URL } from "../config";
 import { colorsFromHash, modeFromHash } from "../stackPrefill";
+import { SiteHeader } from "./SiteHeader";
 import { copyText } from "../marketPrice";
 import { moveSlot } from "../stackSlots";
 import {
@@ -74,6 +74,7 @@ export function StackPage(): JSX.Element {
   const [catalogError, setCatalogError] = useState(false);
   const [mode, setMode] = useState<StackLutMode>(() => modeFromHash(window.location.hash) ?? "RYBW");
   const [prefillColors, setPrefillColors] = useState<string[]>(() => colorsFromHash(window.location.hash));
+  const [prefillDismissed, setPrefillDismissed] = useState(false);
   const [widthMm, setWidthMm] = useState(DEFAULT_SIZE_MM);
   const [heightMm, setHeightMm] = useState(DEFAULT_SIZE_MM);
   const [layerHeightMm, setLayerHeightMm] = useState(0.08);
@@ -90,10 +91,14 @@ export function StackPage(): JSX.Element {
   const [view, setView] = useState<PreviewView>("bed");
   const [previewOn, setPreviewOn] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const dragFrom = useRef<number | null>(null);
 
   useEffect(() => {
-    const syncPrefill = () => setPrefillColors(colorsFromHash(window.location.hash));
+    const syncPrefill = () => {
+      setPrefillColors(colorsFromHash(window.location.hash));
+      setPrefillDismissed(false);
+    };
     window.addEventListener("hashchange", syncPrefill);
     return () => window.removeEventListener("hashchange", syncPrefill);
   }, []);
@@ -120,7 +125,6 @@ export function StackPage(): JSX.Element {
   }, []);
 
   const palette = trayMap?.palettes[mode] ?? null;
-  const previewUrl = useMemo(() => (image === null ? null : URL.createObjectURL(image)), [image]);
   const bed = BED_PRESETS.find((item) => item.id === bedId) ?? BED_PRESETS[0];
 
   const orderedSlots: TraySlot[] = useMemo(() => {
@@ -155,10 +159,16 @@ export function StackPage(): JSX.Element {
   const bedArtwork = view === "bed" ? (stackedSrc ?? originalSrc) : null;
 
   useEffect(() => {
+    if (image === null) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(image);
+    setPreviewUrl(url);
     return () => {
-      if (previewUrl !== null) URL.revokeObjectURL(previewUrl);
+      URL.revokeObjectURL(url);
     };
-  }, [previewUrl]);
+  }, [image]);
 
   const applyImportText = useCallback(
     (text: string, sourceLabel: string) => {
@@ -304,25 +314,33 @@ export function StackPage(): JSX.Element {
     setSlotOrder(moveSlot(orderedSlots.map((slot) => slot.slot), from, index));
   };
 
+  const onSlotMove = (from: number, to: number) => {
+    setSlotOrder(moveSlot(orderedSlots.map((slot) => slot.slot), from, to));
+  };
+
   return (
     <section className="lumina-stack">
-      <header className="lumina-top">
-        <div className="topbar-title">
-          <h1>叠色（本机引擎）</h1>
-          <p className="topbar-sub">上传图后在本机生成模型再回传。本站不跑 GPL 叠色引擎</p>
-        </div>
-        <nav className="lumina-top-nav" aria-label="页面导航">
-          <a href="#/" className="nav-link">色卡浏览</a>
-          <a href="#/photo" className="nav-link">拍照找耗材</a>
-          <a href="#/plan" className="nav-link">图片配色</a>
-          <a href="#/cost" className="nav-link">打印成本</a>
-          <a className="nav-link" href={SOURCE_URL} target="_blank" rel="noreferrer">源码</a>
-        </nav>
-      </header>
+      <SiteHeader
+        page="stack"
+        title="叠色（本机引擎）"
+        subtitle="上传图后在本机生成模型再回传。本站不跑 GPL 叠色引擎"
+        headerClassName="lumina-top"
+        navClassName="lumina-top-nav"
+        showSource
+      />
 
-      {prefillColors.length > 0 && (
+      {prefillColors.length > 0 && !prefillDismissed && (
         <section className="panel stack-prefill" aria-label="带入的目标色">
-          <h2>拍照找耗材带入的目标色</h2>
+          <div className="stack-prefill-head">
+            <h2>拍照找耗材带入的目标色</h2>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => setPrefillDismissed(true)}
+            >
+              关闭提示
+            </button>
+          </div>
           <p>
             这些颜色已填入。下面的四色槽仍是当前 LUT 的基础料；把同一张照片在左侧上传，下载任务包后在本机叠色引擎里生成。照片不会经过服务器。
           </p>
@@ -370,7 +388,7 @@ export function StackPage(): JSX.Element {
 
             <div className="stack-size-row">
               <label className="field">
-                <span className="field-label">层高（mm）</span>
+                <span className="field-label">层高（mm，仅本页参考）</span>
                 <input
                   className={workstationInputClass}
                   type="number"
@@ -452,20 +470,42 @@ export function StackPage(): JSX.Element {
                               ))}
                             </ul>
                           )}
-                          {rec && (
-                            <div className="stack-rec-actions">
-                              <button type="button" className="btn btn-ghost" onClick={() => void onCopyBuy(rec)}>
-                                复制购买链接
+                          <div className="stack-rec-actions">
+                            <div className="stack-move-btns">
+                              <button
+                                type="button"
+                                className="btn btn-ghost"
+                                aria-label={`上移 ${slot.slot}`}
+                                disabled={index === 0}
+                                onClick={() => onSlotMove(index, index - 1)}
+                              >
+                                ↑
                               </button>
-                              {rec.purchase_url !== null ? (
-                                <a className="nav-link" href={rec.purchase_url} target="_blank" rel="noreferrer">
-                                  打开购买
-                                </a>
-                              ) : (
-                                <span className="stack-slot-meta">无购买链</span>
-                              )}
+                              <button
+                                type="button"
+                                className="btn btn-ghost"
+                                aria-label={`下移 ${slot.slot}`}
+                                disabled={index === orderedSlots.length - 1}
+                                onClick={() => onSlotMove(index, index + 1)}
+                              >
+                                ↓
+                              </button>
                             </div>
-                          )}
+                            {rec && (
+                              <>
+                                <button type="button" className="btn btn-ghost" onClick={() => void onCopyBuy(rec)}>
+                                  复制购买链接
+                                </button>
+                                {rec.purchase_url !== null ? (
+                                  <a className="nav-link" href={rec.purchase_url} target="_blank" rel="noreferrer">
+                                    打开购买
+                                  </a>
+                                ) : (
+                                  <span className="stack-slot-meta">无购买链</span>
+                                )}
+                              </>
+                            )}
+                          </div>
                         </div>
                       </li>
                     );

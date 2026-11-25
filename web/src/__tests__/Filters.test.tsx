@@ -24,5 +24,8 @@ describe("catalog filters", () => {
     fireEvent.click(screen.getByLabelText("只看官方色"));
     await waitFor(() => expect(screen.getByText("共 1 个颜色")).toBeTruthy());
     expect(screen.getByText("樱花粉")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "清空筛选" }));
+    expect(await screen.findByText("共 4 个颜色")).toBeTruthy();
   });
 });

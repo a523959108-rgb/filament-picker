@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import type { FormEvent, JSX } from "react";
+import type { FormEvent, JSX, MouseEvent } from "react";
 import "./model-preview.css";
 
 const MeshViewer = lazy(() =>
@@ -57,6 +57,26 @@ interface ModelList {
 
 type Navigate = (path: string) => void;
 const goTo: Navigate = (path) => window.location.assign(path);
+
+function handleSpaLink(event: MouseEvent<HTMLAnchorElement>, path: string, navigate: Navigate): void {
+  if (
+    event.defaultPrevented ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  ) {
+    return;
+  }
+  event.preventDefault();
+  navigate(path);
+}
+
+function scrollTopSafe(): void {
+  if (typeof navigator !== "undefined" && navigator.userAgent.includes("jsdom")) return;
+  window.scrollTo?.({ top: 0, behavior: "smooth" });
+}
 
 function Login({ navigate }: { navigate: Navigate }): JSX.Element {
   const [username, setUsername] = useState("");
@@ -136,12 +156,12 @@ function Gallery({ navigate }: { navigate: Navigate }): JSX.Element {
         <label>搜索模型<input type="search" value={search} placeholder="按标题搜索"
           onChange={(event) => setSearch(event.target.value)} /></label>
         <label>系列<select value={params.series} onChange={(event) => {
-          setParams((current) => ({ ...current, series: event.target.value, page: 1 }));
+          setParams((current) => ({ ...current, q: search, series: event.target.value, page: 1 }));
         }}><option value="">全部系列</option>
           {data?.series.map((value) => <option key={value} value={value}>{value}</option>)}
         </select></label>
         <label>作者<select value={params.author} onChange={(event) => {
-          setParams((current) => ({ ...current, author: event.target.value, page: 1 }));
+          setParams((current) => ({ ...current, q: search, author: event.target.value, page: 1 }));
         }}><option value="">全部作者</option>
           {data?.authors.map((value) => <option key={value} value={value}>{value}</option>)}
         </select></label>
@@ -153,23 +173,32 @@ function Gallery({ navigate }: { navigate: Navigate }): JSX.Element {
         <p className="model-count">共 {data.total} 个模型</p>
         {data.items.length === 0 && <p className="panel">没有找到模型</p>}
         <div className="model-grid" aria-busy={loading}>
-          {data.items.map((model) => (
-            <article className="panel model-card" key={model.id}>
-              <a href={`/models/${encodeURIComponent(model.id)}`} aria-labelledby={`model-title-${model.id}`}>
-                <img src={model.cover_url || model.thumb_url} alt={model.title} loading="lazy" />
-                <h2 id={`model-title-${model.id}`}>{model.title}</h2>
-              </a>
-              <p>{model.series || "—"} / {model.author || "—"}</p>
-            </article>
-          ))}
+          {data.items.map((model) => {
+            const href = `/models/${encodeURIComponent(model.id)}`;
+            return (
+              <article className="panel model-card" key={model.id}>
+                <a
+                  href={href}
+                  aria-labelledby={`model-title-${model.id}`}
+                  onClick={(event) => handleSpaLink(event, href, navigate)}
+                >
+                  <img src={model.cover_url || model.thumb_url} alt={model.title} loading="lazy" />
+                  <h2 id={`model-title-${model.id}`}>{model.title}</h2>
+                </a>
+                <p>{model.series || "—"} / {model.author || "—"}</p>
+              </article>
+            );
+          })}
         </div>
         <nav className="model-pagination" aria-label="模型分页">
           <button disabled={loading || params.page <= 1} onClick={() => {
             setParams((current) => ({ ...current, page: current.page - 1 }));
+            scrollTopSafe();
           }}>上一页</button>
           <span>第 {params.page} / {pageCount} 页</span>
           <button disabled={loading || params.page >= pageCount} onClick={() => {
             setParams((current) => ({ ...current, page: current.page + 1 }));
+            scrollTopSafe();
           }}>下一页</button>
         </nav>
       </>}
@@ -300,7 +329,7 @@ export function ModelPreview({ path = window.location.pathname, navigate = goTo 
         <nav className="topbar-nav" aria-label="页面导航">
           <a className="nav-link" href="/">耗材选色</a>
           {!login && <>
-            <a className="nav-link" href="/models">模型画廊</a>
+            <a className="nav-link" href="/models" onClick={(event) => handleSpaLink(event, "/models", navigate)}>模型画廊</a>
             <button onClick={logout}>退出登录</button>
           </>}
         </nav>

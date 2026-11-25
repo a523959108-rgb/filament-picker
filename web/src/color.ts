@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { differenceCiede2000, differenceEuclidean } from "culori";
 import {
   SIMILAR_EXCLUDE_EFFECTS,
@@ -10,9 +11,16 @@ const EFFECT_MISMATCH_PENALTY = 0.75;
 
 const excludeEffects = new Set<string>(SIMILAR_EXCLUDE_EFFECTS);
 const preferredEffects = new Set<string>(SIMILAR_PREFERRED_EFFECTS);
+const comparableCache = new WeakMap<WebEntry[], WebEntry[]>();
 
 const ciede2000 = differenceCiede2000();
 const oklabDistance = differenceEuclidean("oklab");
+
+export function swatchBackgroundStyle(hex: readonly string[]): CSSProperties | undefined {
+  if (hex.length === 0) return undefined;
+  if (hex.length === 1) return { backgroundColor: hex[0] };
+  return { background: `linear-gradient(135deg, ${hex.join(", ")})` };
+}
 
 export type SimilarMatch = {
   entry: WebEntry;
@@ -55,6 +63,14 @@ function effectPenalty(target: WebEntry, candidate: WebEntry): number {
   return preferredOverlap(target.eff, candidate.eff) ? 0 : EFFECT_MISMATCH_PENALTY;
 }
 
+function comparablePool(entries: WebEntry[]): WebEntry[] {
+  const cached = comparableCache.get(entries);
+  if (cached !== undefined) return cached;
+  const filtered = entries.filter((entry) => isSimilarComparable(entry));
+  comparableCache.set(entries, filtered);
+  return filtered;
+}
+
 /**
  * Cross-brand similar colors.
  * Primary metric: Culori CIEDE2000 (OKLab-friendly pipeline).
@@ -74,8 +90,8 @@ export function similar(
     return [];
   }
 
-  return entries
-    .filter((entry) => entry.id !== target.id && isSimilarComparable(entry))
+  return comparablePool(entries)
+    .filter((entry) => entry.id !== target.id)
     .map((entry) => {
       const otherHex = entry.hex[0] as string;
       const delta = hexDelta(targetHex, otherHex) + effectPenalty(target, entry);

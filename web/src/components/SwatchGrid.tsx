@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
+import { swatchBackgroundStyle } from "../color";
 import { SWATCH_PAGE_SIZE } from "../config";
 import type { WebEntry } from "../types";
 
@@ -54,8 +55,7 @@ export function SwatchGrid({
               ]
                 .filter(Boolean)
                 .join(" ");
-              const style =
-                !hasImg && hasHex ? { backgroundColor: entry.hex[0] } : undefined;
+              const style = !hasImg ? swatchBackgroundStyle(entry.hex) : undefined;
               return (
                 <button
                   className="swatch-card"
@@ -79,8 +79,8 @@ export function SwatchGrid({
                     {hasImg && hasHex ? (
                       <span
                         className="swatch-hex-dot"
-                        style={{ backgroundColor: entry.hex[0] }}
-                        title={entry.hex[0]}
+                        style={swatchBackgroundStyle(entry.hex)}
+                        title={entry.hex.join(" / ")}
                       />
                     ) : null}
                   </span>
@@ -89,6 +89,10 @@ export function SwatchGrid({
                       {brandNames.get(entry.b) ?? entry.b} {entry.s}
                     </span>
                     <span className="swatch-color">{entry.zh ?? entry.en}</span>
+                    <span className="swatch-badges">
+                      <span className="swatch-mat">{entry.m}</span>
+                      {hasHex ? <span className="swatch-hex mono">{entry.hex[0]}</span> : null}
+                    </span>
                   </span>
                 </button>
               );

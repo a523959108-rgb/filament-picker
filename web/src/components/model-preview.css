@@ -44,7 +44,19 @@
 }
 .model-mesh-stage:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .model-mesh-canvas { display: block; width: 100%; height: 100%; touch-action: none; }
-.model-mesh figcaption { margin-top: 6px; color: var(--text-2); }
+.model-mesh-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+  color: var(--text-2);
+}
+
+.model-mesh-reset {
+  padding: 4px 10px !important;
+  font-size: 0.85rem;
+}
 .model-shots { display: grid; gap: 16px; }
 .model-shots figure { margin: 0; }
 .model-shots img,

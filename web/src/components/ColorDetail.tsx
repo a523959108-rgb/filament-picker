@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { JSX } from "react";
 import { fetchInStock } from "../api";
-import { similar, sourceBadge } from "../color";
+import { similar, sourceBadge, swatchBackgroundStyle } from "../color";
+import { SIMILAR_EXCLUDE_EFFECTS } from "../config";
 import { purchaseHref } from "../purchase";
 import type { WebCatalog, WebEntry } from "../types";
 import { CostCalculator } from "./CostCalculator";
 import { PrintParams } from "./PrintParams";
+
+const EXCLUDE_EFFECTS = new Set<string>(SIMILAR_EXCLUDE_EFFECTS);
 
 export function ColorDetail(props: {
   entry: WebEntry;
@@ -15,6 +18,8 @@ export function ColorDetail(props: {
   onSelect?: (id: string) => void;
 }): JSX.Element {
   const { entry, catalog, onClose } = props;
+  const panelRef = useRef<HTMLElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const brandName = catalog.brands.find((brand) => brand.slug === entry.b)?.name ?? entry.b;
   const matches = similar(entry, catalog.entries);
   const entryName = entry.en ?? entry.zh ?? entry.id;
@@ -24,12 +29,26 @@ export function ColorDetail(props: {
   const [inStock, setInStock] = useState(false);
   const href = purchaseHref(entry.url);
   const altHref = entry.alt_url ? purchaseHref(entry.alt_url) : null;
-  const specialNote =
-    entry.eff.some((e) =>
-      ["multi", "dual", "tri", "gradient", "translucent", "glow", "sparkle"].includes(e),
-    )
-      ? "该耗材为特殊效果料，色值仅供参考，不做跨品牌相似推荐。"
-      : null;
+  const specialNote = entry.eff.some((effect) => EXCLUDE_EFFECTS.has(effect))
+    ? "该耗材为特殊效果料，色值仅供参考，不做跨品牌相似推荐。"
+    : null;
+
+  useEffect(() => {
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      previousFocus?.focus();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (panelRef.current !== null) {
+      panelRef.current.scrollTop = 0;
+    }
+  }, [entry.id]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -57,7 +76,7 @@ export function ColorDetail(props: {
   return (
     <>
       <div className="drawer-backdrop" onClick={onClose} aria-hidden="true" />
-      <aside className="color-detail" role="dialog" aria-label="颜色详情">
+      <aside ref={panelRef} className="color-detail" role="dialog" aria-modal="true" aria-label="颜色详情">
         <div
           className={[
             "color-detail-swatch",
@@ -66,11 +85,7 @@ export function ColorDetail(props: {
           ]
             .filter(Boolean)
             .join(" ")}
-          style={
-            !entry.img && entry.hex[0] !== undefined
-              ? { backgroundColor: entry.hex[0] }
-              : undefined
-          }
+          style={!entry.img ? swatchBackgroundStyle(entry.hex) : undefined}
           aria-label={entry.hex[0] ?? (entry.img ? "SKU 图片" : "无色值")}
         >
           {entry.img ? (
@@ -79,8 +94,8 @@ export function ColorDetail(props: {
           {entry.img && entry.hex[0] !== undefined ? (
             <span
               className="swatch-hex-dot"
-              style={{ backgroundColor: entry.hex[0] }}
-              title={entry.hex[0]}
+              style={swatchBackgroundStyle(entry.hex)}
+              title={entry.hex.join(" / ")}
             />
           ) : null}
         </div>
@@ -94,7 +109,7 @@ export function ColorDetail(props: {
               </h2>
               {subName !== null && <p className="color-detail-sub">{subName}{entry.code ? ` · ${entry.code}` : ""}</p>}
             </div>
-            <button type="button" className="btn btn-ghost" onClick={onClose}>关闭</button>
+            <button ref={closeRef} type="button" className="btn btn-ghost" onClick={onClose}>关闭</button>
           </header>
 
           <dl className="detail-meta">
@@ -132,8 +147,6 @@ export function ColorDetail(props: {
             )}
           </div>
 
-          <CostCalculator />
-
           {matches.length > 0 && (
             <section className="similar">
               <h3>相似色</h3>
@@ -143,7 +156,7 @@ export function ColorDetail(props: {
                     <button type="button" className="similar-item" onClick={() => props.onSelect?.(match.id)}>
                       <span
                         className={match.hex[0] === undefined ? "similar-dot swatch-empty" : "similar-dot"}
-                        style={match.hex[0] === undefined ? undefined : { backgroundColor: match.hex[0] }}
+                        style={swatchBackgroundStyle(match.hex)}
                         aria-hidden="true"
                       />
                       <span className="similar-text">
@@ -164,6 +177,8 @@ export function ColorDetail(props: {
               </ul>
             </section>
           )}
+
+          <CostCalculator />
         </div>
       </aside>
     </>

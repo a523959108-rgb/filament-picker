@@ -1,10 +1,31 @@
 import type { JSX } from "react";
 import type { FilterState } from "../search";
 
+const EFFECT_LABELS: Record<string, string> = {
+  matte: "哑光 matte",
+  silk: "丝绸 silk",
+  metallic: "金属 metallic",
+  cf: "碳纤 cf",
+  gf: "玻纤 gf",
+  translucent: "透明 translucent",
+  glow: "夜光 glow",
+  sparkle: "闪粉 sparkle",
+  gradient: "渐变 gradient",
+  multi: "多色 multi",
+  dual: "双色 dual",
+  tri: "三色 tri",
+  marble: "大理石 marble",
+  wood: "木质 wood",
+  color_change: "变色 color_change",
+};
+
 export function Filters(props: {
   brands: { slug: string; name: string }[];
   families: string[];
+  effects?: string[];
   value: FilterState;
+  hasActive?: boolean;
+  onReset?: () => void;
   onChange: (f: FilterState) => void;
 }): JSX.Element {
   const toggle = (values: string[], value: string): string[] =>
@@ -12,6 +33,11 @@ export function Filters(props: {
 
   return (
     <div className="filters">
+      {props.hasActive && props.onReset ? (
+        <button type="button" className="btn btn-ghost filters-reset" onClick={props.onReset}>
+          清空筛选
+        </button>
+      ) : null}
       <fieldset>
         <legend>品牌</legend>
         {props.brands.map((brand) => (
@@ -58,6 +84,23 @@ export function Filters(props: {
           </label>
         ))}
       </fieldset>
+      {props.effects && props.effects.length > 0 ? (
+        <fieldset>
+          <legend>效果</legend>
+          {props.effects.map((effect) => (
+            <label key={effect}>
+              <input
+                type="checkbox"
+                checked={props.value.effects.includes(effect)}
+                onChange={() =>
+                  props.onChange({ ...props.value, effects: toggle(props.value.effects, effect) })
+                }
+              />
+              {EFFECT_LABELS[effect] ?? effect}
+            </label>
+          ))}
+        </fieldset>
+      ) : null}
       <label>
         <input
           type="checkbox"

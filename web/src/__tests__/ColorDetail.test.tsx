@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import sample from "../../../docs/fixtures/web-catalog.sample.json";
 import App from "../App";
 import { ColorDetail } from "../components/ColorDetail";
@@ -20,8 +20,9 @@ describe("color detail and compare", () => {
     await screen.findByText("共 4 个颜色");
     fireEvent.click(screen.getByRole("button", { name: /Bambu Lab PETG Basic/ }));
 
-    expect(screen.getByText("#000000")).toBeTruthy();
-    expect(screen.getByText("官方色值")).toBeTruthy();
+    const dialog = screen.getByRole("dialog", { name: "颜色详情" });
+    expect(within(dialog).getByText("#000000")).toBeTruthy();
+    expect(within(dialog).getByText("官方色值")).toBeTruthy();
     const bambu = catalog.entries[0];
     expect(bambu.url.startsWith("https://mobile.pinduoduo.com/search_result.html?search_key=")).toBe(
       true,
@@ -281,6 +282,28 @@ describe("color detail and compare", () => {
     expect(screen.queryByRole("dialog", { name: "颜色详情" })).toBeNull();
     expect(screen.getByText("共 60 个颜色 · 已显示 60")).toBeTruthy();
     expect(container.querySelectorAll(".swatch-card")).toHaveLength(60);
+  });
+
+  it("shows special note for marble/wood/color_change and clears compare bar", async () => {
+    render(
+      <ColorDetail
+        entry={{ ...catalog.entries[0], eff: ["marble"] }}
+        catalog={catalog}
+        onClose={vi.fn()}
+        onCompare={vi.fn()}
+      />,
+    );
+    expect(screen.getByText(/特殊效果料/)).toBeTruthy();
+    cleanup();
+
+    render(<App />);
+    await screen.findByText("共 4 个颜色");
+    fireEvent.click(screen.getByRole("button", { name: /Bambu Lab PETG Basic/ }));
+    fireEvent.click(screen.getByRole("dialog", { name: "颜色详情" }).querySelector(".btn-primary")!);
+    const bar = screen.getByRole("complementary", { name: "对比栏" });
+    expect(bar).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "清空" }));
+    expect(screen.queryByRole("complementary", { name: "对比栏" })).toBeNull();
   });
 
 });

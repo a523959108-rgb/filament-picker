@@ -48,5 +48,24 @@ describe("PhotoPage", () => {
     const file = new File([new Uint8Array([1, 2, 3])], "notes.txt", { type: "text/plain" });
     fireEvent.change(input, { target: { files: [file] } });
     expect((await findByRole("alert")).textContent).toMatch(/JPG/);
+    expect((input as HTMLInputElement).value).toBe("");
+  });
+
+  it("allows removing a manual picked color chip", () => {
+    const onRemove = vi.fn();
+    const { getByRole } = render(
+      <PhotoResults
+        colors={[
+          { hex: "#123456", share: null, source: "manual" },
+          { hex: "#000000", share: 1, source: "auto" },
+        ]}
+        entries={catalog.entries}
+        brands={catalog.brands}
+        hostname="localhost"
+        onRemoveColor={onRemove}
+      />,
+    );
+    fireEvent.click(getByRole("button", { name: "移除 #123456" }));
+    expect(onRemove).toHaveBeenCalledWith("#123456");
   });
 });

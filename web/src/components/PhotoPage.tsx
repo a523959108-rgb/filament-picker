@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { ChangeEvent, JSX, MouseEvent } from "react";
 import { loadCatalog } from "../catalog";
-import { stackEntryHref } from "../config";
 import {
   PHOTO_DEFAULT_K,
   PHOTO_SAMPLE_LONG_SIDE,
@@ -17,6 +16,7 @@ import {
 import { nearestSkus, singleIsClose, suggestStack, type PhotoSkuMatch, type StackSuggestion } from "../photoMatch";
 import { stackHrefForColors } from "../stackPrefill";
 import type { WebCatalog, WebEntry } from "../types";
+import { SiteHeader } from "./SiteHeader";
 
 export type PhotoColor = {
   hex: string;
@@ -125,6 +125,7 @@ export function PhotoResults(props: {
   brands: { slug: string; name: string }[];
   hostname?: string;
   selectedHex?: string | null;
+  onRemoveColor?: (hex: string) => void;
 }): JSX.Element {
   const hostname = props.hostname ?? window.location.hostname;
   const [active, setActive] = useState<string | null>(props.selectedHex ?? props.colors[0]?.hex ?? null);
@@ -162,19 +163,33 @@ export function PhotoResults(props: {
   return (
     <div className="photo-results">
       <div className="photo-chips" role="list" aria-label="提取的颜色">
-        {props.colors.map((item) => (
-          <button
-            key={`${item.source}-${item.hex}`}
-            type="button"
-            className={item.hex === active ? "photo-chip is-selected" : "photo-chip"}
-            aria-pressed={item.hex === active}
-            onClick={() => setActive(item.hex)}
-          >
-            <span className="photo-chip-swatch" style={{ backgroundColor: item.hex }} />
-            <span className="mono">{item.hex}</span>
-            <span>{formatShare(item.share, item.source)}</span>
-          </button>
-        ))}
+        {props.colors.map((item) => {
+          const removable = item.source === "manual" && props.onRemoveColor !== undefined;
+          return (
+            <div key={`${item.source}-${item.hex}`} className="photo-chip-wrap" role="listitem">
+              <button
+                type="button"
+                className={item.hex === active ? "photo-chip is-selected" : "photo-chip"}
+                aria-pressed={item.hex === active}
+                onClick={() => setActive(item.hex)}
+              >
+                <span className="photo-chip-swatch" style={{ backgroundColor: item.hex }} />
+                <span className="mono">{item.hex}</span>
+                <span>{formatShare(item.share, item.source)}</span>
+              </button>
+              {removable ? (
+                <button
+                  type="button"
+                  className="photo-chip-remove"
+                  aria-label={`移除 ${item.hex}`}
+                  onClick={() => props.onRemoveColor?.(item.hex)}
+                >
+                  ×
+                </button>
+              ) : null}
+            </div>
+          );
+        })}
       </div>
       {color !== null && (
         <article className="panel plan-target">
@@ -218,7 +233,6 @@ export function PhotoPage(): JSX.Element {
   const [colors, setColors] = useState<PhotoColor[]>([]);
   const [marker, setMarker] = useState<Marker | null>(null);
   const [selectedHex, setSelectedHex] = useState<string | null>(null);
-  const stackHref = stackEntryHref(window.location.hostname);
 
   useEffect(() => {
     let active = true;
@@ -270,7 +284,7 @@ export function PhotoPage(): JSX.Element {
       setRaster(sample);
       setMarker(null);
       setSelectedHex(null);
-      setColors((current) => current.filter((color) => color.source === "manual"));
+      setColors([]);
       setFileLabel(file.name);
       setFileError(null);
     } catch {
@@ -285,6 +299,7 @@ export function PhotoPage(): JSX.Element {
 
   const onFile = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    event.target.value = "";
     if (file) void readFile(file);
   };
 
@@ -322,18 +337,11 @@ export function PhotoPage(): JSX.Element {
 
   return (
     <section className="photo-page">
-      <header className="topbar">
-        <div className="topbar-title">
-          <h1>拍照找耗材</h1>
-          <p className="topbar-sub">上传实物或模型照片，提取主色，匹配最接近的可买耗材</p>
-        </div>
-        <nav className="topbar-nav" aria-label="页面导航">
-          <a href="#/" className="nav-link">色卡浏览</a>
-          <a href="#/plan" className="nav-link">图片配色</a>
-          <a href="#/cost" className="nav-link">打印成本</a>
-          <a href={stackHref} className="nav-link">叠色</a>
-        </nav>
-      </header>
+      <SiteHeader
+        page="photo"
+        title="拍照找耗材"
+        subtitle="上传实物或模型照片，提取主色，匹配最接近的可买耗材"
+      />
 
       <div className="photo-layout">
         <div className="panel photo-form">
@@ -400,6 +408,11 @@ export function PhotoPage(): JSX.Element {
             entries={catalog.entries}
             brands={catalog.brands}
             selectedHex={selectedHex}
+            onRemoveColor={(hex) =>
+              setColors((current) =>
+                current.filter((color) => !(color.source === "manual" && color.hex === hex)),
+              )
+            }
           />
         )}
       </div>

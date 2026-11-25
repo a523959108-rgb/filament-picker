@@ -379,7 +379,9 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
 
     @router.post("/logout")
     def logout(request: Request) -> Response:
-        preview.auth.store.revoke_session(request.cookies[COOKIE_NAME])
+        token = request.cookies.get(COOKIE_NAME)
+        if token:
+            preview.auth.store.revoke_session(token)
         response = JSONResponse({"ok": True})
         response.delete_cookie(
             COOKIE_NAME, path="/", httponly=True, secure=preview.auth.secure, samesite="lax"

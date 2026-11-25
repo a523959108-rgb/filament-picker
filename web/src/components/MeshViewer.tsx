@@ -59,6 +59,7 @@ function frame(camera: PerspectiveCamera, controls: OrbitControls, object: Objec
 
 export function MeshViewer({ url, label }: { url: string; label: string }): JSX.Element {
   const hostRef = useRef<HTMLDivElement>(null);
+  const resetRef = useRef<(() => void) | null>(null);
   const [state, setState] = useState<MeshState>("loading");
 
   useEffect(() => {
@@ -118,6 +119,7 @@ export function MeshViewer({ url, label }: { url: string; label: string }): JSX.
     const release = () => {
       if (released) return;
       released = true;
+      resetRef.current = null;
       window.cancelAnimationFrame(frameId);
       observer?.disconnect();
       controls.dispose();
@@ -143,6 +145,7 @@ export function MeshViewer({ url, label }: { url: string; label: string }): JSX.
         }
         scene.add(gltf.scene);
         frame(camera, controls, gltf.scene);
+        resetRef.current = () => frame(camera, controls, gltf.scene);
         setState("ready");
       },
       undefined,
@@ -170,7 +173,14 @@ export function MeshViewer({ url, label }: { url: string; label: string }): JSX.
         hidden={state === "error"}
         tabIndex={state === "error" ? -1 : 0}
       />
-      <figcaption>{caption}</figcaption>
+      <figcaption className="model-mesh-caption">
+        <span>{caption}</span>
+        {state === "ready" ? (
+          <button type="button" className="model-mesh-reset" onClick={() => resetRef.current?.()}>
+            重置视角
+          </button>
+        ) : null}
+      </figcaption>
     </figure>
   );
 }

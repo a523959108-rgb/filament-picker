@@ -52,14 +52,31 @@ describe("StackPage", () => {
     expect((await findAllByText(/本站不跑 GPL/)).length).toBeGreaterThan(0);
   });
 
-  it("shows photo colors prefilled from the hash", async () => {
+  it("shows photo colors prefilled from the hash and allows dismissing", async () => {
     window.location.hash = "#/stack?colors=DE4343,00AE42&mode=CMYW";
-    const { findByRole, findByText, findByLabelText } = render(<StackPage />);
+    const { findByRole, findByText, findByLabelText, queryByRole } = render(<StackPage />);
     expect(await findByRole("heading", { name: "拍照找耗材带入的目标色" })).toBeTruthy();
     expect(await findByText("#DE4343")).toBeTruthy();
     expect(await findByText("#00AE42")).toBeTruthy();
     const mode = (await findByLabelText("LUT 色模式")) as HTMLSelectElement;
     expect(mode.value).toBe("CMYW");
+    fireEvent.click(await findByRole("button", { name: "关闭提示" }));
+    expect(queryByRole("heading", { name: "拍照找耗材带入的目标色" })).toBeNull();
+  });
+
+  it("reorders slots with accessible move buttons", async () => {
+    const { findByRole } = render(<StackPage />);
+    const list = await findByRole("list", { name: "四色槽" });
+    await waitFor(() => expect(list.querySelectorAll("li[data-slot]").length).toBe(4));
+    const initial = Array.from(list.querySelectorAll("li[data-slot]")).map((el) =>
+      el.getAttribute("data-slot"),
+    );
+    fireEvent.click(await findByRole("button", { name: `下移 ${initial[0]}` }));
+    const next = Array.from(list.querySelectorAll("li[data-slot]")).map((el) =>
+      el.getAttribute("data-slot"),
+    );
+    expect(next[0]).toBe(initial[1]);
+    expect(next[1]).toBe(initial[0]);
   });
 
   it("imports pasted result JSON and refreshes recommendations", async () => {

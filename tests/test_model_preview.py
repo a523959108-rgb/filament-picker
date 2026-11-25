@@ -487,3 +487,9 @@ def test_seed_refuses_foreign_manifest_without_writing_a_mesh(tmp_path: Path) ->
     assert not (root / "meshes").exists()
     assert list(root.rglob("*.glb")) == []
     assert list(root.rglob("*.3mf")) == []
+
+
+def test_revoke_session_ignores_missing_db(tmp_path: Path) -> None:
+    missing_db = tmp_path / "missing" / "users.sqlite"
+    AuthStore(missing_db).revoke_session("any-token")
+    assert not missing_db.exists()

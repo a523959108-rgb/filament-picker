@@ -58,6 +58,12 @@ describe("PlanPage", () => {
       screen
         .getAllByRole("link", { name: "购买" })
         .find((link) => link.getAttribute("href")?.endsWith("/pla-aero"))
+        ?.getAttribute("target"),
+    ).toBe("_blank");
+    expect(
+      screen
+        .getAllByRole("link", { name: "购买" })
+        .find((link) => link.getAttribute("href")?.endsWith("/pla-aero"))
         ?.getAttribute("href"),
     ).toBe("https://jp.store.bambulab.com/products/pla-aero");
   });
@@ -223,5 +229,24 @@ describe("PlanPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "开始配色" }));
     await screen.findByText("配色方案（1 色）");
     expect(queryByRole("img", { name: "配色卡" })).toBeNull();
+  });
+
+  it("ignores stale responses when changing files while a request is in flight", async () => {
+    let resolveFirst!: (value: PlanResult) => void;
+    const post = vi.fn().mockImplementation(
+      () =>
+        new Promise<PlanResult>((resolve) => {
+          resolveFirst = resolve;
+        }),
+    );
+    render(<PlanPage post={post} />);
+    const fileA = new File(["a"], "a.png", { type: "image/png" });
+    const fileB = new File(["b"], "b.png", { type: "image/png" });
+    fireEvent.change(screen.getByLabelText("图片"), { target: { files: [fileA] } });
+    fireEvent.click(screen.getByRole("button", { name: "开始配色" }));
+    fireEvent.change(screen.getByLabelText("图片"), { target: { files: [fileB] } });
+    resolveFirst(fixture);
+    await Promise.resolve();
+    expect(screen.queryByText("配色方案（1 色）")).toBeNull();
   });
 });

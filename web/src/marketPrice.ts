@@ -83,7 +83,11 @@ export function spoolYuanAsPricePerKg(cnyYuan: number): number {
   return cnyYuan;
 }
 
-export function listGoodsOffers(entries: WebEntry[]): GoodsOfferRow[] {
+export function listGoodsOffers(
+  entries: WebEntry[],
+  brands: { slug: string; name: string }[] = [],
+): GoodsOfferRow[] {
+  const brandBySlug = new Map(brands.map((brand) => [brand.slug, brand.name]));
   const rows: GoodsOfferRow[] = [];
   for (const entry of entries) {
     if (!isPddGoodsUrl(entry.url)) continue;
@@ -91,7 +95,7 @@ export function listGoodsOffers(entries: WebEntry[]): GoodsOfferRow[] {
     rows.push({
       id: entry.id,
       brandSlug: entry.b,
-      brandLabel: entry.b,
+      brandLabel: brandBySlug.get(entry.b) ?? entry.b,
       series: entry.s,
       name,
       url: entry.url,

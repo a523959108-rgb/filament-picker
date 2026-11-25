@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
 import { loadCatalog } from "./catalog";
 import { FAMILIES, defaultStackHash, stackEntryHref } from "./config";
@@ -10,8 +10,9 @@ import { PlanPage } from "./components/PlanPage";
 import { CostPage } from "./components/CostPage";
 import { ModelPreview } from "./components/ModelPreview";
 import { PhotoPage } from "./components/PhotoPage";
+import { SiteHeader } from "./components/SiteHeader";
 import { StackPage } from "./components/StackPage";
-import { buildIndex, EMPTY_FILTER, query } from "./search";
+import { buildIndex, EMPTY_FILTER, hasActiveFilters, query } from "./search";
 import type { FilterState } from "./search";
 import type { WebCatalog } from "./types";
 
@@ -29,22 +30,17 @@ function pageFromHash(hash: string): "plan" | "cost" | "stack" | "photo" | "cata
   return "catalog";
 }
 
+function isModelsPath(pathname: string): boolean {
+  return pathname === "/models" || pathname.startsWith("/models/");
+}
+
 function CatalogHeader(): JSX.Element {
-  const stackHref = stackEntryHref(window.location.hostname);
   return (
-    <header className="topbar">
-      <div className="topbar-title">
-        <h1>耗材选色站</h1>
-        <p className="topbar-sub">按品牌、材料与色系浏览 3D 打印耗材颜色</p>
-      </div>
-      <nav className="topbar-nav" aria-label="页面导航">
-        <a href="#/photo" className="nav-link">拍照找耗材</a>
-        <a href="#/plan" className="nav-link">图片配色</a>
-        <a href="#/cost" className="nav-link">打印成本</a>
-        <a href={stackHref} className="nav-link">叠色</a>
-        <a href="/models/login" className="nav-link">模型预览</a>
-      </nav>
-    </header>
+    <SiteHeader
+      page="catalog"
+      title="耗材选色站"
+      subtitle="按品牌、材料与色系浏览 3D 打印耗材颜色"
+    />
   );
 }
 
@@ -83,8 +79,25 @@ function StackHomeCta(): JSX.Element {
 }
 
 export default function App(): JSX.Element {
-  if (window.location.pathname === "/models" || window.location.pathname.startsWith("/models/")) {
-    return <ModelPreview />;
+  const [pathname, setPathname] = useState(() => window.location.pathname);
+
+  useEffect(() => {
+    const onPopState = () => setPathname(window.location.pathname);
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  const navigateModels = useCallback((path: string) => {
+    if (isModelsPath(path)) {
+      window.history.pushState({}, "", path);
+      setPathname(window.location.pathname);
+      return;
+    }
+    window.location.assign(path);
+  }, []);
+
+  if (isModelsPath(pathname)) {
+    return <ModelPreview path={pathname} navigate={navigateModels} />;
   }
   return <CatalogApp />;
 }
@@ -131,6 +144,16 @@ function CatalogApp(): JSX.Element {
   }, [page]);
 
   const index = useMemo(() => (catalog === null ? null : buildIndex(catalog.entries)), [catalog]);
+  const availableEffects = useMemo(() => {
+    if (catalog === null) return [];
+    const seen = new Set<string>();
+    for (const entry of catalog.entries) {
+      for (const effect of entry.eff) {
+        if (effect) seen.add(effect);
+      }
+    }
+    return [...seen].sort();
+  }, [catalog]);
   const entries = useMemo(
     () =>
       catalog === null || index === null
@@ -199,7 +222,18 @@ function CatalogApp(): JSX.Element {
               onChange={(event) => setSearchText(event.target.value)}
             />
           </label>
-          <Filters brands={catalog.brands} families={[...FAMILIES]} value={filters} onChange={setFilters} />
+          <Filters
+            brands={catalog.brands}
+            families={[...FAMILIES]}
+            effects={availableEffects}
+            value={filters}
+            hasActive={hasActiveFilters(filters, searchText)}
+            onReset={() => {
+              setSearchText("");
+              setFilters(EMPTY_FILTER);
+            }}
+            onChange={setFilters}
+          />
         </aside>
         <div className="catalog-main">
           <SwatchGrid entries={entries} brands={catalog.brands} onSelect={setSelectedId} />
@@ -207,7 +241,12 @@ function CatalogApp(): JSX.Element {
       </div>
       {compareMessage && <p className="toast" role="status">{compareMessage}</p>}
       {compareEntries.length > 0 && (
-        <CompareBar entries={compareEntries} onRemove={(id) => setCompareIds((current) => current.filter((item) => item !== id))} />
+        <CompareBar
+          entries={compareEntries}
+          brands={catalog.brands}
+          onRemove={(id) => setCompareIds((current) => current.filter((item) => item !== id))}
+          onClear={() => setCompareIds([])}
+        />
       )}
       {selected && (
         <ColorDetail

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import { MeshViewer } from "../components/MeshViewer";
 
 const harness = vi.hoisted(() => ({
@@ -200,6 +200,9 @@ describe("mesh viewer", () => {
     expect(harness.keyTarget?.className).toBe("model-mesh-stage");
     expect(document.querySelector("canvas")).toBeTruthy();
     await waitFor(() => expect(getByText("拖动旋转，滚轮缩放，双指可缩放或平移")).toBeTruthy());
+    const resetButton = getByRole("button", { name: "重置视角" });
+    expect(resetButton).toBeTruthy();
+    fireEvent.click(resetButton);
   });
 
   it("falls back when the mesh cannot be loaded", async () => {

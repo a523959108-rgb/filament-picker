@@ -10,6 +10,7 @@ import {
 } from "../marketPrice";
 import type { WebCatalog } from "../types";
 import { CostCalculator } from "./CostCalculator";
+import { SiteHeader } from "./SiteHeader";
 
 const PREVIEW_LIMIT = 12;
 
@@ -35,7 +36,7 @@ export function CostPage(): JSX.Element {
   }, []);
 
   const rows = useMemo(
-    () => (catalog === null ? [] : listGoodsOffers(catalog.entries)),
+    () => (catalog === null ? [] : listGoodsOffers(catalog.entries, catalog.brands)),
     [catalog],
   );
   const summary = useMemo(() => summarizeMarketPrices(rows), [rows]);
@@ -66,18 +67,11 @@ export function CostPage(): JSX.Element {
 
   return (
     <section className="cost-page">
-      <header className="topbar">
-        <div className="topbar-title">
-          <h1>打印成本</h1>
-          <p className="topbar-sub">按用料和电费估算一次打印要花多少钱；可参考拼多多真链卡价</p>
-        </div>
-        <nav className="topbar-nav" aria-label="页面导航">
-          <a href="#/" className="nav-link">色卡浏览</a>
-          <a href="#/photo" className="nav-link">拍照找耗材</a>
-          <a href="#/plan" className="nav-link">图片配色</a>
-          <a href="#/stack" className="nav-link">叠色</a>
-        </nav>
-      </header>
+      <SiteHeader
+        page="cost"
+        title="打印成本"
+        subtitle="按用料和电费估算一次打印要花多少钱；可参考拼多多真链卡价"
+      />
       <div className="panel cost-panel">
         <CostCalculator appliedPricePerKg={appliedPricePerKg} />
       </div>
@@ -116,7 +110,7 @@ export function CostPage(): JSX.Element {
                       {row.name}
                       <span className="cost-offer-meta">
                         {" "}
-                        · {row.brandSlug} · {row.series}
+                        · {row.brandLabel} · {row.series}
                       </span>
                     </span>
                     <span className="cost-offer-price">
