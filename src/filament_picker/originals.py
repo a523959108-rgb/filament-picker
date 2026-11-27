@@ -51,6 +51,7 @@ class CosSettings:
     timeout: float
     endpoint: str | None
     secure: bool
+    derived_prefix: str = "filament-picker/derived-models"
 
     @property
     def host(self) -> str:
@@ -71,6 +72,9 @@ def load_cos_settings() -> CosSettings | None:
     prefix = os.environ.get(
         "FILAMENT_PICKER_COS_PREFIX", "filament-picker/3mf-originals/20261107/"
     ).strip("/")
+    derived_prefix = os.environ.get(
+        "FILAMENT_PICKER_COS_DERIVED_PREFIX", "filament-picker/derived-models"
+    ).strip("/")
     endpoint = os.environ.get("FILAMENT_PICKER_COS_ENDPOINT", "").strip() or None
     secure = os.environ.get("FILAMENT_PICKER_COS_SECURE", "1" if endpoint is None else "0") != "0"
     return CosSettings(
@@ -83,6 +87,7 @@ def load_cos_settings() -> CosSettings | None:
         timeout=timeout,
         endpoint=endpoint,
         secure=secure,
+        derived_prefix=derived_prefix,
     )
 
 
@@ -183,17 +188,46 @@ def sign_request(
     )
 
 
+_DERIVED_KEY_RE = re.compile(
+    r"^([A-Za-z0-9_-]{1,128})/(model\.glb|front\.png|front-[1-9][0-9]{0,2}\.png|index\.json)$"
+)
+
+
+def safe_derived_key(value: object) -> str | None:
+    """Accept a relative derived-asset key like '<model_id>/model.glb'."""
+    if not isinstance(value, str) or _DERIVED_KEY_RE.fullmatch(value) is None:
+        return None
+    return value
+
+
+def derived_media_type(key: str) -> str:
+    lowered = key.lower()
+    if lowered.endswith(".glb"):
+        return "model/gltf-binary"
+    if lowered.endswith(".png"):
+        return "image/png"
+    if lowered.endswith(".json"):
+        return "application/json"
+    return "application/octet-stream"
+
+
 class HttpObjectSource:
     def __init__(self, settings: CosSettings) -> None:
         self.settings = settings
 
-    def open(self, key: str, range_header: str | None, method: str = "GET") -> ObjectOpen:
-        safe = safe_object_key(key)
-        if safe is None:
-            raise UpstreamFailure()
-        request_path, signature_path = cos_paths(self.settings.prefix, safe)
+    def _send(
+        self,
+        full_prefix: str,
+        safe_key: str,
+        method: str,
+        *,
+        range_header: str | None = None,
+        body: bytes | None = None,
+        content_type: str | None = None,
+    ) -> tuple[HTTPConnection, HTTPResponse]:
+        request_path, signature_path = cos_paths(full_prefix, safe_key)
         now = int(datetime.now(UTC).timestamp())
-        headers = {
+        headers: dict[str, str] = {
             "Host": self.settings.host,
             "Authorization": sign_request(
                 method,
@@ -210,17 +244,25 @@ class HttpObjectSource:
             headers["x-cos-security-token"] = self.settings.token
         if range_header:
             headers["Range"] = range_header
+        if body is not None:
+            headers["Content-Length"] = str(len(body))
+        if content_type:
+            headers["Content-Type"] = content_type
         connection = self._connect()
         try:
-            connection.request(method, request_path, headers=headers)
+            connection.request(method, request_path, body=body, headers=headers)
             response = connection.getresponse()
         except (OSError, HTTPException, TimeoutError) as exc:
             connection.close()
             raise UpstreamFailure() from exc
-        if response.status not in (200, 206):
-            _discard(response)
-            connection.close()
-            raise UpstreamFailure()
+        return connection, response
+
+    def _stream_response(
+        self,
+        connection: HTTPConnection,
+        response: HTTPResponse,
+        media_type: str,
+    ) -> ObjectOpen:
         length = _content_length(response)
         content_range = response.getheader("Content-Range")
         if content_range and not content_range.lower().startswith("bytes "):
@@ -239,12 +281,80 @@ class HttpObjectSource:
 
         return ObjectOpen(
             status=response.status,
-            media_type=media_type_for(safe),
+            media_type=media_type,
             size=length,
             content_range=content_range,
             chunks=chunks(),
             close=lambda: (response.close(), connection.close()),
         )
+
+    def open(self, key: str, range_header: str | None, method: str = "GET") -> ObjectOpen:
+        safe = safe_object_key(key)
+        if safe is None:
+            raise UpstreamFailure()
+        connection, response = self._send(
+            self.settings.prefix, safe, method, range_header=range_header
+        )
+        if response.status not in (200, 206):
+            _discard(response)
+            connection.close()
+            raise UpstreamFailure()
+        return self._stream_response(connection, response, media_type_for(safe))
+
+    def open_derived(
+        self, key: str, range_header: str | None = None, method: str = "GET"
+    ) -> ObjectOpen | None:
+        safe = safe_derived_key(key)
+        if safe is None:
+            raise UpstreamFailure()
+        connection, response = self._send(
+            self.settings.derived_prefix, safe, method, range_header=range_header
+        )
+        if response.status == 404:
+            _discard(response)
+            connection.close()
+            return None
+        if response.status not in (200, 206):
+            _discard(response)
+            connection.close()
+            raise UpstreamFailure()
+        return self._stream_response(connection, response, derived_media_type(safe))
+
+    def get_derived_bytes(self, key: str, *, max_bytes: int = 2 * 1024 * 1024) -> bytes | None:
+        opened = self.open_derived(key, None, "GET")
+        if opened is None:
+            return None
+        try:
+            if opened.size is not None and opened.size > max_bytes:
+                raise UpstreamFailure()
+            buf = bytearray()
+            for piece in opened.chunks:
+                buf.extend(piece)
+                if len(buf) > max_bytes:
+                    raise UpstreamFailure()
+            return bytes(buf)
+        finally:
+            if callable(opened.close):
+                opened.close()
+
+    def put_derived_bytes(self, key: str, payload: bytes, content_type: str | None = None) -> None:
+        safe = safe_derived_key(key)
+        if safe is None:
+            raise UpstreamFailure()
+        connection, response = self._send(
+            self.settings.derived_prefix,
+            safe,
+            "PUT",
+            body=payload,
+            content_type=content_type or derived_media_type(safe),
+        )
+        try:
+            response.read()
+            if response.status not in (200, 201, 204):
+                raise UpstreamFailure()
+        finally:
+            response.close()
+            connection.close()
 
     def _connect(self) -> HTTPConnection:
         host = self.settings.host

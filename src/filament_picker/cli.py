@@ -226,14 +226,80 @@ def _add_export_web(sub: argparse._SubParsersAction) -> None:
 
 
 def _add_derive(sub: argparse._SubParsersAction) -> None:
-    parser = sub.add_parser("derive-preview", help="write a GLB and front views from local 3MF")
+    parser = sub.add_parser("derive-preview", help="write a GLB and front views from local/COS 3MF")
     parser.add_argument("--id", default="")
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--all-manifest", action="store_true")
+    parser.add_argument("--cos", action="store_true", help="upload derived previews to COS")
+    parser.add_argument(
+        "--prune-local",
+        action="store_true",
+        help="remove large local .glb/.png after successful COS upload",
+    )
+    parser.add_argument("--limit", type=int, default=0)
     parser.set_defaults(handler=_cmd_derive)
 
 
 def _cmd_derive(args: argparse.Namespace) -> int:
+    from .originals import (
+        OriginalTooLarge,
+        OriginalUnavailable,
+        UpstreamFailure,
+        materialize_original,
+    )
+
     root = models_root()
+    if args.all_manifest:
+        from .models import ModelPreview
+
+        svc = ModelPreview(root)
+        with sqlite3.connect(root / "manifest.sqlite") as conn:
+            conn.row_factory = sqlite3.Row
+            ids = [
+                str(row["id"])
+                for row in conn.execute("SELECT id FROM models ORDER BY size_bytes ASC, id ASC")
+            ]
+        if args.limit > 0:
+            ids = ids[: args.limit]
+        if not ids:
+            print("manifest 中没有模型")
+            return 1
+        failed = 0
+        for idx, model_id in enumerate(ids, start=1):
+            target = svc._download_target(model_id)
+            local = None if target is None else target[3]
+            key = None if target is None or local is not None else target[4]
+            if local is None and key is None:
+                print(f"[{idx}/{len(ids)}] {model_id}\tskipped\tno-original", flush=True)
+                continue
+            try:
+                with materialize_original(root, local, key) as source:
+                    if source.suffix.lower() != ".3mf":
+                        print(f"[{idx}/{len(ids)}] {model_id}\tskipped\tnot-3mf", flush=True)
+                        continue
+                    record = derive_file(
+                        root,
+                        model_id,
+                        source,
+                        force=args.force,
+                        sync_cos=args.cos,
+                        prune_local_on_cos=args.prune_local,
+                    )
+            except (OriginalUnavailable, OriginalTooLarge, UpstreamFailure, DeriveError) as exc:
+                detail = getattr(exc, "detail", type(exc).__name__)
+                print(f"[{idx}/{len(ids)}] {model_id}\tfailed\t{detail}", flush=True)
+                failed += 1
+                continue
+            status = record.get("status")
+            print(
+                f"[{idx}/{len(ids)}] {model_id}\t{status}\t{record.get('scope')}\t"
+                f"{record.get('triangles')}\tcos={bool(record.get('cos'))}",
+                flush=True,
+            )
+            if status != "ready":
+                failed += 1
+        return 1 if failed else 0
+
     if args.id:
         ids = [args.id]
     else:
@@ -257,7 +323,14 @@ def _cmd_derive(args: argparse.Namespace) -> int:
             print(f"{model_id}\tskipped\tno-local-3mf")
             continue
         try:
-            record = derive_file(root, model_id, source, force=args.force)
+            record = derive_file(
+                root,
+                model_id,
+                source,
+                force=args.force,
+                sync_cos=args.cos,
+                prune_local_on_cos=args.prune_local,
+            )
         except DeriveError as exc:
             print(f"{model_id}\tfailed\t{exc.detail}")
             failed += 1

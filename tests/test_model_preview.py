@@ -487,3 +487,91 @@ def test_seed_refuses_foreign_manifest_without_writing_a_mesh(tmp_path: Path) ->
     assert not (root / "meshes").exists()
     assert list(root.rglob("*.glb")) == []
     assert list(root.rglob("*.3mf")) == []
+
+
+def test_derived_preview_streams_from_cos_when_local_pruned(
+    preview: tuple, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import io
+    import json
+    import zipfile
+
+    from filament_picker.mesh_derive import derive_file
+    from filament_picker.originals import ObjectOpen
+
+    app, password, models, _ = preview
+    stored_objects: dict[str, tuple[bytes, str]] = {}
+
+    monkeypatch.setenv("FILAMENT_PICKER_COS_BUCKET", "test-bucket")
+    monkeypatch.setenv("FILAMENT_PICKER_COS_SECRET_ID", "test-id")
+    monkeypatch.setenv("FILAMENT_PICKER_COS_SECRET_KEY", "test-key")
+    monkeypatch.setenv("FILAMENT_PICKER_COS_DERIVED_PREFIX", "filament-picker/derived-models")
+
+    def fake_put(self, key: str, payload: bytes, content_type: str | None = None) -> None:
+        stored_objects[key] = (payload, content_type or "application/octet-stream")
+
+    def fake_open_derived(
+        self, key: str, range_header: str | None = None, method: str = "GET"
+    ) -> ObjectOpen | None:
+        item = stored_objects.get(key)
+        if item is None:
+            return None
+        data, media = item
+        return ObjectOpen(
+            status=200,
+            media_type=media,
+            size=len(data),
+            content_range=None,
+            chunks=iter([data]),
+            close=lambda: None,
+        )
+
+    def fake_get_bytes(self, key: str, *, max_bytes: int = 2 * 1024 * 1024) -> bytes | None:
+        item = stored_objects.get(key)
+        return None if item is None else item[0]
+
+    monkeypatch.setattr("filament_picker.originals.HttpObjectSource.put_derived_bytes", fake_put)
+    monkeypatch.setattr(
+        "filament_picker.originals.HttpObjectSource.open_derived", fake_open_derived
+    )
+    monkeypatch.setattr(
+        "filament_picker.originals.HttpObjectSource.get_derived_bytes", fake_get_bytes
+    )
+
+    payload = io.BytesIO()
+    with zipfile.ZipFile(payload, "w") as archive:
+        archive.writestr(
+            "3D/3dmodel.model",
+            '<model unit="millimeter"><resources><object id="1" type="model"><mesh>'
+            "<vertices>"
+            '<vertex x="0" y="0" z="0"/><vertex x="10" y="0" z="0"/><vertex x="0" y="10" z="0"/>'
+            "</vertices>"
+            '<triangles><triangle v1="0" v2="1" v3="2"/></triangles>'
+            '</mesh></object></resources><build><item objectid="1"/></build></model>',
+        )
+    src_3mf = models / "originals" / "sample-01.3mf"
+    src_3mf.parent.mkdir(parents=True, exist_ok=True)
+    src_3mf.write_bytes(payload.getvalue())
+
+    record = derive_file(models, "sample-01", src_3mf, sync_cos=True, prune_local_on_cos=True)
+    assert record["cos"] is True
+    assert not (models / "derived" / "sample-01" / "model.glb").exists()
+    assert not (models / "derived" / "sample-01" / "front.png").exists()
+    assert "sample-01/model.glb" in stored_objects
+    assert "sample-01/index.json" in stored_objects
+
+    # Simulate fresh instance with empty local derived directory (reads index.json from COS)
+    for p in (models / "derived" / "sample-01").glob("*"):
+        p.unlink()
+
+    cookie = "; ".join(f"{k}={v}" for k, v in _login(app, password).cookies.items())
+    detail = _request(app, "GET", "/api/models/sample-01", cookie=cookie)
+    assert detail.status_code == 200
+    body = detail.json()
+    assert body["mesh_derived"] is True
+    assert body["mesh_url"] == "/api/models/sample-01/derived/model.glb"
+    assert json.loads((models / "derived" / "sample-01" / "index.json").read_text())["cos"] is True
+
+    glb_resp = _request(app, "GET", "/api/models/sample-01/derived/model.glb", cookie=cookie)
+    assert glb_resp.status_code == 200
+    assert glb_resp.content.startswith(b"glTF")

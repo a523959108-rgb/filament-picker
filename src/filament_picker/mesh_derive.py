@@ -17,6 +17,7 @@ import math
 import os
 import re
 import threading
+import time
 import xml.parsers.expat as expat
 import zipfile
 from datetime import datetime
@@ -30,7 +31,12 @@ from PIL import Image, ImageDraw
 
 from .config import TZ
 from .mesh_glb import _chunk
-from .originals import content_sha256
+from .originals import (
+    HttpObjectSource,
+    UpstreamFailure,
+    content_sha256,
+    load_cos_settings,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -38,9 +44,11 @@ _MAX_ENTRIES = 10_000
 _MAX_ENTRY = 512 * 1024 * 1024
 _MAX_TOTAL_UNCOMPRESSED = 4 * 1024 * 1024 * 1024
 _MAX_TRIANGLES = 30_000_000
-_TARGET_OBJECT_TRIANGLES = 120_000
-_TARGET_SCENE_TRIANGLES = 450_000
+_TARGET_OBJECT_TRIANGLES = 100_000
+_TARGET_SCENE_TRIANGLES = 220_000
 _RENDER_MAX_TRIANGLES = 150_000
+_MISSING_COS_TTL = 60.0
+_MISSING_COS_INDEX: dict[str, float] = {}
 _UNITS = {
     "micron": 0.001,
     "millimeter": 1.0,
@@ -364,21 +372,34 @@ def save_derived_scene(
     return record
 
 
-def derive_file(root: Path, model_id: str, source: Path, *, force: bool = False) -> dict[str, Any]:
+def derive_file(
+    root: Path,
+    model_id: str,
+    source: Path,
+    *,
+    force: bool = False,
+    sync_cos: bool = True,
+    prune_local_on_cos: bool = False,
+) -> dict[str, Any]:
     if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", model_id):
         raise DeriveError("模型编号无效")
     digest = content_sha256(source)
     directory = _derived_dir(root, model_id)
-    current = _read_index(directory)
+    current = (
+        fetch_cos_derived_index(root, model_id)
+        if sync_cos and not force
+        else _read_index(directory)
+    )
     if (
         not force
         and current is not None
         and current.get("status") == "ready"
         and current.get("source_sha256") == digest
-        and _outputs_present(directory, current)
+        and (_outputs_present(directory, current) or bool(current.get("cos")))
     ):
         return current
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    _MISSING_COS_INDEX.pop(model_id, None)
     try:
         glb, images, record = _derive_source(source, source_digest=digest)
     except DeriveError as exc:
@@ -405,7 +426,79 @@ def derive_file(root: Path, model_id: str, source: Path, *, force: bool = False)
     record["model_id"] = model_id
     record["updated_at"] = datetime.now(ZoneInfo(TZ)).isoformat(timespec="seconds")
     _write_index(directory, record)
+    if sync_cos and load_cos_settings() is not None:
+        synced = cos_sync_derived(root, model_id, prune_local=prune_local_on_cos)
+        if synced is not None:
+            return synced
     return record
+
+
+def cos_sync_derived(
+    root: Path,
+    model_id: str,
+    *,
+    prune_local: bool = False,
+) -> dict[str, Any] | None:
+    """Upload ready derived preview assets for *model_id* into COS."""
+    settings = load_cos_settings()
+    if settings is None or not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", model_id):
+        return None
+    directory = _derived_dir(root, model_id)
+    record = _read_index(directory)
+    if record is None or record.get("status") != "ready" or not _outputs_present(directory, record):
+        return None
+    asset_names = ["model.glb", "front.png"]
+    asset_names.extend(str(plate["front"]) for plate in record.get("plates") or [])
+    client = HttpObjectSource(settings)
+    try:
+        for name in asset_names:
+            client.put_derived_bytes(f"{model_id}/{name}", (directory / name).read_bytes())
+        updated = {**record, "cos": True, "cos_prefix": settings.derived_prefix}
+        index_bytes = (json.dumps(updated, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+        client.put_derived_bytes(f"{model_id}/index.json", index_bytes, "application/json")
+    except UpstreamFailure:
+        logger.warning("cos_sync_derived failed for %s; keeping local copy", model_id)
+        return None
+    _write_index(directory, updated)
+    _MISSING_COS_INDEX.pop(model_id, None)
+    if prune_local:
+        _clear_outputs(directory)
+    return updated
+
+
+def fetch_cos_derived_index(root: Path, model_id: str) -> dict[str, Any] | None:
+    """Return local derived index, or fetch & cache index.json from COS when missing locally."""
+    if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", model_id):
+        return None
+    directory = _derived_dir(root, model_id)
+    local = _read_index(directory)
+    if local is not None:
+        return local
+    settings = load_cos_settings()
+    if settings is None:
+        return None
+    missed_at = _MISSING_COS_INDEX.get(model_id)
+    if missed_at is not None and (time.monotonic() - missed_at) < _MISSING_COS_TTL:
+        return None
+    try:
+        raw = HttpObjectSource(settings).get_derived_bytes(f"{model_id}/index.json")
+    except UpstreamFailure:
+        return None
+    if raw is None:
+        _MISSING_COS_INDEX[model_id] = time.monotonic()
+        return None
+    try:
+        parsed = json.loads(raw.decode("utf-8"))
+    except (UnicodeError, json.JSONDecodeError):
+        _MISSING_COS_INDEX[model_id] = time.monotonic()
+        return None
+    if not isinstance(parsed, dict) or parsed.get("status") != "ready":
+        _MISSING_COS_INDEX[model_id] = time.monotonic()
+        return None
+    parsed.setdefault("cos", True)
+    _write_index(directory, parsed)
+    _MISSING_COS_INDEX.pop(model_id, None)
+    return parsed
 
 
 def derived_index(root: Path, model_id: str) -> dict[str, Any] | None:

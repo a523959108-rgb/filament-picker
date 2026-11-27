@@ -42,6 +42,7 @@ from .mesh_derive import (
     derive_file,
     derived_file,
     derived_index,
+    fetch_cos_derived_index,
     model_lock,
 )
 from .model_import import parse_plate_layout
@@ -431,11 +432,17 @@ class ModelPreview:
         return f"/api/models/{quote(model_id, safe='')}/glb"
 
     def derived_payload(self, model_id: str) -> dict[str, Any]:
-        index = derived_index(self.root, model_id)
+        index = fetch_cos_derived_index(self.root, model_id)
+        cos_ready = (
+            index is not None
+            and index.get("status") == "ready"
+            and bool(index.get("cos"))
+            and load_cos_settings() is not None
+        )
         ready = (
             index is not None
             and index.get("status") == "ready"
-            and derived_file(self.root, model_id, "model.glb") is not None
+            and (cos_ready or derived_file(self.root, model_id, "model.glb") is not None)
         )
         if not ready or index is None:
             return {
@@ -1031,7 +1038,14 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
             with model_lock(model_id), materialize_original(preview.root, local, key) as source:
                 if source.suffix.lower() != ".3mf":
                     raise HTTPException(status_code=422, detail="只有 3MF 能派生网格")
-                return derive_file(preview.root, model_id, source, force=force)
+                return derive_file(
+                    preview.root,
+                    model_id,
+                    source,
+                    force=force,
+                    sync_cos=True,
+                    prune_local_on_cos=True,
+                )
 
         from starlette.concurrency import run_in_threadpool
 
@@ -1046,23 +1060,63 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         except DeriveError as exc:
             raise HTTPException(status_code=422, detail=exc.detail) from None
 
-    @router.get("/{model_id}/derived/{name}")
+    @router.api_route("/{model_id}/derived/{name}", methods=["GET", "HEAD"])
     def derived_asset(model_id: str, name: str, request: Request) -> Response:
         if _MODEL_ID.fullmatch(model_id) is None:
             raise HTTPException(status_code=404, detail="派生文件不存在")
         preview.record(model_id, request.state.model_username)
-        path = derived_file(preview.root, model_id, name)
-        if path is None:
+        if re.fullmatch(r"model\.glb|front\.png|front-[1-9][0-9]{0,2}\.png", name) is None:
             raise HTTPException(status_code=404, detail="派生文件不存在")
-        media = "model/gltf-binary" if path.suffix.lower() == ".glb" else "image/png"
+        media = "model/gltf-binary" if name.endswith(".glb") else "image/png"
         headers = {"Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow"}
-        if preview.direct:
-            return FileResponse(path, media_type=media, headers=headers)
-        rel = PurePosixPath("derived") / model_id / path.name
-        redirect = "/internal-models/" + quote(rel.as_posix(), safe="/")
-        return Response(
+        path = derived_file(preview.root, model_id, name)
+        if path is not None:
+            if request.method == "HEAD":
+                return Response(
+                    status_code=200,
+                    media_type=media,
+                    headers={**headers, "Content-Length": str(path.stat().st_size)},
+                )
+            if preview.direct:
+                return FileResponse(path, media_type=media, headers=headers)
+            rel = PurePosixPath("derived") / model_id / path.name
+            redirect = "/internal-models/" + quote(rel.as_posix(), safe="/")
+            return Response(
+                media_type=media,
+                headers={**headers, "X-Accel-Redirect": redirect},
+            )
+        settings = load_cos_settings()
+        index = fetch_cos_derived_index(preview.root, model_id)
+        if settings is None or index is None or index.get("status") != "ready":
+            raise HTTPException(status_code=404, detail="派生文件不存在")
+        range_header = request.headers.get("range")
+        if range_header is not None and not re.fullmatch(r"bytes=\d+-\d*", range_header.strip()):
+            raise HTTPException(status_code=416, detail="范围无效")
+        method = "HEAD" if request.method == "HEAD" else "GET"
+        try:
+            opened = HttpObjectSource(settings).open_derived(
+                f"{model_id}/{name}",
+                range_header.strip() if range_header else None,
+                method,
+            )
+        except UpstreamFailure:
+            raise HTTPException(status_code=502, detail="派生预览暂时无法读取") from None
+        if opened is None:
+            raise HTTPException(status_code=404, detail="派生文件不存在")
+        resp_headers = {**headers, "Accept-Ranges": "bytes"}
+        if opened.size is not None:
+            resp_headers["Content-Length"] = str(opened.size)
+        if opened.content_range is not None:
+            resp_headers["Content-Range"] = opened.content_range
+        if request.method == "HEAD":
+            if callable(opened.close):
+                opened.close()
+            return Response(status_code=opened.status, media_type=media, headers=resp_headers)
+        return StreamingResponse(
+            opened.chunks,
+            status_code=opened.status,
             media_type=media,
-            headers={**headers, "X-Accel-Redirect": redirect},
+            headers=resp_headers,
         )
 
     @router.get("/{model_id}/scheme-copy")
