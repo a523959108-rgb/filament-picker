@@ -381,23 +381,25 @@ function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: stri
         </div>
         <details className="gallery-more">
           <summary>筛选</summary>
-          {(data?.materials?.length ?? 0) > 0 && (
-            <label>材料<select value={params.material} onChange={(event) => {
-              setParams((current) => ({ ...current, material: event.target.value, page: 1 }));
-            }}><option value="">全部材料</option>
-              {(data?.materials ?? []).map((value) => <option key={value} value={value}>{value}</option>)}
+          <div className="gallery-more-panel">
+            {(data?.materials?.length ?? 0) > 0 && (
+              <label>材料<select value={params.material} onChange={(event) => {
+                setParams((current) => ({ ...current, q: search, material: event.target.value, page: 1 }));
+              }}><option value="">全部材料</option>
+                {(data?.materials ?? []).map((value) => <option key={value} value={value}>{value}</option>)}
+              </select></label>
+            )}
+            <label>排序<select value={params.sort} onChange={(event) => {
+              setParams((current) => ({ ...current, q: search, sort: event.target.value, page: 1 }));
+            }}>{SORTS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
             </select></label>
-          )}
-          <label>排序<select value={params.sort} onChange={(event) => {
-            setParams((current) => ({ ...current, sort: event.target.value, page: 1 }));
-          }}>{SORTS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-          </select></label>
-          <label>方向<select value={params.order} onChange={(event) => {
-            setParams((current) => ({ ...current, order: event.target.value, page: 1 }));
-          }}>
-            <option value="asc">升序</option>
-            <option value="desc">降序</option>
-          </select></label>
+            <label>方向<select value={params.order} onChange={(event) => {
+              setParams((current) => ({ ...current, q: search, order: event.target.value, page: 1 }));
+            }}>
+              <option value="asc">升序</option>
+              <option value="desc">降序</option>
+            </select></label>
+          </div>
         </details>
         <div className="gallery-actions">
           <button type="submit">搜索</button>
