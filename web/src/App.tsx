@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
 import { loadCatalog } from "./catalog";
 import { FAMILIES, defaultStackHash } from "./config";
@@ -6,16 +6,35 @@ import { Filters } from "./components/Filters";
 import { ColorDetail } from "./components/ColorDetail";
 import { CompareBar } from "./components/CompareBar";
 import { SwatchGrid } from "./components/SwatchGrid";
-import { PlanPage } from "./components/PlanPage";
-import { CostPage } from "./components/CostPage";
-import { ModelPreview } from "./components/ModelPreview";
-import { PhotoPage } from "./components/PhotoPage";
 import { SiteHeader, useThemeClock } from "./components/SiteHeader";
-import { SpecIndex } from "./components/SpecIndex";
-import { StackPage } from "./components/StackPage";
 import { buildIndex, EMPTY_FILTER, query } from "./search";
 import type { FilterState } from "./search";
 import type { WebCatalog } from "./types";
+
+const ModelPreview = lazy(() =>
+  import("./components/ModelPreview").then((mod) => ({ default: mod.ModelPreview })),
+);
+const PlanPage = lazy(() =>
+  import("./components/PlanPage").then((mod) => ({ default: mod.PlanPage })),
+);
+const CostPage = lazy(() =>
+  import("./components/CostPage").then((mod) => ({ default: mod.CostPage })),
+);
+const PhotoPage = lazy(() =>
+  import("./components/PhotoPage").then((mod) => ({ default: mod.PhotoPage })),
+);
+const SpecIndex = lazy(() =>
+  import("./components/SpecIndex").then((mod) => ({ default: mod.SpecIndex })),
+);
+const StackPage = lazy(() =>
+  import("./components/StackPage").then((mod) => ({ default: mod.StackPage })),
+);
+
+const ROUTE_FALLBACK = (
+  <p className="panel empty-state" role="status">
+    页面加载中…
+  </p>
+);
 
 function routeFromHash(): string {
   return window.location.hash;
@@ -39,7 +58,11 @@ function CatalogHeader(): JSX.Element {
 export default function App(): JSX.Element {
   useThemeClock();
   if (window.location.pathname === "/models" || window.location.pathname.startsWith("/models/")) {
-    return <ModelPreview />;
+    return (
+      <Suspense fallback={ROUTE_FALLBACK}>
+        <ModelPreview />
+      </Suspense>
+    );
   }
   return <CatalogApp />;
 }
@@ -111,22 +134,46 @@ function CatalogApp(): JSX.Element {
   );
 
   if (page === "plan") {
-    return <main className="page"><PlanPage /></main>;
+    return (
+      <main className="page">
+        <Suspense fallback={ROUTE_FALLBACK}>
+          <PlanPage />
+        </Suspense>
+      </main>
+    );
   }
   if (page === "cost") {
-    return <main className="page"><CostPage /></main>;
+    return (
+      <main className="page">
+        <Suspense fallback={ROUTE_FALLBACK}>
+          <CostPage />
+        </Suspense>
+      </main>
+    );
   }
   if (page === "stack") {
-    return <StackPage />;
+    return (
+      <Suspense fallback={ROUTE_FALLBACK}>
+        <StackPage />
+      </Suspense>
+    );
   }
   if (page === "photo") {
-    return <main className="page"><PhotoPage /></main>;
+    return (
+      <main className="page">
+        <Suspense fallback={ROUTE_FALLBACK}>
+          <PhotoPage />
+        </Suspense>
+      </main>
+    );
   }
   if (page === "specs") {
     return (
       <main className="page catalog-page">
         <CatalogHeader />
-        <SpecIndex catalog={catalog} />
+        <Suspense fallback={ROUTE_FALLBACK}>
+          <SpecIndex catalog={catalog} />
+        </Suspense>
       </main>
     );
   }

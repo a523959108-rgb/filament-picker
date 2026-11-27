@@ -27,12 +27,12 @@ afterEach(() => {
 });
 
 describe("model preview", () => {
-  it("renders login fields through the pathname branch without fetching the color catalog", () => {
+  it("renders login fields through the pathname branch without fetching the color catalog", async () => {
     window.history.replaceState({}, "", "/models/login");
     const fetcher = vi.fn();
     vi.stubGlobal("fetch", fetcher);
-    const { getByLabelText } = render(<App />);
-    expect(getByLabelText("用户名")).toBeTruthy();
+    const { findByLabelText, getByLabelText } = render(<App />);
+    expect(await findByLabelText("用户名")).toBeTruthy();
     expect(getByLabelText("密码").getAttribute("type")).toBe("password");
     expect(fetcher.mock.calls.every((call) => call[0] === "/api/models/registration")).toBe(true);
     expect(fetcher.mock.calls.some((call) => String(call[0]).includes("catalog"))).toBe(false);

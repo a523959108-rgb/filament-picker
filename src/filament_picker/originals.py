@@ -21,7 +21,8 @@ from urllib.parse import quote
 
 _SUFFIXES = {".3mf": "model/3mf", ".stl": "model/stl"}
 _RANGE = re.compile(r"^bytes=(\d+)-(\d*)$")
-_CHUNK = 64 * 1024
+_CHUNK = 256 * 1024
+_KEY_OVERRIDES_CACHE: tuple[str, int, int, dict[str, str]] | None = None
 _UNAVAILABLE = "原件暂时无法下载"
 _UNMAPPED = "没有原件映射"
 
@@ -92,10 +93,21 @@ def load_cos_settings() -> CosSettings | None:
 
 
 def load_key_overrides(path: str | None = None) -> dict[str, str]:
+    global _KEY_OVERRIDES_CACHE
     raw_path = path if path is not None else os.environ.get("FILAMENT_PICKER_COS_MAP", "").strip()
     if not raw_path:
         return {}
-    parsed = json.loads(Path(raw_path).read_text(encoding="utf-8"))
+    file_path = Path(raw_path)
+    stat = file_path.stat()
+    cached = _KEY_OVERRIDES_CACHE
+    if (
+        cached is not None
+        and cached[0] == raw_path
+        and cached[1] == stat.st_mtime_ns
+        and cached[2] == stat.st_size
+    ):
+        return cached[3]
+    parsed = json.loads(file_path.read_text(encoding="utf-8"))
     if not isinstance(parsed, dict):
         raise ValueError("COS map must be a JSON object")
     overrides: dict[str, str] = {}
@@ -105,7 +117,9 @@ def load_key_overrides(path: str | None = None) -> dict[str, str]:
         key = item.get("key") if isinstance(item, dict) else item
         if isinstance(key, str) and safe_object_key(key) is not None:
             overrides[model_id] = safe_object_key(key) or ""
-    return {key: value for key, value in overrides.items() if value}
+    cleaned = {key: value for key, value in overrides.items() if value}
+    _KEY_OVERRIDES_CACHE = (raw_path, stat.st_mtime_ns, stat.st_size, cleaned)
+    return cleaned
 
 
 def safe_object_key(value: object) -> str | None:

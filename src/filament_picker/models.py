@@ -845,6 +845,7 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         response.delete_cookie(
             COOKIE_NAME, path="/", httponly=True, secure=preview.auth.secure, samesite="lax"
         )
+        response.headers["Clear-Site-Data"] = '"cache"'
         return response
 
     @router.get("/submissions")
@@ -1068,7 +1069,17 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         if re.fullmatch(r"model\.glb|front\.png|front-[1-9][0-9]{0,2}\.png", name) is None:
             raise HTTPException(status_code=404, detail="派生文件不存在")
         media = "model/gltf-binary" if name.endswith(".glb") else "image/png"
-        headers = {"Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow"}
+        index = fetch_cos_derived_index(preview.root, model_id)
+        digest = "" if index is None else str(index.get("source_sha256") or "")
+        etag = f'"{digest}:{name}"' if digest else None
+        headers: dict[str, str] = {
+            "Cache-Control": "private, max-age=300",
+            "X-Robots-Tag": "noindex, nofollow",
+        }
+        if etag is not None:
+            headers["ETag"] = etag
+            if request.headers.get("if-none-match") == etag:
+                return Response(status_code=304, headers=headers)
         path = derived_file(preview.root, model_id, name)
         if path is not None:
             if request.method == "HEAD":
@@ -1086,7 +1097,6 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
                 headers={**headers, "X-Accel-Redirect": redirect},
             )
         settings = load_cos_settings()
-        index = fetch_cos_derived_index(preview.root, model_id)
         if settings is None or index is None or index.get("status") != "ready":
             raise HTTPException(status_code=404, detail="派生文件不存在")
         range_header = request.headers.get("range")
