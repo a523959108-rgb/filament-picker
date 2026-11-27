@@ -41,8 +41,8 @@ from .originals import (
 logger = logging.getLogger(__name__)
 
 _MAX_ENTRIES = 10_000
-_MAX_ENTRY = 512 * 1024 * 1024
-_MAX_TOTAL_UNCOMPRESSED = 4 * 1024 * 1024 * 1024
+_MAX_ENTRY = 2 * 1024 * 1024 * 1024
+_MAX_TOTAL_UNCOMPRESSED = 8 * 1024 * 1024 * 1024
 _MAX_TRIANGLES = 30_000_000
 _TARGET_OBJECT_TRIANGLES = 100_000
 _TARGET_SCENE_TRIANGLES = 220_000
@@ -728,11 +728,13 @@ def _load_objects(
             return
         if local == "object" and current_object_id is not None:
             if vertices:
-                positions = np.array(vertices, dtype=np.float64).reshape(-1, 3)
+                positions = np.frombuffer(vertices, dtype=np.float64).reshape(-1, 3).copy()
             else:
                 positions = np.zeros((0, 3), dtype=np.float64)
+            del vertices[:]
             if triangles:
-                indices = np.array(triangles, dtype=np.int64).reshape(-1, 3)
+                indices = np.frombuffer(triangles, dtype=np.int64).reshape(-1, 3).copy()
+                del triangles[:]
                 if np.any(indices < 0) or np.any(indices >= len(positions)):
                     raise DeriveError("三角面引用了不存在的顶点，没有派生")
                 if len(indices) > _TARGET_OBJECT_TRIANGLES:
@@ -741,8 +743,7 @@ def _load_objects(
                     )
             else:
                 indices = np.zeros((0, 3), dtype=np.int64)
-            del vertices[:]
-            del triangles[:]
+                del triangles[:]
             objects[current_object_id] = {
                 "positions": positions,
                 "indices": indices,

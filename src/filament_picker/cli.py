@@ -36,7 +36,7 @@ from .ingest import (
     sha256_file,
     verify_snapshots,
 )
-from .mesh_derive import DeriveError, derive_file
+from .mesh_derive import DeriveError, derive_file, derived_index, fetch_cos_derived_index
 from .models import models_root
 from .ofd import ENRICHMENT_PATH, import_ofd, update_esun_confidence, write_json
 from .originals import local_original
@@ -266,6 +266,19 @@ def _cmd_derive(args: argparse.Namespace) -> int:
             return 1
         failed = 0
         for idx, model_id in enumerate(ids, start=1):
+            if not args.force:
+                existing = (
+                    fetch_cos_derived_index(root, model_id)
+                    if args.cos
+                    else derived_index(root, model_id)
+                )
+                if (
+                    existing is not None
+                    and existing.get("status") == "ready"
+                    and (not args.cos or existing.get("cos") is True)
+                ):
+                    print(f"[{idx}/{len(ids)}] {model_id}\tcached\tready", flush=True)
+                    continue
             target = svc._download_target(model_id)
             local = None if target is None else target[3]
             key = None if target is None or local is not None else target[4]
