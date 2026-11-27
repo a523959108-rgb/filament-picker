@@ -11,6 +11,36 @@ const PAGE_NAME = {
   login: "登录",
 } as const;
 
+const THEME_LABEL: Record<ThemeMode, string> = {
+  auto: "自动",
+  light: "亮色",
+  dark: "暗色",
+};
+
+function ThemeIcon({ mode, size = 18 }: { mode: ThemeMode; size?: number }): JSX.Element {
+  if (mode === "light") {
+    return (
+      <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+      </svg>
+    );
+  }
+  if (mode === "dark") {
+    return (
+      <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export function useThemeClock(): void {
   useEffect(() => {
     let timer = 0;
@@ -117,8 +147,16 @@ export function SiteHeader(props: {
           <a href="/models" className={props.active === "gallery" ? "site-link is-active" : "site-link"} aria-current={props.active === "gallery" ? "page" : undefined}>模型画廊</a>
         )}
         <button type="button" className="site-tools-desktop" aria-expanded={toolsOpen} onClick={toggleTools}>工具</button>
-        <button type="button" className="site-theme site-theme-desktop" aria-label={themeMode === "auto" ? "主题 自动" : themeMode === "light" ? "主题 亮色" : "主题 暗色"} aria-expanded={themeOpen} aria-haspopup="menu" onClick={toggleTheme}>
-          {themeMode === "auto" ? "自" : themeMode === "light" ? "亮" : "暗"}
+        <button
+          type="button"
+          className="site-theme site-theme-desktop"
+          aria-label={`主题 ${THEME_LABEL[themeMode]}`}
+          title={`主题：${THEME_LABEL[themeMode]}`}
+          aria-expanded={themeOpen}
+          aria-haspopup="menu"
+          onClick={toggleTheme}
+        >
+          <ThemeIcon mode={themeMode} size={18} />
         </button>
       </nav>
       <div className="site-actions">
@@ -127,8 +165,16 @@ export function SiteHeader(props: {
         {props.backHref ? <a className="site-link model-back" href={props.backHref}>返回画廊</a> : null}
         {props.active === "catalog" ? <a className="site-link" href="/models/login">登录</a> : null}
         {props.onLogout ? <button type="button" onClick={props.onLogout}>退出登录</button> : null}
-        <button type="button" className="site-theme" aria-label={themeMode === "auto" ? "主题 自动" : themeMode === "light" ? "主题 亮色" : "主题 暗色"} aria-expanded={themeOpen} aria-haspopup="menu" onClick={toggleTheme}>
-          {themeMode === "auto" ? "自" : themeMode === "light" ? "亮" : "暗"}
+        <button
+          type="button"
+          className="site-theme"
+          aria-label={`主题 ${THEME_LABEL[themeMode]}`}
+          title={`主题：${THEME_LABEL[themeMode]}`}
+          aria-expanded={themeOpen}
+          aria-haspopup="menu"
+          onClick={toggleTheme}
+        >
+          <ThemeIcon mode={themeMode} size={18} />
         </button>
         <button type="button" className="site-tools" aria-expanded={toolsOpen} onClick={toggleTools}>工具</button>
       </div>
@@ -158,9 +204,12 @@ export function SiteHeader(props: {
             type="button"
             role="menuitemradio"
             aria-checked={themeMode === mode}
+            aria-label={THEME_LABEL[mode]}
+            title={THEME_LABEL[mode]}
             onClick={() => chooseTheme(mode)}
           >
-            {mode === "auto" ? "自动" : mode === "light" ? "亮色" : "暗色"}
+            <ThemeIcon mode={mode} size={16} />
+            <span>{THEME_LABEL[mode]}</span>
           </button>
         ))}
       </div>

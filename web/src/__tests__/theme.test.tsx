@@ -110,8 +110,11 @@ describe("theme schedule", () => {
     expect(toolsBtn.getAttribute("aria-expanded")).toBe("false");
 
     const themeBtn = view.getAllByRole("button", { name: /主题/ })[0];
+    expect(themeBtn.querySelector("svg")).not.toBeNull();
     fireEvent.click(themeBtn);
     expect(themeBtn.getAttribute("aria-expanded")).toBe("true");
+    const darkOption = view.getByRole("menuitemradio", { name: "暗色" });
+    expect(darkOption.querySelector("svg")).not.toBeNull();
     fireEvent.keyDown(window, { key: "Escape" });
     expect(themeBtn.getAttribute("aria-expanded")).toBe("false");
     cleanup();

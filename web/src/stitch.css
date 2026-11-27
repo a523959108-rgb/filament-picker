@@ -341,7 +341,7 @@ html, body { background: var(--fp-bg); color: var(--fp-text); }
   margin: 0 0 8px; padding: 0 12px; position: relative;
   background: var(--fp-bg); color: var(--fp-text);
 }
-.site-theme { padding: 0 8px; }
+.site-header .site-theme { width: 36px; padding: 0; }
 .site-header .site-theme-desktop { display: none; }
 @media (min-width: 900px) {
   .site-header .site-actions .site-theme { display: none; }
@@ -351,8 +351,11 @@ html, body { background: var(--fp-bg); color: var(--fp-text); }
 .fp-theme.is-open {
   z-index: 41; top: var(--tools-top, 60px); left: var(--tools-left, 12px);
   display: flex; flex-direction: column; gap: 4px; width: max-content; height: auto;
-  overflow: visible; padding: 8px; border: 1px solid var(--fp-border); border-radius: 12px;
+  overflow: visible; padding: 6px; border: 1px solid var(--fp-border); border-radius: 12px;
   background: var(--fp-card); box-shadow: var(--fp-shadow);
+}
+.site-header .fp-theme.is-open button {
+  border: 0; width: 100%; justify-content: flex-start; gap: 8px; padding: 0 12px;
 }
 .fp-theme.is-open button:hover,
 .fp-tools.is-open .nav-link:hover { background: var(--fp-soft); }
