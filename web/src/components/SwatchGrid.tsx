@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
+import { swatchBackgroundStyle } from "../color";
 import { SWATCH_PAGE_SIZE } from "../config";
 import type { WebEntry } from "../types";
 
@@ -64,7 +65,7 @@ export function SwatchGrid({
                 .filter(Boolean)
                 .join(" ");
               const style =
-                !hasImg && hasHex ? { backgroundColor: entry.hex[0] } : undefined;
+                !hasImg && hasHex ? swatchBackgroundStyle(entry.hex) : undefined;
               const compared = compareIds.includes(entry.id);
               const brand = brandNames.get(entry.b) ?? entry.b;
               return (

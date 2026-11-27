@@ -601,4 +601,90 @@ describe("model preview", () => {
     expect(view.queryByLabelText("密码")).toBeNull();
     window.location.hash = "";
   });
+
+  it("disables derive while running, keeps active plate, and reveals front view", async () => {
+    const before = {
+      ...model,
+      mesh_derived: false,
+      original: { available: true, url: "/api/models/sample-01/original", filename: "sample.3mf" },
+      plates: [{
+        index: 1,
+        name: "盘面",
+        objects: ["a.stl"],
+        filaments: [{ slot: 1, hex: "#112233", type: "PLA", vendor: "", settings_id: "", used_g: null, picks: [] }],
+      }],
+      images: [{ kind: "plate" as const, plate: 1, url: "/api/models/sample-01/media/plate_1.png" }],
+      front_views: [],
+    };
+    const after = {
+      ...before,
+      mesh_derived: true,
+      front_views: [{
+        scope: "overall" as const,
+        plate: null,
+        url: "/api/models/sample-01/derived/front.png",
+        note: "正视",
+      }],
+    };
+    let resolveDerive!: (value: ReturnType<typeof response>) => void;
+    let derived = false;
+    vi.stubGlobal("fetch", vi.fn((url: string, init?: RequestInit) => {
+      if (url === "/api/models/sample-01/derive" && init?.method === "POST") {
+        derived = true;
+        return new Promise<ReturnType<typeof response>>((resolve) => { resolveDerive = resolve; });
+      }
+      if (url === "/api/models/sample-01") {
+        return Promise.resolve(response(derived ? after : before));
+      }
+      return Promise.resolve(response({ items: [], slots: [] }));
+    }));
+
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    fireEvent.click(await view.findByRole("button", { name: /盘 1 盘面/ }));
+    const button = await view.findByRole("button", { name: "生成网格和正视" }) as HTMLButtonElement;
+    fireEvent.click(button);
+    expect(button.disabled).toBe(true);
+    expect(button.getAttribute("aria-busy")).toBe("true");
+    expect(button.textContent).toBe("正在生成网格和正视…");
+
+    resolveDerive(response({ status: "ready", mesh_url: "/api/models/sample-01/derived/model.glb", front_views: after.front_views }));
+    const front = await view.findByRole("img", { name: "示例方块 01 正视" });
+    expect(front.getAttribute("src")).toBe("/api/models/sample-01/derived/front.png");
+    expect(view.queryByRole("button", { name: /生成网格和正视/ })).toBeNull();
+  });
+
+  it("shows fallback message and re-enables button if derive fails", async () => {
+    const before = {
+      ...model,
+      mesh_derived: false,
+      original: { available: true, url: "/api/models/sample-01/original", filename: "sample.3mf" },
+      plates: [{
+        index: 1,
+        name: "盘面",
+        objects: ["a.stl"],
+        filaments: [],
+      }],
+      images: [{ kind: "plate" as const, plate: 1, url: "/api/models/sample-01/media/plate_1.png" }],
+      front_views: [],
+    };
+    vi.stubGlobal("fetch", vi.fn(async (url: string, init?: RequestInit) => {
+      if (url === "/api/models/sample-01/derive" && init?.method === "POST") {
+        return {
+          ok: false,
+          status: 504,
+          headers: new Headers(),
+          json: async () => { throw new Error("html"); },
+        } as unknown as Response;
+      }
+      if (url === "/api/models/sample-01") return response(before);
+      return response({ items: [], slots: [] });
+    }));
+
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    fireEvent.click(await view.findByRole("button", { name: /盘 1 盘面/ }));
+    const button = await view.findByRole("button", { name: "生成网格和正视" }) as HTMLButtonElement;
+    fireEvent.click(button);
+    expect(await view.findByText("生成网格和正视失败，请稍后重试")).toBeTruthy();
+    expect(button.disabled).toBe(false);
+  });
 });

@@ -1,6 +1,6 @@
 import type { JSX } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, fireEvent, render } from "@testing-library/react";
 import { SiteHeader, useThemeClock } from "../components/SiteHeader";
 
 function ThemeHarness(): JSX.Element {
@@ -98,6 +98,22 @@ describe("theme schedule", () => {
     const specs = view.getAllByRole("link", { name: "规格索引", hidden: true })[0];
     specs.click();
     expect(view.getAllByRole("button", { name: "工具" })[0].getAttribute("aria-expanded")).toBe("false");
+    cleanup();
+  });
+
+  it("closes open header menus on hashchange and Escape", () => {
+    const view = render(<SiteHeader active="catalog" />);
+    const toolsBtn = view.getAllByRole("button", { name: "工具" })[0];
+    fireEvent.click(toolsBtn);
+    expect(toolsBtn.getAttribute("aria-expanded")).toBe("true");
+    fireEvent(window, new Event("hashchange"));
+    expect(toolsBtn.getAttribute("aria-expanded")).toBe("false");
+
+    const themeBtn = view.getAllByRole("button", { name: /主题/ })[0];
+    fireEvent.click(themeBtn);
+    expect(themeBtn.getAttribute("aria-expanded")).toBe("true");
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(themeBtn.getAttribute("aria-expanded")).toBe("false");
     cleanup();
   });
 });

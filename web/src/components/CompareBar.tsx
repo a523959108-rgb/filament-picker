@@ -1,16 +1,33 @@
 import type { JSX } from "react";
-import { hexDelta } from "../color";
+import { hexDelta, swatchBackgroundStyle } from "../color";
 import type { WebEntry } from "../types";
 
-export function CompareBar(props: { entries: WebEntry[]; onRemove: (id: string) => void }): JSX.Element {
+function compareLabel(entry: WebEntry, brandNames: Map<string, string>): string {
+  const brand = brandNames.get(entry.b) ?? entry.b;
+  const color = entry.zh ?? entry.en ?? entry.id;
+  return `${brand} ${color}`;
+}
+
+export function CompareBar(props: {
+  entries: WebEntry[];
+  brands?: { slug: string; name: string }[];
+  onRemove: (id: string) => void;
+  onClear?: () => void;
+}): JSX.Element {
   const entries = props.entries.slice(0, 4);
+  const brandNames = new Map((props.brands ?? []).map((brand) => [brand.slug, brand.name]));
   return (
     <aside className="compare-bar compare-tray" id="compare-tray" aria-label="对比栏">
       <h2>对比托盘 <span>{entries.length}/4</span></h2>
       <ul>
         {entries.map((entry) => (
           <li key={entry.id}>
-            <span>{entry.en ?? entry.zh ?? entry.id}</span>
+            <span
+              className={entry.hex[0] === undefined ? "compare-dot swatch-empty" : "compare-dot"}
+              style={swatchBackgroundStyle(entry.hex)}
+              aria-hidden="true"
+            />
+            <span>{compareLabel(entry, brandNames)}</span>
             <button type="button" onClick={() => props.onRemove(entry.id)}>移除</button>
           </li>
         ))}
@@ -25,7 +42,7 @@ export function CompareBar(props: { entries: WebEntry[]; onRemove: (id: string) 
                   : hexDelta(a.hex[0], b.hex[0]).toFixed(1);
               return (
                 <li key={`${a.id}-${b.id}`}>
-                  {a.id} / {b.id}: <span>{delta}</span>
+                  {compareLabel(a, brandNames)} / {compareLabel(b, brandNames)}: <span>{delta}</span>
                 </li>
               );
             }),
@@ -33,6 +50,9 @@ export function CompareBar(props: { entries: WebEntry[]; onRemove: (id: string) 
         </ul>
       )}
       <button type="button" className="compare-open" onClick={() => document.getElementById("compare-tray")?.querySelector(".compare-deltas")?.scrollIntoView({ block: "nearest" })}>比较</button>
+      {props.onClear ? (
+        <button type="button" className="compare-clear" onClick={props.onClear}>清空</button>
+      ) : null}
     </aside>
   );
 }

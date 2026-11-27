@@ -45,7 +45,7 @@
 .model-card-media { position: relative; display: block; }
 .model-card-badge {
   position: absolute; top: 10px; left: 10px; padding: 2px 8px; border-radius: 8px;
-  background: rgba(5, 20, 36, 0.85); font-size: 11px;
+  background: rgba(5, 20, 36, 0.85); color: #f4f7fb; font-size: 11px;
 }
 .model-card img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background: var(--fp-bg); border-radius: 0; }
 .model-card h2 {
@@ -166,7 +166,7 @@
 .gallery-card-go { color: var(--fp-accent-2); font-size: 13px; }
 .gallery-fixture {
   position: absolute; right: 10px; top: 10px; padding: 2px 8px; border-radius: 8px;
-  background: rgba(5, 20, 36, 0.85); font-size: 11px;
+  background: rgba(5, 20, 36, 0.85); color: #f4f7fb; font-size: 11px;
 }
 .model-preview .site-header { flex-wrap: nowrap; height: 56px; max-height: 56px; overflow: hidden; }
 .site-brand { display: flex; align-items: center; gap: 8px; color: var(--fp-text); text-decoration: none; font-weight: 650; white-space: nowrap; }

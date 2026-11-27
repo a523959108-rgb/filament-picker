@@ -245,7 +245,12 @@ function CatalogApp(): JSX.Element {
       </nav>
       {compareMessage && <p className="toast" role="status">{compareMessage}</p>}
       {compareEntries.length > 0 && (
-        <CompareBar entries={compareEntries} onRemove={(id) => setCompareIds((current) => current.filter((item) => item !== id))} />
+        <CompareBar
+          entries={compareEntries}
+          brands={catalog?.brands}
+          onRemove={(id) => setCompareIds((current) => current.filter((item) => item !== id))}
+          onClear={() => setCompareIds([])}
+        />
       )}
       {selected && !wide && (
         <ColorDetail

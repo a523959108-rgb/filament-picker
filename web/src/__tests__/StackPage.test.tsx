@@ -112,4 +112,18 @@ describe("StackPage", () => {
     await waitFor(() => expect(click).toHaveBeenCalled());
     expect(await findByText(/已下载任务包/)).toBeTruthy();
   });
+
+  it("reorders slots with keyboard buttons and dismisses prefill banner", async () => {
+    window.location.hash = "#/stack?colors=DE4343";
+    const { findByRole, queryByRole, container } = render(<StackPage />);
+    expect(await findByRole("heading", { name: "拍照找耗材带入的目标色" })).toBeTruthy();
+    fireEvent.click(await findByRole("button", { name: "清除提示" }));
+    expect(queryByRole("heading", { name: "拍照找耗材带入的目标色" })).toBeNull();
+
+    const firstRowBefore = container.querySelectorAll<HTMLElement>(".stack-slot-row")[0]?.dataset.slot;
+    expect(firstRowBefore).toBeTruthy();
+    fireEvent.click(await findByRole("button", { name: `下移 ${firstRowBefore}` }));
+    const secondRowAfter = container.querySelectorAll<HTMLElement>(".stack-slot-row")[1]?.dataset.slot;
+    expect(secondRowAfter).toBe(firstRowBefore);
+  });
 });

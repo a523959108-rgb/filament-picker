@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { differenceCiede2000, differenceEuclidean } from "culori";
 import {
   SIMILAR_EXCLUDE_EFFECTS,
@@ -13,6 +14,21 @@ const preferredEffects = new Set<string>(SIMILAR_PREFERRED_EFFECTS);
 
 const ciede2000 = differenceCiede2000();
 const oklabDistance = differenceEuclidean("oklab");
+const comparableCache = new WeakMap<WebEntry[], WebEntry[]>();
+
+export function swatchBackgroundStyle(hex: string[]): CSSProperties | undefined {
+  if (hex.length === 0) return undefined;
+  if (hex.length === 1) return { backgroundColor: hex[0] };
+  return { backgroundImage: `linear-gradient(135deg, ${hex.join(", ")})` };
+}
+
+function comparablePool(entries: WebEntry[]): WebEntry[] {
+  const cached = comparableCache.get(entries);
+  if (cached !== undefined) return cached;
+  const pool = entries.filter(isSimilarComparable);
+  comparableCache.set(entries, pool);
+  return pool;
+}
 
 export type SimilarMatch = {
   entry: WebEntry;
@@ -74,8 +90,8 @@ export function similar(
     return [];
   }
 
-  return entries
-    .filter((entry) => entry.id !== target.id && isSimilarComparable(entry))
+  return comparablePool(entries)
+    .filter((entry) => entry.id !== target.id)
     .map((entry) => {
       const otherHex = entry.hex[0] as string;
       const delta = hexDelta(targetHex, otherHex) + effectPenalty(target, entry);

@@ -260,6 +260,8 @@ class AuthStore:
             )
 
     def revoke_session(self, token: str) -> None:
+        if not token or not self.path.is_file():
+            return
         with closing(self.connect()) as conn, conn:
             conn.execute("DELETE FROM sessions WHERE token_digest = ?", (self._digest(token),))
 

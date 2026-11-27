@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { JSX, MouseEvent } from "react";
 import { stackEntryHref } from "../config";
 import { applyTheme, nextThemeBoundary, readThemeMode, writeThemeMode } from "../theme";
@@ -47,6 +47,7 @@ export function SiteHeader(props: {
   const [themeMode, setThemeMode] = useState<ThemeMode>("auto");
   const [themeOpen, setThemeOpen] = useState(false);
   const [themeBox, setThemeBox] = useState({ top: 60, left: 12 });
+  const headerRef = useRef<HTMLElement>(null);
   const stackHref = stackEntryHref(window.location.hostname);
   useEffect(() => {
     const sync = () => setThemeMode(readThemeMode());
@@ -54,6 +55,28 @@ export function SiteHeader(props: {
     window.addEventListener("fp-theme", sync);
     return () => window.removeEventListener("fp-theme", sync);
   }, []);
+  useEffect(() => {
+    if (!toolsOpen && !themeOpen) return;
+    const close = () => {
+      setToolsOpen(false);
+      setThemeOpen(false);
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && headerRef.current?.contains(event.target)) return;
+      close();
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+    };
+    window.addEventListener("hashchange", close);
+    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("hashchange", close);
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [toolsOpen, themeOpen]);
   function chooseTheme(mode: ThemeMode) {
     writeThemeMode(mode);
     setThemeMode(mode);
@@ -80,7 +103,7 @@ export function SiteHeader(props: {
     setThemeOpen(false);
   }
   return (
-    <header className="site-header">
+    <header ref={headerRef} className="site-header">
       <a className="site-brand" href={props.active === "catalog" ? "#/" : "/"}>
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
           <path fill="currentColor" d="M12 2.5a9.5 9.5 0 1 0 0 19 9.5 9.5 0 0 0 0-19zm0 2.2c1.6 2.4 2.5 5 2.6 7.3H9.4c.1-2.3 1-4.9 2.6-7.3zM7.2 12h3.1c-.1 2.4-1 5.1-2.6 7.4A7.3 7.3 0 0 1 7.2 12zm6.5 0h3.1a7.3 7.3 0 0 1-.5 7.4c-1.6-2.3-2.5-5-2.6-7.4zM9.4 10h5.2c-.1-2.3-1-5-2.6-7.3C10.4 5 9.5 7.7 9.4 10z" />

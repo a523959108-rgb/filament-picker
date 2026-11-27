@@ -211,26 +211,42 @@ def render_front(scene: dict[str, Any], parts: list[dict[str, Any]] | None = Non
     origin_x = (width - used_w) / 2
     origin_y = (height - used_h) / 2
 
-    def project(points: np.ndarray) -> np.ndarray:
-        px = origin_x + (points[:, 0] - min_x) * scale
-        py = origin_y + (max_z - points[:, 2]) * scale
-        return np.stack([px, py], axis=1)
+    px = origin_x + (xs - min_x) * scale
+    py = origin_y + (max_z - zs) * scale
+
+    v0 = positions[indices[:, 0]]
+    v1 = positions[indices[:, 1]]
+    v2 = positions[indices[:, 2]]
+    cross = np.cross(v1 - v0, v2 - v0)
+    norms = np.linalg.norm(cross, axis=1)
+    valid = norms >= 1e-8
+    if len(indices) > 50_000:
+        tri_px = px[indices]
+        tri_py = py[indices]
+        span_px = tri_px.max(axis=1) - tri_px.min(axis=1)
+        span_py = tri_py.max(axis=1) - tri_py.min(axis=1)
+        valid &= (span_px >= 0.4) | (span_py >= 0.4)
 
     image = Image.new("RGB", (width, height), "#0d1c2d")
-    draw = ImageDraw.Draw(image)
-    means = depth[indices].mean(axis=1)
-    for face in indices[np.argsort(-means)]:
-        tri = positions[face]
-        screen = project(tri)
-        edge_a = tri[1] - tri[0]
-        edge_b = tri[2] - tri[0]
-        normal = np.cross(edge_a, edge_b)
-        length = float(np.linalg.norm(normal))
-        if length < 1e-8:
-            continue
-        facing = abs(float(normal[1]) / length)
-        shade = int(150 + 90 * min(1.0, facing))
-        draw.polygon([tuple(point) for point in screen], fill=(shade, shade, shade + 4))
+    if np.any(valid):
+        valid_indices = indices[valid]
+        means = depth[valid_indices].mean(axis=1)
+        order = np.argsort(-means)
+        ordered = valid_indices[order]
+        facing = np.minimum(1.0, np.abs(cross[valid, 1]) / norms[valid])[order]
+        shades = (150 + 90 * facing).astype(np.int64).tolist()
+        px_list = px.tolist()
+        py_list = py.tolist()
+        draw = ImageDraw.Draw(image)
+        for (i0, i1, i2), shade in zip(ordered.tolist(), shades, strict=True):
+            draw.polygon(
+                [
+                    (px_list[i0], py_list[i0]),
+                    (px_list[i1], py_list[i1]),
+                    (px_list[i2], py_list[i2]),
+                ],
+                fill=(shade, shade, shade + 4),
+            )
     buffer = io.BytesIO()
     image.save(buffer, format="PNG")
     return buffer.getvalue()

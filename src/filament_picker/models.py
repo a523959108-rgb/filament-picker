@@ -831,7 +831,9 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
 
     @router.post("/logout")
     def logout(request: Request) -> Response:
-        preview.auth.store.revoke_session(request.cookies[COOKIE_NAME])
+        token = request.cookies.get(COOKIE_NAME)
+        if token:
+            preview.auth.store.revoke_session(token)
         response = JSONResponse({"ok": True})
         response.delete_cookie(
             COOKIE_NAME, path="/", httponly=True, secure=preview.auth.secure, samesite="lax"
@@ -1024,11 +1026,17 @@ def mount_model_preview(app: FastAPI, catalog: Catalog | None = None) -> None:
         key = None if target is None or local is not None else target[4]
         if local is None and key is None:
             raise HTTPException(status_code=409, detail="没有这份 3MF 原件，没有派生")
-        try:
+
+        def _derive_sync() -> dict[str, Any]:
             with model_lock(model_id), materialize_original(preview.root, local, key) as source:
                 if source.suffix.lower() != ".3mf":
                     raise HTTPException(status_code=422, detail="只有 3MF 能派生网格")
                 return derive_file(preview.root, model_id, source, force=force)
+
+        from starlette.concurrency import run_in_threadpool
+
+        try:
+            return await run_in_threadpool(_derive_sync)
         except OriginalUnavailable:
             raise HTTPException(status_code=409, detail="没有这份 3MF 原件，没有派生") from None
         except OriginalTooLarge:

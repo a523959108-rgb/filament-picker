@@ -125,6 +125,7 @@ export function PhotoResults(props: {
   brands: { slug: string; name: string }[];
   hostname?: string;
   selectedHex?: string | null;
+  onRemoveColor?: (hex: string, source: PhotoColor["source"]) => void;
 }): JSX.Element {
   const hostname = props.hostname ?? window.location.hostname;
   const [active, setActive] = useState<string | null>(props.selectedHex ?? props.colors[0]?.hex ?? null);
@@ -163,17 +164,28 @@ export function PhotoResults(props: {
     <div className="photo-results">
       <div className="photo-chips" role="list" aria-label="提取的颜色">
         {props.colors.map((item) => (
-          <button
-            key={`${item.source}-${item.hex}`}
-            type="button"
-            className={item.hex === active ? "photo-chip is-selected" : "photo-chip"}
-            aria-pressed={item.hex === active}
-            onClick={() => setActive(item.hex)}
-          >
-            <span className="photo-chip-swatch" style={{ backgroundColor: item.hex }} />
-            <span className="mono">{item.hex}</span>
-            <span>{formatShare(item.share, item.source)}</span>
-          </button>
+          <div key={`${item.source}-${item.hex}`} className="photo-chip-group" role="listitem">
+            <button
+              type="button"
+              className={item.hex === active ? "photo-chip is-selected" : "photo-chip"}
+              aria-pressed={item.hex === active}
+              onClick={() => setActive(item.hex)}
+            >
+              <span className="photo-chip-swatch" style={{ backgroundColor: item.hex }} />
+              <span className="mono">{item.hex}</span>
+              <span>{formatShare(item.share, item.source)}</span>
+            </button>
+            {item.source === "manual" && props.onRemoveColor !== undefined && (
+              <button
+                type="button"
+                className="photo-chip-remove"
+                aria-label={`移除手动颜色 ${item.hex}`}
+                onClick={() => props.onRemoveColor?.(item.hex, item.source)}
+              >
+                ×
+              </button>
+            )}
+          </div>
         ))}
       </div>
       {color !== null && (
@@ -270,7 +282,7 @@ export function PhotoPage(): JSX.Element {
       setRaster(sample);
       setMarker(null);
       setSelectedHex(null);
-      setColors((current) => current.filter((color) => color.source === "manual"));
+      setColors([]);
       setFileLabel(file.name);
       setFileError(null);
     } catch {
@@ -285,6 +297,7 @@ export function PhotoPage(): JSX.Element {
 
   const onFile = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    event.target.value = "";
     if (file) void readFile(file);
   };
 
@@ -400,6 +413,11 @@ export function PhotoPage(): JSX.Element {
             entries={catalog.entries}
             brands={catalog.brands}
             selectedHex={selectedHex}
+            onRemoveColor={(hex, source) =>
+              setColors((current) =>
+                current.filter((item) => !(item.hex === hex && item.source === source)),
+              )
+            }
           />
         )}
       </div>

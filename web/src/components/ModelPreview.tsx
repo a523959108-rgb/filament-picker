@@ -369,12 +369,12 @@ function Gallery({ navigate, onHref }: { navigate: Navigate; onHref: (href: stri
           onChange={(event) => setSearch(event.target.value)} /></label>
         <div className="gallery-selects">
         <label>系列<select value={params.series} onChange={(event) => {
-          setParams((current) => ({ ...current, series: event.target.value, page: 1 }));
+          setParams((current) => ({ ...current, q: search, series: event.target.value, page: 1 }));
         }}><option value="">全部系列</option>
           {data?.series.map((value) => <option key={value} value={value}>{value}</option>)}
         </select></label>
         <label>作者<select value={params.author} onChange={(event) => {
-          setParams((current) => ({ ...current, author: event.target.value, page: 1 }));
+          setParams((current) => ({ ...current, q: search, author: event.target.value, page: 1 }));
         }}><option value="">全部作者</option>
           {data?.authors.map((value) => <option key={value} value={value}>{value}</option>)}
         </select></label>
@@ -474,6 +474,8 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
   const [descOpen, setDescOpen] = useState(false);
   const [locked, setLocked] = useState<{ hero: number; work: number } | null>(null);
   const screenRef = useRef<HTMLElement>(null);
+  const loadedIdRef = useRef("");
+  const pendingShotRef = useRef<"front" | null>(null);
   useEffect(() => {
     document.querySelector("main.model-preview")?.classList.toggle("is-desc-open", descOpen);
     return () => document.querySelector("main.model-preview")?.classList.remove("is-desc-open");
@@ -481,12 +483,16 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
-    setModel(null);
+    const idChanged = loadedIdRef.current !== id;
+    if (idChanged) {
+      pendingShotRef.current = null;
+      setModel(null);
+      setActivePlate("");
+      setShotKind("plate");
+      setDescOpen(false);
+      setLocked(null);
+    }
     setError("");
-    setActivePlate("");
-    setShotKind("plate");
-    setDescOpen(false);
-    setLocked(null);
     fetch(`/api/models/${encodeURIComponent(id)}`, { credentials: "same-origin", signal: controller.signal })
       .then(async (response) => {
         if (!active) return;
@@ -494,9 +500,17 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
         if (response.status === 404) { setError("模型不存在"); return; }
         if (!response.ok) throw new Error();
         const result = await response.json() as Model;
-        if (active) setModel(result);
+        if (!active) return;
+        loadedIdRef.current = id;
+        setModel(result);
+        if (pendingShotRef.current === "front") {
+          pendingShotRef.current = null;
+          if ((result.front_views?.length ?? 0) > 0) {
+            setShotKind("front");
+          }
+        }
       })
-      .catch(() => { if (active) setError("模型加载失败，请重试"); });
+      .catch(() => { if (active && loadedIdRef.current !== id) setError("模型加载失败，请重试"); });
     return () => { active = false; controller.abort(); };
   }, [id, navigate, revision]);
   if (error) return <p className="panel" role="alert">{error}</p>;
@@ -576,7 +590,10 @@ function Detail({ id, navigate }: { id: string; navigate: Navigate }): JSX.Eleme
         <div className="model-rail">
           <PlateBoard cards={cards} model={model} active={open} shotKind={shotKind}
             onSelect={selectPlate} onShotKind={setShotKind}
-            onDerive={() => setRevision((current) => current + 1)} />
+            onDerive={() => {
+              pendingShotRef.current = "front";
+              setRevision((current) => current + 1);
+            }} />
           <ModelTools model={model} />
         </div>
       </div>
@@ -978,7 +995,9 @@ function PlateDetail({ model, card, shotKind, onShotKind, onDerive }: {
 }): JSX.Element {
   const [showAllParts, setShowAllParts] = useState(false);
   const [deriveMessage, setDeriveMessage] = useState("");
+  const [deriving, setDeriving] = useState(false);
   useEffect(() => { setShowAllParts(false); }, [card.key]);
+  useEffect(() => { setDeriveMessage(""); }, [model.id]);
   const shot = shotKind === "top" && card.top ? card.top : (card.face ?? card.top);
   const front = frontFor(model, card.index);
   const plate = card.plate;
@@ -986,21 +1005,30 @@ function PlateDetail({ model, card, shotKind, onShotKind, onDerive }: {
   const visible = showAllParts ? grouped : grouped.slice(0, PART_PREVIEW);
   const title = `${card.index == null ? "盘号未知" : `盘 ${card.index}`}${card.name ? ` ${card.name}` : ""}`;
   async function derive() {
+    if (deriving) return;
+    setDeriving(true);
     setDeriveMessage("");
-    const response = await fetch(`/api/models/${encodeURIComponent(model.id)}/derive`, {
-      method: "POST",
-      credentials: "same-origin",
-    });
-    if (!response.ok) {
-      setDeriveMessage(await errorDetail(response));
-      return;
+    try {
+      const response = await fetch(`/api/models/${encodeURIComponent(model.id)}/derive`, {
+        method: "POST",
+        credentials: "same-origin",
+      });
+      if (!response.ok) {
+        setDeriveMessage(await errorDetail(response, "生成网格和正视失败，请稍后重试"));
+        return;
+      }
+      const body = await response.json() as { status?: string; error?: string | null };
+      if (body.status !== "ready") {
+        setDeriveMessage(body.error || "正视没有生成");
+        return;
+      }
+      setDeriveMessage("已生成 3D 网格和正视");
+      onDerive();
+    } catch {
+      setDeriveMessage("生成请求失败或超时，请稍后重试");
+    } finally {
+      setDeriving(false);
     }
-    const body = await response.json() as { status?: string; error?: string | null };
-    if (body.status !== "ready") {
-      setDeriveMessage(body.error || "正视没有生成");
-      return;
-    }
-    onDerive();
   }
   return (
     <div className="model-plate-detail" id="model-plate-detail">
@@ -1012,7 +1040,9 @@ function PlateDetail({ model, card, shotKind, onShotKind, onDerive }: {
         <ViewToggle shotKind={shotKind} onShotKind={onShotKind} oblique={Boolean(card.face && card.top)} front={front != null} />
       ) : null}
       {model.original?.available && model.mesh_derived !== true ? (
-        <button type="button" onClick={() => { void derive(); }}>生成网格和正视</button>
+        <button type="button" disabled={deriving} aria-busy={deriving} onClick={() => { void derive(); }}>
+          {deriving ? "正在生成网格和正视…" : "生成网格和正视"}
+        </button>
       ) : null}
       {deriveMessage ? <p role="status">{deriveMessage}</p> : null}
       {model.derive_error ? <p role="status">{model.derive_error}</p> : null}
@@ -1293,14 +1323,14 @@ async function sha256Hex(buffer: ArrayBuffer): Promise<string | null> {
   return [...new Uint8Array(digest)].map((part) => part.toString(16).padStart(2, "0")).join("");
 }
 
-async function errorDetail(response: Response): Promise<string> {
+async function errorDetail(response: Response, fallback = "下载失败，请重试"): Promise<string> {
   try {
     const body = await response.json() as { detail?: unknown };
     if (typeof body.detail === "string" && body.detail) return body.detail;
   } catch {
-    return "下载失败，请重试";
+    return fallback;
   }
-  return "下载失败，请重试";
+  return fallback;
 }
 
 function ShareView(): JSX.Element {

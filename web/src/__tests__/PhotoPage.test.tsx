@@ -49,4 +49,21 @@ describe("PhotoPage", () => {
     fireEvent.change(input, { target: { files: [file] } });
     expect((await findByRole("alert")).textContent).toMatch(/JPG/);
   });
+
+  it("removes a manual color chip when requested", () => {
+    const onRemoveColor = vi.fn();
+    const { getByRole } = render(
+      <PhotoResults
+        colors={[
+          { hex: "#112233", share: null, source: "manual" },
+          { hex: "#000000", share: 1, source: "auto" },
+        ]}
+        entries={catalog.entries}
+        brands={catalog.brands}
+        onRemoveColor={onRemoveColor}
+      />,
+    );
+    fireEvent.click(getByRole("button", { name: "移除手动颜色 #112233" }));
+    expect(onRemoveColor).toHaveBeenCalledWith("#112233", "manual");
+  });
 });
