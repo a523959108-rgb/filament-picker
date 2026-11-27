@@ -275,8 +275,8 @@ def _discard(response: HTTPResponse) -> None:
         return
 
 
-_FETCH_LIMIT = 64 * 1024 * 1024
-_FETCH_DEADLINE = 120.0
+_FETCH_LIMIT = 512 * 1024 * 1024
+_FETCH_DEADLINE = 300.0
 
 
 class OriginalUnavailable(Exception):
@@ -311,7 +311,7 @@ def materialize_original(
         raise OriginalUnavailable()
     incoming.mkdir(mode=0o700, parents=True, exist_ok=True)
     free = shutil.disk_usage(incoming).free
-    if free < limit + 32 * 1024 * 1024:
+    if free < min(limit, 128 * 1024 * 1024) + 32 * 1024 * 1024:
         raise OriginalTooLarge()
     temporary = incoming / f".fetch-{os.getpid()}-{time.monotonic_ns()}.3mf"
     settings = load_cos_settings()
@@ -320,7 +320,7 @@ def materialize_original(
         opened = HttpObjectSource(settings).open(key, None, "GET")
     except UpstreamFailure:
         raise
-    if opened.size is not None and opened.size > limit:
+    if opened.size is not None and (opened.size > limit or free < opened.size + 32 * 1024 * 1024):
         if callable(opened.close):
             opened.close()
         raise OriginalTooLarge()

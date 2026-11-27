@@ -91,3 +91,53 @@ def test_external_component_and_dtd_are_refused_without_fetching(tmp_path: Path)
     entity = derive_file(tmp_path, "entity", entity_path)
     assert entity["status"] == "failed"
     assert "DTD" in entity["error"]
+
+
+def test_high_poly_mesh_with_component_path_simplifies(monkeypatch) -> None:
+    from filament_picker import mesh_derive, originals
+
+    assert originals._FETCH_LIMIT >= 512 * 1024 * 1024
+    monkeypatch.setattr(mesh_derive, "_TARGET_OBJECT_TRIANGLES", 300)
+    monkeypatch.setattr(mesh_derive, "_TARGET_SCENE_TRIANGLES", 300)
+
+    n = 28
+    verts = []
+    for y in range(n + 1):
+        for x in range(n + 1):
+            z = float((x - n / 2) ** 2 + (y - n / 2) ** 2) * 0.05
+            verts.append(f'<vertex x="{x * 2.0}" y="{y * 2.0}" z="{z:.2f}"/>')
+    tris = []
+    stride = n + 1
+    for y in range(n):
+        for x in range(n):
+            v0 = y * stride + x
+            v1 = v0 + 1
+            v2 = v0 + stride
+            v3 = v2 + 1
+            tris.append(f'<triangle v1="{v0}" v2="{v1}" v3="{v3}"/>')
+            tris.append(f'<triangle v1="{v0}" v2="{v3}" v3="{v2}"/>')
+
+    payload = io.BytesIO()
+    with zipfile.ZipFile(payload, "w") as archive:
+        archive.writestr(
+            "3D/3dmodel.model",
+            '<model unit="millimeter" '
+            'xmlns:p="http://schemas.microsoft.com/3dmanufacturing/production/2015/06">'
+            '<resources><object id="2" type="model"><components>'
+            '<component p:path="/3D/Objects/part.model" objectid="1"/>'
+            "</components></object></resources>"
+            '<build><item objectid="2"/></build></model>',
+        )
+        archive.writestr(
+            "3D/Objects/part.model",
+            '<model unit="millimeter"><resources><object id="1" type="model"><mesh>'
+            f"<vertices>{''.join(verts)}</vertices>"
+            f"<triangles>{''.join(tris)}</triangles>"
+            "</mesh></object></resources></model>",
+        )
+
+    glb, images, record = derive_bytes(payload.getvalue())
+    assert glb.startswith(b"glTF")
+    assert images["front.png"].startswith(b"\x89PNG\r\n\x1a\n")
+    assert record["status"] == "ready"
+    assert 0 < record["triangles"] < len(tris)

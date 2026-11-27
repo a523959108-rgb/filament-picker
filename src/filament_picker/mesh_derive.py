@@ -8,13 +8,16 @@ thumbnails are never copied or renamed into these files.
 
 from __future__ import annotations
 
+import array
 import hashlib
 import io
 import json
 import logging
+import math
 import os
 import re
 import threading
+import xml.parsers.expat as expat
 import zipfile
 from datetime import datetime
 from pathlib import Path, PurePosixPath
@@ -31,9 +34,13 @@ from .originals import content_sha256
 
 logger = logging.getLogger(__name__)
 
-_MAX_ENTRIES = 4000
-_MAX_ENTRY = 64 * 1024 * 1024
-_MAX_TRIANGLES = 1_500_000
+_MAX_ENTRIES = 10_000
+_MAX_ENTRY = 512 * 1024 * 1024
+_MAX_TOTAL_UNCOMPRESSED = 4 * 1024 * 1024 * 1024
+_MAX_TRIANGLES = 30_000_000
+_TARGET_OBJECT_TRIANGLES = 120_000
+_TARGET_SCENE_TRIANGLES = 450_000
+_RENDER_MAX_TRIANGLES = 150_000
 _UNITS = {
     "micron": 0.001,
     "millimeter": 1.0,
@@ -63,14 +70,14 @@ def model_lock(model_id: str) -> threading.Lock:
         return lock
 
 
-def parse_scene(source: bytes) -> dict[str, Any]:
+def parse_scene(source: bytes | Path | os.PathLike[str]) -> dict[str, Any]:
     """Return world-space triangles in millimeters and a plate assignment."""
     archive = _open_zip(source)
     try:
         if "3D/3dmodel.model" not in archive.namelist():
             raise DeriveError("没有 3D/3dmodel.model，不能派生网格")
-        root_objects, root_unit = _load_objects(archive, "3D/3dmodel.model", {})
-        items = _build_items(archive.read("3D/3dmodel.model"))
+        cache: dict[str, tuple[dict[int, dict[str, Any]], float, list[dict[str, Any]]]] = {}
+        root_objects, root_unit, items = _load_objects(archive, "3D/3dmodel.model", cache)
         plates = _plate_map(archive)
     finally:
         archive.close()
@@ -97,6 +104,16 @@ def parse_scene(source: bytes) -> dict[str, Any]:
     total = sum(len(part["indices"]) for part in parts)
     if total > _MAX_TRIANGLES:
         raise DeriveError("三角面过多，没有生成派生文件")
+    if total > _TARGET_SCENE_TRIANGLES:
+        for part in parts:
+            count = len(part["indices"])
+            if count <= 10_000:
+                continue
+            budget = max(10_000, int(_TARGET_SCENE_TRIANGLES * (count / total)))
+            if count > budget:
+                part["positions"], part["indices"] = _decimate_mesh(
+                    part["positions"], part["indices"], budget
+                )
     assigned = all(part["plate"] is not None for part in parts)
     return {"unit": "millimeter", "parts": parts, "scope": "plate" if assigned else "overall"}
 
@@ -232,6 +249,8 @@ def render_front(scene: dict[str, Any], parts: list[dict[str, Any]] | None = Non
         valid_indices = indices[valid]
         means = depth[valid_indices].mean(axis=1)
         order = np.argsort(-means)
+        if len(order) > _RENDER_MAX_TRIANGLES:
+            order = order[-_RENDER_MAX_TRIANGLES:]
         ordered = valid_indices[order]
         facing = np.minimum(1.0, np.abs(cross[valid, 1]) / norms[valid])[order]
         shades = (150 + 90 * facing).astype(np.int64).tolist()
@@ -252,7 +271,10 @@ def render_front(scene: dict[str, Any], parts: list[dict[str, Any]] | None = Non
     return buffer.getvalue()
 
 
-def derive_bytes(source: bytes) -> tuple[bytes, dict[str, bytes], dict[str, Any]]:
+def _derive_source(
+    source: bytes | Path | os.PathLike[str],
+    source_digest: str | None = None,
+) -> tuple[bytes, dict[str, bytes], dict[str, Any]]:
     scene = parse_scene(source)
     glb = build_glb(scene)
     if not glb.startswith(b"glTF") or len(glb) < 20:
@@ -274,8 +296,17 @@ def derive_bytes(source: bytes) -> tuple[bytes, dict[str, bytes], dict[str, Any]
                 }
             )
     note = _PLATE_NOTE if scene["scope"] == "plate" else _OVERALL_NOTE
+    digest = (
+        source_digest
+        if source_digest is not None
+        else (
+            hashlib.sha256(source).hexdigest()
+            if isinstance(source, bytes)
+            else content_sha256(Path(source))
+        )
+    )
     record = {
-        "source_sha256": hashlib.sha256(source).hexdigest(),
+        "source_sha256": digest,
         "status": "ready",
         "scope": scene["scope"],
         "note": note,
@@ -289,6 +320,10 @@ def derive_bytes(source: bytes) -> tuple[bytes, dict[str, bytes], dict[str, Any]
     if len(images["front.png"]) < 32:
         raise DeriveError("正视图片是空的")
     return glb, images, record
+
+
+def derive_bytes(source: bytes) -> tuple[bytes, dict[str, bytes], dict[str, Any]]:
+    return _derive_source(source)
 
 
 def save_derived_scene(
@@ -332,7 +367,6 @@ def save_derived_scene(
 def derive_file(root: Path, model_id: str, source: Path, *, force: bool = False) -> dict[str, Any]:
     if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", model_id):
         raise DeriveError("模型编号无效")
-    before = source.read_bytes()
     digest = content_sha256(source)
     directory = _derived_dir(root, model_id)
     current = _read_index(directory)
@@ -346,15 +380,15 @@ def derive_file(root: Path, model_id: str, source: Path, *, force: bool = False)
         return current
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
     try:
-        glb, images, record = derive_bytes(before)
+        glb, images, record = _derive_source(source, source_digest=digest)
     except DeriveError as exc:
         _clear_outputs(directory)
         failed = _failed_record(model_id, digest, exc.detail)
         _write_index(directory, failed)
-        if source.read_bytes() != before:
+        if content_sha256(source) != digest:
             raise DeriveError("原件被改动，已中止") from exc
         return failed
-    if source.read_bytes() != before:
+    if content_sha256(source) != digest:
         raise DeriveError("原件被改动，已中止")
     if _inside_originals(root, directory):
         raise DeriveError("派生目录不能放在原件目录里")
@@ -397,75 +431,190 @@ def derived_file(root: Path, model_id: str, name: str) -> Path | None:
     return path
 
 
-def _open_zip(source: bytes) -> zipfile.ZipFile:
+def _open_zip(source: bytes | Path | os.PathLike[str]) -> zipfile.ZipFile:
+    stream: io.BytesIO | Path | os.PathLike[str] = (
+        io.BytesIO(source) if isinstance(source, bytes) else source
+    )
     try:
-        archive = zipfile.ZipFile(io.BytesIO(source))
+        archive = zipfile.ZipFile(stream)
     except zipfile.BadZipFile as exc:
         raise DeriveError("不是 3MF 压缩包，没有派生") from exc
-    names = archive.namelist()
-    if len(names) > _MAX_ENTRIES:
+    infos = archive.infolist()
+    if len(infos) > _MAX_ENTRIES:
         archive.close()
         raise DeriveError("3MF 条目过多，没有派生")
-    for name in names:
+    total_size = 0
+    for info in infos:
+        name = info.filename
         pure = PurePosixPath(name)
         if name.startswith("/") or "\\" in name or ".." in pure.parts or pure.is_absolute():
             archive.close()
             raise DeriveError("3MF 路径不安全，没有派生")
-        if archive.getinfo(name).file_size > _MAX_ENTRY:
+        if info.file_size > _MAX_ENTRY:
             archive.close()
             raise DeriveError("3MF 里有过大的文件，没有派生")
+        total_size += info.file_size
+    if total_size > _MAX_TOTAL_UNCOMPRESSED:
+        archive.close()
+        raise DeriveError("3MF 解压后过大，没有派生")
     return archive
 
 
+def _attr_ci(attrs: dict[str, str], target: str) -> str | None:
+    direct = attrs.get(target)
+    if direct is not None:
+        return direct
+    for key, value in attrs.items():
+        if key.rsplit(" ", 1)[-1].rsplit(":", 1)[-1] == target:
+            return value
+    return None
+
+
+def _cluster_once(
+    positions: np.ndarray,
+    indices: np.ndarray,
+    grid_k: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    bmin = positions.min(axis=0)
+    span = float((positions.max(axis=0) - bmin).max())
+    if span <= 1e-9:
+        return positions, indices
+    voxel = span / float(grid_k)
+    coords = np.floor((positions - bmin) / voxel).astype(np.int64)
+    coords = np.clip(coords, 0, grid_k)
+    stride = int(grid_k) + 1
+    keys = coords[:, 0] * (stride * stride) + coords[:, 1] * stride + coords[:, 2]
+    _, inverse, counts = np.unique(keys, return_inverse=True, return_counts=True)
+    new_pos = np.zeros((len(counts), 3), dtype=np.float64)
+    np.add.at(new_pos, inverse, positions)
+    new_pos /= counts[:, None]
+    remapped = inverse[indices]
+    keep = (
+        (remapped[:, 0] != remapped[:, 1])
+        & (remapped[:, 1] != remapped[:, 2])
+        & (remapped[:, 2] != remapped[:, 0])
+    )
+    remapped = remapped[keep]
+    if len(remapped) == 0:
+        return positions, indices
+    canonical = np.ascontiguousarray(np.sort(remapped, axis=1), dtype=np.int64)
+    row_view = canonical.view(np.dtype((np.void, canonical.dtype.itemsize * 3))).ravel()
+    _, unique_idx = np.unique(row_view, return_index=True)
+    remapped = remapped[np.sort(unique_idx)]
+    return new_pos, remapped
+
+
+def _decimate_mesh(
+    positions: np.ndarray,
+    indices: np.ndarray,
+    target_triangles: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    if len(indices) <= target_triangles or target_triangles <= 0:
+        return positions, indices
+    grid_k = max(24, min(512, round(math.sqrt(target_triangles / 4.0))))
+    dec_pos, dec_idx = _cluster_once(positions, indices, grid_k)
+    if len(dec_idx) > int(target_triangles * 1.5):
+        next_k = max(16, round(grid_k * math.sqrt(target_triangles / max(len(dec_idx), 1))))
+        if next_k < grid_k:
+            dec_pos, dec_idx = _cluster_once(positions, indices, next_k)
+    return dec_pos, dec_idx
+
+
 def _load_objects(
-    archive: zipfile.ZipFile, name: str, cache: dict[str, tuple[dict[int, dict[str, Any]], float]]
-) -> tuple[dict[int, dict[str, Any]], float]:
+    archive: zipfile.ZipFile,
+    name: str,
+    cache: dict[str, tuple[dict[int, dict[str, Any]], float, list[dict[str, Any]]]],
+) -> tuple[dict[int, dict[str, Any]], float, list[dict[str, Any]]]:
     key = name.lstrip("/")
     cached = cache.get(key)
     if cached is not None:
         return cached
     if key not in archive.namelist():
         raise DeriveError(f"缺少网格 {key}，没有派生")
-    raw_xml = archive.read(key)
-    if b"<!DOCTYPE" in raw_xml or b"<!ENTITY" in raw_xml:
-        raise DeriveError(f"{key} 含有 DTD，没有派生")
-    try:
-        root = ElementTree.fromstring(raw_xml)
-    except ElementTree.ParseError as exc:
-        raise DeriveError(f"{key} 不是可解析的网格") from exc
-    unit = _UNITS.get(_attr(root, "unit") or "millimeter")
-    if unit is None:
-        raise DeriveError(f"不认识的长度单位 {_attr(root, 'unit')}")
+
     objects: dict[int, dict[str, Any]] = {}
-    pending: list[tuple[int, ElementTree.Element]] = []
-    cache[key] = (objects, unit)
-    resources = _child(root, "resources") or root
-    for node in _children(resources, "object"):
-        raw_id = _attr(node, "id")
-        if raw_id is None or not raw_id.isdigit():
-            continue
-        mesh = _child(node, "mesh")
-        positions = np.zeros((0, 3), dtype=np.float64)
-        indices = np.zeros((0, 3), dtype=np.int64)
-        if mesh is not None:
-            positions, indices = _mesh_arrays(mesh)
-        objects[int(raw_id)] = {
-            "positions": positions,
-            "indices": indices,
-            "unit": unit,
-            "components": [],
-        }
-        pending.append((int(raw_id), node))
-    for object_id, node in pending:
-        components = _child(node, "components")
-        if components is None:
-            continue
-        parts: list[dict[str, Any]] = []
-        for component in _children(components, "component"):
-            child_id = _attr(component, "objectid")
+    build_items: list[dict[str, Any]] = []
+    unit_holder: list[float] = [1.0]
+    pending: list[tuple[int, list[tuple[str, str, str | None]]]] = []
+    cache[key] = (objects, 1.0, build_items)
+
+    in_build = False
+    current_object_id: int | None = None
+    in_mesh = False
+    vertices = array.array("d")
+    triangles = array.array("q")
+    comp_refs: list[tuple[str, str, str | None]] = []
+
+    parser = expat.ParserCreate(namespace_separator=" ")
+
+    def _reject_dtd(*_args: object) -> None:
+        raise DeriveError(f"{key} 含有 DTD，没有派生")
+
+    def _start(raw_name: str, attrs: dict[str, str]) -> None:
+        nonlocal in_build, current_object_id, in_mesh
+        local = raw_name.rsplit(" ", 1)[-1]
+        if local == "model":
+            unit_name = _attr_ci(attrs, "unit") or "millimeter"
+            unit = _UNITS.get(unit_name)
+            if unit is None:
+                raise DeriveError(f"不认识的长度单位 {unit_name}")
+            unit_holder[0] = unit
+            return
+        if local == "build":
+            in_build = True
+            return
+        if in_build and local == "item":
+            if (_attr_ci(attrs, "printable") or "1") == "0":
+                return
+            raw_id = _attr_ci(attrs, "objectid")
+            if raw_id is None or not raw_id.isdigit():
+                raise DeriveError("构建项编号无效，没有派生")
+            build_items.append(
+                {
+                    "object_id": int(raw_id),
+                    "transform": _transform(_attr_ci(attrs, "transform")),
+                }
+            )
+            return
+        if local == "object":
+            raw_id = _attr_ci(attrs, "id")
+            if raw_id is not None and raw_id.isdigit():
+                current_object_id = int(raw_id)
+                in_mesh = False
+                del vertices[:]
+                del triangles[:]
+                comp_refs.clear()
+            else:
+                current_object_id = None
+            return
+        if current_object_id is None:
+            return
+        if local == "mesh":
+            in_mesh = True
+            return
+        if in_mesh and local == "vertex":
+            vertices.extend(
+                (
+                    float(_attr_ci(attrs, "x") or "0"),
+                    float(_attr_ci(attrs, "y") or "0"),
+                    float(_attr_ci(attrs, "z") or "0"),
+                )
+            )
+            return
+        if in_mesh and local == "triangle":
+            triangles.extend(
+                (
+                    int(_attr_ci(attrs, "v1") or "-1"),
+                    int(_attr_ci(attrs, "v2") or "-1"),
+                    int(_attr_ci(attrs, "v3") or "-1"),
+                )
+            )
+            return
+        if local == "component":
+            child_id = _attr_ci(attrs, "objectid")
             if child_id is None or not child_id.isdigit():
                 raise DeriveError("组件编号无效，没有派生")
-            child_path = (_attr(component, "path") or key).lstrip("/")
+            child_path = (_attr_ci(attrs, "path") or key).lstrip("/")
             if (
                 ".." in PurePosixPath(child_path).parts
                 or "://" in child_path
@@ -473,53 +622,75 @@ def _load_objects(
                 or child_path.startswith("\\\\")
             ):
                 raise DeriveError("组件路径不安全，没有派生")
-            child_objects, _child_unit = _load_objects(archive, child_path, cache)
+            comp_refs.append((child_id, child_path, _attr_ci(attrs, "transform")))
+
+    def _end(raw_name: str) -> None:
+        nonlocal in_build, current_object_id, in_mesh
+        local = raw_name.rsplit(" ", 1)[-1]
+        if local == "build":
+            in_build = False
+            return
+        if local == "mesh":
+            in_mesh = False
+            return
+        if local == "object" and current_object_id is not None:
+            if vertices:
+                positions = np.array(vertices, dtype=np.float64).reshape(-1, 3)
+            else:
+                positions = np.zeros((0, 3), dtype=np.float64)
+            if triangles:
+                indices = np.array(triangles, dtype=np.int64).reshape(-1, 3)
+                if np.any(indices < 0) or np.any(indices >= len(positions)):
+                    raise DeriveError("三角面引用了不存在的顶点，没有派生")
+                if len(indices) > _TARGET_OBJECT_TRIANGLES:
+                    positions, indices = _decimate_mesh(
+                        positions, indices, _TARGET_OBJECT_TRIANGLES
+                    )
+            else:
+                indices = np.zeros((0, 3), dtype=np.int64)
+            del vertices[:]
+            del triangles[:]
+            objects[current_object_id] = {
+                "positions": positions,
+                "indices": indices,
+                "unit": unit_holder[0],
+                "components": [],
+            }
+            if comp_refs:
+                pending.append((current_object_id, list(comp_refs)))
+                comp_refs.clear()
+            current_object_id = None
+
+    parser.StartDoctypeDeclHandler = _reject_dtd
+    parser.EntityDeclHandler = _reject_dtd
+    parser.UnparsedEntityDeclHandler = _reject_dtd
+    parser.StartElementHandler = _start
+    parser.EndElementHandler = _end
+
+    tail = b""
+    try:
+        with archive.open(key) as stream:
+            while chunk := stream.read(1 << 20):
+                probe = tail + chunk
+                if b"<!DOCTYPE" in probe or b"<!ENTITY" in probe:
+                    raise DeriveError(f"{key} 含有 DTD，没有派生")
+                tail = probe[-16:]
+                parser.Parse(chunk, False)
+            parser.Parse(b"", True)
+    except expat.ExpatError as exc:
+        raise DeriveError(f"{key} 不是可解析的网格") from exc
+
+    cache[key] = (objects, unit_holder[0], build_items)
+    for object_id, refs in pending:
+        parts: list[dict[str, Any]] = []
+        for child_id, child_path, transform_raw in refs:
+            child_objects, _child_unit, _child_build = _load_objects(archive, child_path, cache)
             child = child_objects.get(int(child_id))
             if child is None:
                 raise DeriveError(f"组件 {child_id} 不存在，没有派生")
-            parts.append({"object": child, "transform": _transform(_attr(component, "transform"))})
+            parts.append({"object": child, "transform": _transform(transform_raw)})
         objects[object_id]["components"] = parts
-    return objects, unit
-
-
-def _mesh_arrays(mesh: ElementTree.Element) -> tuple[np.ndarray, np.ndarray]:
-    vertices = _child(mesh, "vertices")
-    triangles = _child(mesh, "triangles")
-    points: list[tuple[float, float, float]] = []
-    if vertices is not None:
-        for vertex in _children(vertices, "vertex"):
-            points.append(
-                (
-                    float(_attr(vertex, "x") or "0"),
-                    float(_attr(vertex, "y") or "0"),
-                    float(_attr(vertex, "z") or "0"),
-                )
-            )
-    faces: list[tuple[int, int, int]] = []
-    count = len(points)
-    if triangles is not None:
-        for triangle in _children(triangles, "triangle"):
-            face = tuple(int(_attr(triangle, name) or "-1") for name in ("v1", "v2", "v3"))
-            if any(index < 0 or index >= count for index in face):
-                raise DeriveError("三角面引用了不存在的顶点，没有派生")
-            faces.append(face)  # type: ignore[arg-type]
-    return np.asarray(points, dtype=np.float64), np.asarray(faces, dtype=np.int64)
-
-
-def _build_items(payload: bytes) -> list[dict[str, Any]]:
-    root = ElementTree.fromstring(payload)
-    build = _child(root, "build")
-    if build is None:
-        return []
-    items: list[dict[str, Any]] = []
-    for item in _children(build, "item"):
-        if (_attr(item, "printable") or "1") == "0":
-            continue
-        raw_id = _attr(item, "objectid")
-        if raw_id is None or not raw_id.isdigit():
-            raise DeriveError("构建项编号无效，没有派生")
-        items.append({"object_id": int(raw_id), "transform": _transform(_attr(item, "transform"))})
-    return items
+    return objects, unit_holder[0], build_items
 
 
 def _plate_map(archive: zipfile.ZipFile) -> dict[int, int]:
