@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
 import { loadCatalog } from "../catalog";
+import { stackEntryHref } from "../config";
 import {
   copyText,
   listGoodsOffers,
@@ -19,6 +20,7 @@ export function CostPage(): JSX.Element {
   const [appliedPricePerKg, setAppliedPricePerKg] = useState<number | null>(null);
   const [copyStatus, setCopyStatus] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const stackHref = stackEntryHref(window.location.hostname);
 
   useEffect(() => {
     let active = true;
@@ -35,7 +37,7 @@ export function CostPage(): JSX.Element {
   }, []);
 
   const rows = useMemo(
-    () => (catalog === null ? [] : listGoodsOffers(catalog.entries)),
+    () => (catalog === null ? [] : listGoodsOffers(catalog.entries, catalog.brands)),
     [catalog],
   );
   const summary = useMemo(() => summarizeMarketPrices(rows), [rows]);
@@ -75,7 +77,7 @@ export function CostPage(): JSX.Element {
           <a href="#/" className="nav-link">色卡浏览</a>
           <a href="#/photo" className="nav-link">拍照找耗材</a>
           <a href="#/plan" className="nav-link">图片配色</a>
-          <a href="#/stack" className="nav-link">叠色</a>
+          <a href={stackHref} className="nav-link">叠色</a>
         </nav>
       </header>
       <div className="panel cost-panel">

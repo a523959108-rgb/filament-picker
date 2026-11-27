@@ -205,6 +205,10 @@ a {
 
 .btn:disabled {
   opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn[aria-busy="true"]:disabled {
   cursor: progress;
 }
 
@@ -769,6 +773,19 @@ textarea:focus {
   border-radius: 999px;
   background: var(--surface-2);
   gap: 6px;
+}
+
+.compare-dot {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgb(0 0 0 / 12%);
+  border-radius: 4px;
+}
+
+.compare-bar .compare-clear {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
 }
 
 .compare-bar button {
@@ -1647,6 +1664,28 @@ textarea:focus {
   gap: 8px;
 }
 
+.photo-chip-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.photo-chip-remove {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.photo-chip-remove:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
 .photo-chip {
   display: inline-flex;
   align-items: center;
@@ -1715,6 +1754,24 @@ textarea:focus {
 
 .stack-prefill {
   margin: 0 0 16px;
+}
+
+.stack-prefill-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stack-slot-move {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.stack-slot-move button {
+  padding: 2px 8px;
+  font-size: 0.85rem;
 }
 
 .stack-prefill p {

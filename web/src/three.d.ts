@@ -25,6 +25,10 @@ declare module "three" {
     multiplyScalar(s: number): this;
     fromBufferAttribute(attribute: BufferAttribute, index: number): this;
     crossVectors(a: Vector3, b: Vector3): this;
+    length(): number;
+    lengthSq(): number;
+    clone(): Vector3;
+    project(camera: PerspectiveCamera): this;
   }
 
   export class Box3 {
@@ -97,12 +101,18 @@ declare module "three" {
 
   export class Material {
     dispose(): void;
+    needsUpdate: boolean;
+  }
+
+  export class Plane {
+    constructor(normal?: Vector3, constant?: number);
   }
 
   export class MeshStandardMaterial extends Material {
     map: Texture | null;
     color: Color;
-    needsUpdate: boolean;
+    wireframe: boolean;
+    clippingPlanes: Plane[];
     constructor(parameters?: object);
   }
 
@@ -112,9 +122,17 @@ declare module "three" {
 
   export class Object3D {
     position: Vector3;
+    children: Object3D[];
     add(object: Object3D): this;
     removeFromParent(): this;
     traverse(callback: (object: Object3D) => void): void;
+    updateMatrixWorld(force?: boolean): void;
+  }
+
+  export class Group extends Object3D {}
+
+  export class BoxGeometry extends BufferGeometry {
+    constructor(width?: number, height?: number, depth?: number);
   }
 
   export class Mesh extends Object3D {
@@ -132,6 +150,7 @@ declare module "three" {
     near: number;
     far: number;
     position: Vector3;
+    up: Vector3;
     constructor(fov?: number, aspect?: number, near?: number, far?: number);
     updateProjectionMatrix(): void;
     lookAt(target: Vector3): void;
@@ -162,6 +181,7 @@ declare module "three" {
     setPixelRatio(value: number): void;
     setSize(width: number, height: number, updateStyle?: boolean): void;
     setClearColor(color: number, alpha?: number): void;
+    localClippingEnabled: boolean;
     render(scene: Object3D, camera: PerspectiveCamera): void;
     dispose(): void;
   }

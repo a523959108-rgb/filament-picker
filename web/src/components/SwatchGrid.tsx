@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
+import { swatchBackgroundStyle } from "../color";
 import { SWATCH_PAGE_SIZE } from "../config";
 import type { WebEntry } from "../types";
 
@@ -7,11 +8,17 @@ export function SwatchGrid({
   entries,
   brands,
   onSelect,
+  onCompare,
+  onUncompare,
+  compareIds = [],
   pageSize = SWATCH_PAGE_SIZE,
 }: {
   entries: WebEntry[];
   brands: { slug: string; name: string }[];
   onSelect?: (id: string) => void;
+  onCompare?: (id: string) => void;
+  onUncompare?: (id: string) => void;
+  compareIds?: string[];
   pageSize?: number;
 }): JSX.Element {
   const brandNames = new Map(brands.map((brand) => [brand.slug, brand.name]));
@@ -32,10 +39,13 @@ export function SwatchGrid({
 
   return (
     <section className="swatch-section">
-      <p className="catalog-count" aria-live="polite">
-        共 {entries.length} 个颜色
-        {entries.length > pageSize ? ` · 已显示 ${shown.length}` : ""}
-      </p>
+      <div className="swatch-heading">
+        <h2>耗材色板</h2>
+        <p className="catalog-count" aria-live="polite">
+          共 {entries.length} 个颜色
+          {entries.length > pageSize ? ` · 已显示 ${shown.length}` : ""}
+        </p>
+      </div>
       {entries.length === 0 ? (
         <div className="panel empty-state">
           <p>没有符合条件的颜色</p>
@@ -55,42 +65,40 @@ export function SwatchGrid({
                 .filter(Boolean)
                 .join(" ");
               const style =
-                !hasImg && hasHex ? { backgroundColor: entry.hex[0] } : undefined;
+                !hasImg && hasHex ? swatchBackgroundStyle(entry.hex) : undefined;
+              const compared = compareIds.includes(entry.id);
+              const brand = brandNames.get(entry.b) ?? entry.b;
               return (
-                <button
-                  className="swatch-card"
-                  key={entry.id}
-                  onClick={() => onSelect?.(entry.id)}
-                >
-                  <span
-                    className={className}
-                    style={style}
-                    aria-label={entry.hex[0] ?? (hasImg ? "SKU 图片" : "无色值")}
-                  >
-                    {hasImg ? (
-                      <img
-                        className="swatch-img"
-                        src={entry.img!}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    ) : null}
-                    {hasImg && hasHex ? (
-                      <span
-                        className="swatch-hex-dot"
-                        style={{ backgroundColor: entry.hex[0] }}
-                        title={entry.hex[0]}
-                      />
-                    ) : null}
-                  </span>
-                  <span className="swatch-meta">
-                    <span className="swatch-name">
-                      {brandNames.get(entry.b) ?? entry.b} {entry.s}
+                <article className="swatch-card" key={entry.id}>
+                  <button type="button" className="swatch-open" onClick={() => onSelect?.(entry.id)}>
+                    <span
+                      className={className}
+                      style={style}
+                      aria-label={entry.hex[0] ?? (hasImg ? "SKU 图片" : "无色值")}
+                    >
+                      <span className="swatch-badges">
+                        <span className="swatch-badge">{entry.m}</span>
+                        {entry.eff[0] ? <span className="swatch-badge is-soft">{entry.eff[0]}</span> : null}
+                      </span>
+                      {hasImg ? (
+                        <img className="swatch-img" src={entry.img!} alt="" loading="lazy" decoding="async" />
+                      ) : null}
+                      {hasHex ? <span className="swatch-hex" data-hex={entry.hex[0]} /> : null}
                     </span>
-                    <span className="swatch-color">{entry.zh ?? entry.en}</span>
-                  </span>
-                </button>
+                    <span className="swatch-meta">
+                      <span className="swatch-name">{brand} {entry.s}</span><span className="swatch-color">{entry.zh ?? entry.en}</span>
+                    </span>
+                  </button>
+                  {onCompare ? (
+                    <button
+                      type="button"
+                      className={compared ? "swatch-compare is-on" : "swatch-compare"}
+                      onClick={() => (compared ? onUncompare?.(entry.id) : onCompare(entry.id))}
+                    >
+                      {compared ? "已对比" : "对比"}
+                    </button>
+                  ) : null}
+                </article>
               );
             })}
           </div>

@@ -865,6 +865,7 @@ def _upsert(
                 preview.plate_layout,
             ),
         )
+        _assign_import_owner(conn, preview.id, is_new=True)
         return
     conn.execute(
         "UPDATE models SET sha256 = ?, title = ?, series = ?, author = ?, source_relpath = ?, "
@@ -887,6 +888,25 @@ def _upsert(
             preview.plate_layout,
             preview.id,
         ),
+    )
+    _assign_import_owner(conn, preview.id, is_new=False)
+
+
+def _assign_import_owner(conn: sqlite3.Connection, model_id: str, *, is_new: bool) -> None:
+    """Write owner only at import time. Never invent one while a request is read."""
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(models)")}
+    if "owner" not in columns:
+        return
+    from .auth import configured_preview_user
+
+    owner = configured_preview_user()
+    if is_new and not owner:
+        raise ValueError("未配置 FILAMENT_PICKER_PREVIEW_USER，不能导入没有所有者的模型")
+    if not owner:
+        return
+    conn.execute(
+        "UPDATE models SET owner = ? WHERE id = ? AND (owner = '' OR owner IS NULL)",
+        (owner, model_id),
     )
 
 

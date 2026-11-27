@@ -36,7 +36,10 @@ from .ingest import (
     sha256_file,
     verify_snapshots,
 )
+from .mesh_derive import DeriveError, derive_file, derived_index, fetch_cos_derived_index
+from .models import models_root
 from .ofd import ENRICHMENT_PATH, import_ofd, update_esun_confidence, write_json
+from .originals import local_original
 from .validate import validate_json
 from .web_export import DEFAULT_WEB_CATALOG, export_web
 
@@ -220,6 +223,139 @@ def _add_export_web(sub: argparse._SubParsersAction) -> None:
     parser.add_argument("--catalog", type=Path)
     parser.add_argument("--out", type=Path, default=DEFAULT_WEB_CATALOG)
     parser.set_defaults(handler=_cmd_export_web)
+
+
+def _add_derive(sub: argparse._SubParsersAction) -> None:
+    parser = sub.add_parser("derive-preview", help="write a GLB and front views from local/COS 3MF")
+    parser.add_argument("--id", default="")
+    parser.add_argument("--force", action="store_true")
+    parser.add_argument("--all-manifest", action="store_true")
+    parser.add_argument("--cos", action="store_true", help="upload derived previews to COS")
+    parser.add_argument(
+        "--prune-local",
+        action="store_true",
+        help="remove large local .glb/.png after successful COS upload",
+    )
+    parser.add_argument("--limit", type=int, default=0)
+    parser.set_defaults(handler=_cmd_derive)
+
+
+def _cmd_derive(args: argparse.Namespace) -> int:
+    from .originals import (
+        OriginalTooLarge,
+        OriginalUnavailable,
+        UpstreamFailure,
+        materialize_original,
+    )
+
+    root = models_root()
+    if args.all_manifest:
+        from .models import ModelPreview
+
+        svc = ModelPreview(root)
+        with sqlite3.connect(root / "manifest.sqlite") as conn:
+            conn.row_factory = sqlite3.Row
+            ids = [
+                str(row["id"])
+                for row in conn.execute("SELECT id FROM models ORDER BY size_bytes ASC, id ASC")
+            ]
+        if args.limit > 0:
+            ids = ids[: args.limit]
+        if not ids:
+            print("manifest 中没有模型")
+            return 1
+        failed = 0
+        for idx, model_id in enumerate(ids, start=1):
+            if not args.force:
+                existing = (
+                    fetch_cos_derived_index(root, model_id)
+                    if args.cos
+                    else derived_index(root, model_id)
+                )
+                if (
+                    existing is not None
+                    and existing.get("status") == "ready"
+                    and (not args.cos or existing.get("cos") is True)
+                ):
+                    print(f"[{idx}/{len(ids)}] {model_id}\tcached\tready", flush=True)
+                    continue
+            target = svc._download_target(model_id)
+            local = None if target is None else target[3]
+            key = None if target is None or local is not None else target[4]
+            if local is None and key is None:
+                print(f"[{idx}/{len(ids)}] {model_id}\tskipped\tno-original", flush=True)
+                continue
+            try:
+                with materialize_original(root, local, key) as source:
+                    if source.suffix.lower() != ".3mf":
+                        print(f"[{idx}/{len(ids)}] {model_id}\tskipped\tnot-3mf", flush=True)
+                        continue
+                    record = derive_file(
+                        root,
+                        model_id,
+                        source,
+                        force=args.force,
+                        sync_cos=args.cos,
+                        prune_local_on_cos=args.prune_local,
+                    )
+            except (OriginalUnavailable, OriginalTooLarge, UpstreamFailure, DeriveError) as exc:
+                detail = getattr(exc, "detail", type(exc).__name__)
+                print(f"[{idx}/{len(ids)}] {model_id}\tfailed\t{detail}", flush=True)
+                failed += 1
+                continue
+            status = record.get("status")
+            print(
+                f"[{idx}/{len(ids)}] {model_id}\t{status}\t{record.get('scope')}\t"
+                f"{record.get('triangles')}\tcos={bool(record.get('cos'))}",
+                flush=True,
+            )
+            if status != "ready":
+                failed += 1
+        return 1 if failed else 0
+
+    if args.id:
+        ids = [args.id]
+    else:
+        directory = root / "originals"
+        ids = (
+            sorted(
+                path.stem
+                for path in directory.glob("*.3mf")
+                if path.is_file() and not path.is_symlink()
+            )
+            if directory.is_dir()
+            else []
+        )
+    if not ids:
+        print("没有本地 3MF 可派生")
+        return 1
+    failed = 0
+    for model_id in ids:
+        source = local_original(root, model_id)
+        if source is None or source.suffix.lower() != ".3mf":
+            print(f"{model_id}\tskipped\tno-local-3mf")
+            continue
+        try:
+            record = derive_file(
+                root,
+                model_id,
+                source,
+                force=args.force,
+                sync_cos=args.cos,
+                prune_local_on_cos=args.prune_local,
+            )
+        except DeriveError as exc:
+            print(f"{model_id}\tfailed\t{exc.detail}")
+            failed += 1
+            continue
+        status = record.get("status")
+        print(
+            f"{model_id}\t{status}\t{record.get('scope')}\t"
+            f"{record.get('triangles')}\t{record.get('source_sha256')}"
+        )
+        if status != "ready":
+            failed += 1
+    return 1 if failed else 0
 
 
 def _add_serve(sub: argparse._SubParsersAction) -> None:
@@ -527,6 +663,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_export_web(sub)
     _add_import_ofd(sub)
     _add_serve(sub)
+    _add_derive(sub)
     _add_models(sub)
     _add_auth(sub)
     return parser

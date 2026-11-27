@@ -1,90 +1,68 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
 import { loadCatalog } from "./catalog";
-import { FAMILIES, defaultStackHash, stackEntryHref } from "./config";
+import { FAMILIES, defaultStackHash } from "./config";
 import { Filters } from "./components/Filters";
 import { ColorDetail } from "./components/ColorDetail";
 import { CompareBar } from "./components/CompareBar";
 import { SwatchGrid } from "./components/SwatchGrid";
-import { PlanPage } from "./components/PlanPage";
-import { CostPage } from "./components/CostPage";
-import { ModelPreview } from "./components/ModelPreview";
-import { PhotoPage } from "./components/PhotoPage";
-import { StackPage } from "./components/StackPage";
+import { SiteHeader, useThemeClock } from "./components/SiteHeader";
 import { buildIndex, EMPTY_FILTER, query } from "./search";
 import type { FilterState } from "./search";
 import type { WebCatalog } from "./types";
+
+const ModelPreview = lazy(() =>
+  import("./components/ModelPreview").then((mod) => ({ default: mod.ModelPreview })),
+);
+const PlanPage = lazy(() =>
+  import("./components/PlanPage").then((mod) => ({ default: mod.PlanPage })),
+);
+const CostPage = lazy(() =>
+  import("./components/CostPage").then((mod) => ({ default: mod.CostPage })),
+);
+const PhotoPage = lazy(() =>
+  import("./components/PhotoPage").then((mod) => ({ default: mod.PhotoPage })),
+);
+const SpecIndex = lazy(() =>
+  import("./components/SpecIndex").then((mod) => ({ default: mod.SpecIndex })),
+);
+const StackPage = lazy(() =>
+  import("./components/StackPage").then((mod) => ({ default: mod.StackPage })),
+);
+
+const ROUTE_FALLBACK = (
+  <p className="panel empty-state" role="status">
+    页面加载中…
+  </p>
+);
 
 function routeFromHash(): string {
   return window.location.hash;
 }
 
-function pageFromHash(hash: string): "plan" | "cost" | "stack" | "photo" | "catalog" {
+function pageFromHash(hash: string): "plan" | "cost" | "stack" | "photo" | "specs" | "catalog" {
   const body = (hash.startsWith("#") ? hash.slice(1) : hash).split("?")[0] ?? "";
   const path = body.replace(/\/+$/, "") || "/";
   if (path === "/plan") return "plan";
   if (path === "/cost") return "cost";
   if (path === "/stack") return "stack";
   if (path === "/photo") return "photo";
+  if (path === "/specs") return "specs";
   return "catalog";
 }
 
 function CatalogHeader(): JSX.Element {
-  const stackHref = stackEntryHref(window.location.hostname);
-  return (
-    <header className="topbar">
-      <div className="topbar-title">
-        <h1>耗材选色站</h1>
-        <p className="topbar-sub">按品牌、材料与色系浏览 3D 打印耗材颜色</p>
-      </div>
-      <nav className="topbar-nav" aria-label="页面导航">
-        <a href="#/photo" className="nav-link">拍照找耗材</a>
-        <a href="#/plan" className="nav-link">图片配色</a>
-        <a href="#/cost" className="nav-link">打印成本</a>
-        <a href={stackHref} className="nav-link">叠色</a>
-        <a href="/models/login" className="nav-link">模型预览</a>
-      </nav>
-    </header>
-  );
-}
-
-function PhotoHomeCta(): JSX.Element {
-  return (
-    <section className="stack-home-cta panel" aria-label="拍照找耗材入口">
-      <div className="stack-home-cta-copy">
-        <h2>拍照找耗材</h2>
-        <p>上传实物或模型照片，提取主色，匹配最接近的可买耗材。照片不上传。</p>
-      </div>
-      <a className="stack-home-cta-btn" href="#/photo">
-        开始找色
-      </a>
-    </section>
-  );
-}
-
-function StackHomeCta(): JSX.Element {
-  const href = stackEntryHref(window.location.hostname);
-  const external = href.startsWith("http");
-  return (
-    <section className="stack-home-cta panel" aria-label="叠色入口">
-      <div className="stack-home-cta-copy">
-        <h2>四色叠色</h2>
-        <p>上传图片，本机引擎生成叠色模型，并用色卡库推荐可买颜色。</p>
-      </div>
-      <a
-        className="stack-home-cta-btn"
-        href={href}
-        {...(external ? { rel: "noopener noreferrer" } : {})}
-      >
-        打开叠色
-      </a>
-    </section>
-  );
+  return <SiteHeader active="catalog" />;
 }
 
 export default function App(): JSX.Element {
+  useThemeClock();
   if (window.location.pathname === "/models" || window.location.pathname.startsWith("/models/")) {
-    return <ModelPreview />;
+    return (
+      <Suspense fallback={ROUTE_FALLBACK}>
+        <ModelPreview />
+      </Suspense>
+    );
   }
   return <CatalogApp />;
 }
@@ -101,6 +79,16 @@ function CatalogApp(): JSX.Element {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [compareMessage, setCompareMessage] = useState<string | null>(null);
+  const [brandOpen, setBrandOpen] = useState(false);
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const query = window.matchMedia("(min-width: 1100px)");
+    const apply = () => setWide(query.matches);
+    apply();
+    query.addEventListener("change", apply);
+    return () => query.removeEventListener("change", apply);
+  }, []);
 
   useEffect(() => {
     const onHashChange = () => setRoute(routeFromHash());
@@ -131,6 +119,12 @@ function CatalogApp(): JSX.Element {
   }, [page]);
 
   const index = useMemo(() => (catalog === null ? null : buildIndex(catalog.entries)), [catalog]);
+  const effects = useMemo(() => {
+    if (catalog === null) return [];
+    return [...new Set(catalog.entries.flatMap((entry) => entry.eff))].sort((left, right) =>
+      left.localeCompare(right, "zh"),
+    );
+  }, [catalog]);
   const entries = useMemo(
     () =>
       catalog === null || index === null
@@ -140,16 +134,48 @@ function CatalogApp(): JSX.Element {
   );
 
   if (page === "plan") {
-    return <main className="page"><PlanPage /></main>;
+    return (
+      <main className="page">
+        <Suspense fallback={ROUTE_FALLBACK}>
+          <PlanPage />
+        </Suspense>
+      </main>
+    );
   }
   if (page === "cost") {
-    return <main className="page"><CostPage /></main>;
+    return (
+      <main className="page">
+        <Suspense fallback={ROUTE_FALLBACK}>
+          <CostPage />
+        </Suspense>
+      </main>
+    );
   }
   if (page === "stack") {
-    return <StackPage />;
+    return (
+      <Suspense fallback={ROUTE_FALLBACK}>
+        <StackPage />
+      </Suspense>
+    );
   }
   if (page === "photo") {
-    return <main className="page"><PhotoPage /></main>;
+    return (
+      <main className="page">
+        <Suspense fallback={ROUTE_FALLBACK}>
+          <PhotoPage />
+        </Suspense>
+      </main>
+    );
+  }
+  if (page === "specs") {
+    return (
+      <main className="page catalog-page">
+        <CatalogHeader />
+        <Suspense fallback={ROUTE_FALLBACK}>
+          <SpecIndex catalog={catalog} />
+        </Suspense>
+      </main>
+    );
   }
   if (loadError) {
     return (
@@ -181,35 +207,99 @@ function CatalogApp(): JSX.Element {
     setCompareIds([...compareIds, id]);
   };
   return (
-    <main className="page">
+    <main className={compareEntries.length > 0 ? "page catalog-page has-compare" : "page catalog-page"}>
       <CatalogHeader />
-      <div className="home-cta-row">
-        <PhotoHomeCta />
-        <StackHomeCta />
-      </div>
       <div className="catalog-layout">
-        <aside className="sidebar">
+        <section className="catalog-controls">
           <label className="search">
-            <span className="field-label">搜索</span>
+            <span className="visually-hidden">搜索</span>
             <input
               type="search"
               aria-label="搜索"
-              placeholder="颜色名、色号、拼音…"
+              placeholder="搜索耗材颜色、色号或品牌"
               value={searchText}
               onChange={(event) => setSearchText(event.target.value)}
             />
+            {searchText !== "" && (
+              <button type="button" className="search-clear" onClick={() => setSearchText("")}>清空搜索</button>
+            )}
           </label>
-          <Filters brands={catalog.brands} families={[...FAMILIES]} value={filters} onChange={setFilters} />
-        </aside>
-        <div className="catalog-main">
-          <SwatchGrid entries={entries} brands={catalog.brands} onSelect={setSelectedId} />
+          <Filters
+            brands={catalog.brands}
+            families={[...FAMILIES].filter((family) => catalog.entries.some((entry) => entry.fam === family))}
+            effects={effects}
+            value={filters}
+            onChange={setFilters}
+          />
+        </section>
+        <div className="catalog-body">
+          <div className="catalog-main">
+            <SwatchGrid
+              entries={entries}
+              brands={catalog.brands}
+              compareIds={compareIds}
+              onSelect={setSelectedId}
+              onCompare={addCompare}
+              onUncompare={(id) => setCompareIds((current) => current.filter((item) => item !== id))}
+            />
+          </div>
+          <aside className="catalog-rail" aria-label="色卡参数">
+            {wide && selected ? (
+              <ColorDetail
+                presentation="dock"
+                entry={selected}
+                catalog={catalog}
+                onClose={() => setSelectedId(null)}
+                onCompare={addCompare}
+                onSelect={setSelectedId}
+              />
+            ) : (
+              <>
+                <h2>色卡</h2>
+                <p>点开一张色卡，这里显示照片、色号、品牌、材料和购买链接。</p>
+              </>
+            )}
+          </aside>
         </div>
       </div>
+      {brandOpen && (
+        <div className="brand-sheet" role="dialog" aria-label="品牌">
+          <div className="brand-sheet-head">
+            <h2>品牌</h2>
+            <button type="button" onClick={() => setBrandOpen(false)}>关闭</button>
+          </div>
+          <button type="button" onClick={() => { setFilters({ ...filters, brands: [] }); setBrandOpen(false); }}>全部品牌</button>
+          {catalog.brands.map((brand) => (
+            <button type="button" key={brand.slug} onClick={() => { setFilters({ ...filters, brands: [brand.slug] }); setBrandOpen(false); }}>
+              {brand.name}
+            </button>
+          ))}
+        </div>
+      )}
+      <nav className="fp-tabbar" aria-label="主导航">
+        <a href="#/" aria-current={brandOpen ? undefined : "page"}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z" /></svg>
+          色卡
+        </a>
+        <button type="button" aria-pressed={brandOpen} className={filters.brands.length > 0 ? "is-on" : undefined} onClick={() => setBrandOpen(true)}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 6h16v2H4V6zm2 5h12v2H6v-2zm3 5h6v2H9v-2z" /></svg>
+          品牌
+        </button>
+        <a href="#compare-tray" className={compareIds.length > 0 ? "is-on" : undefined}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 4h4v16H7V4zm6 4h4v12h-4V8z" /></svg>
+          对比{compareIds.length > 0 ? ` ${compareIds.length}` : ""}
+        </a>
+      </nav>
       {compareMessage && <p className="toast" role="status">{compareMessage}</p>}
       {compareEntries.length > 0 && (
-        <CompareBar entries={compareEntries} onRemove={(id) => setCompareIds((current) => current.filter((item) => item !== id))} />
+        <CompareBar
+          entries={compareEntries}
+          brands={catalog?.brands}
+          onRemove={(id) => setCompareIds((current) => current.filter((item) => item !== id))}
+          onClear={() => setCompareIds([])}
+        />
       )}
-      {selected && (
+      {selected && !wide && (
         <ColorDetail
           entry={selected}
           catalog={catalog}

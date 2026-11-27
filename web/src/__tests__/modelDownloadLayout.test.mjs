@@ -24,7 +24,9 @@ describe("enabled download layout", () => {
     const statusRule = previewCss.match(/\.model-download-status\s*\{[^}]*\}/)?.[0] ?? "";
     expect(statusRule).toContain("overflow-wrap: anywhere");
     expect(statusRule).not.toContain("nowrap");
-    expect(previewCss).toContain("minmax(6.5rem, 22rem)");
+    expect(previewCss).toContain("overflow-wrap: anywhere");
+    expect(previewCss).not.toContain("display: contents");
+    expect(previewCss).toContain(".model-download-panel");
     const dir = await mkdtemp(join(tmpdir(), "fp-download-layout-"));
     const htmlPath = join(dir, "index.html");
     await writeFile(htmlPath, `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><style>${styles}\n${previewCss}</style></head><body>
@@ -33,12 +35,19 @@ describe("enabled download layout", () => {
     <header class="model-head">
       <h2>仙子伊布拉布布 分件版</h2>
       <p class="model-meta"><span>系列 宝可梦</span><span>作者 labubu</span><span>2 盘</span><span>19.9 MB</span></p>
-      <div class="model-download-block">
-        <button type="button" class="model-download">下载3MF</button>
-        <p class="model-download-status">${FILENAME}</p>
-      </div>
       <div class="model-description-block"><p class="model-description is-clamped">${"说明文字。".repeat(40)}</p></div>
     </header>
+    <div class="model-columns">
+      <div class="model-stage"></div>
+      <div class="model-rail">
+        <section class="model-download-panel">
+          <div class="model-download-block">
+            <button type="button" class="model-download">下载3MF</button>
+            <p class="model-download-status">${FILENAME}</p>
+          </div>
+        </section>
+      </div>
+    </div>
   </article>
 </main></body></html>`);
     const port = 9300 + Math.floor(Math.random() * 500);

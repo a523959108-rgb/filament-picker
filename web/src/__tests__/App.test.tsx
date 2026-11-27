@@ -93,7 +93,7 @@ describe("App", () => {
     const { findByText, findByRole } = render(<App />);
     window.location.hash = "#/plan";
     window.dispatchEvent(new HashChangeEvent("hashchange"));
-    expect(await findByText("图片配色（T24）")).toBeTruthy();
+    expect(await findByRole("heading", { level: 1, name: "图片配色" })).toBeTruthy();
     const link = await findByRole("link", { name: "色卡浏览" });
     expect(link.getAttribute("href")).toBe("#/");
     expect(link.className).toBe("nav-link");

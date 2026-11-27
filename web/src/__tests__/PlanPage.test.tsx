@@ -224,4 +224,44 @@ describe("PlanPage", () => {
     await screen.findByText("配色方案（1 色）");
     expect(queryByRole("img", { name: "配色卡" })).toBeNull();
   });
+
+  it("ignores out-of-order stale responses and removes individual regions", async () => {
+    let resolveFirst!: (value: PlanResult) => void;
+    const second: PlanResult = { ...fixture, slots_used: 3 };
+    const post = vi
+      .fn()
+      .mockImplementationOnce(() => new Promise<PlanResult>((resolve) => { resolveFirst = resolve; }))
+      .mockResolvedValueOnce(second)
+      .mockResolvedValue(fixture);
+
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+      x: 0, y: 0, left: 0, top: 0, right: 200, bottom: 100, width: 200, height: 100,
+      toJSON: () => ({}),
+    } as DOMRect);
+
+    render(<PlanPage post={post} />);
+    const file = new File(["image"], "a.png", { type: "image/png" });
+    fireEvent.change(screen.getByLabelText("图片"), { target: { files: [file] } });
+    const stage = await screen.findByRole("application", { name: "取色区域" });
+    fireEvent.pointerDown(stage, { clientX: 50, clientY: 40, pointerId: 1 });
+    fireEvent.pointerUp(stage, { clientX: 50, clientY: 40, pointerId: 1 });
+    fireEvent.click(screen.getByRole("button", { name: "清除选区" }));
+
+    expect(await screen.findByText("需要 3 个料槽")).toBeTruthy();
+    resolveFirst({ ...fixture, slots_used: 1 });
+    await Promise.resolve();
+    expect(screen.getByText("需要 3 个料槽")).toBeTruthy();
+
+    fireEvent.pointerDown(stage, { clientX: 50, clientY: 40, pointerId: 2 });
+    fireEvent.pointerUp(stage, { clientX: 50, clientY: 40, pointerId: 2 });
+    await screen.findByRole("button", { name: "移除选区 1" });
+    fireEvent.pointerDown(stage, { clientX: 90, clientY: 60, pointerId: 3 });
+    fireEvent.pointerUp(stage, { clientX: 90, clientY: 60, pointerId: 3 });
+    await screen.findByRole("button", { name: "移除选区 2" });
+
+    fireEvent.click(screen.getByRole("button", { name: "移除选区 1" }));
+    expect(post).toHaveBeenLastCalledWith(file, "", {
+      regions: [{ space: "norm", x: 0.45, y: 0.6, r: 0.04 }],
+    });
+  });
 });

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, CSSProperties, FormEvent, JSX, PointerEvent as ReactPointerEvent } from "react";
 import { cardSrc, postPlan } from "../api";
+import { stackEntryHref } from "../config";
 import { purchaseHref } from "../purchase";
 import { pointInBox, regionFromDrag, type SampleRegion } from "../regions";
 import type { PlanResult } from "../types";
@@ -42,6 +43,8 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
   const fileRef = useRef<File | null>(null);
   const noteRef = useRef("");
   const regionsRef = useRef<SampleRegion[]>([]);
+  const requestSeqRef = useRef(0);
+  const stackHref = stackEntryHref(window.location.hostname);
   fileRef.current = file;
   noteRef.current = note;
 
@@ -61,6 +64,7 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
       setError("请先选择图片");
       return;
     }
+    const seq = ++requestSeqRef.current;
     setSubmitting(true);
     setError(null);
     setResult(null);
@@ -69,11 +73,15 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
         nextRegions.length > 0
           ? await post(current, noteRef.current, { regions: nextRegions })
           : await post(current, noteRef.current);
+      if (seq !== requestSeqRef.current) return;
       setResult(next);
     } catch (reason) {
+      if (seq !== requestSeqRef.current) return;
       setError(reason instanceof Error ? reason.message : String(reason));
     } finally {
-      setSubmitting(false);
+      if (seq === requestSeqRef.current) {
+        setSubmitting(false);
+      }
     }
   };
 
@@ -86,11 +94,15 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
   };
 
   const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextFile = event.target.files?.[0] ?? null;
+    event.target.value = "";
+    requestSeqRef.current += 1;
     regionsRef.current = [];
     setRegions([]);
     setDraft(null);
     setNatural(null);
-    setFile(event.target.files?.[0] ?? null);
+    setSubmitting(false);
+    setFile(nextFile);
     setError(null);
     setResult(null);
   };
@@ -135,14 +147,14 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
     <section className="plan-page">
       <header className="topbar">
         <div className="topbar-title">
-          <h1>图片配色（T24）</h1>
+          <h1>图片配色</h1>
           <p className="topbar-sub">上传一张图，按主色匹配可买到的耗材</p>
         </div>
         <nav className="topbar-nav" aria-label="页面导航">
           <a href="#/" className="nav-link">色卡浏览</a>
           <a href="#/photo" className="nav-link">拍照找耗材</a>
           <a href="#/cost" className="nav-link">打印成本</a>
-          <a href="#/stack" className="nav-link">叠色</a>
+          <a href={stackHref} className="nav-link">叠色</a>
         </nav>
       </header>
 
@@ -194,6 +206,16 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
               {regions.length > 0 && (
                 <div className="region-tools">
                   <span>已选 {regions.length} 处</span>
+                  {regions.map((region, index) => (
+                    <button
+                      key={`${region.x}-${region.y}-${index}`}
+                      type="button"
+                      aria-label={`移除选区 ${index + 1}`}
+                      onClick={() => commitRegions(regions.filter((_, idx) => idx !== index))}
+                    >
+                      选区 {index + 1} ×
+                    </button>
+                  ))}
                   <button type="button" onClick={() => commitRegions([])}>
                     清除选区
                   </button>
@@ -258,11 +280,13 @@ export function PlanPage(props: { post?: typeof postPlan }): JSX.Element {
                             )}{" "}
                             <span className="pick-buy">
                               {href !== null ? (
-                                <a href={href}>购买</a>
+                                <a href={href} target="_blank" rel="noopener noreferrer">购买</a>
                               ) : (
                                 <span className="purchase-unavailable">暂未上架</span>
                               )}
-                              {altHref !== null && <a href={altHref}>原链接</a>}
+                              {altHref !== null && (
+                                <a href={altHref} target="_blank" rel="noopener noreferrer">原链接</a>
+                              )}
                             </span>
                           </li>
                         );

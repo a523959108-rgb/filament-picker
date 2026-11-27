@@ -7,8 +7,11 @@ import hmac
 import json
 import os
 import re
+import shutil
 import sqlite3
+import time
 from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from http.client import HTTPConnection, HTTPException, HTTPResponse, HTTPSConnection
@@ -18,7 +21,8 @@ from urllib.parse import quote
 
 _SUFFIXES = {".3mf": "model/3mf", ".stl": "model/stl"}
 _RANGE = re.compile(r"^bytes=(\d+)-(\d*)$")
-_CHUNK = 64 * 1024
+_CHUNK = 256 * 1024
+_KEY_OVERRIDES_CACHE: tuple[str, int, int, dict[str, str]] | None = None
 _UNAVAILABLE = "原件暂时无法下载"
 _UNMAPPED = "没有原件映射"
 
@@ -48,6 +52,7 @@ class CosSettings:
     timeout: float
     endpoint: str | None
     secure: bool
+    derived_prefix: str = "filament-picker/derived-models"
 
     @property
     def host(self) -> str:
@@ -68,6 +73,9 @@ def load_cos_settings() -> CosSettings | None:
     prefix = os.environ.get(
         "FILAMENT_PICKER_COS_PREFIX", "filament-picker/3mf-originals/20261107/"
     ).strip("/")
+    derived_prefix = os.environ.get(
+        "FILAMENT_PICKER_COS_DERIVED_PREFIX", "filament-picker/derived-models"
+    ).strip("/")
     endpoint = os.environ.get("FILAMENT_PICKER_COS_ENDPOINT", "").strip() or None
     secure = os.environ.get("FILAMENT_PICKER_COS_SECURE", "1" if endpoint is None else "0") != "0"
     return CosSettings(
@@ -80,14 +88,26 @@ def load_cos_settings() -> CosSettings | None:
         timeout=timeout,
         endpoint=endpoint,
         secure=secure,
+        derived_prefix=derived_prefix,
     )
 
 
 def load_key_overrides(path: str | None = None) -> dict[str, str]:
+    global _KEY_OVERRIDES_CACHE
     raw_path = path if path is not None else os.environ.get("FILAMENT_PICKER_COS_MAP", "").strip()
     if not raw_path:
         return {}
-    parsed = json.loads(Path(raw_path).read_text(encoding="utf-8"))
+    file_path = Path(raw_path)
+    stat = file_path.stat()
+    cached = _KEY_OVERRIDES_CACHE
+    if (
+        cached is not None
+        and cached[0] == raw_path
+        and cached[1] == stat.st_mtime_ns
+        and cached[2] == stat.st_size
+    ):
+        return cached[3]
+    parsed = json.loads(file_path.read_text(encoding="utf-8"))
     if not isinstance(parsed, dict):
         raise ValueError("COS map must be a JSON object")
     overrides: dict[str, str] = {}
@@ -97,7 +117,9 @@ def load_key_overrides(path: str | None = None) -> dict[str, str]:
         key = item.get("key") if isinstance(item, dict) else item
         if isinstance(key, str) and safe_object_key(key) is not None:
             overrides[model_id] = safe_object_key(key) or ""
-    return {key: value for key, value in overrides.items() if value}
+    cleaned = {key: value for key, value in overrides.items() if value}
+    _KEY_OVERRIDES_CACHE = (raw_path, stat.st_mtime_ns, stat.st_size, cleaned)
+    return cleaned
 
 
 def safe_object_key(value: object) -> str | None:
@@ -180,17 +202,46 @@ def sign_request(
     )
 
 
+_DERIVED_KEY_RE = re.compile(
+    r"^([A-Za-z0-9_-]{1,128})/(model\.glb|front\.png|front-[1-9][0-9]{0,2}\.png|index\.json)$"
+)
+
+
+def safe_derived_key(value: object) -> str | None:
+    """Accept a relative derived-asset key like '<model_id>/model.glb'."""
+    if not isinstance(value, str) or _DERIVED_KEY_RE.fullmatch(value) is None:
+        return None
+    return value
+
+
+def derived_media_type(key: str) -> str:
+    lowered = key.lower()
+    if lowered.endswith(".glb"):
+        return "model/gltf-binary"
+    if lowered.endswith(".png"):
+        return "image/png"
+    if lowered.endswith(".json"):
+        return "application/json"
+    return "application/octet-stream"
+
+
 class HttpObjectSource:
     def __init__(self, settings: CosSettings) -> None:
         self.settings = settings
 
-    def open(self, key: str, range_header: str | None, method: str = "GET") -> ObjectOpen:
-        safe = safe_object_key(key)
-        if safe is None:
-            raise UpstreamFailure()
-        request_path, signature_path = cos_paths(self.settings.prefix, safe)
+    def _send(
+        self,
+        full_prefix: str,
+        safe_key: str,
+        method: str,
+        *,
+        range_header: str | None = None,
+        body: bytes | None = None,
+        content_type: str | None = None,
+    ) -> tuple[HTTPConnection, HTTPResponse]:
+        request_path, signature_path = cos_paths(full_prefix, safe_key)
         now = int(datetime.now(UTC).timestamp())
-        headers = {
+        headers: dict[str, str] = {
             "Host": self.settings.host,
             "Authorization": sign_request(
                 method,
@@ -207,17 +258,25 @@ class HttpObjectSource:
             headers["x-cos-security-token"] = self.settings.token
         if range_header:
             headers["Range"] = range_header
+        if body is not None:
+            headers["Content-Length"] = str(len(body))
+        if content_type:
+            headers["Content-Type"] = content_type
         connection = self._connect()
         try:
-            connection.request(method, request_path, headers=headers)
+            connection.request(method, request_path, body=body, headers=headers)
             response = connection.getresponse()
         except (OSError, HTTPException, TimeoutError) as exc:
             connection.close()
             raise UpstreamFailure() from exc
-        if response.status not in (200, 206):
-            _discard(response)
-            connection.close()
-            raise UpstreamFailure()
+        return connection, response
+
+    def _stream_response(
+        self,
+        connection: HTTPConnection,
+        response: HTTPResponse,
+        media_type: str,
+    ) -> ObjectOpen:
         length = _content_length(response)
         content_range = response.getheader("Content-Range")
         if content_range and not content_range.lower().startswith("bytes "):
@@ -236,12 +295,80 @@ class HttpObjectSource:
 
         return ObjectOpen(
             status=response.status,
-            media_type=media_type_for(safe),
+            media_type=media_type,
             size=length,
             content_range=content_range,
             chunks=chunks(),
             close=lambda: (response.close(), connection.close()),
         )
+
+    def open(self, key: str, range_header: str | None, method: str = "GET") -> ObjectOpen:
+        safe = safe_object_key(key)
+        if safe is None:
+            raise UpstreamFailure()
+        connection, response = self._send(
+            self.settings.prefix, safe, method, range_header=range_header
+        )
+        if response.status not in (200, 206):
+            _discard(response)
+            connection.close()
+            raise UpstreamFailure()
+        return self._stream_response(connection, response, media_type_for(safe))
+
+    def open_derived(
+        self, key: str, range_header: str | None = None, method: str = "GET"
+    ) -> ObjectOpen | None:
+        safe = safe_derived_key(key)
+        if safe is None:
+            raise UpstreamFailure()
+        connection, response = self._send(
+            self.settings.derived_prefix, safe, method, range_header=range_header
+        )
+        if response.status == 404:
+            _discard(response)
+            connection.close()
+            return None
+        if response.status not in (200, 206):
+            _discard(response)
+            connection.close()
+            raise UpstreamFailure()
+        return self._stream_response(connection, response, derived_media_type(safe))
+
+    def get_derived_bytes(self, key: str, *, max_bytes: int = 2 * 1024 * 1024) -> bytes | None:
+        opened = self.open_derived(key, None, "GET")
+        if opened is None:
+            return None
+        try:
+            if opened.size is not None and opened.size > max_bytes:
+                raise UpstreamFailure()
+            buf = bytearray()
+            for piece in opened.chunks:
+                buf.extend(piece)
+                if len(buf) > max_bytes:
+                    raise UpstreamFailure()
+            return bytes(buf)
+        finally:
+            if callable(opened.close):
+                opened.close()
+
+    def put_derived_bytes(self, key: str, payload: bytes, content_type: str | None = None) -> None:
+        safe = safe_derived_key(key)
+        if safe is None:
+            raise UpstreamFailure()
+        connection, response = self._send(
+            self.settings.derived_prefix,
+            safe,
+            "PUT",
+            body=payload,
+            content_type=content_type or derived_media_type(safe),
+        )
+        try:
+            response.read()
+            if response.status not in (200, 201, 204):
+                raise UpstreamFailure()
+        finally:
+            response.close()
+            connection.close()
 
     def _connect(self) -> HTTPConnection:
         host = self.settings.host
@@ -270,6 +397,83 @@ def _discard(response: HTTPResponse) -> None:
         response.read(1024)
     except (OSError, HTTPException, TimeoutError):
         return
+
+
+_FETCH_LIMIT = 512 * 1024 * 1024
+_FETCH_DEADLINE = 300.0
+
+
+class OriginalUnavailable(Exception):
+    """No local file and no usable object key. Nothing was written."""
+
+
+class OriginalTooLarge(Exception):
+    """The object is larger than the temporary-file limit."""
+
+
+@contextmanager
+def materialize_original(
+    root: Path,
+    local: Path | None,
+    key: str | None,
+    *,
+    limit: int = _FETCH_LIMIT,
+) -> Iterator[Path]:
+    """Yield a readable 3MF path. A remote object is streamed to a temp file.
+
+    The local original is returned unchanged and is not deleted. A temporary
+    file is removed on the way out, including when the caller fails. Object
+    storage URLs and credentials never leave this function.
+    """
+    if local is not None:
+        yield local
+        return
+    if key is None or load_cos_settings() is None:
+        raise OriginalUnavailable()
+    incoming = root.resolve() / "derived" / ".incoming"
+    if _inside(incoming, root.resolve() / "originals"):
+        raise OriginalUnavailable()
+    incoming.mkdir(mode=0o700, parents=True, exist_ok=True)
+    free = shutil.disk_usage(incoming).free
+    if free < min(limit, 128 * 1024 * 1024) + 32 * 1024 * 1024:
+        raise OriginalTooLarge()
+    temporary = incoming / f".fetch-{os.getpid()}-{time.monotonic_ns()}.3mf"
+    settings = load_cos_settings()
+    assert settings is not None
+    try:
+        opened = HttpObjectSource(settings).open(key, None, "GET")
+    except UpstreamFailure:
+        raise
+    if opened.size is not None and (opened.size > limit or free < opened.size + 32 * 1024 * 1024):
+        if callable(opened.close):
+            opened.close()
+        raise OriginalTooLarge()
+    written = 0
+    deadline = time.monotonic() + min(_FETCH_DEADLINE, max(1.0, settings.timeout))
+    try:
+        with temporary.open("wb") as handle:
+            for piece in opened.chunks:
+                if time.monotonic() > deadline:
+                    raise UpstreamFailure()
+                written += len(piece)
+                if written > limit:
+                    raise OriginalTooLarge()
+                handle.write(piece)
+        temporary.chmod(0o600)
+        yield temporary
+    finally:
+        if callable(opened.close):
+            opened.close()
+        if temporary.exists() and not temporary.is_symlink():
+            temporary.unlink()
+
+
+def _inside(path: Path, parent: Path) -> bool:
+    try:
+        path.resolve().relative_to(parent.resolve())
+    except ValueError:
+        return False
+    return True
 
 
 def local_original(root: Path, model_id: str) -> Path | None:
@@ -373,6 +577,30 @@ def iter_file(path: Path, start: int, end: int) -> Iterator[bytes]:
                 break
             remaining -= len(piece)
             yield piece
+
+
+def content_sha256(path: Path) -> str:
+    """SHA-256 of the file bytes. This is the only hash that verifies a download."""
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def publishable_sha(digest: str | None, *model_ids: str) -> str | None:
+    """Drop a claim that is only the identity digest of a model id.
+
+    ``models.sha256`` is ``sha256(id)``. It names the row. It is not the
+    original file, and it must not be shown as a passed content check.
+    """
+    if not isinstance(digest, str) or re.fullmatch(r"[0-9a-fA-F]{64}", digest) is None:
+        return None
+    lowered = digest.lower()
+    identity = {hashlib.sha256(item.encode()).hexdigest() for item in model_ids if item}
+    if lowered in identity:
+        return None
+    return lowered
 
 
 def read_map_sha(path: str | None, model_id: str) -> str | None:

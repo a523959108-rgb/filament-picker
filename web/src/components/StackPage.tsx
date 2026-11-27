@@ -120,7 +120,7 @@ export function StackPage(): JSX.Element {
   }, []);
 
   const palette = trayMap?.palettes[mode] ?? null;
-  const previewUrl = useMemo(() => (image === null ? null : URL.createObjectURL(image)), [image]);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const bed = BED_PRESETS.find((item) => item.id === bedId) ?? BED_PRESETS[0];
 
   const orderedSlots: TraySlot[] = useMemo(() => {
@@ -155,10 +155,16 @@ export function StackPage(): JSX.Element {
   const bedArtwork = view === "bed" ? (stackedSrc ?? originalSrc) : null;
 
   useEffect(() => {
+    if (image === null) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(image);
+    setPreviewUrl(url);
     return () => {
-      if (previewUrl !== null) URL.revokeObjectURL(previewUrl);
+      URL.revokeObjectURL(url);
     };
-  }, [previewUrl]);
+  }, [image]);
 
   const applyImportText = useCallback(
     (text: string, sourceLabel: string) => {
@@ -322,7 +328,16 @@ export function StackPage(): JSX.Element {
 
       {prefillColors.length > 0 && (
         <section className="panel stack-prefill" aria-label="带入的目标色">
-          <h2>拍照找耗材带入的目标色</h2>
+          <div className="stack-prefill-head">
+            <h2>拍照找耗材带入的目标色</h2>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => setPrefillColors([])}
+            >
+              清除提示
+            </button>
+          </div>
           <p>
             这些颜色已填入。下面的四色槽仍是当前 LUT 的基础料；把同一张照片在左侧上传，下载任务包后在本机叠色引擎里生成。照片不会经过服务器。
           </p>
@@ -466,6 +481,42 @@ export function StackPage(): JSX.Element {
                               )}
                             </div>
                           )}
+                        </div>
+                        <div className="stack-slot-move" role="group" aria-label={`调整 ${slot.slot} 顺序`}>
+                          <button
+                            type="button"
+                            className="btn btn-ghost"
+                            disabled={index === 0}
+                            aria-label={`上移 ${slot.slot}`}
+                            onClick={() =>
+                              setSlotOrder(
+                                moveSlot(
+                                  orderedSlots.map((item) => item.slot),
+                                  index,
+                                  index - 1,
+                                ),
+                              )
+                            }
+                          >
+                            ↑
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-ghost"
+                            disabled={index === orderedSlots.length - 1}
+                            aria-label={`下移 ${slot.slot}`}
+                            onClick={() =>
+                              setSlotOrder(
+                                moveSlot(
+                                  orderedSlots.map((item) => item.slot),
+                                  index,
+                                  index + 1,
+                                ),
+                              )
+                            }
+                          >
+                            ↓
+                          </button>
                         </div>
                       </li>
                     );

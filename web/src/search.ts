@@ -5,6 +5,7 @@ export interface FilterState {
   brands: string[];
   materials: ("PLA" | "PETG")[];
   families: string[];
+  effects: string[];
   onlyHex: boolean;
   onlyOfficial: boolean;
 }
@@ -13,6 +14,7 @@ export const EMPTY_FILTER: FilterState = {
   brands: [],
   materials: [],
   families: [],
+  effects: [],
   onlyHex: false,
   onlyOfficial: false,
 };
@@ -48,9 +50,10 @@ export function applyFilters(entries: WebEntry[], f: FilterState): WebEntry[] {
     const brandMatches = f.brands.length === 0 || f.brands.includes(entry.b);
     const materialMatches = f.materials.length === 0 || f.materials.includes(entry.m);
     const familyMatches = f.families.length === 0 || f.families.includes(entry.fam);
+    const effectMatches = f.effects.length === 0 || f.effects.every((effect) => entry.eff.includes(effect));
     const hexMatches = !f.onlyHex || entry.hex.length > 0;
     const officialMatches = !f.onlyOfficial || entry.src === "official";
-    return brandMatches && materialMatches && familyMatches && hexMatches && officialMatches;
+    return brandMatches && materialMatches && familyMatches && effectMatches && hexMatches && officialMatches;
   });
 }
 

@@ -27,14 +27,15 @@ afterEach(() => {
 });
 
 describe("model preview", () => {
-  it("renders login fields through the pathname branch without fetching the color catalog", () => {
+  it("renders login fields through the pathname branch without fetching the color catalog", async () => {
     window.history.replaceState({}, "", "/models/login");
     const fetcher = vi.fn();
     vi.stubGlobal("fetch", fetcher);
-    const { getByLabelText } = render(<App />);
-    expect(getByLabelText("用户名")).toBeTruthy();
+    const { findByLabelText, getByLabelText } = render(<App />);
+    expect(await findByLabelText("用户名")).toBeTruthy();
     expect(getByLabelText("密码").getAttribute("type")).toBe("password");
-    expect(fetcher).not.toHaveBeenCalled();
+    expect(fetcher.mock.calls.every((call) => call[0] === "/api/models/registration")).toBe(true);
+    expect(fetcher.mock.calls.some((call) => String(call[0]).includes("catalog"))).toBe(false);
   });
 
   it("submits login and navigates to the gallery", async () => {
@@ -47,8 +48,9 @@ describe("model preview", () => {
     fireEvent.change(getByLabelText("密码"), { target: { value: crypto.randomUUID() } });
     fireEvent.click(getByRole("button", { name: "登录" }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith("/models"));
-    expect(fetcher.mock.calls[0][0]).toBe("/api/models/login");
-    expect(fetcher.mock.calls[0][1].credentials).toBe("same-origin");
+    const loginCall = fetcher.mock.calls.find((call) => call[0] === "/api/models/login");
+    expect(loginCall?.[0]).toBe("/api/models/login");
+    expect(loginCall?.[1].credentials).toBe("same-origin");
   });
 
   it("shows failed login and rate limit messages", async () => {
@@ -263,19 +265,15 @@ describe("model preview", () => {
     expect((download as HTMLButtonElement).disabled).toBe(true);
     expect(view.getByText("未接通，暂不能下载")).toBeTruthy();
     fireEvent.click(download);
-    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(fetch).mock.calls.some((call) => String(call[0]).endsWith("/original"))).toBe(false);
     fireEvent.click(view.getByRole("button", { name: /盘 1 眼白/ }));
-    fireEvent.click(view.getByRole("tab", { name: /耗材/ }));
     expect(view.getByText("槽位 3")).toBeTruthy();
     expect(view.getByText("槽位 7")).toBeTruthy();
     expect(view.getByText("PETG")).toBeTruthy();
     expect(view.getByLabelText("槽位 3 颜色 #FFFFFF").className).toContain("model-colour");
-    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
     expect(view.getByText("body.stl")).toBeTruthy();
     fireEvent.click(view.getByRole("button", { name: /斜视 2/ }));
-    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
     expect(view.getByText("未记录部件")).toBeTruthy();
-    fireEvent.click(view.getByRole("tab", { name: /耗材/ }));
     expect(view.getByText("颜色未知")).toBeTruthy();
     expect(view.queryByText("body.stl")).toBeNull();
     fireEvent.click(view.getByRole("button", { name: /斜视 2/ }));
@@ -314,7 +312,6 @@ describe("model preview", () => {
     expect(view.getByRole("img", { name: "示例方块 01 斜视 1" }).closest(".model-plate-card")).toBeTruthy();
     expect(view.queryByText("a.stl")).toBeNull();
     fireEvent.click(view.getByRole("button", { name: /盘 1 第一盘/ }));
-    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
     expect(view.getByText("a.stl")).toBeTruthy();
     expect(view.queryByText("b.stl")).toBeNull();
     expect(view.container.querySelectorAll(".model-plate-card")).toHaveLength(2);
@@ -353,22 +350,18 @@ describe("model preview", () => {
     expect(view.queryByText("tooth.stl_3 ×97")).toBeNull();
     fireEvent.click(view.getByRole("button", { name: /盘 11 左眼/ }));
     expect(scroll).not.toHaveBeenCalled();
-    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
-    const parts = view.getByRole("tabpanel");
-    expect(parts.className).toContain("model-tab-panel");
-    expect(parts.contains(view.getByText("tooth.stl_3 ×97"))).toBe(true);
+    const parts = view.container.querySelector(".model-parts");
+    expect(parts?.contains(view.getByText("tooth.stl_3 ×97"))).toBe(true);
     expect(view.getByText("eye.stl ×2")).toBeTruthy();
     expect(view.queryAllByText("tooth.stl_3")).toHaveLength(0);
-    fireEvent.click(view.getByRole("tab", { name: "盘面" }));
     expect(view.getByRole("button", { name: "俯视" })).toBeTruthy();
-    fireEvent.click(view.getByRole("tab", { name: /耗材/ }));
-    expect(view.getByRole("tabpanel").contains(view.getByLabelText("槽位 11 颜色 #112233"))).toBe(true);
+    expect(view.queryByRole("button", { name: "正视" })).toBeNull();
+    expect(view.container.querySelector(".model-slots")?.contains(view.getByLabelText("槽位 11 颜色 #112233"))).toBe(true);
     expect(view.getByLabelText("槽位 11 颜色 #112233").className).toContain("model-colour");
     const layout = view.container.querySelector(".model-screen");
-    expect(layout?.contains(view.getByRole("tabpanel"))).toBe(true);
-    fireEvent.click(view.getByRole("tab", { name: /部件/ }));
+    expect(layout?.contains(parts ?? null)).toBe(true);
     fireEvent.click(view.getByRole("button", { name: /查看全部/ }));
-    const listed = view.getByRole("tabpanel").querySelectorAll(".model-objects li");
+    const listed = view.container.querySelectorAll(".model-objects li");
     expect(listed.length).toBe(11);
     expect(layout?.contains(view.getByText("extra_8.stl"))).toBe(true);
     const fullText = "很长的说明。".repeat(40);
@@ -405,14 +398,30 @@ describe("model preview", () => {
     expect(status.id).toBe("model-download-status");
     expect(button.getAttribute("aria-describedby")).toBe("model-download-status");
     expect(status.closest(".model-download-block")?.contains(button)).toBe(true);
-    expect(status.closest(".model-head")).toBeTruthy();
+    expect(status.closest(".model-download-panel")).toBeTruthy();
+    expect(status.closest(".model-head")).toBeNull();
+    const head = view.container.querySelector(".model-head");
+    const panel = status.closest(".model-download-panel");
+    expect(head).toBeTruthy();
+    expect(panel).toBeTruthy();
+    expect(head && panel ? head.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING : 0).toBeTruthy();
     expect(view.queryByRole("dialog")).toBeNull();
   });
 
   it("downloads a stored original and leaves the color-only API disabled", async () => {
     const bytes = new Uint8Array([1, 2, 3, 4]);
-    const fetcher = vi.fn()
-      .mockResolvedValueOnce(response({
+    const fetcher = vi.fn(async (url: string, init?: { credentials?: string }) => {
+      if (String(url).endsWith("/original")) {
+        return {
+          ok: true,
+          status: 200,
+          headers: { get: () => null },
+          arrayBuffer: async () => bytes.buffer,
+        };
+      }
+      if (String(url).endsWith("/scheme")) return response({ slots: [], note: "仅展示色" });
+      if (String(url).endsWith("/favorites")) return response({ items: [] });
+      return response({
         ...model,
         original: {
           available: true,
@@ -422,13 +431,8 @@ describe("model preview", () => {
           sha256: null,
           media_type: "model/3mf",
         },
-      }))
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => null },
-        arrayBuffer: async () => bytes.buffer,
       });
+    });
     vi.stubGlobal("fetch", fetcher);
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:preview");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
@@ -438,9 +442,9 @@ describe("model preview", () => {
     expect(view.queryByText(/不能下载/)).toBeNull();
     expect(view.queryByText(/丢失|重新上传|未入库/)).toBeNull();
     fireEvent.click(button);
-    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
-    expect(fetcher.mock.calls[1][0]).toBe("/api/models/sample-01/original");
-    expect(fetcher.mock.calls[1][1].credentials).toBe("same-origin");
+    await waitFor(() => expect(fetcher.mock.calls.some((call) => call[0] === "/api/models/sample-01/original")).toBe(true));
+    const downloadCall = fetcher.mock.calls.find((call) => call[0] === "/api/models/sample-01/original");
+    expect(downloadCall?.[1]?.credentials).toBe("same-origin");
   });
 
   it("says plate mapping is unknown when the record has no layout", async () => {
@@ -471,14 +475,14 @@ describe("model preview", () => {
     const detail = render(<ModelPreview path="/models/sample-01" />);
     await detail.findByRole("heading", { name: model.title });
     expect(detail.getByRole("link", { name: "返回画廊" }).getAttribute("href")).toBe(stored);
-    expect(detail.getByRole("link", { name: "模型画廊" }).getAttribute("href")).toBe(stored);
+    expect(detail.queryByRole("link", { name: "模型画廊" })).toBeNull();
     expect(stored).toContain("page=2");
     detail.unmount();
     sessionStorage.clear();
     const direct = render(<ModelPreview path="/models/sample-01" />);
     await direct.findByRole("heading", { name: model.title });
     expect(direct.getByRole("link", { name: "返回画廊" }).getAttribute("href")).toBe("/models");
-    expect(direct.getByRole("link", { name: "模型画廊" }).getAttribute("href")).toBe("/models");
+    expect(direct.queryByRole("link", { name: "模型画廊" })).toBeNull();
   });
 
   it("redirects expired sessions and logs out", async () => {
@@ -495,5 +499,192 @@ describe("model preview", () => {
     fireEvent.click(getByRole("button", { name: "退出登录" }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith("/models/login"));
     expect(fetcher.mock.calls.at(-1)?.[0]).toBe("/api/models/logout");
+  });
+
+  it("asks for a separate scheme copy and shows that slicing is still required", async () => {
+    const detailed = {
+      ...model,
+      plates: [{
+        index: 1,
+        name: "盘面",
+        objects: ["a.stl"],
+        filaments: [{
+          slot: 1, hex: "#112233", type: "PLA", vendor: "", settings_id: "", used_g: null, picks: [],
+        }],
+      }],
+    };
+    const fetcher = vi.fn(async (url: string, init?: RequestInit) => {
+      if (String(url).endsWith("/scheme-copy") && init?.method === "POST") {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            sha256: "abc",
+            caveat: "只改了耗材颜色记录，没有改切片路径。不能直接打印，需要重新切片。",
+          }),
+        };
+      }
+      return response(detailed);
+    });
+    vi.stubGlobal("fetch", fetcher);
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    fireEvent.click(await view.findByRole("button", { name: "槽位展示色" }));
+    fireEvent.click(view.getByRole("button", { name: "另存配色副本" }));
+    expect(await view.findByText("只改了耗材颜色记录，没有改切片路径。不能直接打印，需要重新切片。")).toBeTruthy();
+    expect(fetcher.mock.calls.some((call) => (
+      String(call[0]).endsWith("/scheme-copy") && call[1]?.method === "POST"
+    ))).toBe(true);
+    expect(fetcher.mock.calls.some((call) => String(call[0]).includes("cos."))).toBe(false);
+  });
+
+  it("shows a derived front view and keeps slice shots under their own names", async () => {
+    const detailed = {
+      ...model,
+      plates: [{
+        index: 1,
+        name: "盘面",
+        objects: ["a.stl"],
+        filaments: [{
+          slot: 1, hex: "#112233", type: "PLA", vendor: "", settings_id: "", used_g: null, picks: [],
+        }],
+      }],
+      images: [
+        { kind: "plate" as const, plate: 1, url: "/api/models/sample-01/media/plate_1.png" },
+      ],
+      front_views: [{
+        scope: "overall" as const,
+        plate: null,
+        url: "/api/models/sample-01/derived/front.png",
+        note: "仅整体正视，没有可靠的盘面定位。这是网格正交投影，不是切片斜视图。",
+      }],
+      mesh_derived: false,
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(detailed)));
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    fireEvent.click(await view.findByRole("button", { name: /盘 1 盘面/ }));
+    expect(view.queryByRole("button", { name: "俯视" })).toBeNull();
+    fireEvent.click(view.getByRole("button", { name: "正视" }));
+    const front = view.getByRole("img", { name: "示例方块 01 正视" });
+    expect(front.getAttribute("src")).toBe("/api/models/sample-01/derived/front.png");
+    expect(view.getByText("仅整体正视，没有可靠的盘面定位。这是网格正交投影，不是切片斜视图。")).toBeTruthy();
+    expect(view.getByRole("img", { name: "示例方块 01 斜视 1" }).getAttribute("src"))
+      .toBe("/api/models/sample-01/media/plate_1.png");
+  });
+
+  it("opens a share fragment without requesting the private library", async () => {
+    window.location.hash = "#abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN123";
+    const fetcher = vi.fn(async (url: string) => {
+      if (String(url) === "/api/share/open") {
+        return response({
+          title: "分享方块",
+          note: "这是一份限时分享，不是公开模型。",
+          expires_at: "2026-12-01T00:00:00+09:00",
+          allow_original: false,
+          thumb_url: "/api/share/thumb",
+        });
+      }
+      return response({}, 401);
+    });
+    vi.stubGlobal("fetch", fetcher);
+    const view = render(<ModelPreview path="/models/s" />);
+    expect(await view.findByRole("heading", { name: "分享方块" })).toBeTruthy();
+    expect(view.getByText("这份分享不能下载原件。")).toBeTruthy();
+    expect(fetcher.mock.calls.some((call) => String(call[0]).startsWith("/api/models"))).toBe(false);
+    window.location.hash = "";
+  });
+
+  it("shows an expired share without a login form", async () => {
+    window.location.hash = "#abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN123";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({ detail: "链接已过期" }, 410)));
+    const view = render(<ModelPreview path="/models/s" />);
+    expect(await view.findByText("链接已过期")).toBeTruthy();
+    expect(view.queryByLabelText("密码")).toBeNull();
+    window.location.hash = "";
+  });
+
+  it("disables derive while running, keeps active plate, and reveals front view", async () => {
+    const before = {
+      ...model,
+      mesh_derived: false,
+      original: { available: true, url: "/api/models/sample-01/original", filename: "sample.3mf" },
+      plates: [{
+        index: 1,
+        name: "盘面",
+        objects: ["a.stl"],
+        filaments: [{ slot: 1, hex: "#112233", type: "PLA", vendor: "", settings_id: "", used_g: null, picks: [] }],
+      }],
+      images: [{ kind: "plate" as const, plate: 1, url: "/api/models/sample-01/media/plate_1.png" }],
+      front_views: [],
+    };
+    const after = {
+      ...before,
+      mesh_derived: true,
+      front_views: [{
+        scope: "overall" as const,
+        plate: null,
+        url: "/api/models/sample-01/derived/front.png",
+        note: "正视",
+      }],
+    };
+    let resolveDerive!: (value: ReturnType<typeof response>) => void;
+    let derived = false;
+    vi.stubGlobal("fetch", vi.fn((url: string, init?: RequestInit) => {
+      if (url === "/api/models/sample-01/derive" && init?.method === "POST") {
+        derived = true;
+        return new Promise<ReturnType<typeof response>>((resolve) => { resolveDerive = resolve; });
+      }
+      if (url === "/api/models/sample-01") {
+        return Promise.resolve(response(derived ? after : before));
+      }
+      return Promise.resolve(response({ items: [], slots: [] }));
+    }));
+
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    fireEvent.click(await view.findByRole("button", { name: /盘 1 盘面/ }));
+    const button = await view.findByRole("button", { name: "生成网格和正视" }) as HTMLButtonElement;
+    fireEvent.click(button);
+    expect(button.disabled).toBe(true);
+    expect(button.getAttribute("aria-busy")).toBe("true");
+    expect(button.textContent).toBe("正在生成网格和正视…");
+
+    resolveDerive(response({ status: "ready", mesh_url: "/api/models/sample-01/derived/model.glb", front_views: after.front_views }));
+    const front = await view.findByRole("img", { name: "示例方块 01 正视" });
+    expect(front.getAttribute("src")).toBe("/api/models/sample-01/derived/front.png");
+    expect(view.queryByRole("button", { name: /生成网格和正视/ })).toBeNull();
+  });
+
+  it("shows fallback message and re-enables button if derive fails", async () => {
+    const before = {
+      ...model,
+      mesh_derived: false,
+      original: { available: true, url: "/api/models/sample-01/original", filename: "sample.3mf" },
+      plates: [{
+        index: 1,
+        name: "盘面",
+        objects: ["a.stl"],
+        filaments: [],
+      }],
+      images: [{ kind: "plate" as const, plate: 1, url: "/api/models/sample-01/media/plate_1.png" }],
+      front_views: [],
+    };
+    vi.stubGlobal("fetch", vi.fn(async (url: string, init?: RequestInit) => {
+      if (url === "/api/models/sample-01/derive" && init?.method === "POST") {
+        return {
+          ok: false,
+          status: 504,
+          headers: new Headers(),
+          json: async () => { throw new Error("html"); },
+        } as unknown as Response;
+      }
+      if (url === "/api/models/sample-01") return response(before);
+      return response({ items: [], slots: [] });
+    }));
+
+    const view = render(<ModelPreview path="/models/sample-01" />);
+    fireEvent.click(await view.findByRole("button", { name: /盘 1 盘面/ }));
+    const button = await view.findByRole("button", { name: "生成网格和正视" }) as HTMLButtonElement;
+    fireEvent.click(button);
+    expect(await view.findByText("生成网格和正视失败，请稍后重试")).toBeTruthy();
+    expect(button.disabled).toBe(false);
   });
 });

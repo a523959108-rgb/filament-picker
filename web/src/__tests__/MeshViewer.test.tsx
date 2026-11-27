@@ -21,6 +21,11 @@ vi.mock("three", () => {
     x = 0;
     y = 0;
     z = 0;
+    constructor(x = 0, y = 0, z = 0) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
+    }
     set(x: number, y: number, z: number) {
       this.x = x;
       this.y = y;
@@ -50,6 +55,15 @@ vi.mock("three", () => {
       this.x *= scale;
       this.y *= scale;
       this.z *= scale;
+      return this;
+    }
+    lengthSq() {
+      return this.x * this.x + this.y * this.y + this.z * this.z;
+    }
+    crossVectors(a: Vector3, b: Vector3) {
+      this.x = a.y * b.z - a.z * b.y;
+      this.y = a.z * b.x - a.x * b.z;
+      this.z = a.x * b.y - a.y * b.x;
       return this;
     }
   }
@@ -107,6 +121,7 @@ vi.mock("three", () => {
       near = 0.1;
       far = 100;
       position = new Vector3();
+      up = new Vector3(0, 1, 0);
       updateProjectionMatrix() {}
       lookAt() {}
     },
@@ -126,6 +141,9 @@ vi.mock("three", () => {
       }
     },
     WebGLRenderer,
+    Plane: class {
+      constructor(_normal?: unknown, _constant?: number) {}
+    },
   };
 });
 

@@ -14,6 +14,17 @@ from .config import TZ
 from .mesh_glb import sample_glb_bytes
 
 
+def _fixture_thumb(colour: str, index: int) -> Image.Image:
+    """A labeled local stand-in so gallery cards have a subject, not a flat field."""
+    image = Image.new("RGB", (640, 400), "#0d1c2d")
+    paint = Image.new("RGB", (1, 1), colour)
+    swatch = paint.resize((220, 220))
+    image.paste(swatch, (210, 70))
+    accent = Image.new("RGB", (280, 36), "#122131")
+    image.paste(accent, (180, 310))
+    return image
+
+
 def seed_samples(root: Path) -> int:
     """Write eight synthetic records; refuse to overwrite a non-sample manifest."""
     colours = ("#E76F51", "#2A9D8F", "#E9C46A", "#457B9D")
@@ -54,7 +65,7 @@ def seed_samples(root: Path) -> int:
             "created_at TEXT NOT NULL)"
         )
         for index, record in enumerate(records):
-            Image.new("RGB", (320, 240), colours[index % 4]).save(root / record[9], format="PNG")
+            _fixture_thumb(colours[index % 4], index).save(root / record[9], format="PNG")
             conn.execute(
                 "INSERT INTO models VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (*record, created_at),
